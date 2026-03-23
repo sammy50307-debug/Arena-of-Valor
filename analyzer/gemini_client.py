@@ -27,7 +27,7 @@ class GeminiClient:
     完全不依賴 google-generativeai 套件。
     """
 
-    MAX_RETRIES = 3
+    MAX_RETRIES = 5
 
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or config.GEMINI_API_KEY
@@ -117,7 +117,7 @@ class GeminiClient:
                     
                 if e.response.status_code == 429:
                     # Rate limit，等待後重試
-                    await asyncio.sleep(4 ** attempt)  # 加大等待時間
+                    await asyncio.sleep(5 * attempt)  # 加大等待時間
                 else:
                     await asyncio.sleep(1)
 
@@ -148,8 +148,8 @@ class GeminiClient:
                 try:
                     result = await self.chat(system_prompt, prompt, json_mode)
                     results[idx] = result
-                    # 加入小延遲，避免超過免費 rate limit
-                    await asyncio.sleep(0.5)
+                    # 強制加入 4.5 秒冷卻，避免超過免費 rate limit (15 RPM)
+                    await asyncio.sleep(4.5)
                 except Exception as e:
                     self.logger.error(f"批次呼叫 #{idx} 失敗: {e}")
                     results[idx] = {"error": str(e)}
