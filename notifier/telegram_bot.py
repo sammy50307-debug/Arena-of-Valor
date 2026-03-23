@@ -156,6 +156,13 @@ class TelegramBotNotifier:
 
         lines.append("")
         lines.append("━━━━━━━━━━━━━━━━━━")
+        
+        # 完整網頁報告連結
+        report_url = summary.get("report_url")
+        if report_url:
+            lines.append(f"🌍 [*點擊查看今日完整圖表網頁報告*]({report_url})")
+            lines.append("━━━━━━━━━━━━━━━━━━")
+            
         lines.append("_由 AoV 輿情監測系統自動生成_")
 
         return "\n".join(lines)

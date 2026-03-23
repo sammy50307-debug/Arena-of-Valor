@@ -26,6 +26,9 @@ LINE_USER_ID = os.getenv("LINE_USER_ID", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
+# ── 網頁代管 ─────────────────────────────────────────
+GITHUB_PAGES_URL = os.getenv("GITHUB_PAGES_URL", "")
+
 # ── 搜尋設定 ─────────────────────────────────────────
 SEARCH_KEYWORDS = [
     kw.strip()

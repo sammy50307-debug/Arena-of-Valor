@@ -32,6 +32,7 @@ from scrapers.tavily_searcher import TavilySearcher
 from scrapers.apify_scraper import ApifyInstagramScraper
 from analyzer.sentiment import SentimentAnalyzer
 from reporter.generator import ReportGenerator
+from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
 from notifier.telegram_bot import TelegramBotNotifier
 
@@ -87,6 +88,38 @@ async def github_backup_job():
             logger.error(f"  ❌ GitHub 備份失敗: {e.stderr.decode('utf-8', errors='ignore') if e.stderr else str(e)}")
 
 
+async def obsidian_backup_job():
+    """自動備份報告到 Obsidian 的排程任務。"""
+    logger.info("============================================================")
+    logger.info(" 📓 開始執行每日 Obsidian 備份任務 (凌晨 02:00)")
+    logger.info("============================================================")
+    
+    if not config.OBSIDIAN_VAULT_PATH:
+        logger.warning("  [SKIP] 尚未設定 OBSIDIAN_VAULT_PATH，略過備份。")
+        return
+        
+    try:
+        # 尋找最新的 analysis JSON
+        analysis_files = sorted(config.DATA_DIR.glob("analysis_*.json"))
+        if not analysis_files:
+            logger.warning("  [SKIP] 沒有找到任何 analysis_*.json 可供備份。")
+            return
+            
+        latest_file = analysis_files[-1]
+        summary_data = json.loads(latest_file.read_text(encoding="utf-8"))
+        
+        # 使用 Exporter 轉檔寫入
+        exporter = ObsidianExporter(vault_path=config.OBSIDIAN_VAULT_PATH)
+        success = exporter.export(summary_data)
+        
+        if success:
+            logger.info("  ✅ Obsidian 備份完成！")
+        else:
+            logger.error("  ❌ Obsidian 備份失敗。")
+            
+    except Exception as e:
+        logger.error(f"  ❌ Obsidian 備份發生例外錯誤: {e}")
+
 # ── 核心流程 ─────────────────────────────────────────
 async def run_pipeline(dry_run: bool = False):
     """
@@ -137,6 +170,13 @@ async def run_pipeline(dry_run: bool = False):
     try:
         analyzed_posts = await analyzer.analyze_posts(all_results)
         daily_summary = await analyzer.generate_daily_summary(analyzed_posts)
+        
+        # 將專屬網頁連結注入到 summary 中
+        if getattr(config, "GITHUB_PAGES_URL", None):
+            base_url = config.GITHUB_PAGES_URL.rstrip("/")
+            date_str = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
+            daily_summary["report_url"] = f"{base_url}/data/reports/aov_report_{date_str}.html"
+            
         logger.info("  [OK] AI 分析完成")
     except Exception as e:
         logger.error(f"  [FAIL] AI 分析失敗: {e}")
@@ -236,6 +276,18 @@ def main():
             ),
             id="github_backup",
             name="每日 GitHub 備份",
+            misfire_grace_time=3600,
+        )
+
+        scheduler.add_job(
+            obsidian_backup_job,
+            trigger=CronTrigger(
+                hour=2,
+                minute=0,
+                timezone=config.TIMEZONE,
+            ),
+            id="obsidian_backup",
+            name="每日 Obsidian 備份",
             misfire_grace_time=3600,
         )
 

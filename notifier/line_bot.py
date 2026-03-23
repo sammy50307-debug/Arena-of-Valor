@@ -259,6 +259,25 @@ class LineBotNotifier:
                     }
                 )
 
+        # 完整網頁報告按鈕
+        report_url = summary.get("report_url")
+        if report_url:
+            body_contents.append({"type": "separator", "margin": "lg"})
+            body_contents.append(
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#1DB446",
+                    "margin": "lg",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "🌍 查看完整網頁報告",
+                        "uri": report_url
+                    }
+                }
+            )
+
         flex_message = {
             "type": "flex",
             "altText": f"🎮 傳說對決 每日輿情報告 ({date})",
