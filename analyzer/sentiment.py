@@ -78,6 +78,7 @@ class SentimentAnalyzer:
                         "author": res.source,
                         "url": res.url,
                         "content": res.content,
+                        "timestamp": getattr(res, "timestamp", getattr(res, "published_date", getattr(res, "date", "時間未知"))),
                     },
                     "analysis": analysis,
                 }
@@ -93,6 +94,7 @@ class SentimentAnalyzer:
                         "author": res.source,
                         "url": res.url,
                         "content": res.content,
+                        "timestamp": getattr(res, "timestamp", getattr(res, "published_date", getattr(res, "date", "時間未知"))),
                     },
                     "analysis": {
                         "sentiment": "neutral",

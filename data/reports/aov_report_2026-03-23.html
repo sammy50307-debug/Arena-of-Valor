@@ -3,76 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>傳說對決 輿情監測報告 — 2026-03-23</title>
+    <title>Arena of Valor 輿情分析 — 2026-03-23</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a2e;
-            --bg-card: #16213e;
-            --bg-card-hover: #1a2744;
-            --accent-cyan: #00d4ff;
-            --accent-purple: #7c3aed;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #3b82f6;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
             --accent-green: #10b981;
             --accent-red: #ef4444;
             --accent-yellow: #f59e0b;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: #1e293b;
-            --glow-cyan: rgba(0, 212, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background-color: var(--bg-body);
+            color: var(--text-main);
             line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
         }
 
         /* ── Header ──────────────────────── */
         .header {
-            text-align: center;
-            padding: 3rem 0 2rem;
-            position: relative;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 2px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 2rem 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header h1 {
             font-size: 2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .header .date {
-            color: var(--text-secondary);
-            font-size: 1rem;
+        .date-pill {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ── Main Layout ─────────────────── */
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem 2rem;
+            display: grid;
+            grid-template-columns: 40% 60%;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* ── Cards ──────────────────────── */
@@ -80,325 +86,535 @@
             background: var(--bg-card);
             border-radius: 16px;
             padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
             margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
+        .card-header {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin-bottom: 1.2rem;
         }
 
-        .card h2 .icon { font-size: 1.4rem; }
-
-        /* ── Stats Grid ─────────────────── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 1.2rem;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .stat-card .value {
-            font-size: 2rem;
+        .card-header h2 {
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 0.3rem;
+            color: var(--text-main);
         }
 
-        .stat-card .label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+        .card-icon {
+            font-size: 1.4rem;
         }
 
-        .stat-card.positive .value { color: var(--accent-green); }
-        .stat-card.negative .value { color: var(--accent-red); }
-        .stat-card.neutral .value { color: var(--accent-yellow); }
-        .stat-card.total .value { color: var(--accent-cyan); }
-
-        /* ── Chart Container ────────────── */
-        .chart-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .chart-container {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .chart-container h3 {
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            color: var(--text-secondary);
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 280px;
-        }
-
-        /* ── Topics & Events ────────────── */
-        .topic-list, .event-list {
-            list-style: none;
-        }
-
-        .topic-item, .event-item {
-            padding: 0.8rem 1rem;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            margin-bottom: 0.6rem;
-            border-left: 3px solid var(--accent-cyan);
-            transition: background 0.2s;
-        }
-
-        .topic-item:hover, .event-item:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .event-item {
-            border-left-color: var(--accent-purple);
-        }
-
-        .topic-item .name {
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-        }
-
-        .topic-item .meta, .event-item .meta {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.15rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .badge-positive { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
-        .badge-negative { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
-        .badge-neutral { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
-
-        /* ── Alerts ─────────────────────── */
-        .alert {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 0.6rem;
-            color: var(--accent-red);
-            font-size: 0.9rem;
-        }
-
-        .alert::before { content: '⚠️ '; }
-
-        /* ── Overview ───────────────────── */
-        .overview-text {
-            font-size: 1.05rem;
-            line-height: 1.8;
-            color: var(--text-primary);
-        }
-
-        .recommendation {
-            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(0, 212, 255, 0.1));
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            border-radius: 12px;
-            padding: 1.2rem;
-            margin-top: 1rem;
-        }
-
-        .recommendation strong {
-            color: var(--accent-purple);
-        }
-
-        /* ── Platform Breakdown ──────────── */
-        .platform-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-        }
-
-        .platform-card {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 1.2rem;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .platform-card .platform-name {
-            font-weight: 600;
-            font-size: 1.1rem;
+        /* ── Left Column: Metrics & AI ───── */
+        .metric-big {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            line-height: 1;
             margin-bottom: 0.5rem;
         }
 
-        .platform-card .platform-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
-
-        /* ── Footer ──────────────────────── */
-        .footer {
-            text-align: center;
-            padding: 2rem 0;
+        .metric-desc {
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.95rem;
         }
 
-        /* ── Responsive ──────────────────── */
-        @media (max-width: 768px) {
-            .chart-row { grid-template-columns: 1fr; }
-            .platform-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .container { padding: 1rem; }
-            .header h1 { font-size: 1.5rem; }
+        .ai-overview {
+            font-size: 1.05rem;
+            color: #334155;
+            white-space: pre-wrap;
+            line-height: 1.8;
         }
+
+        .recommendation-box {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--accent-green);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* ── Charts & Sentiment ──────────── */
+        .sentiment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sent-box {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+        }
+
+        .sent-box .num { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem;}
+        .sent-box .lbl { font-size: 0.85rem; color: var(--text-muted); }
+        .sent-pos .num { color: var(--accent-green); }
+        .sent-neg .num { color: var(--accent-red); }
+        .sent-neu .num { color: var(--accent-yellow); }
+
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* ── Right Column: Post Feed ─────── */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        /* Scrollbar styling */
+        .feed-container::-webkit-scrollbar { width: 6px; }
+        .feed-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .post-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+            background: #ffffff;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .post-platform {
+            font-weight: 600;
+            background: #e2e8f0;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            color: #475569;
+        }
+
+        .post-snippet {
+            font-size: 0.95rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-sentiment {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .text-pos { color: var(--accent-green); }
+        .text-neg { color: var(--accent-red); }
+        .text-neu { color: var(--accent-yellow); }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🎮 傳說對決 輿情監測報告</h1>
-            <p class="date">📅 2026-03-23</p>
-        </div>
+    <!-- Header -->
+    <header class="header">
+        <h1>Arena of Valor 輿情分析</h1>
+        <div class="date-pill">2026-03-23</div>
+    </header>
 
-        <!-- Stats Overview -->
-        <div class="stats-grid">
-            <div class="stat-card total">
-                <div class="value">11</div>
-                <div class="label">搜集貼文總數</div>
-            </div>
-            <div class="stat-card positive">
-                <div class="value">0</div>
-                <div class="label">正面評論 👍</div>
-            </div>
-            <div class="stat-card negative">
-                <div class="value">0</div>
-                <div class="label">負面評論 👎</div>
-            </div>
-            <div class="stat-card neutral">
-                <div class="value">11</div>
-                <div class="label">中性評論 😐</div>
-            </div>
-        </div>
-
-        <!-- Overview -->
-        <div class="card">
-            <h2><span class="icon">📊</span> 今日輿情概述</h2>
-            <p class="overview-text">今日共收集 11 筆搜尋結果。正面 0 筆、負面 0 筆、中性 11 筆。（此為系統自動統計，非 AI 分析）</p>
-            
-            <div class="recommendation">
-                <strong>💡 營運建議：</strong> 建議持續觀察。
-            </div>
-            
-        </div>
-
-        <!-- Alerts -->
+    <!-- Main Content -->
+    <div class="layout-container">
         
-
-        <!-- Charts -->
-        <div class="chart-row">
-            <div class="chart-container">
-                <h3>情緒分布</h3>
-                <div class="chart-wrapper">
-                    <canvas id="sentimentChart"></canvas>
+        <!-- Left Column -->
+        <div class="left-col">
+            <!-- Total Volume -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h2>聲量總覽</h2>
                 </div>
-            </div>
-            <div class="chart-container">
-                <h3>各平台貼文數量</h3>
+                <div class="metric-big">11</div>
+                <div class="metric-desc">今日相關新聞與社群提及數</div>
+
+                <div class="sentiment-grid">
+                    <div class="sent-box sent-pos">
+                        <div class="num">1</div>
+                        <div class="lbl">正面 👍</div>
+                    </div>
+                    <div class="sent-box sent-neg">
+                        <div class="num">0</div>
+                        <div class="lbl">負面 👎</div>
+                    </div>
+                    <div class="sent-box sent-neu">
+                        <div class="num">10</div>
+                        <div class="lbl">中性 😐</div>
+                    </div>
+                </div>
+
                 <div class="chart-wrapper">
                     <canvas id="platformChart"></canvas>
                 </div>
             </div>
+
+            <!-- AI Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🧠</span>
+                    <h2>AI 智能解讀 (LLM)</h2>
+                </div>
+                <div class="ai-overview">今日共收集 11 筆搜尋結果。正面 1 筆、負面 0 筆、中性 10 筆。（此為系統自動統計，非 AI 分析）</div>
+
+                
+                <div class="recommendation-box">
+                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
+                    建議持續觀察。
+                </div>
+                
+            </div>
+            
+            <!-- Hot Topics -->
+            
         </div>
 
-        <!-- Platform Breakdown -->
-        <div class="card">
-            <h2><span class="icon">📱</span> 各平台數據</h2>
-            <div class="platform-grid">
-                <div class="platform-card">
-                    <div class="platform-icon">📸</div>
-                    <div class="platform-name">Instagram</div>
-                    <div>貼文: 0</div>
-                    <div class="meta">平均情緒: 0.50</div>
+        <!-- Right Column -->
+        <div class="right-col">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <span class="card-icon">📰</span>
+                    <h2>最新動態詳情</h2>
                 </div>
-                <div class="platform-card">
-                    <div class="platform-icon">🧵</div>
-                    <div class="platform-name">Threads</div>
-                    <div>貼文: 0</div>
-                    <div class="meta">平均情緒: 0.50</div>
-                </div>
-                <div class="platform-card">
-                    <div class="platform-icon">👤</div>
-                    <div class="platform-name">Facebook</div>
-                    <div>貼文: 1</div>
-                    <div class="meta">平均情緒: 0.50</div>
+                
+                <div class="feed-container">
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文提供了《Garena 傳說對決》的維基百科介紹，包含開發商、發行商及首次Android測試日期。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文介紹了《Garena 傳說對決》作為一款MOBA手遊的核心特色，並提及了「創新紀元版本」在App Store上架。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文介紹了《Garena 傳說對決》作為一款Garena與騰訊天美工作室聯合開發的MOBA競技手遊，強調其隨時開團的便利性。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文介紹了《傳說對決》的官方Facebook頁面，並將其描述為一款由TiMi Studios開發的史詩級MOBA遊戲。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文介紹了《傳說對決》的遊戲玩法、與《英雄聯盟》的比較、發行歷史、在越南的成功以及其作為電競賽事的地位。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是《傳說對決》的遊戲介紹與宣傳，強調其5v5 MOBA玩法、英雄角色（如蝙蝠俠）以及團隊合作的體驗。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是一個維基百科的消歧義頁面，列出了AOV這個縮寫的多種不同含義，但與《傳說對決》遊戲無關。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                分析失敗
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文詳細解釋了格拉斯哥昏迷指數 (GCS) 的用途、評分方式及其在醫療上的應用。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文詳細介紹了格拉斯哥昏迷指數 (GCS) 及其在神經學評估和腦損傷管理中的應用。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    <a href="#" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                無標題內容
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">Unknown</span>
+                            <span>時間: 未知時間</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                此貼文討論格拉斯哥昏迷指數 (GCS) 的醫學評估工具，與《傳說對決》遊戲內容無關。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
                 </div>
             </div>
         </div>
 
-        <!-- Hot Topics -->
-        
-
-        <!-- Detected Events -->
-        
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>由 AoV 自動化輿情監測系統生成 · 2026-03-23</p>
-        </div>
     </div>
 
     <script>
-        // ── 情緒分布圓餅圖 ──
-        const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
-        new Chart(sentimentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['正面', '負面', '中性'],
-                datasets: [{
-                    data: [0, 0, 11],
-                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
-                    borderColor: '#16213e',
-                    borderWidth: 3,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#94a3b8', font: { size: 13 } }
-                    }
-                },
-                cutout: '60%'
-            }
-        });
-
         // ── 各平台貼文數量長條圖 ──
         const platformCtx = document.getElementById('platformChart').getContext('2d');
         new Chart(platformCtx, {
@@ -412,18 +628,8 @@
                         0,
                         1
                     ],
-                    backgroundColor: [
-                        'rgba(0, 212, 255, 0.7)',
-                        'rgba(124, 58, 237, 0.7)',
-                        'rgba(16, 185, 129, 0.7)'
-                    ],
-                    borderColor: [
-                        '#00d4ff',
-                        '#7c3aed',
-                        '#10b981'
-                    ],
-                    borderWidth: 2,
-                    borderRadius: 8
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderRadius: 6
                 }]
             },
             options: {
@@ -435,11 +641,9 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: { color: '#94a3b8' },
-                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
                     },
                     x: {
-                        ticks: { color: '#94a3b8' },
                         grid: { display: false }
                     }
                 }

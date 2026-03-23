@@ -334,35 +334,37 @@
                 </div>
                 
                 <div class="feed-container">
-                    {% for post in posts %}
-                    <a href="{{ post.get('url', '#') }}" target="_blank" class="post-card">
+                    {% for item in posts %}
+                    {% set p = item.post %}
+                    {% set a = item.analysis %}
+                    <a href="{{ p.get('url', '#') }}" target="_blank" class="post-card">
                         <div class="post-title">
-                            {% if post.get('content') %}
-                                {{ post.content[:60] }}{% if post.content|length > 60 %}...{% endif %}
+                            {% if p.get('content') %}
+                                {{ p.content[:60] }}{% if p.content|length > 60 %}...{% endif %}
                             {% else %}
-                                無標題內容
+                                無內容
                             {% endif %}
                         </div>
                         
                         <div class="post-meta">
-                            <span class="post-platform">{{ post.get('platform', 'Unknown') }}</span>
-                            <span>時間: {{ post.get('timestamp', '未知時間') }}</span>
-                            {% if post.get('author') %}
-                            <span>· @{{ post.get('author') }}</span>
+                            <span class="post-platform">{{ p.get('platform', 'Unknown')|upper }}</span>
+                            <span>{{ p.get('timestamp', '時間未知') }}</span>
+                            {% if p.get('author') and p.author != 'unknown' %}
+                            <span>· @{{ p.author }}</span>
                             {% endif %}
                         </div>
 
                         <div class="post-snippet">
-                            {% if post.get('analysis') and post.analysis.get('summary') %}
-                                {{ post.analysis.summary }}
+                            {% if a and a.get('summary') and a.summary != '分析失敗' %}
+                                {{ a.summary }}
                             {% else %}
-                                {{ post.get('content', '')[:100] }}...
+                                {{ p.get('content', '')[:100] }}...
                             {% endif %}
                         </div>
                         
-                        {% if post.get('analysis') %}
-                        <div class="post-sentiment text-{% if post.analysis.sentiment == 'positive' %}pos{% elif post.analysis.sentiment == 'negative' %}neg{% else %}neu{% endif %}">
-                            AI 判定: {{ post.analysis.sentiment|upper }}
+                        {% if a %}
+                        <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}">
+                            AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }}
                         </div>
                         {% endif %}
                     </a>
