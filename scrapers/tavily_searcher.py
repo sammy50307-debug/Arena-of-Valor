@@ -97,6 +97,13 @@ class TavilySearcher:
             "query": keyword,
             "search_depth": "basic",
             "max_results": max_results,
+            "include_domains": [
+                "dcard.tw",
+                "threads.net",
+                "instagram.com",
+                "ptt.cc",
+                "facebook.com"
+            ],
             "include_answer": False,
             "include_raw_content": False,
         }
