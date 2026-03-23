@@ -112,11 +112,12 @@ class GeminiClient:
                 self.logger.warning(
                     f"Gemini API HTTP 錯誤 (第 {attempt} 次): {e.response.status_code}"
                 )
+                if attempt == self.MAX_RETRIES:
+                    raise
+                    
                 if e.response.status_code == 429:
                     # Rate limit，等待後重試
-                    await asyncio.sleep(2 ** attempt)
-                elif attempt == self.MAX_RETRIES:
-                    raise
+                    await asyncio.sleep(4 ** attempt)  # 加大等待時間
                 else:
                     await asyncio.sleep(1)
 

@@ -22,8 +22,9 @@ env/
 *.swo
 
 # Data & Logs
+data/*
+!data/reports/
 data/aov_monitor.db
-data/reports/*.html
 logs/*.log
 
 # OS

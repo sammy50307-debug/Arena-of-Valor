@@ -139,6 +139,24 @@ class SentimentAnalyzer:
             )
             if not isinstance(summary, dict):
                 raise ValueError(f"Gemini 回傳了非字典格式: {summary}")
+                
+            # 將熱度最高的 3 篇貼文連結抓出來放進 summary 裡，供 Line/Telegram 推播使用
+            top_posts = sorted(
+                [p for p in analyzed_posts if p.get("post", {}).get("url") and p["post"]["url"] != "N/A"],
+                key=lambda x: x.get("analysis", {}).get("relevance_score", 0),
+                reverse=True
+            )[:3]
+            
+            top_links = []
+            for p in top_posts:
+                content_preview = p["post"]["content"][:20].replace("\n", " ") + "..."
+                top_links.append({
+                    "title": content_preview,
+                    "url": p["post"]["url"],
+                    "platform": p["post"]["platform"]
+                })
+            summary["top_links"] = top_links
+            
             return summary
         except Exception as e:
             self.logger.error(f"每日摘要生成失敗: {e}")

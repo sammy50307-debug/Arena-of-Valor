@@ -17,6 +17,7 @@ import argparse
 import asyncio
 import json
 import logging
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -61,6 +62,29 @@ def setup_logging():
 
 
 logger = logging.getLogger("aov_monitor")
+
+
+async def github_backup_job():
+    """自動推播報告到 GitHub 的排程任務。"""
+    logger.info("============================================================")
+    logger.info(" 🚀 開始執行每日 GitHub 自動備份任務 (凌晨 02:00)")
+    logger.info("============================================================")
+    
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        subprocess.run(["git", "add", "data/reports/"], check=True, capture_output=True)
+        
+        commit_msg = f"chore: 機器人自動備份報告 {timestamp}"
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
+        subprocess.run(["git", "push"], check=True, capture_output=True)
+        
+        logger.info(f"  ✅ GitHub 備份完成！Commit: {commit_msg}")
+    except subprocess.CalledProcessError as e:
+        output = e.output.decode('utf-8', errors='ignore') if e.output else ""
+        if "nothing to commit" in output or "無檔案要提交" in output:
+            logger.info("  ℹ️ 今日沒有新報告，無需備份。")
+        else:
+            logger.error(f"  ❌ GitHub 備份失敗: {e.stderr.decode('utf-8', errors='ignore') if e.stderr else str(e)}")
 
 
 # ── 核心流程 ─────────────────────────────────────────
@@ -203,8 +227,21 @@ def main():
             misfire_grace_time=3600,
         )
 
+        scheduler.add_job(
+            github_backup_job,
+            trigger=CronTrigger(
+                hour=2,
+                minute=0,
+                timezone=config.TIMEZONE,
+            ),
+            id="github_backup",
+            name="每日 GitHub 備份",
+            misfire_grace_time=3600,
+        )
+
         scheduler.start()
-        logger.info(f"排程已啟動，下次執行時間: {scheduler.get_job('daily_monitor').next_run_time}")
+        logger.info(f"排程已啟動，下一次監測時間: {scheduler.get_job('daily_monitor').next_run_time}")
+        logger.info(f"下一次備份時間: {scheduler.get_job('github_backup').next_run_time}")
 
         try:
             asyncio.get_event_loop().run_forever()

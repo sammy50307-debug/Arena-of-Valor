@@ -144,6 +144,16 @@ class TelegramBotNotifier:
             lines.append("")
             lines.append(f"💡 *建議:* {recommendation[:200]}")
 
+        # 精選情報來源
+        top_links = summary.get("top_links")
+        if top_links:
+            lines.append("")
+            lines.append("🔗 *精選情報來源*")
+            for link in top_links:
+                # 為了避免 Telegram markdown 解析錯誤，把 title 特殊符號濾掉
+                safe_title = link['title'].replace('[', '').replace(']', '').replace('*', '').replace('_', '')
+                lines.append(f"• [{link['platform']}] [{safe_title}]({link['url']})")
+
         lines.append("")
         lines.append("━━━━━━━━━━━━━━━━━━")
         lines.append("_由 AoV 輿情監測系統自動生成_")

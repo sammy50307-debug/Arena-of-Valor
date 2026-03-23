@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>傳說對決 輿情監測報告 — 2026-03-18</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-card-hover: #1a2744;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #7c3aed;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e293b;
+            --glow-cyan: rgba(0, 212, 255, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ── Header ──────────────────────── */
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 2px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .date {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* ── Cards ──────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h2 .icon { font-size: 1.4rem; }
+
+        /* ── Stats Grid ─────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-card.positive .value { color: var(--accent-green); }
+        .stat-card.negative .value { color: var(--accent-red); }
+        .stat-card.neutral .value { color: var(--accent-yellow); }
+        .stat-card.total .value { color: var(--accent-cyan); }
+
+        /* ── Chart Container ────────────── */
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 280px;
+        }
+
+        /* ── Topics & Events ────────────── */
+        .topic-list, .event-list {
+            list-style: none;
+        }
+
+        .topic-item, .event-item {
+            padding: 0.8rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 0.6rem;
+            border-left: 3px solid var(--accent-cyan);
+            transition: background 0.2s;
+        }
+
+        .topic-item:hover, .event-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .event-item {
+            border-left-color: var(--accent-purple);
+        }
+
+        .topic-item .name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .topic-item .meta, .event-item .meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-positive { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge-negative { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .badge-neutral { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); }
+
+        /* ── Alerts ─────────────────────── */
+        .alert {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.6rem;
+            color: var(--accent-red);
+            font-size: 0.9rem;
+        }
+
+        .alert::before { content: '⚠️ '; }
+
+        /* ── Overview ───────────────────── */
+        .overview-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(0, 212, 255, 0.1));
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .recommendation strong {
+            color: var(--accent-purple);
+        }
+
+        /* ── Platform Breakdown ──────────── */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .platform-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .platform-card .platform-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .platform-card .platform-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
+
+        /* ── Footer ──────────────────────── */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ── Responsive ──────────────────── */
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .platform-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 1rem; }
+            .header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎮 傳說對決 輿情監測報告</h1>
+            <p class="date">📅 2026-03-18</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="value">0</div>
+                <div class="label">搜集貼文總數</div>
+            </div>
+            <div class="stat-card positive">
+                <div class="value">0</div>
+                <div class="label">正面評論 👍</div>
+            </div>
+            <div class="stat-card negative">
+                <div class="value">0</div>
+                <div class="label">負面評論 👎</div>
+            </div>
+            <div class="stat-card neutral">
+                <div class="value">0</div>
+                <div class="label">中性評論 😐</div>
+            </div>
+        </div>
+
+        <!-- Overview -->
+        <div class="card">
+            <h2><span class="icon">📊</span> 今日輿情概述</h2>
+            <p class="overview-text">無資料</p>
+            
+        </div>
+
+        <!-- Alerts -->
+        
+
+        <!-- Charts -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <h3>情緒分布</h3>
+                <div class="chart-wrapper">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h3>各平台貼文數量</h3>
+                <div class="chart-wrapper">
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Breakdown -->
+        <div class="card">
+            <h2><span class="icon">📱</span> 各平台數據</h2>
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <div class="platform-icon">📸</div>
+                    <div class="platform-name">Instagram</div>
+                    <div>貼文: 0</div>
+                    <div class="meta">平均情緒: 0.00</div>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">🧵</div>
+                    <div class="platform-name">Threads</div>
+                    <div>貼文: 0</div>
+                    <div class="meta">平均情緒: 0.00</div>
+                </div>
+                <div class="platform-card">
+                    <div class="platform-icon">👤</div>
+                    <div class="platform-name">Facebook</div>
+                    <div>貼文: 0</div>
+                    <div class="meta">平均情緒: 0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hot Topics -->
+        
+
+        <!-- Detected Events -->
+        
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>由 AoV 自動化輿情監測系統生成 · 2026-03-18</p>
+        </div>
+    </div>
+
+    <script>
+        // ── 情緒分布圓餅圖 ──
+        const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
+        new Chart(sentimentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['正面', '負面', '中性'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderColor: '#16213e',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', font: { size: 13 } }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // ── 各平台貼文數量長條圖 ──
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Instagram', 'Threads', 'Facebook'],
+                datasets: [{
+                    label: '貼文數',
+                    data: [
+                        0,
+                        0,
+                        0
+                    ],
+                    backgroundColor: [
+                        'rgba(0, 212, 255, 0.7)',
+                        'rgba(124, 58, 237, 0.7)',
+                        'rgba(16, 185, 129, 0.7)'
+                    ],
+                    borderColor: [
+                        '#00d4ff',
+                        '#7c3aed',
+                        '#10b981'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

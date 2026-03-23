@@ -229,6 +229,36 @@ class LineBotNotifier:
                 }
             )
 
+        # 來源連結按鈕區塊
+        top_links = summary.get("top_links")
+        if top_links:
+            body_contents.append({"type": "separator", "margin": "lg"})
+            body_contents.append(
+                {
+                    "type": "text",
+                    "text": "🔗 精選情報來源",
+                    "weight": "bold",
+                    "size": "sm",
+                    "margin": "lg",
+                }
+            )
+            for link in top_links:
+                # LINE Flex button uri must be http or https
+                safe_url = link["url"] if link["url"].startswith("http") else "https://" + link["url"]
+                body_contents.append(
+                    {
+                        "type": "button",
+                        "action": {
+                            "type": "uri",
+                            "label": f"查看 {link['platform']} 貼文",
+                            "uri": safe_url
+                        },
+                        "style": "link",
+                        "height": "sm",
+                        "color": "#0ea5e9"
+                    }
+                )
+
         flex_message = {
             "type": "flex",
             "altText": f"🎮 傳說對決 每日輿情報告 ({date})",
