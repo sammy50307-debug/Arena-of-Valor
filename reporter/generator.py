@@ -33,6 +33,7 @@ class ReportGenerator:
     def generate(
         self,
         daily_summary: dict,
+        analyzed_posts: list,
         output_dir: Optional[Path] = None,
     ) -> Path:
         """
@@ -40,6 +41,7 @@ class ReportGenerator:
 
         Args:
             daily_summary: SentimentAnalyzer.generate_daily_summary() 的輸出
+            analyzed_posts: 原始的貼文分析列表 (包含 URL 等詳細資訊)
             output_dir: 輸出目錄，預設為 data/reports/
 
         Returns:
@@ -73,6 +75,7 @@ class ReportGenerator:
             ),
             "alerts": daily_summary.get("alerts", []),
             "recommendation": daily_summary.get("recommendation", ""),
+            "posts": analyzed_posts,
         }
 
         # 渲染模板

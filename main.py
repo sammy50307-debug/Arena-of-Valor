@@ -196,7 +196,7 @@ async def run_pipeline(dry_run: bool = False):
 
     try:
         generator = ReportGenerator()
-        report_path = generator.generate(daily_summary)
+        report_path = generator.generate(daily_summary, analyzed_posts)
         logger.info(f"  [OK] 報告已生成: {report_path}")
     except Exception as e:
         logger.error(f"  [FAIL] 報告生成失敗: {e}")
