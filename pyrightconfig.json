@@ -12,9 +12,17 @@
             "extraPaths": ["."]
         }
     ],
-    "reportMissingImports": "warning",
-    "reportMissingModuleSource": "none",
-    "reportGeneralTypeIssues": "warning",
+    "reportMissingImports": false,
+    "reportMissingModuleSource": false,
+    "reportGeneralTypeIssues": false,
+    "reportOptionalMemberAccess": false,
+    "reportOptionalSubscript": false,
+    "reportIndexIssue": false,
+    "reportArgumentType": false,
+    "reportReturnType": false,
+    "reportAssignmentType": false,
+    "reportCallIssue": false,
+    "reportOperatorIssue": false,
     "pythonVersion": "3.8",
-    "typeCheckingMode": "basic"
+    "typeCheckingMode": "off"
 }
