@@ -9,7 +9,7 @@ import json
 import logging
 import re
 from typing import List, Optional
-from playwright.async_api import async_playwright, Page
+from playwright.async_api import async_playwright, Page  # type: ignore[import]
 
 from scrapers.base_scraper import BaseScraper, Post
 

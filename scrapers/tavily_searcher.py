@@ -9,9 +9,9 @@ import logging
 from typing import List, Optional
 from dataclasses import dataclass, field, asdict
 
-import httpx
+import httpx  # type: ignore[import]
 
-import config
+import config  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

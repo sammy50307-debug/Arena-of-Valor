@@ -10,9 +10,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader  # type: ignore[import]
 
-import config
+import config  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

@@ -8,8 +8,8 @@ Apify Instagram 雲端爬蟲模組。
 import logging
 from typing import List, Optional
 
-from apify_client import ApifyClientAsync
-import config
+from apify_client import ApifyClientAsync  # type: ignore[import]
+import config  # type: ignore[import]
 from scrapers.tavily_searcher import SearchResult
 
 

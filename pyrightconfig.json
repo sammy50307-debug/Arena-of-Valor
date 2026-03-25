@@ -1,0 +1,20 @@
+{
+    "include": ["."],
+    "exclude": [
+        "__pycache__",
+        ".agents",
+        ".agent",
+        "node_modules"
+    ],
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "extraPaths": ["."]
+        }
+    ],
+    "reportMissingImports": "warning",
+    "reportMissingModuleSource": "none",
+    "reportGeneralTypeIssues": "warning",
+    "pythonVersion": "3.8",
+    "typeCheckingMode": "basic"
+}

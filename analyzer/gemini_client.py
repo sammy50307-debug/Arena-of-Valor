@@ -10,9 +10,9 @@ import json
 import logging
 from typing import Optional, Union, List
 
-import httpx
+import httpx  # type: ignore[import]
 
-import config
+import config  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +141,7 @@ class GeminiClient:
         免費額度限制每分鐘 15 次，並行數設低一點。
         """
         semaphore = asyncio.Semaphore(concurrency)
-        results: List[Optional[Union[dict, str]]] = [None] * len(user_prompts)
+        results: List[Union[dict, str]] = [{} for _ in user_prompts]  # type: ignore[assignment]
 
         async def _call(idx: int, prompt: str):
             async with semaphore:
@@ -155,14 +155,15 @@ class GeminiClient:
                     results[idx] = {"error": str(e)}
 
         await asyncio.gather(*[_call(i, p) for i, p in enumerate(user_prompts)])
-        return results
+        return results  # type: ignore[return-value]
 
 
 # ── 可直接執行的連線測試 ──────────────────────────────
 if __name__ == "__main__":
     import asyncio
     import sys
-    sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
+    from pathlib import Path as _Path
+    sys.path.insert(0, str(_Path(__file__).resolve().parent))
 
     logging.basicConfig(level=logging.INFO)
 

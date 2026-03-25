@@ -8,10 +8,10 @@ Telegram Bot 推播模組。
 import logging
 from typing import Optional
 
-from telegram import Bot
-from telegram.constants import ParseMode
+from telegram import Bot  # type: ignore[import]
+from telegram.constants import ParseMode  # type: ignore[import]
 
-import config
+import config  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 

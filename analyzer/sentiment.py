@@ -10,9 +10,9 @@ import logging
 from datetime import datetime
 from typing import List, Optional
 
-from scrapers.tavily_searcher import SearchResult
-from analyzer.gemini_client import GeminiClient
-from analyzer.prompts import (
+from scrapers.tavily_searcher import SearchResult  # type: ignore[import]
+from analyzer.gemini_client import GeminiClient  # type: ignore[import]
+from analyzer.prompts import (  # type: ignore[import]
     SYSTEM_SINGLE_POST,
     USER_SINGLE_POST,
     SYSTEM_DAILY_SUMMARY,

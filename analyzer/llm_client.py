@@ -10,9 +10,9 @@ import json
 import logging
 from typing import Optional, Union, List
 
-from openai import AsyncOpenAI, RateLimitError, APITimeoutError, APIConnectionError
+from openai import AsyncOpenAI, RateLimitError, APITimeoutError, APIConnectionError  # type: ignore[import]
 
-import config
+import config  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class LLMClient:
             "max_tokens": 2000,
         }
         if json_mode:
-            kwargs["response_format"] = {"type": "json_object"}
+            kwargs["response_format"] = {"type": "json_object"}  # type: ignore[assignment]
 
         for attempt in range(1, self.MAX_RETRIES + 1):
             try:
@@ -91,6 +91,8 @@ class LLMClient:
                 else:
                     raise
 
+        return {} if json_mode else ""  # type: ignore[return-value]
+
     async def batch_chat(
         self,
         system_prompt: str,
@@ -111,7 +113,7 @@ class LLMClient:
             與 user_prompts 順序對應的回應列表
         """
         semaphore = asyncio.Semaphore(concurrency)
-        results = [None] * len(user_prompts)
+        results: List[Union[dict, str]] = [{} for _ in user_prompts]  # type: ignore[assignment]
 
         async def _call(idx: int, prompt: str):
             async with semaphore:
@@ -124,4 +126,4 @@ class LLMClient:
 
         tasks = [_call(i, p) for i, p in enumerate(user_prompts)]
         await asyncio.gather(*tasks)
-        return results
+        return results  # type: ignore[return-value]
