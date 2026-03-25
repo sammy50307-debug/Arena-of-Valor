@@ -1,6 +1,9 @@
 """
-Instagram ?��?貼�??�蟲??
-使用 Playwright ?�截 Instagram ??GraphQL API ?��?�?從公?��? hashtag ?�索?�面?��??��??��??��??�貼?��?"""
+Instagram 公開貼文爬蟲。
+
+使用 Playwright 攔截 Instagram 的 GraphQL API 回應，
+從公開的 hashtag 探索頁面擷取與關鍵字相關的貼文。
+"""
 
 import json
 import logging
@@ -31,11 +34,11 @@ class InstagramScraper(BaseScraper):
             )
             page = await context.new_page()
 
-            # ?��??��??�截?��? API ?��?
+            # 用來收集攔截到的 API 回應
             captured_data: list = []
 
             async def _handle_response(response):
-                """?�截 GraphQL API ?��?，擷?�貼?��??��?""
+                """攔截 GraphQL API 回應，擷取貼文資料。"""
                 try:
                     url = response.url
                     if "graphql" in url or "api/v1" in url:
@@ -48,27 +51,29 @@ class InstagramScraper(BaseScraper):
             page.on("response", _handle_response)
 
             try:
-                # ?��? hashtag ?�索?�面
+                # 前往 hashtag 探索頁面
                 tag = keyword.replace(" ", "").replace("#", "")
                 search_url = f"https://www.instagram.com/explore/tags/{tag}/"
-                self.logger.info(f"�?��存�?: {search_url}")
+                self.logger.info(f"正在存取: {search_url}")
 
                 await page.goto(search_url, wait_until="networkidle", timeout=30000)
                 await self._random_delay(2, 4)
 
-                # ?��??�面以�??�更多貼??                for _ in range(3):
+                # 捲動頁面以載入更多貼文
+                for _ in range(3):
                     await page.evaluate("window.scrollBy(0, window.innerHeight)")
                     await self._random_delay(1.5, 3)
 
-                # ?�試從�??�到??API 資�?中�??�貼??                posts.extend(self._parse_api_data(captured_data, max_posts))
+                # 嘗試從攔截到的 API 資料中提取貼文
+                posts.extend(self._parse_api_data(captured_data, max_posts))
 
-                # 如�? API ?�截沒�?結�?，改?��???DOM �??
+                # 如果 API 攔截沒有結果，改用頁面 DOM 解析
                 if not posts:
-                    self.logger.info("API ?�截?��??��??�用 DOM �??")
+                    self.logger.info("API 攔截無資料，改用 DOM 解析")
                     posts.extend(await self._parse_dom(page, keyword, max_posts))
 
             except Exception as e:
-                self.logger.error(f"Instagram ?��?失�?: {e}")
+                self.logger.error(f"Instagram 爬取失敗: {e}")
                 raise
             finally:
                 await browser.close()
@@ -76,7 +81,7 @@ class InstagramScraper(BaseScraper):
         return posts[:max_posts]
 
     def _parse_api_data(self, captured_data: list, max_posts: int) -> List[Post]:
-        """從�??�到??GraphQL ?��?中解?�貼?��?""
+        """從攔截到的 GraphQL 回應中解析貼文。"""
         posts: List[Post] = []
 
         for data in captured_data:
@@ -90,13 +95,13 @@ class InstagramScraper(BaseScraper):
                     if len(posts) >= max_posts:
                         return posts
             except Exception as e:
-                self.logger.debug(f"�?? API 資�??�段失�?: {e}")
+                self.logger.debug(f"解析 API 資料片段失敗: {e}")
                 continue
 
         return posts
 
     def _extract_edges(self, data: dict) -> list:
-        """?�迴?��? GraphQL ?��?中�? edges ?????""
+        """遞迴搜尋 GraphQL 回應中的 edges 陣列。"""
         if isinstance(data, dict):
             if "edges" in data:
                 return data["edges"]
@@ -107,7 +112,7 @@ class InstagramScraper(BaseScraper):
         return []
 
     def _node_to_post(self, node: dict) -> Optional[Post]:
-        """�?GraphQL node 轉�???Post ?�件??""
+        """將 GraphQL node 轉換為 Post 物件。"""
         try:
             shortcode = node.get("shortcode", "")
             text_edges = (
@@ -136,15 +141,17 @@ class InstagramScraper(BaseScraper):
                 raw_data=node,
             )
         except Exception as e:
-            self.logger.debug(f"節點�??�失?? {e}")
+            self.logger.debug(f"節點轉換失敗: {e}")
             return None
 
     async def _parse_dom(self, page: Page, keyword: str, max_posts: int) -> List[Post]:
         """
-        ?�用?��?：直?��? DOM 中�??��???��?字�?        ??API ?�截?��??��?使用??        """
+        備用方案：直接從 DOM 中提取連結和文字。
+        當 API 攔截無資料時使用。
+        """
         posts: List[Post] = []
         try:
-            # ?�試?��?貼�????
+            # 嘗試取得貼文連結
             links = await page.query_selector_all('a[href*="/p/"]')
             seen = set()
 
@@ -157,23 +164,23 @@ class InstagramScraper(BaseScraper):
                         Post(
                             platform="instagram",
                             author="unknown",
-                            content=f"[�?IG ?��? '{keyword}' ?��??�貼?�]",
+                            content=f"[從 IG 搜尋 '{keyword}' 取得的貼文]",
                             url=full_url,
                         )
                     )
         except Exception as e:
-            self.logger.warning(f"DOM �??失�?: {e}")
+            self.logger.warning(f"DOM 解析失敗: {e}")
 
         return posts
 
     @staticmethod
     def _extract_hashtags(text: str) -> List[str]:
-        """從貼?�內容中?��? hashtag??""
+        """從貼文內容中提取 hashtag。"""
         import re
         return re.findall(r"#(\w+)", text)
 
 
-# ?�?� ?�直?�執行�??��?測試 ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+# ── 可直接執行的獨立測試 ──────────────────────────────
 if __name__ == "__main__":
     import asyncio
     import sys
@@ -184,7 +191,7 @@ if __name__ == "__main__":
 
     async def main():
         scraper = InstagramScraper(headless=True)
-        posts = await scraper.scrape(["?�說對決"], max_posts=5)
+        posts = await scraper.scrape(["傳說對決"], max_posts=5)
         for p in posts:
             print(f"  [{p.platform}] {p.author}: {p.content[:80]}...")
             print(f"    URL: {p.url}")

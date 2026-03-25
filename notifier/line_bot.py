@@ -1,6 +1,9 @@
 """
-Line Messaging API ?�播模�???
-使用 LINE Messaging API ??Push Message ?�能�?將�??�輿?��?要以 Flex Message ?��??�送給?��?使用?��?"""
+Line Messaging API 推播模組。
+
+使用 LINE Messaging API 的 Push Message 功能，
+將每日輿情摘要以 Flex Message 格式推送給指定使用者。
+"""
 
 import json
 import logging
@@ -14,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class LineBotNotifier:
-    """?��? LINE Messaging API ?�播訊息??""
+    """透過 LINE Messaging API 推播訊息。"""
 
     PUSH_URL = "https://api.line.me/v2/bot/message/push"
 
@@ -29,16 +32,17 @@ class LineBotNotifier:
 
     async def send_daily_report(self, daily_summary: dict) -> bool:
         """
-        將�??��?要以 Flex Message ?�送到 LINE??
+        將每日摘要以 Flex Message 推送到 LINE。
+
         Args:
-            daily_summary: 每日彙總?��? dict
+            daily_summary: 每日彙總報告 dict
 
         Returns:
-            ?�否?�播?��?
+            是否推播成功
         """
         if not self.token or not self.user_id:
             self.logger.error(
-                "LINE Channel Access Token ??User ID ?�設定�??��??�播??
+                "LINE Channel Access Token 或 User ID 未設定，無法推播。"
             )
             return False
 
@@ -63,39 +67,39 @@ class LineBotNotifier:
                 )
 
                 if response.status_code == 200:
-                    self.logger.info("LINE ?�播?��? ??)
+                    self.logger.info("LINE 推播成功 ✅")
                     return True
                 else:
                     self.logger.error(
-                        f"LINE ?�播失�?: {response.status_code} - {response.text}"
+                        f"LINE 推播失敗: {response.status_code} - {response.text}"
                     )
                     return False
 
         except Exception as e:
-            self.logger.error(f"LINE ?�播?��?例�?: {e}")
+            self.logger.error(f"LINE 推播發生例外: {e}")
             return False
 
     def _build_flex_message(self, summary: dict) -> dict:
-        """組建 LINE Flex Message ?��??��??��?要�?""
+        """組建 LINE Flex Message 格式的每日摘要。"""
         date = summary.get("date", "N/A")
-        overview = summary.get("overview", "?��???)
+        overview = summary.get("overview", "無資料")
         sentiment = summary.get("sentiment_distribution", {})
         pos = sentiment.get("positive", 0)
         neg = sentiment.get("negative", 0)
         neu = sentiment.get("neutral", 0)
         total = pos + neg + neu
 
-        # ?��?話�?（�???3 ?��?
+        # 熱門話題（取前 3 個）
         hot_topics = summary.get("hot_topics", [])[:3]
         topic_texts = []
         for t in hot_topics:
-            topic_texts.append(f"??{t.get('topic', 'N/A')} ({t.get('sentiment', 'N/A')})")
+            topic_texts.append(f"• {t.get('topic', 'N/A')} ({t.get('sentiment', 'N/A')})")
 
-        # 活�??�測
+        # 活動偵測
         events = summary.get("detected_events", [])[:3]
         event_texts = []
         for e in events:
-            event_texts.append(f"??{e.get('name', 'N/A')}")
+            event_texts.append(f"• {e.get('name', 'N/A')}")
 
         recommendation = summary.get("recommendation", "")
         alerts = summary.get("alerts", [])
@@ -104,20 +108,20 @@ class LineBotNotifier:
         body_contents = [
             {
                 "type": "text",
-                "text": "?�� ?�說對決 每日輿�??��?",
+                "text": "🎮 傳說對決 每日輿情報告",
                 "weight": "bold",
                 "size": "lg",
                 "color": "#1DB446",
             },
             {
                 "type": "text",
-                "text": f"?? {date}",
+                "text": f"📅 {date}",
                 "size": "sm",
                 "color": "#aaaaaa",
                 "margin": "md",
             },
             {"type": "separator", "margin": "lg"},
-            # ?��??��?
+            # 情緒分布
             {
                 "type": "box",
                 "layout": "vertical",
@@ -125,13 +129,13 @@ class LineBotNotifier:
                 "contents": [
                     {
                         "type": "text",
-                        "text": f"?? 總貼?? {total}",
+                        "text": f"📊 總貼文: {total}",
                         "size": "sm",
                         "weight": "bold",
                     },
                     {
                         "type": "text",
-                        "text": f"?? �?��: {pos}  ?? 負面: {neg}  ?? 中�? {neu}",
+                        "text": f"👍 正面: {pos}  👎 負面: {neg}  😐 中性: {neu}",
                         "size": "sm",
                         "color": "#666666",
                         "margin": "sm",
@@ -150,13 +154,13 @@ class LineBotNotifier:
             },
         ]
 
-        # ?��?話�?
+        # 熱門話題
         if topic_texts:
             body_contents.append({"type": "separator", "margin": "lg"})
             body_contents.append(
                 {
                     "type": "text",
-                    "text": "?�� ?��?話�?",
+                    "text": "🔥 熱門話題",
                     "weight": "bold",
                     "size": "sm",
                     "margin": "lg",
@@ -173,13 +177,13 @@ class LineBotNotifier:
                     }
                 )
 
-        # 活�??�測
+        # 活動偵測
         if event_texts:
             body_contents.append({"type": "separator", "margin": "lg"})
             body_contents.append(
                 {
                     "type": "text",
-                    "text": "?�� ?�測?��?活�?",
+                    "text": "📢 偵測到的活動",
                     "weight": "bold",
                     "size": "sm",
                     "margin": "lg",
@@ -196,14 +200,14 @@ class LineBotNotifier:
                     }
                 )
 
-        # 警�?
+        # 警訊
         if alerts:
             body_contents.append({"type": "separator", "margin": "lg"})
             for alert in alerts[:2]:
                 body_contents.append(
                     {
                         "type": "text",
-                        "text": f"?��? {alert}",
+                        "text": f"⚠️ {alert}",
                         "size": "sm",
                         "color": "#FF5555",
                         "wrap": True,
@@ -217,7 +221,7 @@ class LineBotNotifier:
             body_contents.append(
                 {
                     "type": "text",
-                    "text": f"?�� {recommendation[:150]}",
+                    "text": f"💡 {recommendation[:150]}",
                     "size": "sm",
                     "color": "#7c3aed",
                     "wrap": True,
@@ -225,13 +229,14 @@ class LineBotNotifier:
                 }
             )
 
-        # 來�?????��??��?        top_links = summary.get("top_links")
+        # 來源連結按鈕區塊
+        top_links = summary.get("top_links")
         if top_links:
             body_contents.append({"type": "separator", "margin": "lg"})
             body_contents.append(
                 {
                     "type": "text",
-                    "text": "?? 精選?�報來�?",
+                    "text": "🔗 精選情報來源",
                     "weight": "bold",
                     "size": "sm",
                     "margin": "lg",
@@ -245,7 +250,7 @@ class LineBotNotifier:
                         "type": "button",
                         "action": {
                             "type": "uri",
-                            "label": f"?��? {link['platform']} 貼�?",
+                            "label": f"查看 {link['platform']} 貼文",
                             "uri": safe_url
                         },
                         "style": "link",
@@ -254,7 +259,7 @@ class LineBotNotifier:
                     }
                 )
 
-        # 完整網�??��??��?
+        # 完整網頁報告按鈕
         report_url = summary.get("report_url")
         if report_url:
             body_contents.append({"type": "separator", "margin": "lg"})
@@ -267,7 +272,7 @@ class LineBotNotifier:
                     "height": "sm",
                     "action": {
                         "type": "uri",
-                        "label": "?? ?��?完整網�??��?",
+                        "label": "🌍 查看完整網頁報告",
                         "uri": report_url
                     }
                 }
@@ -275,7 +280,7 @@ class LineBotNotifier:
 
         flex_message = {
             "type": "flex",
-            "altText": f"?�� ?�說對決 每日輿�??��? ({date})",
+            "altText": f"🎮 傳說對決 每日輿情報告 ({date})",
             "contents": {
                 "type": "bubble",
                 "size": "mega",
@@ -290,7 +295,7 @@ class LineBotNotifier:
         return flex_message
 
 
-# ?�?� ?�直?�執行�??��?測試 ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+# ── 可直接執行的獨立測試 ──────────────────────────────
 if __name__ == "__main__":
     import asyncio
 
@@ -300,14 +305,14 @@ if __name__ == "__main__":
         notifier = LineBotNotifier()
         test_summary = {
             "date": "2026-03-18",
-            "overview": "?�是一條測試�??��?確�? LINE ?�播?�能�?��?��???,
+            "overview": "這是一條測試訊息，確認 LINE 推播功能正常運作。",
             "sentiment_distribution": {"positive": 10, "negative": 3, "neutral": 7},
-            "hot_topics": [{"topic": "測試話�?", "sentiment": "positive"}],
+            "hot_topics": [{"topic": "測試話題", "sentiment": "positive"}],
             "detected_events": [],
             "alerts": [],
-            "recommendation": "系統測試�?,
+            "recommendation": "系統測試中",
         }
         success = await notifier.send_daily_report(test_summary)
-        print(f"?�播測試結�?: {'?��?' if success else '失�?'}")
+        print(f"推播測試結果: {'成功' if success else '失敗'}")
 
     asyncio.run(test())
