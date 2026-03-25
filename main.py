@@ -15,11 +15,21 @@ AoV 自動化輿情監測系統 — 主程式入口
 
 import argparse
 import asyncio
+import io
 import json
 import logging
+import os
 import subprocess
 import sys
 from datetime import datetime
+
+# ── Windows 終端 UTF-8 強制修正 ────────────────────────
+# 解決 PowerShell / CMD 預設使用 Big5 (CP950) 導致中文亂碼的問題
+if sys.platform == "win32":
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
 from pathlib import Path
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
