@@ -22,15 +22,20 @@ import os
 import subprocess
 import sys
 from datetime import datetime
-
-# ── Windows 終端 UTF-8 強制修正 ────────────────────────
-# 解決 PowerShell / CMD 預設使用 Big5 (CP950) 導致中文亂碼的問題
-if sys.platform == "win32":
-    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
 from pathlib import Path
+
+# ── Windows 終端 UTF-8 強制修正 (最強版) ───────────────
+# 解決 PowerShell / CMD 預設使用 Big5 (CP950) 導致中文亂碼的問題
+# 這段必須在任何 print / logging 之前執行
+if sys.platform == "win32":
+    # 1. 強制設定 Windows Console Code Page 為 UTF-8
+    os.system("chcp 65001 > nul 2>&1")
+    # 2. 設定環境變數，影響子行程
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+    # 3. 重新設定 Python 的標準輸出/錯誤串流
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -46,7 +51,8 @@ from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
 from notifier.telegram_bot import TelegramBotNotifier
 
-console = Console()
+# 4. 建立 Rich Console 時也強制指定 UTF-8 輸出管道
+console = Console(file=io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace"))
 
 
 # ── Logging 設定 ─────────────────────────────────────
