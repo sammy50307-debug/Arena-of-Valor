@@ -27,23 +27,55 @@
 * **每日總結 (`generate_daily_summary`)**
   * **消耗方式**：將 12 篇貼文的分析結果串成一大包文字，要求 AI 產生總結與熱度排名。
   * **平均消耗**：一次約 3,000 ~ 5,000 Input Tokens / 500 Output Tokens。
-* **免費版配額對照表（2025 年 12 月更新後生效）**
 
-  | 限制項目 | **Gemini 2.5 Flash** (目前使用) | **Gemini 2.5 Pro** |
-  |---|---|---|
-  | 每分鐘請求數 (RPM) | **10 次** | **5 次** |
-  | 每日請求數 (RPD) | **250 次** | **100 次** |
-  | 每分鐘 Token (TPM) | 25 萬 | 25 萬 |
+### 📊 各大語言模型免費版配額完整對照表
 
-* **以本專案實際用量換算（4 組關鍵字、每組抓 3 篇，一趟約 13~15 次 Request）**
+> 資料來源：[Google AI for Developers](https://ai.google.dev/pricing)、[OpenAI Platform](https://platform.openai.com/docs/guides/rate-limits)、[Anthropic Docs](https://docs.anthropic.com/en/docs/about-claude/models)
+> 最後更新：2025 年 12 月
 
-  | 使用的模型 | 一天可跑幾次 `main.py` | 適用場景 |
-  |---|---|---|
-  | **2.5 Flash** | 約 **16 ~ 19 次** | ✅ 日常排程 + 偶爾手動測試，綽綽有餘 |
-  | **2.5 Pro** | 約 **6 ~ 7 次** | ⚠️ 額度吃緊，僅適合每天排程自動跑 1 次 |
+#### Google Gemini 家族（免費版，無需信用卡）
 
-* **額度重置時間**：每日配額在**太平洋時間午夜 (PT 00:00)** 自動重置，換算台灣時間約為**下午 15:00（夏令）或 16:00（冬令）**。
-* *註：若單日為除錯瘋狂測試導致鎖卡，請更換 API Key 或等待上述時間重置。切換模型請修改 `analyzer/gemini_client.py` 中的 `GEMINI_MODEL` 常數。*
+| 限制項目 | **2.5 Flash** 🟢 目前使用 | **2.5 Flash-Lite** | **2.5 Pro** |
+|---|---|---|---|
+| 每分鐘請求數 (RPM) | **10** | **15** | **5** |
+| 每日請求數 (RPD) | **250** | **1,000** | **100** |
+| 每分鐘 Token (TPM) | 25 萬 | 25 萬 | 25 萬 |
+| Context Window | 100 萬 | 100 萬 | 100 萬 |
+| 額度重置 | 每日 PT 00:00（台灣約 15:00~16:00） | 同左 | 同左 |
+| **本專案一天可跑幾次** | **~16 次** ✅ | **~66 次** ✅✅ | **~6 次** ⚠️ |
+
+#### OpenAI GPT 家族（❌ 無免費 API 額度）
+
+| 限制項目 | **GPT-4o** | **GPT-4o mini** |
+|---|---|---|
+| 免費額度 | ❌ **無** — 需綁信用卡付費 | ❌ **無** — 需綁信用卡付費 |
+| 付費價格 (Input) | $2.50 / 百萬 Token | $0.15 / 百萬 Token |
+| 付費價格 (Output) | $10.00 / 百萬 Token | $0.60 / 百萬 Token |
+| Tier 1 RPM | 500 | 500 |
+| Context Window | 12.8 萬 | 12.8 萬 |
+| **本專案每日成本估算** | 約 NT$1~2 / 天 | 約 NT$0.1 / 天 |
+
+#### Anthropic Claude 家族（❌ 無免費 API 額度）
+
+| 限制項目 | **Claude Sonnet 4** | **Claude Haiku 3.5** |
+|---|---|---|
+| 免費額度 | ❌ **無** — 最低需預存 $5 美金 | ❌ **無** — 最低需預存 $5 美金 |
+| 付費價格 (Input) | $3.00 / 百萬 Token | $0.25 / 百萬 Token |
+| 付費價格 (Output) | $15.00 / 百萬 Token | $1.25 / 百萬 Token |
+| Tier 1 RPM | 50 | 50 |
+| Context Window | 20 萬 | 20 萬 |
+| **本專案每日成本估算** | 約 NT$2~3 / 天 | 約 NT$0.2 / 天 |
+
+#### 💡 總結建議
+
+| 考量因素 | 最佳選擇 |
+|---|---|
+| 🆓 完全免費、零成本 | **Gemini 2.5 Flash**（目前方案）或 **Flash-Lite**（額度更大） |
+| 🧠 推理品質最強 | **Gemini 2.5 Pro**（免費但額度極少）或 **GPT-4o**（付費） |
+| 💰 付費但超便宜 | **GPT-4o mini** 或 **Claude Haiku 3.5** |
+| 🔄 額度重置週期 | Gemini = **每日重置** / OpenAI & Claude = **每月帳單制** |
+
+* *切換模型請修改 `analyzer/gemini_client.py` 中的 `GEMINI_MODEL` 常數。若切換至 OpenAI 或 Claude 則需重寫 client 模組。*
 
 ### 2. Tavily Search (搜尋引擎爬蟲)
 
