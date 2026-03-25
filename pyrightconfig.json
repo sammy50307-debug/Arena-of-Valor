@@ -1,5 +1,7 @@
 {
-    "include": ["."],
+    "include": [
+        "."
+    ],
     "exclude": [
         "__pycache__",
         ".agents",
@@ -9,7 +11,9 @@
     "executionEnvironments": [
         {
             "root": ".",
-            "extraPaths": ["."]
+            "extraPaths": [
+                "."
+            ]
         }
     ],
     "reportMissingImports": false,
