@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena of Valor 輿情分析 — 2026-03-27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #3b82f6;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* ── Header ──────────────────────── */
+        .header {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 2rem 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .date-pill {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ── Main Layout ─────────────────── */
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem 2rem;
+            display: grid;
+            grid-template-columns: 40% 60%;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Cards ──────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        /* ── Left Column: Metrics & AI ───── */
+        .metric-big {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .ai-overview {
+            font-size: 1.05rem;
+            color: #334155;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .recommendation-box {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--accent-green);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* ── Charts & Sentiment ──────────── */
+        .sentiment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sent-box {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+        }
+
+        .sent-box .num { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem;}
+        .sent-box .lbl { font-size: 0.85rem; color: var(--text-muted); }
+        .sent-pos .num { color: var(--accent-green); }
+        .sent-neg .num { color: var(--accent-red); }
+        .sent-neu .num { color: var(--accent-yellow); }
+
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* ── Right Column: Post Feed ─────── */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        /* Scrollbar styling */
+        .feed-container::-webkit-scrollbar { width: 6px; }
+        .feed-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .post-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+            background: #ffffff;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .post-platform {
+            font-weight: 600;
+            background: #e2e8f0;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            color: #475569;
+        }
+
+        .post-snippet {
+            font-size: 0.95rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-sentiment {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .text-pos { color: var(--accent-green); }
+        .text-neg { color: var(--accent-red); }
+        .text-neu { color: var(--accent-yellow); }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Arena of Valor 輿情分析</h1>
+        <div class="date-pill">2026-03-27</div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="layout-container">
+        
+        <!-- Left Column -->
+        <div class="left-col">
+            <!-- Total Volume -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h2>聲量總覽</h2>
+                </div>
+                <div class="metric-big">12</div>
+                <div class="metric-desc">今日相關新聞與社群提及數</div>
+
+                <div class="sentiment-grid">
+                    <div class="sent-box sent-pos">
+                        <div class="num">0</div>
+                        <div class="lbl">正面 👍</div>
+                    </div>
+                    <div class="sent-box sent-neg">
+                        <div class="num">0</div>
+                        <div class="lbl">負面 👎</div>
+                    </div>
+                    <div class="sent-box sent-neu">
+                        <div class="num">12</div>
+                        <div class="lbl">中性 😐</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🧠</span>
+                    <h2>AI 智能解讀 (LLM)</h2>
+                </div>
+                <div class="ai-overview">今日共收集 12 筆搜尋結果。正面 0 筆、負面 0 筆、中性 12 筆。（此為系統自動統計，非 AI 分析）</div>
+
+                
+                <div class="recommendation-box">
+                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
+                    建議持續觀察。
+                </div>
+                
+            </div>
+            
+            <!-- Hot Topics -->
+            
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-col">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <span class="card-icon">📰</span>
+                    <h2>最新動態詳情</h2>
+                </div>
+                
+                <div class="feed-container">
+                    
+                    
+                    
+                    <a href="https://www.threads.net/@aov_modeling" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                02/03~03/01│網頁抽獎(3in1) 薇菈《神助千願·青風澤》 比洛爾《神助千願·赤照天》 司空震《神助千願·鎮...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">THREADS</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                02/03~03/01│網頁抽獎(3in1) 薇菈《神助千願·青風澤》 比洛爾《神助千願·赤照天》 司空震《神助千願·鎮山河》 ◉抽獎形式：抽格子- • 資訊僅供參考，實際消息以Garena 傳說...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVGCS/reels/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                ·AIC 2025 即將於11 月17 日至12 月7 日在越南熱血開戰！ Burn Your Shadow! Blaz...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                ·AIC 2025 即將於11 月17 日至12 月7 日在越南熱血開戰！ Burn Your Shadow! Blaze Your Glory! FW、HKA、DCG、ONE 即將再次登上世界舞台，...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://fr-fr.facebook.com/AoVTW/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                《傳說對決》是Garena與騰訊天美工作室首款聯合開 發MOBA 競技手遊。讓你隨時開團不受拘... Voir plus...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                《傳說對決》是Garena與騰訊天美工作室首款聯合開 發MOBA 競技手遊。讓你隨時開團不受拘... Voir plus. 󱞴 Page d&#39;application....
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/arenaofvalor/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                139K followers · 7 following · 1625 posts · @arenaofvalor: “...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                139K followers · 7 following · 1625 posts · @arenaofvalor: “An epic multiplayer online battle arena ...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/ArenaofValor/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                Arena of Valor. 1147608 likes · 105 talking about this. An e...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                Arena of Valor. 1147608 likes · 105 talking about this. An epic multiplayer online battle arena (MOB...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/reel/DKYZz02p50Z/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                1 likes, 1 comments - superkengaming on June 1, 2025: &#34;Arena...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                1 likes, 1 comments - superkengaming on June 1, 2025: &#34;Arena of Valor Review #games #ps5 #ps4 #Plays...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.threads.net/@scg_seancorn_gaming" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                # 𝙎𝘾𝙂 𝘼𝙊𝙑 𝙉𝙀𝙒𝙎(傳說對決造型資訊). ✨️傳說對決最新資訊全部都在這✨️ ⭐️努力做出最清楚高品質的最新資...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">THREADS</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                # 𝙎𝘾𝙂 𝘼𝙊𝙑 𝙉𝙀𝙒𝙎(傳說對決造型資訊). ✨️傳說對決最新資訊全部都在這✨️ ⭐️努力做出最清楚高品質的最新資訊⭐️ 🔥歡迎工商合作 合作拍片諮詢🔥☄️seancorna380@gmail....
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/p/C8Y8klOP1XD/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                【傳說對決】新系統 傳說對決AOV新系統也就是隔壁王者的貴族系統在傳說叫VIP總共1~10 分別都有相對的獎勵比如V10...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                【傳說對決】新系統 傳說對決AOV新系統也就是隔壁王者的貴族系統在傳說叫VIP總共1~10 分別都有相對的獎勵比如V10可以共享之類的等詳細資訊出來再發布！...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/scg_seancorn_gaming/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                ✨️傳說對決最新資訊全部都在這✨️ ⭐️努力做出最清楚高品質的最新資訊⭐️ 歡迎工商合作合作拍片諮詢 ☄️seancor...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                ✨️傳說對決最新資訊全部都在這✨️ ⭐️努力做出最清楚高品質的最新資訊⭐️ 歡迎工商合作合作拍片諮詢 ☄️seancorna380@gmail.com ♥️最新資訊僅供參考,實際消息以傳說對決官方公佈...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVGCS/photos/a.248959438954152/1009389119577843/?type=3" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                ·想辦《傳說對決》比賽嗎？ 不管你是學校、社團，還是玩家社群，只要有熱情，就 能自己辦一場專屬賽事！ 規模越大，官方幫你...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                ·想辦《傳說對決》比賽嗎？ 不管你是學校、社團，還是玩家社群，只要有熱情，就 能自己辦一場專屬賽事！ 規模越大，官方幫你更多！ 隊伍多、觀眾多、獎金高→ 官方提供更多...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVGCS/?locale=es_LA" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                例行賽：2/27(五) - 4/12(日) 。季後賽：4/18(六) - 4/19(日) 。準決暨冠軍賽：5/2(六) ...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                例行賽：2/27(五) - 4/12(日) 。季後賽：4/18(六) - 4/19(日) 。準決暨冠軍賽：5/2(六) 現在到以下平台也能看到GCS的精采賽事囉！ 。 三立新聞網Youtube 。 三...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/aovesports.tw/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                61K followers · 95 following · 3736 posts · @aovesports.tw: ...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                61K followers · 95 following · 3736 posts · @aovesports.tw: “·GCS 2026春季賽即將於2 月27 日再次點燃戰火！ 這一次我們將全軍出...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ── 各平台貼文數量長條圖 ──
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Instagram', 'Threads', 'Facebook'],
+                datasets: [{
+                    label: '貼文數',
+                    data: [
+                        5,
+                        2,
+                        5
+                    ],
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
