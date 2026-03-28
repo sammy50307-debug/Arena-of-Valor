@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
     async def main():
         searcher = TavilySearcher()
-        results = await searcher.search(["傳說對決"], max_results_per_keyword=5)
+        results = await searcher.search(max_results_per_region=5)
         for r in results:
             print(f"[{r.platform}] {r.title}")
             print(f"  URL: {r.url}")

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Gemini REST API 端點
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_MODEL = "gemini-2.5-flash"  # 使用者目前切換為更加節省額度的 Flash 方案
+GEMINI_MODEL = "gemini-2.0-flash"  # 避開 2.5 版每日 20 次的額度限制，切換至 2.0 系列
 
 
 class GeminiClient:
@@ -62,17 +62,13 @@ class GeminiClient:
             system_prompt += "\n\n重要：你的回覆必須是有效的 JSON 格式，不得包含任何 JSON 之外的文字、markdown 標記或說明。"
 
         payload = {
+            "systemInstruction": {
+                "parts": [{"text": system_prompt}]
+            },
             "contents": [
                 {
                     "role": "user",
-                    "parts": [
-                        {
-                            "text": (
-                                f"[系統指令]\n{system_prompt}\n\n"
-                                f"[使用者輸入]\n{user_prompt}"
-                            )
-                        }
-                    ],
+                    "parts": [{"text": user_prompt}],
                 }
             ],
             "generationConfig": {
@@ -86,6 +82,10 @@ class GeminiClient:
             try:
                 async with httpx.AsyncClient(timeout=60) as client:
                     response = await client.post(url, json=payload)
+                    if response.status_code != 200:
+                        self.logger.warning(
+                            f"Gemini API 錯誤詳情 (HTTP {response.status_code}): {response.text}"
+                        )
                     response.raise_for_status()
                     data = response.json()
 
@@ -116,8 +116,9 @@ class GeminiClient:
                     raise
                     
                 if e.response.status_code == 429:
-                    # Rate limit，等待後重試
-                    await asyncio.sleep(5 * attempt)  # 加大等待時間
+                    # Rate limit，既然已達每日上限，不再消耗時間重試，直接拋出讓備援模式接手
+                    self.logger.error("偵測到 Gemini API 每日/分鐘額度耗盡 (429)，立即啟動備援分析。")
+                    raise
                 else:
                     await asyncio.sleep(1)
 
@@ -134,27 +135,29 @@ class GeminiClient:
         system_prompt: str,
         user_prompts: List[str],
         json_mode: bool = True,
-        concurrency: int = 1, # 降低為 1，確保請求完全循序，避免 429 突發流量
+        concurrency: int = 1, # 此參數在循序模式下僅作相容性保留
     ) -> List[Union[dict, str]]:
         """
-        批次呼叫 Gemini API，支援並行控制。
-        免費額度限制每分鐘 15 次，循序處理最穩定。
+        全自動降壓版批次分析。
+        採用循序執行 + 強制冷卻，徹底解決 429 報錯。
         """
-        semaphore = asyncio.Semaphore(concurrency)
-        results: List[Optional[Union[dict, str]]] = [None] * len(user_prompts)
+        results: List[Union[dict, str]] = []
+        total = len(user_prompts)
+        
+        for i, prompt in enumerate(user_prompts, 1):
+            self.logger.info(f"   [⏳] 正在分析第 {i}/{total} 篇全球情報...")
+            try:
+                result = await self.chat(system_prompt, prompt, json_mode)
+                results.append(result)
+                
+                # 每一篇分析完後，強制休息 5.0 秒，確保不觸發 15 RPM 限制
+                if i < total:
+                    await asyncio.sleep(5.0)
+                    
+            except Exception as e:
+                self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {e}")
+                results.append({"error": str(e)})
 
-        async def _call(idx: int, prompt: str):
-            async with semaphore:
-                try:
-                    result = await self.chat(system_prompt, prompt, json_mode)
-                    results[idx] = result
-                    # 極致降壓：強制加入 20 秒冷卻，確保在所有 API 流控臨界點之下穩定運行
-                    await asyncio.sleep(20.0)
-                except Exception as e:
-                    self.logger.error(f"批次呼叫 #{idx} 失敗: {e}")
-                    results[idx] = {"error": str(e)}
-
-        await asyncio.gather(*[_call(i, p) for i, p in enumerate(user_prompts)])
         return results
 
 

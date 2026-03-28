@@ -74,6 +74,7 @@ class ReportGenerator:
                 },
             ),
             "recommendation": daily_summary.get("recommendation", ""),
+            "history_delta": daily_summary.get("history_delta", {"trends": {}, "alerts": []}),
             "global_insights": daily_summary.get("global_insights", {
                 "TW": {"summary": "數據解析中...", "hot_hero": "待確認"},
                 "TH": {"summary": "數據解析中...", "hot_hero": "待確認"},

@@ -1,0 +1,51 @@
+{
+  "project_name": "Arena of Valor Intelligence Hub",
+  "archeology_date": "2026-03-29",
+  "heritage_status": "LOSSLESS_UNCOMPRESSED",
+  "phases": [
+    {
+      "id": "Phase 1-5",
+      "focus": "Infrastructure",
+      "css_baseline": null,
+      "logic_snippets": {
+        "crawler": "tavily.search(query=query, search_depth='advanced', max_results=10)",
+        "config": "SEARCH_KEYWORDS = ['傳說對決', 'Arena of Valor', 'AOV']"
+      }
+    },
+    {
+      "id": "Phase 10-15",
+      "focus": "Indigo Templating",
+      "colors": {
+        "primary": "#6366f1",
+        "bg": "#f8fafc",
+        "sentiment_pos": "#16a34a"
+      },
+      "css_definitions": ".card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; }"
+    },
+    {
+      "id": "Phase 20-25",
+      "focus": "YaYa & Nature UI",
+      "colors": {
+        "pastal_pink": "#fdf2f8",
+        "hero_accent": "#db2777"
+      },
+      "logic_snippets": {
+        "filter": "is_yaya = '芽芽' in content or 'YaYa' in content",
+        "animation": "sakura-fall 10s linear infinite"
+      }
+    },
+    {
+      "id": "Phase 31-33",
+      "focus": "Cyber-Tactical Flagship",
+      "colors": {
+        "cyber_navy": "#020617",
+        "neon_blue": "#3b82f6",
+        "glass_bg": "rgba(30, 41, 59, 0.7)"
+      },
+      "logic_snippets": {
+        "resilience": "class SafeProxy: def __getattr__(self, name): return SafeProxy()",
+        "layout": "Global Strategic Room prioritized at top_container"
+      }
+    }
+  ]
+}

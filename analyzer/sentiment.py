@@ -126,7 +126,7 @@ class SentimentAnalyzer:
         date: Optional[str] = None,
     ) -> dict:
         """
-        根據分析結果產出每日彙總報告。
+        根據分析結果產出每日彙總報告。支援本地備援分析。
         """
         if not analyzed_posts:
             return self._empty_summary(date)
@@ -136,12 +136,19 @@ class SentimentAnalyzer:
         # 彙整分析結果成文字形式，送入 LLM 產出彙總
         analysis_text = self._format_analysis_for_summary(analyzed_posts)
 
-        # ── Phase 33: 區域分組資訊注入 ──
+        # ── 區域分組資訊注入 ──
         regional_summary_data = {}
         for r in ["TW", "TH", "VN"]:
             r_posts = [p for p in analyzed_posts if p["post"].get("region") == r]
             if r_posts:
-                regional_summary_data[r] = f"文章數: {len(r_posts)} | 核心情緒: {r_posts[0]['analysis'].get('summary', '無')}"
+                # 取得該區域文章中最具代表性的摘要與英雄
+                main_analysis = r_posts[0]['analysis']
+                detected_heroes = r_posts[0]['post'].get('detected_heroes', [])
+                
+                regional_summary_data[r] = {
+                    "summary": main_analysis.get("summary", "無數據摘要"),
+                    "hot_hero": detected_heroes[0] if detected_heroes else "無特定英雄"
+                }
 
         user_prompt = USER_DAILY_SUMMARY.format(
             date=report_date,
@@ -157,19 +164,19 @@ class SentimentAnalyzer:
                 temperature=0.4,
             )
             if not isinstance(summary, dict):
-                raise ValueError(f"Gemini 回傳了非字典格式: {summary}")
+                raise ValueError("LLM 回傳格式錯誤")
                 
+            # 將區域洞察正式注入摘要字典 (Phase 33)
+            summary["global_insights"] = regional_summary_data
+            
             # 統計監視名單中的英雄熱度與情緒
             hero_stats = {}
             for hero in config.HERO_WATCHLIST:
                 hero_posts = [p for p in analyzed_posts if hero in p["post"].get("detected_heroes", [])]
                 if hero_posts:
                     avg_score = sum(p["analysis"].get("sentiment_score", 0.5) for p in hero_posts) / len(hero_posts)
-                    
-                    # 英雄個人詞雲 (Phase 32)
                     hero_pos = [p["post"]["content"] for p in hero_posts if p["analysis"].get("sentiment") == "positive"]
                     hero_neg = [p["post"]["content"] for p in hero_posts if p["analysis"].get("sentiment") == "negative"]
-                    
                     hero_stats[hero] = {
                         "count": len(hero_posts),
                         "avg_sentiment": avg_score,
@@ -180,7 +187,7 @@ class SentimentAnalyzer:
                     }
             summary["hero_stats"] = hero_stats
             
-            # 全域詞雲數據 (Phase 32)
+            # 全域詞雲數據
             pos_texts = [p["post"]["content"] for p in analyzed_posts if p["analysis"].get("sentiment") == "positive"]
             neg_texts = [p["post"]["content"] for p in analyzed_posts if p["analysis"].get("sentiment") == "negative"]
             summary["wordcloud"] = {
@@ -188,7 +195,7 @@ class SentimentAnalyzer:
                 "negative": analyze_keywords(neg_texts, limit=12)
             }
             
-            # 將熱度最高的 3 篇貼文連結抓出來放進 summary 裡，供 Line/Telegram 推播使用
+            # 將熱度最高的 3 篇貼文連結
             top_posts = sorted(
                 [p for p in analyzed_posts if p.get("post", {}).get("url") and p["post"]["url"] != "N/A"],
                 key=lambda x: x.get("analysis", {}).get("relevance_score", 0),
@@ -198,16 +205,13 @@ class SentimentAnalyzer:
             top_links = []
             for p in top_posts:
                 content_preview = p["post"]["content"][:20].replace("\n", " ") + "..."
-                top_links.append({
-                    "title": content_preview,
-                    "url": p["post"]["url"],
-                    "platform": p["post"]["platform"]
-                })
+                top_links.append({"title": content_preview, "url": p["post"]["url"], "platform": p["post"]["platform"]})
             summary["top_links"] = top_links
             
             return summary
+
         except Exception as e:
-            self.logger.error(f"每日摘要生成失敗: {e}")
+            self.logger.warning(f"分析失敗或額度耗盡 ({str(e)[:40]})... 切換至救難模式")
             return self._generate_fallback_summary(analyzed_posts, report_date)
 
     def _format_analysis_for_summary(self, analyzed_posts: List[dict]) -> str:
@@ -269,23 +273,38 @@ class SentimentAnalyzer:
                 }
 
         # 建立較自然的備援 Overview
-        top_titles = [p["post"]["title"][:20] + "..." for p in analyzed_posts if len(p.get("post", {}).get("title", "")) > 5][:3]
+        top_titles = [p["post"].get("title", "")[:20] + "..." for p in analyzed_posts if len(p.get("post", {}).get("title", "")) > 5][:3]
         overview = f"今日輿情焦點包含「{', '.join(top_titles)}」等議題。"
         overview += f" 在總計 {len(analyzed_posts)} 筆討論中，正面情緒佔 {sentiments['positive']} 筆。"
         overview += " (AI 分析暫時中斷，此為系統備援統計)"
 
+        # 建立區域導向的數據 (Phase 33 Fallback)
+        regional_fallback = {}
+        for r in ["TW", "TH", "VN"]:
+            r_posts = [p for p in analyzed_posts if p["post"].get("region") == r]
+            if r_posts:
+                regional_fallback[r] = {
+                    "summary": f"偵測到 {len(r_posts)} 筆區域情報，包含「{r_posts[0]['post'].get('title', '無標題')[:20]}...」等討論。目前戰情穩定。",
+                    "hot_hero": r_posts[0]['post'].get('detected_heroes', ["無特定英雄"])[0]
+                }
+
+        # 建立回傳數據
         return {
             "date": date,
             "overview": overview,
             "sentiment_distribution": sentiments,
-            "hot_topics": ["賽事焦點", "活動更新", "社群熱議"] if analyzed_posts else [],
-            "detected_events": all_events[:5],
             "platform_breakdown": platform_breakdown,
+            "global_insights": regional_fallback,  # 強制注入區域戰情
+            "hot_topics": ["區域戰略搜捕", "跨國動態對比"],
+            "detected_events": [],
+            "hero_stats": {},
+            "wordcloud": {"positive": [], "negative": []},
+            "top_links": [],
             "hero_focus": {
                 "name": "芽芽",
                 "summary": f"偵測到 {len(hero_posts)} 筆焦點英雄相關討論。目前的社群情感與活動連動緊密，請參考詳細貼文列表。",
                 "sentiment_score": 0.5,
-                "top_comments": [p["post"]["title"] for p in hero_posts[:2]] if hero_posts else []
+                "top_comments": [p["post"].get("title", "無標題") for p in hero_posts[:2]] if hero_posts else []
             },
             "recommendation": "偵測到 API 頻率限制 (429)，建議後續手動檢查 GCS 賽事標籤以補足深度情報。",
         }

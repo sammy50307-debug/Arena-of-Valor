@@ -155,40 +155,23 @@ async def run_pipeline(dry_run: bool = False):
     logger.info("=" * 60)
 
     # ── Step 1：情報搜集 (Tavily) ──────────────────────
-    logger.info(" Step 1/4: 開始使用 Tavily 搜集情報...")
+    logger.info(" Step 1/4: 開始使用 Tavily 搜集全球區域情報...")
 
     searcher = TavilySearcher()
     all_results = []
     
-    # 1. 一般情報搜集
+    # 執行全球區域同步搜尋 (Phase 33 旗艦級對齊)
     try:
-        logger.info(f"   (1/2) 執行一般關鍵字搜尋: {config.SEARCH_KEYWORDS}")
-        general_results = await searcher.search(
-            keywords=config.SEARCH_KEYWORDS,
-            max_results_per_keyword=3,
+        all_results = await searcher.search(
+            max_results_per_region=3
         )
-        for r in general_results:
-            r.is_hero_focus = False  # 標記為一般情報
-        all_results.extend(general_results)
+        if not all_results:
+            logger.warning("[!] 今日全域（台/泰/越）無搜集到任何相關資料。")
+            return
+            
     except Exception as e:
-        logger.error(f"  [FAIL] 一般搜集失敗: {e}")
-
-    # 2. 英雄焦點搜集 (芽芽專屬)
-    hero_focus_name = getattr(config, "HERO_FOCUS_NAME", None)
-    hero_focus_keywords = getattr(config, "HERO_FOCUS_KEYWORDS", None)
-    
-    if hero_focus_name and hero_focus_keywords:
-        try:
-            logger.info(f"   (2/2) 執行英雄焦點搜尋 ({hero_focus_name}): {hero_focus_keywords}")
-            hero_results = await searcher.search(
-                keywords=hero_focus_keywords,
-                max_results_per_keyword=5,
-            )
-            for r in hero_results:
-                r.is_hero_focus = True  # 標記為英雄特刊
-            all_results.extend(hero_results)
-        except Exception as e:
-            logger.error(f"  [FAIL] 英雄焦點搜集失敗: {e}")
+        logger.error(f"  [FAIL] 全球情報搜集失敗: {e}")
+        return
 
     if not all_results:
         logger.warning("[!] 沒有搜集到任何資料，流程提前結束。")

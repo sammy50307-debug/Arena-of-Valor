@@ -8,6 +8,7 @@ import logging
 import os
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 # 建議安裝: pip install edge-tts
 # 我們將使用非互動方式嘗試生成，若環境未安裝則自動優雅降級。
