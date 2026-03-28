@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【旗艦版】萌系戰情室 — 分開躍動動畫展現</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 50%, #ecfeff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --primary-cute: #db2777;
+            --secondary-cute: #7c3aed;
+            --text-main: #1e293b;
+            --card-shadow: 0 12px 40px rgba(219, 39, 119, 0.1);
+            --hover-shadow: 0 20px 50px rgba(219, 39, 119, 0.18);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 3rem 2rem;
+        }
+
+        .layout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 38% 62%;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .layout-container { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        /* ── Staggered Animation ── */
+        .post-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--hover-shadow);
+        }
+
+        h2 { color: var(--primary-cute); font-size: 1.6rem; font-weight: 900; margin-bottom: 1.5rem; }
+        .post-title { font-weight: 800; font-size: 1.15rem; color: #1e293b; margin-bottom: 0.5rem; }
+        .platform-tag { background: #fdf2f8; color: #db2777; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="card" style="border: 3px solid #f9a8d4; position: relative; overflow: hidden;">
+                <h2 style="margin-bottom: 1rem;">🌸 芽芽 觀察室</h2>
+                <div style="background: rgba(251, 207, 232, 0.3); padding: 1rem; border-radius: 12px; color: #831843; font-weight: 500;">
+                    分開跳動測試中... 請注意右側列表進場。
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Feed -->
+        <div class="main-feed">
+            <div class="card">
+                <h2>📰 最新動態詳情 (交錯進場)</h2>
+                
+                <a href="#" class="post-card" style="animation-delay: 0.1s;">
+                    <div class="post-title" style="color: #db2777;">第一條資訊：分開跳動 (0.1s 延遲)</div>
+                    <span class="platform-tag">DCARD</span>
+                    <p style="margin-top:0.5rem; color:#64748b;">我是第一個進場的資訊條。</p>
+                </a>
+
+                <a href="#" class="post-card" style="animation-delay: 0.2s;">
+                    <div class="post-title">第二條資訊：緊隨其後 (0.2s 延遲)</div>
+                    <span class="platform-tag">FACEBOOK</span>
+                    <p style="margin-top:0.5rem; color:#64748b;">我是第二個，感覺更流暢了吧！</p>
+                </a>
+
+                <a href="#" class="post-card" style="animation-delay: 0.3s;">
+                    <div class="post-title" style="color: #db2777;">第三條資訊：層次感現形 (0.3s 延遲)</div>
+                    <span class="platform-tag">THREADS</span>
+                    <p style="margin-top:0.5rem; color:#64748b;">這就是您要求的「分開跳動」效果。</p>
+                </a>
+
+                <a href="#" class="post-card" style="animation-delay: 0.4s;">
+                    <div class="post-title">第四條資訊：最後點綴 (0.4s 延遲)</div>
+                    <span class="platform-tag">DCARD</span>
+                    <p style="margin-top:0.5rem; color:#64748b;">每一條資訊現在都有獨立的生命力。</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

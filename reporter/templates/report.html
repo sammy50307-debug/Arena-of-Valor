@@ -206,36 +206,53 @@
 
         /* ── Right Column: Post Feed ─────── */
         .feed-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
             max-height: 80vh;
             overflow-y: auto;
-            padding-right: 0.5rem;
+            padding-right: 0.8rem;
+            display: block; /* 改為 block 以配合分層隔離 */
+        }
+        .post-container {
+            position: relative;
+            padding-bottom: 1.2rem;
+            width: 100%;
         }
 
-        /* Scrollbar styling */
-        .feed-container::-webkit-scrollbar { width: 6px; }
-        .feed-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-        .feed-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .feed-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
         .post-card {
-            background: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.2rem;
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
             text-decoration: none;
             color: inherit;
             display: block;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            animation: popIn 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                        background 0.4s ease, 
+                        box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         .post-card:hover {
-            border-color: var(--secondary-color);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-            transform: translateY(-2px);
-            background: #ffffff;
+            transform: translateY(-12px) scale(1.03);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
+            z-index: 50;
+            border: 2px solid #f9a8d4;
+            filter: drop-shadow(0 0 10px rgba(249, 168, 212, 0.3));
         }
 
         .post-title {
@@ -531,39 +548,42 @@
                 </div>
                 
                 <div class="feed-container">
-                    {% for item in posts %}
+                    {% for p in posts %}
+                    {% set a = p.get('analysis', {}) %}
                     {% set is_yaya = (getattr(config, "HERO_FOCUS_NAME", "芽芽") in p.get("content", "")) or (getattr(config, "HERO_FOCUS_NAME", "芽芽") in a.get("summary", "")) %}
-                    <a href="{{ p.get('url', '#') }}" target="_blank" class="post-card {% if is_yaya %}yaya-highlight{% endif %}">
-                        <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
-                            {% if p.get('content') %}
-                                {{ p.content[:60] }}{% if p.content|length > 60 %}...{% endif %}
-                            {% else %}
-                                無內容
-                            {% endif %}
-                        </div>
-                        
-                        <div class="post-meta">
-                            <span class="post-platform" style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{ p.get('platform', 'Unknown')|upper }}</span>
-                            <span>{{ p.get('published_date') if p.get('published_date') else p.get('timestamp', '時間未知') }}</span>
-                            {% if p.get('author') and p.author != 'unknown' %}
-                            <span>· @{{ p.author }}</span>
-                            {% endif %}
-                        </div>
+                    <div class="post-container"> <!-- 佈局鎖定層 -->
+                        <a href="{{ p.get('url', '#') }}" target="_blank" class="post-card {% if is_yaya %}yaya-highlight{% endif %}" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                            <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
+                                {% if p.get('content') %}
+                                    {{ p.content[:60] }}{% if p.content|length > 60 %}...{% endif %}
+                                {% else %}
+                                    無內容
+                                {% endif %}
+                            </div>
+                            
+                            <div class="post-meta">
+                                <span class="post-platform" style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{ p.get('platform', 'Unknown')|upper }}</span>
+                                <span>{{ p.get('published_date') if p.get('published_date') else p.get('timestamp', '時間未知') }}</span>
+                                {% if p.get('author') and p.author != 'unknown' %}
+                                <span>· @{{ p.author }}</span>
+                                {% endif %}
+                            </div>
 
-                        <div class="post-snippet" style="{% if is_yaya %}color: #831843;{% endif %}">
-                            {% if a and a.get('summary') and a.summary != '分析失敗' %}
-                                {{ a.summary }}
-                            {% else %}
-                                {{ p.get('content', '')[:100] }}...
+                            <div class="post-snippet" style="{% if is_yaya %}color: #831843;{% endif %}">
+                                {% if a and a.get('summary') and a.summary != '分析失敗' %}
+                                    {{ a.summary }}
+                                {% else %}
+                                    {{ p.get('content', '')[:100] }}...
+                                {% endif %}
+                            </div>
+                            
+                            {% if a %}
+                            <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}" style="{% if is_yaya %}color: #be185d !important;{% endif %}">
+                                AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ getattr(config, "HERO_FOCUS_NAME", "芽芽") }}]{% endif %}
+                            </div>
                             {% endif %}
-                        </div>
-                        
-                        {% if a %}
-                        <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}" style="{% if is_yaya %}color: #be185d !important;{% endif %}">
-                            AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ getattr(config, "HERO_FOCUS_NAME", "芽芽") }}]{% endif %}
-                        </div>
-                        {% endif %}
-                    </a>
+                        </a>
+                    </div>
                     {% endfor %}
                     
                     {% if not posts %}
