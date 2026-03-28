@@ -144,6 +144,21 @@ class TelegramBotNotifier:
             lines.append("")
             lines.append(f"💡 *建議:* {recommendation[:200]}")
 
+        # 🌸 英雄焦點 (芽芽專區)
+        hero_focus = summary.get("hero_focus")
+        if hero_focus and hero_focus.get("summary") and hero_focus.get("summary") != "今日無特定焦點分析":
+            lines.append("")
+            lines.append("━━━━━━━━━━━━━━━━━━")
+            lines.append(f"🌸 *英雄焦點：{hero_focus.get('name', '芽芽')}*")
+            lines.append(f"📝 {hero_focus.get('summary', '')}")
+            
+            top_comments = hero_focus.get("top_comments", [])
+            if top_comments:
+                lines.append("")
+                lines.append("✨ *玩家熱議：*")
+                for comment in top_comments[:2]:
+                    lines.append(f"  • _{comment}_")
+
         # 精選情報來源
         top_links = summary.get("top_links")
         if top_links:

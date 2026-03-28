@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena of Valor 輿情分析 — 2026-03-29</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #3b82f6;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* ── Header ──────────────────────── */
+        .header {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 2rem 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .date-pill {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ── Main Layout ─────────────────── */
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem 2rem;
+            display: grid;
+            grid-template-columns: 40% 60%;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Cards ──────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        /* ── Left Column: Metrics & AI ───── */
+        .metric-big {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .ai-overview {
+            font-size: 1.05rem;
+            color: #334155;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .recommendation-box {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--accent-green);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* ── Charts & Sentiment ──────────── */
+        .sentiment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sent-box {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+        }
+
+        .sent-box .num { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem;}
+        .sent-box .lbl { font-size: 0.85rem; color: var(--text-muted); }
+        .sent-pos .num { color: var(--accent-green); }
+        .sent-neg .num { color: var(--accent-red); }
+        .sent-neu .num { color: var(--accent-yellow); }
+
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* ── Right Column: Post Feed ─────── */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        /* Scrollbar styling */
+        .feed-container::-webkit-scrollbar { width: 6px; }
+        .feed-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .post-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+            background: #ffffff;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .post-platform {
+            font-weight: 600;
+            background: #e2e8f0;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            color: #475569;
+        }
+
+        .post-snippet {
+            font-size: 0.95rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-sentiment {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .text-pos { color: var(--accent-green); }
+        .text-neg { color: var(--accent-red); }
+        .text-neu { color: var(--accent-yellow); }
+
+        /* ── Hero Focus: YaYa ────────────── */
+        .hero-focus-card {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
+            border: 2px solid #f9a8d4; /* 芽芽粉色系 */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-focus-card::after {
+            content: 'HERO FOCUS';
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: #f472b6;
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .hero-focus-title {
+            color: #db2777 !important;
+        }
+
+        .hero-focus-badge {
+            background-color: #fbcfe8;
+            color: #be185d;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .hero-summary {
+            font-size: 0.95rem;
+            color: #831843;
+            background: rgba(251, 207, 232, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .hero-post-item {
+            border-left: 3px solid #f472b6;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #be185d;
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Arena of Valor 輿情分析</h1>
+        <div class="date-pill">2026-03-29</div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="layout-container">
+        
+        <!-- Left Column -->
+        <div class="left-col">
+
+            <!-- Hero Focus: YaYa -->
+            
+            <div class="card hero-focus-card">
+                <div class="card-header">
+                    <span class="card-icon">🌸</span>
+                    <h2 class="hero-focus-title">芽芽 觀察室</h2>
+                </div>
+                
+                <div class="hero-summary">
+                    今日無特定焦點分析
+                </div>
+
+                <div class="hero-grid">
+                    <div>
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
+                        
+                    </div>
+                    
+                    
+                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://www.instagram.com/moba.garena.tw/" target="_blank" class="hero-link">
+                                [instagram] 貼文預告了《傳說對決》新版本上線，並提及登入遊戲即可獲得元流之子全新套裝的活動。
+                            </a>
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://www.facebook.com/AoVTW/videos/-livegcs-2026-%E6%98%A5%E5%AD%A3%E4%BE%8B%E8%A1%8C%E8%B3%BDw3d220260314garena-%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA/1347825600443763/" target="_blank" class="hero-link">
+                                [facebook] 這篇貼文公告了GCS 2026春季賽的播報陣容與賽事時程，同時詳細介紹了趙雲新造型「戰鼓燎原」的販售資訊及首週限時七折優惠。
+                            </a>
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://www.dcard.tw/f/aov/p/236978515" target="_blank" class="hero-link">
+                                [dcard] 這篇貼文討論了傳說對決英雄芽芽作為功能型輔助的玩法，特別強調其在關鍵時刻扛下傷害的策略。
+                            </a>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            <!-- Total Volume -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h2>聲量總覽</h2>
+                </div>
+                <div class="metric-big">27</div>
+                <div class="metric-desc">今日相關新聞與社群提及數</div>
+
+                <div class="sentiment-grid">
+                    <div class="sent-box sent-pos">
+                        <div class="num">8</div>
+                        <div class="lbl">正面 👍</div>
+                    </div>
+                    <div class="sent-box sent-neg">
+                        <div class="num">4</div>
+                        <div class="lbl">負面 👎</div>
+                    </div>
+                    <div class="sent-box sent-neu">
+                        <div class="num">15</div>
+                        <div class="lbl">中性 😐</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🧠</span>
+                    <h2>AI 智能解讀 (LLM)</h2>
+                </div>
+                <div class="ai-overview">今日共收集 27 筆搜尋結果。正面 8 筆、負面 4 筆、中性 15 筆。（此為系統自動統計，非 AI 分析）</div>
+
+                
+                <div class="recommendation-box">
+                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
+                    建議持續觀察。
+                </div>
+                
+            </div>
+            
+            <!-- Hot Topics -->
+            
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-col">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <span class="card-icon">📰</span>
+                    <h2>最新動態詳情</h2>
+                </div>
+                
+                <div class="feed-container">
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/moba.garena.tw/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                新版本搶先看 送元流之子全新套裝✨ 趕快登入遊戲，. 新版本搶先看
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文預告了《傳說對決》新版本上線，並提及登入遊戲即可獲得元流之子全新套裝的活動。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVGCS/reels/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                ·AIC 2025 即將於11 月17 日至12 月7 日在越南熱血開戰！ Burn Your Shadow! Blaz...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文宣布《傳說對決》AIC 2025世界賽即將在越南開打，並提及參賽的台灣隊伍。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/ArenaofValor/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                Arena of Valor. 1147515 likes · 104 talking about this. An e...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是《傳說對決》官方Facebook頁面的簡介，包含其按讚數和遊戲類型描述。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/ArenaofValor/photos/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                Arena of Valor. 1149026 likes · 685 talking about this. An e...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是《傳說對決》Facebook官方頁面的基本介紹，包含按讚數、討論人數以及遊戲類型描述。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/ArenaofValor/mentions/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                Arena of Valor. 1147958 likes · 237 talking about this. An e...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是關於《傳說對決》官方Facebook頁面的基本資訊，包含其按讚數與遊戲簡介。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/p/DUIlYS9j1DD/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                英雄聯盟技能系列大受好評第二彈這次介紹的是巴德的W技能-守望神龕我自己滿愛玩巴德的以前都不太會放大絕常常雷人自從岷析教我...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是關於一個廣受好評的「英雄聯盟技能系列」的第二彈，介紹了英雄聯盟角色巴德的W技能，並分享了作者對巴德這個角色的喜愛。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.instagram.com/scg_seancorn_gaming/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                傳說對決最新資訊全部都在這✨️ ⭐️努力做出最清楚高品質的最新資訊⭐️ 歡迎工商合作合作拍片諮詢 ☄️seancorna...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">INSTAGRAM</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文是SCG AOV NEWS帳號的介紹，旨在提供傳說對決的最新資訊和造型情報，並歡迎工商合作。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVTW/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                例行賽：2/27(五) - 4/12(日) 。季後賽：4/18(六) - 4/19(日) 。準決暨冠軍賽：5/2(六) ...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                此貼文公布了GCS電競賽事的例行賽、季後賽與冠軍賽的具體日期，並提供了觀看賽事的平台資訊。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVTW/videos/-livegcs-2026-%E6%98%A5%E5%AD%A3%E4%BE%8B%E8%A1%8C%E8%B3%BDw3d220260314garena-%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA/1347825600443763/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                DCG 📍 播報陣容 主持人：芳小如 。上半場 主播：嘮闆 | 賽評：枕頭 。下半場 主播：APPLE | 賽評：MIR...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文公告了GCS 2026春季賽的播報陣容與賽事時程，同時詳細介紹了趙雲新造型「戰鼓燎原」的販售資訊及首週限時七折優惠。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVGCS/photos/a.248959438954152/1009389119577843/?type=3" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                ·想辦《傳說對決》比賽嗎？ 不管你是學校、社團，還是玩家社群，只要有熱情，就 能自己辦一場專屬賽事！ 規模越大，官方幫你...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                官方鼓勵玩家社群、學校、社團自行舉辦傳說對決賽事，並承諾依規模提供支援。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVGCS/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                例行賽：2/27(五) - 4/12(日) 。季後賽：4/18(六) - 4/19(日) 。準決暨冠軍賽：5/2(六) ...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                此貼文公布了GCS傳說對決電競賽事的例行賽、季後賽與冠軍賽的日期，並新增了觀看平台。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/236978515" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                芽芽扛傷當然比不過硬輔，畢竟是功能型輔助，但是重要的是要扛關鍵傷害。 比如：圖倫的大、刀鋒的刷、對面射手的攻擊。在你血調...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文討論了傳說對決英雄芽芽作為功能型輔助的玩法，特別強調其在關鍵時刻扛下傷害的策略。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/253430442" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                芽芽出現射手基本沒有生存空間，要仰賴超常規操作，現今陣容風氣又時常有消耗角色，導致射手頻繁回家無法發育，對面射手提早起來...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文抱怨芽芽的存在導致射手難以生存和發育，進而影響遊戲體驗並造成崩線。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neg">
+                            AI 判定: NEGATIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/AoVTW/videos/%E8%8A%BD%E8%8A%BD%E5%A4%A7%E8%80%B3%E7%8B%97%E4%B9%8B%E5%A4%A2%EF%B8%8F-%E9%80%A0%E5%9E%8B%E5%AE%8C%E6%95%B4%E5%A4%A7%E5%85%AC%E9%96%8B/1782538462449648/" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                芽芽・大耳狗之夢☁️ 造型完整大公開每個施放技能的瞬間，都將默默治癒你的心 療癒系新造型1/1 新年登場，我們不見不散 ...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文完整公開了《傳說對決》芽芽與三麗鷗家族大耳狗合作的療癒系新造型，並預告將於1月1日新年推出。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/256712322" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                另外想請問芽芽很強的玩家，我的二技能往外滑，通常需要到最大距離才能變成下車（CD2s），有沒有進距離下車不變成給盾的方法...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文詢問傳說對決英雄芽芽的玩法，特別是關於其二技能的下車機制，尋求近距離下車不給盾的方法。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.threads.net/@leeee61202leeee/post/C8i08fEPEZ0" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                我都首選芽芽，但是勝率有6、7十，而且助攻都是全場最佳，也常拿金牌，這樣應該不過分吧！
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">THREADS</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                玩家分享自己使用芽芽的優異戰績，反駁其為「殘廢角色」的說法，並對自己的表現感到滿意。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/topics/%E8%8A%BD%E8%8A%BD" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                #發問解惑芽芽騎隱身單位. 芽芽騎上隱身單位時，對手視角看到的是什麼狀況？會只看到芽芽浮在空中移動？還是芽芽也會進入隱身...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文詢問芽芽騎上隱身單位時，對手視角會看到什麼狀況，是芽芽也會隱身還是只看到芽芽浮空移動。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/255296837" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                嘿直接看截圖，每次這種時候都很懷念BP，想玩沒玩過的角色就是要做好每局都有芽芽的心理準備，對面的芽我不確定但我們的芽除了...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文者表達對英雄芽芽的不滿，並懷念BP（Ban/Pick）機制，抱怨隊友使用芽芽的表現不佳。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neg">
+                            AI 判定: NEGATIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/247134815" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                #發問解惑各位有遇過這個芽芽嗎... ... 情況大概是，我打一般場選擇了輔助，然後在最後一秒的時候凱撒路突然換成芽芽....
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文詢問其他玩家是否遇過在一般場中，有隊友在最後一刻將凱撒路角色換成芽芽的選角問題，表達了對此遊戲體驗的困惑。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neg">
+                            AI 判定: NEGATIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/258323069" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                我看到芽芽都會覺得剛剛不應該按確認進遊戲的…基本上固執選芽芽的都是女的我真的不知道為什麼，又爛又雷，昨天還遇到芽芽單推凱...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                玩家對《傳說對決》中芽芽和愛麗絲兩位英雄的表現感到極度不滿，認為其操作者常導致遊戲體驗不佳。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neg">
+                            AI 判定: NEGATIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/237056064" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                芽芽的2技能護盾是看90% 的魔攻跟10％ 的額外血量，魔攻和額外的血量愈高護盾也就愈厚，奧義：1.最多魔攻出法： 賢者...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文提供了傳說對決英雄芽芽的出裝推薦，特別說明了其二技能護盾的魔攻與血量加成機制，並推薦了奧義配置。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/258132904" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                雖然沒什麼在出長生但他可以在頭上回血哈哈真的要出的話建議出完拘魂跟寒心惡魔微笑之後想出什麼再出不然聖騎戰盾也有點小用其他...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文分享了傳說對決英雄芽芽的出裝心得，建議了拘魂、寒心惡魔等裝備，並討論了長生和聖騎戰盾的實用性。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/238322178" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                雖然是排位常Ban角，但在沒有隊友搭配下. 芽芽就等同一個待宰人頭（沒用只是很可愛）. 二、搭配. 真的不用太糾結芽芽可...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                雖然是排位常Ban角，但在沒有隊友搭配下. 芽芽就等同一個待宰人頭（沒用只是很可愛）. 二、搭配. 真的不用太糾結芽芽可以配誰. 但要拿芽芽，一定要常跟隊友...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/253909811" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                剛剛打了幾場一般和排位，大概10個輔助8個是芽的程度 ，我遇到芽芽基本都是拿亥犽（看情況換蘇或堇，兩段位移自保能力比較安...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                這篇貼文詢問在《傳說對決》中，當輔助是芽芽時，射手應如何搭配，並提及自己常用亥犽、蘇或堇。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/photo.php?fbid=4531996420195812&amp;set=a.1173959695999518&amp;id=100064423252302" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                ... 攻略網寫下你的戰場心得，說不定你就是下一個#攻略達人哦！芽芽把網址放在留言囉，期待看到各路大神以及大家對於心得的...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                貼文邀請玩家分享對新戰場的理解與心得，鼓勵在攻略網上交流，並提及芽芽期待從中學習。
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-pos">
+                            AI 判定: POSITIVE
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.dcard.tw/f/aov/p/240691260" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                希望我可以懸芽勒馬……嗎？（芽芽攻略） · 1.踩視野. 你的一技能可以讓對手現形喔～ · 2.擋招. 你有被動的時候顯...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">DCARD</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                希望我可以懸芽勒馬……嗎？（芽芽攻略） · 1.踩視野. 你的一技能可以讓對手現形喔～ · 2.擋招. 你有被動的時候顯示等級的地方會有小翅膀喔～ · 3.給我下車. 好吧...
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                    <a href="https://www.facebook.com/180YOG/posts/%E8%8A%BD%E8%8A%BD%E9%80%99%E8%A7%92%E8%89%B2%E5%96%AE%E6%8E%92%E7%9C%9F%E6%98%AF%E5%BF%83%E5%8A%9B%E4%BA%A4%E7%98%81%E9%82%84%E5%A5%BD%E6%9C%89%E5%85%88%E5%81%B7%E9%9B%9E%E5%88%B0%E5%8F%B0%E6%9C%8D%E7%AC%AC%E4%B8%80%E5%87%BA%E8%8A%BD%E8%8A%BD%E6%94%BB%E7%95%A5%E4%B9%8B%E5%89%8D%E6%87%89%E8%A9%B2%E6%89%BE%E5%80%8B%E4%BA%BA%E6%8E%92%E4%BE%86%E9%8C%84%E7%B4%A0%E6%9D%90%E5%A0%B4%E9%80%99%E8%A7%92%E8%89%B2%E5%96%AE%E6%8E%92%E6%B2%92%E6%9C%89%E6%84%8F%E7%BE%A9r/1583879911957754/?locale=es_LA" target="_blank" class="post-card">
+                        <div class="post-title">
+                            
+                                要不要用bc排一起測啊，趙雲體質很脆如果 有芽芽的護盾加輔助裝原力搭封塔，撐比較 久然後在聖劍撒旦也許可以吸回來一打五X...
+                            
+                        </div>
+                        
+                        <div class="post-meta">
+                            <span class="post-platform">FACEBOOK</span>
+                            <span>時間未知</span>
+                            
+                        </div>
+
+                        <div class="post-snippet">
+                            
+                                要不要用bc排一起測啊，趙雲體質很脆如果 有芽芽的護盾加輔助裝原力搭封塔，撐比較 久然後在聖劍撒旦也許可以吸回來一打五XD....
+                            
+                        </div>
+                        
+                        
+                        <div class="post-sentiment text-neu">
+                            AI 判定: NEUTRAL
+                        </div>
+                        
+                    </a>
+                    
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ── 各平台貼文數量長條圖 ──
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Instagram', 'Threads', 'Facebook'],
+                datasets: [{
+                    label: '貼文數',
+                    data: [
+                        3,
+                        1,
+                        11
+                    ],
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

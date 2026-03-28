@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena of Valor 輿情分析 — 2026-03-29</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #3b82f6;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; }
+
+        .header { max-width: 1400px; margin: 0 auto; padding: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+        .date-pill { background-color: var(--secondary-color); color: white; padding: 0.5rem 1.2rem; border-radius: 9999px; font-weight: 600; }
+
+        .layout-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem 2rem; display: grid; grid-template-columns: 40% 60%; gap: 1.5rem; }
+        .card { background: var(--bg-card); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
+
+        .ai-overview { font-size: 1.08rem; color: #1e293b; padding: 1.5rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .recommendation-box { margin-top: 1.5rem; padding: 1.5rem; background-color: #f0fdf4; border-left: 5px solid var(--accent-green); border-radius: 8px; color: #166534; }
+
+        .sentiment-guide { margin-top: 1rem; font-size: 0.82rem; color: #64748b; background: #ffffff; padding: 1rem; border: 1px dashed #cbd5e1; border-radius: 8px; }
+        .guide-item { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-pos { background: var(--accent-green); }
+        .dot-neg { background: var(--accent-red); }
+        .dot-neu { background: var(--accent-yellow); }
+
+        .feed-container { display: flex; flex-direction: column; gap: 1rem; max-height: 80vh; overflow-y: auto; padding-right: 0.5rem; }
+        .post-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.2rem; text-decoration: none; color: inherit; display: block; }
+        .yaya-highlight { border: 2px solid #f9a8d4 !important; background: #fff5f8 !important; }
+        .post-title { font-size: 1.1rem; font-weight: 600; color: #1d4ed8; margin-bottom: 0.5rem; }
+        .post-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 0.8rem; margin-bottom: 0.5rem; }
+        .post-platform { background: #e2e8f0; padding: 0.1rem 0.5rem; border-radius: 4px; font-weight: 600; }
+
+        .hero-focus-card { background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%); border: 2px solid #f9a8d4; position: relative; overflow: hidden; }
+        .hero-focus-card::after { content: 'HERO FOCUS'; position: absolute; top: 20px; right: -35px; background: #f472b6; color: white; padding: 8px 40px; transform: rotate(45deg); font-size: 0.72rem; font-weight: 900; }
+        .hero-summary { font-size: 0.95rem; color: #831843; background: rgba(251, 207, 232, 0.3); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Arena of Valor 輿情分析</h1>
+        <div class="date-pill">2026-03-29</div>
+    </header>
+
+    <div class="layout-container">
+        <div class="left-col">
+            <div class="card hero-focus-card">
+                <h2 style="color: #db2777; margin-bottom: 1rem;">🌸 芽芽 觀察室</h2>
+                <div class="hero-summary">
+                    芽芽今日再度成為社群焦點。玩家針對功能型輔助在關鍵時刻的扛傷策略展開激辯。大部分玩家認為芽芽在當前版本的生存壓力較大。
+                </div>
+                <div style="border-left: 3px solid #f472b6; padding-left: 1rem; font-size: 0.9rem;">
+                    玩家熱議：芽芽真的變難玩了 / 這波砍得太兇了
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="margin-bottom: 1rem;">🧠 AI 智能解讀 (LLM)</h2>
+                <div class="ai-overview">今日《傳說對決》社群討論熱烈，尤其是英雄「芽芽」的平衡性調整引發大量轉發。同時 GCS 賽季公告也獲得了高度關注。我們觀察到玩家對於新版本造型的期待值很高。</div>
+                <div class="recommendation-box">
+                    <strong>💡 營運行動建議</strong><br>建議官方社群團隊在回應芽芽討論時，強調輔助裝備的多樣性選擇，並盡快處理玩家反映的網路延遲。
+                </div>
+                <div class="sentiment-guide">
+                    <strong>📊 AI 分析標準說明</strong>
+                    <div class="guide-item"><span class="dot dot-pos"></span> <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝。</div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug 回報、斷線抱怨、平衡性批評。</div>
+                    <div class="guide-item"><span class="dot dot-neu"></span> <strong>中性</strong>：訊息轉發、公告同步、邀請。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card">
+                <h2 style="margin-bottom: 1rem;">📰 最新動態詳情</h2>
+                <div class="feed-container">
+                    <div class="post-card yaya-highlight">
+                        <div class="post-title" style="color: #db2777;">芽芽扛傷當然比不過硬輔，畢竟是功能型輔助...</div>
+                        <div class="post-meta"><span class="post-platform" style="background:#fdf2f8; color:#db2777;">DCARD</span><span>2026-03-29</span><span>· @輔助王</span></div>
+                        <div style="color: #831843;">這篇貼文討論了傳說對決英雄芽芽作為功能型補助的玩法...</div>
+                    </div>
+                    <div class="post-card">
+                        <div class="post-title">【GCS 2026 春季賽賽程公告】今日發布...</div>
+                        <div class="post-meta"><span class="post-platform">FACEBOOK</span><span>2026-03-28</span><span>· @官方</span></div>
+                        <div>官方公告了 GCS 春季賽賽程與趙雲新造型販售資訊。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -229,6 +229,45 @@ class LineBotNotifier:
                 }
             )
 
+        # 🌸 英雄焦點 (芽芽專區)
+        hero_focus = summary.get("hero_focus")
+        if hero_focus and hero_focus.get("summary") and hero_focus.get("summary") != "今日無特定焦點分析":
+            body_contents.append({"type": "separator", "margin": "xl"})
+            body_contents.append(
+                {
+                    "type": "text",
+                    "text": f"🌸 英雄焦點：{hero_focus.get('name', '芽芽')}",
+                    "weight": "bold",
+                    "size": "md",
+                    "color": "#db2777",
+                    "margin": "lg",
+                }
+            )
+            body_contents.append(
+                {
+                    "type": "text",
+                    "text": hero_focus.get("summary", ""),
+                    "size": "sm",
+                    "color": "#831843",
+                    "wrap": True,
+                    "margin": "md",
+                }
+            )
+            
+            # 如果有推薦的文章連結，放一個按鈕進去
+            top_comments = hero_focus.get("top_comments", [])
+            if top_comments:
+                 body_contents.append(
+                    {
+                        "type": "text",
+                        "text": f"💬 熱議：{top_comments[0][:60]}...",
+                        "size": "xs",
+                        "color": "#9d174d",
+                        "margin": "sm",
+                        "style": "italic"
+                    }
+                )
+
         # 來源連結按鈕區塊
         top_links = summary.get("top_links")
         if top_links:

@@ -78,7 +78,8 @@ class SentimentAnalyzer:
                         "author": res.source,
                         "url": res.url,
                         "content": res.content,
-                        "timestamp": getattr(res, "timestamp", getattr(res, "published_date", getattr(res, "date", "時間未知"))),
+                        "timestamp": getattr(res, "timestamp", "時間未知"),
+                        "is_hero_focus": getattr(res, "is_hero_focus", False),  # 傳遞標記
                     },
                     "analysis": analysis,
                 }
@@ -171,7 +172,8 @@ class SentimentAnalyzer:
             post = entry["post"]
             analysis = entry["analysis"]
             lines.append(
-                f"[{i}] 平台: {post['platform']} | "
+                f"平台: {post['platform']} | "
+                f"焦點標記: {'是' if post.get('is_hero_focus') or analysis.get('is_hero_focus') else '否'} | "
                 f"情緒: {analysis.get('sentiment', 'N/A')} ({analysis.get('sentiment_score', 'N/A')}) | "
                 f"分類: {analysis.get('category', 'N/A')} | "
                 f"摘要: {analysis.get('summary', 'N/A')}"

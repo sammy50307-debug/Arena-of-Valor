@@ -27,6 +27,7 @@ class SearchResult:
     source: str = ""       # 來源網域
     platform: str = "web"  # 推測的平台（instagram/threads/facebook/web）
     score: float = 0.0
+    published_date: str = "" # 新增發佈日期 
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -104,8 +105,8 @@ class TavilySearcher:
                 "ptt.cc",
                 "facebook.com"
             ],
-            "include_answer": False,
             "include_raw_content": False,
+            "time_range": "day"  # 確保只抓取最近 24-72 小時內的即時內容
         }
 
         response = await client.post(TAVILY_SEARCH_URL, json=payload)
@@ -124,6 +125,7 @@ class TavilySearcher:
                     source=item.get("source", ""),
                     platform=platform,
                     score=item.get("score", 0.0),
+                    published_date=item.get("published_date", "") # 提取 Tavily 提供的日期 
                 )
             )
         return results

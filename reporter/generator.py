@@ -73,10 +73,29 @@ class ReportGenerator:
                     "facebook": {"post_count": 0, "avg_sentiment": 0},
                 },
             ),
-            "alerts": daily_summary.get("alerts", []),
             "recommendation": daily_summary.get("recommendation", ""),
+            "hero_focus": daily_summary.get("hero_focus", {
+                "name": getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+                "summary": "今日無特定焦點分析",
+                "sentiment_score": 0.5,
+                "top_comments": []
+            }),
+            "hero_focus_posts": [
+                p for p in analyzed_posts 
+                if (p.get("post", {}).get("is_hero_focus") or p.get("analysis", {}).get("is_hero_focus"))
+                and (
+                    getattr(config, "HERO_FOCUS_NAME", "芽芽") in p.get("post", {}).get("content", "") or
+                    getattr(config, "HERO_FOCUS_NAME", "芽芽") in p.get("analysis", {}).get("summary", "")
+                )
+            ][:5],
             "posts": analyzed_posts,
         }
+
+        # ── 防空機制：如果 AI 摘要遺失但有抓到文章，手動補齊 ──────────────────
+        hp_list = template_vars["hero_focus_posts"]
+        if hp_list and (not template_vars["hero_focus"].get("summary") or "今日無特定焦點分析" in template_vars["hero_focus"].get("summary")):
+            template_vars["hero_focus"]["summary"] = f"根據今日抓獲的 {len(hp_list)} 篇焦點貼文分析，玩家正針對「{template_vars['hero_focus']['name']}」的新動態進行討論。首篇熱議內容為：{hp_list[0]['analysis'].get('summary', '詳見下方連結' if not hp_list[0]['analysis'].get('summary') else hp_list[0]['analysis'].get('summary'))}"
+            template_vars["hero_focus"]["sentiment_score"] = hp_list[0]["analysis"].get("sentiment_score", 0.5)
 
         # 渲染模板
         template = self.env.get_template("report.html")

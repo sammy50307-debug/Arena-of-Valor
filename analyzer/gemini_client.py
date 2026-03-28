@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Gemini REST API 端點
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_MODEL = "gemini-2.5-pro"  # 使用者目前方案為 Pro
+GEMINI_MODEL = "gemini-2.5-flash"  # 使用者目前切換為更加節省額度的 Flash 方案
 
 
 class GeminiClient:

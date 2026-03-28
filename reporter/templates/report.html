@@ -6,20 +6,19 @@
     <title>Arena of Valor 輿情分析 — {{ date }}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
         :root {
-            --bg-body: #f3f4f6;
-            --bg-card: #ffffff;
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
-            --secondary-color: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 50%, #ecfeff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --primary-cute: #db2777; /* 桃粉色 */
+            --secondary-cute: #7c3aed; /* 薰衣草紫 */
+            --accent-mint: #10b981;
             --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-yellow: #f59e0b;
+            --text-cute: #831843;
+            --card-shadow: 0 8px 32px rgba(219, 39, 119, 0.08);
+            --hover-shadow: 0 12px 40px rgba(219, 39, 119, 0.15);
         }
 
         * {
@@ -29,10 +28,12 @@
         }
 
         body {
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background-color: var(--bg-body);
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
             color: var(--text-main);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         /* ── Header ──────────────────────── */
@@ -123,19 +124,46 @@
         }
 
         .ai-overview {
-            font-size: 1.05rem;
-            color: #334155;
+            font-size: 1.08rem;
+            color: #1e293b;
             white-space: pre-wrap;
-            line-height: 1.8;
+            line-height: 1.9;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin: 0.5rem 0;
         }
 
         .recommendation-box {
             margin-top: 1.5rem;
-            padding: 1.2rem;
+            padding: 1.5rem;
             background-color: #f0fdf4;
-            border-left: 4px solid var(--accent-green);
-            border-radius: 0 8px 8px 0;
+            border-left: 5px solid var(--accent-green);
+            border-radius: 8px;
+            color: #166534;
+            line-height: 1.7;
         }
+
+        .sentiment-guide {
+            margin-top: 1rem;
+            font-size: 0.82rem;
+            color: #64748b;
+            background: #ffffff;
+            padding: 1rem;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+        }
+        .guide-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-pos { background: var(--accent-green); }
+        .dot-neg { background: var(--accent-red); }
+        .dot-neu { background: var(--accent-yellow); }
 
         /* ── Charts & Sentiment ──────────── */
         .sentiment-grid {
@@ -247,6 +275,86 @@
         .text-neg { color: var(--accent-red); }
         .text-neu { color: var(--accent-yellow); }
 
+        /* ── Hero Focus: YaYa Premium ────── */
+        .hero-focus-card {
+            background: linear-gradient(135deg, rgba(253, 242, 248, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 3px solid #f9a8d4;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-focus-card::before {
+            content: '🌸';
+            position: absolute;
+            bottom: -10px;
+            left: -10px;
+            font-size: 5rem;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+            z-index: -1;
+        }
+
+        .hero-focus-card::after {
+            content: 'HERO FOCUS';
+            position: absolute;
+            top: 22px;
+            right: -38px;
+            background: linear-gradient(to right, #f472b6, #db2777);
+            color: white;
+            padding: 10px 45px;
+            transform: rotate(45deg);
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 10px rgba(219, 39, 119, 0.2);
+        }
+
+        .hero-focus-title {
+            color: var(--primary-cute) !important;
+            font-size: 1.5rem !important;
+        }
+
+        .hero-focus-badge {
+            background-color: #fbcfe8;
+            color: #be185d;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .hero-summary {
+            font-size: 0.95rem;
+            color: #831843;
+            background: rgba(251, 207, 232, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .hero-post-item {
+            border-left: 3px solid #f472b6;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #be185d;
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
     </style>
 </head>
 <body>
@@ -261,6 +369,45 @@
         
         <!-- Left Column -->
         <div class="left-col">
+
+            <!-- Hero Focus: YaYa -->
+            {% if hero_focus %}
+            <div class="card hero-focus-card">
+                <div class="card-header">
+                    <span class="card-icon">🌸</span>
+                    <h2 class="hero-focus-title">{{ hero_focus.name }} 觀察室</h2>
+                </div>
+                
+                <div class="hero-summary">
+                    {{ hero_focus.summary }}
+                </div>
+
+                <div class="hero-grid">
+                    <div>
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
+                        {% for comment in hero_focus.top_comments %}
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">{{ comment }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if hero_focus_posts %}
+                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
+                        {% for hp in hero_focus_posts[:3] %}
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="{{ hp.post.url }}" target="_blank" class="hero-link">
+                                [{{ hp.post.platform }}] {{ hp.analysis.summary }}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Total Volume -->
             <div class="card">
                 <div class="card-header">
@@ -304,6 +451,13 @@
                     {{ recommendation }}
                 </div>
                 {% endif %}
+
+                <div class="sentiment-guide">
+                    <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
+                    <div class="guide-item"><span class="dot dot-pos"></span> <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug 回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
+                    <div class="guide-item"><span class="dot dot-neu"></span> <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
+                </div>
             </div>
             
             <!-- Hot Topics -->
@@ -335,10 +489,9 @@
                 
                 <div class="feed-container">
                     {% for item in posts %}
-                    {% set p = item.post %}
-                    {% set a = item.analysis %}
-                    <a href="{{ p.get('url', '#') }}" target="_blank" class="post-card">
-                        <div class="post-title">
+                    {% set is_yaya = (getattr(config, "HERO_FOCUS_NAME", "芽芽") in p.get("content", "")) or (getattr(config, "HERO_FOCUS_NAME", "芽芽") in a.get("summary", "")) %}
+                    <a href="{{ p.get('url', '#') }}" target="_blank" class="post-card {% if is_yaya %}yaya-highlight{% endif %}">
+                        <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
                             {% if p.get('content') %}
                                 {{ p.content[:60] }}{% if p.content|length > 60 %}...{% endif %}
                             {% else %}
@@ -347,14 +500,14 @@
                         </div>
                         
                         <div class="post-meta">
-                            <span class="post-platform">{{ p.get('platform', 'Unknown')|upper }}</span>
-                            <span>{{ p.get('timestamp', '時間未知') }}</span>
+                            <span class="post-platform" style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{ p.get('platform', 'Unknown')|upper }}</span>
+                            <span>{{ p.get('published_date') if p.get('published_date') else p.get('timestamp', '時間未知') }}</span>
                             {% if p.get('author') and p.author != 'unknown' %}
                             <span>· @{{ p.author }}</span>
                             {% endif %}
                         </div>
 
-                        <div class="post-snippet">
+                        <div class="post-snippet" style="{% if is_yaya %}color: #831843;{% endif %}">
                             {% if a and a.get('summary') and a.summary != '分析失敗' %}
                                 {{ a.summary }}
                             {% else %}
@@ -363,8 +516,8 @@
                         </div>
                         
                         {% if a %}
-                        <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}">
-                            AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }}
+                        <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}" style="{% if is_yaya %}color: #be185d !important;{% endif %}">
+                            AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ getattr(config, "HERO_FOCUS_NAME", "芽芽") }}]{% endif %}
                         </div>
                         {% endif %}
                     </a>

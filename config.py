@@ -29,6 +29,14 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 # ── 網頁代管 ─────────────────────────────────────────
 GITHUB_PAGES_URL = os.getenv("GITHUB_PAGES_URL", "")
 
+# ── 英雄焦點 (Hero Focus) ──────────────────────────────
+HERO_FOCUS_NAME = os.getenv("HERO_FOCUS_NAME", "芽芽")
+HERO_FOCUS_KEYWORDS = [
+    kw.strip()
+    for kw in os.getenv("HERO_FOCUS_KEYWORDS", "傳說對決 芽芽,芽芽 Dcard").split(",")
+    if kw.strip()
+]
+
 # ── 搜尋設定 ─────────────────────────────────────────
 SEARCH_KEYWORDS = [
     kw.strip()
