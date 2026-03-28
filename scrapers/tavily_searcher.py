@@ -27,7 +27,9 @@ class SearchResult:
     source: str = ""       # 來源網域
     platform: str = "web"  # 推測的平台（instagram/threads/facebook/web）
     score: float = 0.0
+    region: str = "TW"     # 新增區域標籤 (TW/TH/VN)
     published_date: str = "" # 新增發佈日期 
+    detected_heroes: List[str] = field(default_factory=list) # 偵測到的名單英雄
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -45,18 +47,10 @@ class TavilySearcher:
 
     async def search(
         self,
-        keywords: List[str],
-        max_results_per_keyword: int = 10,
+        max_results_per_region: int = 15,
     ) -> List[SearchResult]:
         """
-        對每個關鍵字呼叫 Tavily 搜尋 API。
-
-        Args:
-            keywords: 搜尋關鍵字列表
-            max_results_per_keyword: 每個關鍵字取回的最大結果數
-
-        Returns:
-            去重後的 SearchResult 列表
+        遍歷各個區域並執行同步搜尋與匯流。
         """
         if not self.api_key:
             self.logger.error("TAVILY_API_KEY 未設定")
@@ -65,25 +59,25 @@ class TavilySearcher:
         all_results: List[SearchResult] = []
         seen_urls = set()
 
-        async with httpx.AsyncClient(timeout=30) as client:
-            for keyword in keywords:
-                try:
-                    results = await self._search_keyword(
-                        client, keyword, max_results_per_keyword
-                    )
-                    # 去重
-                    for r in results:
-                        if r.url not in seen_urls:
-                            seen_urls.add(r.url)
-                            all_results.append(r)
+        async with httpx.AsyncClient(timeout=45) as client:
+            # 遍歷 config 定義的區域進行搜集
+            for region in config.REGIONS:
+                keywords = config.REGIONAL_KEYWORDS.get(region, ["傳說對決"])
+                self.logger.info(f"🌐 開始搜集區域情報: {region} | 關鍵字: {keywords}")
 
-                    self.logger.info(
-                        f"關鍵字 '{keyword}' 取得 {len(results)} 筆結果"
-                    )
-                except Exception as e:
-                    self.logger.error(f"搜尋 '{keyword}' 失敗: {e}")
+                for keyword in keywords:
+                    try:
+                        results = await self._search_keyword(
+                            client, keyword, max_results_per_region // len(keywords), region
+                        )
+                        for r in results:
+                            if r.url not in seen_urls:
+                                seen_urls.add(r.url)
+                                all_results.append(r)
+                    except Exception as e:
+                        self.logger.error(f"搜尋區域 {region} 關鍵字 '{keyword}' 失敗: {e}")
 
-        self.logger.info(f"共取得 {len(all_results)} 筆不重複結果")
+        self.logger.info(f"🌍 全球情報匯流完成 | 共取得 {len(all_results)} 筆不重複結果")
         return all_results
 
     async def _search_keyword(
@@ -91,22 +85,32 @@ class TavilySearcher:
         client: httpx.AsyncClient,
         keyword: str,
         max_results: int,
+        region: str = "TW"
     ) -> List[SearchResult]:
         """對單一關鍵字呼叫 Tavily API。"""
+        # ── 搜尋場景進化：大師級語意導航 ──
+        # 1. 排除項擴張 (租借、抽獎、行銷字眼)
+        exclude_terms = "-買賣 -帳號 -收購 -代購 -代練 -打字 -交易 -租借 -抽獎 -互追 -互粉 -互讚"
+        
+        # 2. 自動意圖注入 (若針對英雄，自動導向討論語境)
+        if any(hero_kw in keyword for hero_kw in ["芽芽", config.HERO_FOCUS_NAME]):
+            intent_qualifier = "(評價 OR 攻略 OR 配裝 OR 心得 OR 削弱 OR 造型特效)"
+            processed_query = f"{keyword} {intent_qualifier} {exclude_terms}"
+        else:
+            processed_query = f"{keyword} {exclude_terms}"
+        
         payload = {
             "api_key": self.api_key,
-            "query": keyword,
-            "search_depth": "basic",
+            "query": processed_query,
+            "search_depth": "advanced", # 升級回進階搜尋以確保資料品質
             "max_results": max_results,
             "include_domains": [
-                "dcard.tw",
-                "threads.net",
-                "instagram.com",
-                "ptt.cc",
-                "facebook.com"
+                "dcard.tw", "threads.net", "instagram.com", "ptt.cc", 
+                "facebook.com", "youtube.com", "mobile01.com",
+                "pantip.com", "sanook.com", "gamek.vn", "lienquan.garena.vn"
             ],
             "include_raw_content": False,
-            "time_range": "day"  # 確保只抓取最近 24-72 小時內的即時內容
+            "time_range": "day"
         }
 
         response = await client.post(TAVILY_SEARCH_URL, json=payload)
@@ -116,16 +120,27 @@ class TavilySearcher:
         results = []
         for item in data.get("results", []):
             url = item.get("url", "")
+            title = item.get("title", "")
+            content = item.get("content", "")
             platform = self._detect_platform(url)
+            
+            # 建立偵測標籤：判斷這篇貼文提到名單中的哪些英雄
+            detected = [
+                hero for hero in config.HERO_WATCHLIST 
+                if hero in title or hero in content
+            ]
+            
             results.append(
                 SearchResult(
-                    title=item.get("title", ""),
-                    content=item.get("content", ""),
+                    title=title,
+                    content=content,
                     url=url,
                     source=item.get("source", ""),
                     platform=platform,
                     score=item.get("score", 0.0),
-                    published_date=item.get("published_date", "") # 提取 Tavily 提供的日期 
+                    region=region,
+                    published_date=item.get("published_date", ""),
+                    detected_heroes=detected
                 )
             )
         return results

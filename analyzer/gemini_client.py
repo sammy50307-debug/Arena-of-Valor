@@ -134,11 +134,11 @@ class GeminiClient:
         system_prompt: str,
         user_prompts: List[str],
         json_mode: bool = True,
-        concurrency: int = 3,
+        concurrency: int = 1, # 降低為 1，確保請求完全循序，避免 429 突發流量
     ) -> List[Union[dict, str]]:
         """
         批次呼叫 Gemini API，支援並行控制。
-        免費額度限制每分鐘 15 次，並行數設低一點。
+        免費額度限制每分鐘 15 次，循序處理最穩定。
         """
         semaphore = asyncio.Semaphore(concurrency)
         results: List[Optional[Union[dict, str]]] = [None] * len(user_prompts)
@@ -148,8 +148,8 @@ class GeminiClient:
                 try:
                     result = await self.chat(system_prompt, prompt, json_mode)
                     results[idx] = result
-                    # 強制加入 4.5 秒冷卻，避免超過免費 rate limit (15 RPM)
-                    await asyncio.sleep(4.5)
+                    # 極致降壓：強制加入 20 秒冷卻，確保在所有 API 流控臨界點之下穩定運行
+                    await asyncio.sleep(20.0)
                 except Exception as e:
                     self.logger.error(f"批次呼叫 #{idx} 失敗: {e}")
                     results[idx] = {"error": str(e)}

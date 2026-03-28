@@ -23,6 +23,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+from dataclasses import asdict
 
 # ── Windows 終端 UTF-8 強制修正 (最強版) ───────────────
 # 解決 PowerShell / CMD 預設使用 Big5 (CP950) 導致中文亂碼的問題
@@ -45,7 +46,11 @@ from rich.logging import RichHandler
 import config
 from scrapers.tavily_searcher import TavilySearcher
 from scrapers.apify_scraper import ApifyInstagramScraper
+from scrapers.hero_stats import HeroStatsScraper
 from analyzer.sentiment import SentimentAnalyzer
+from analyzer.audio_briefing import AudioBriefingGenerator
+from analyzer.heatmap import HeatmapAnalyzer
+from analyzer.history import HistoryResolver
 from reporter.generator import ReportGenerator
 from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
@@ -205,10 +210,22 @@ async def run_pipeline(dry_run: bool = False):
     logger.info(" Step 2/4: Gemini AI 分析中...")
 
     analyzer = SentimentAnalyzer()
+    stats_scraper = HeroStatsScraper()
 
     try:
+        # 同步抓取戰鬥數據
+        combat_stats = await stats_scraper.fetch_watchlist_stats()
+        
         analyzed_posts = await analyzer.analyze_posts(all_results)
         daily_summary = await analyzer.generate_daily_summary(analyzed_posts)
+        
+        # ── Step 2.2：計算歷史趨勢 (Phase 29) ──────────
+        logger.info(" Step 2.2/4: 啟動情報時光機，計算週趨勢...")
+        history_gen = HistoryResolver()
+        daily_summary["history_delta"] = history_gen.resolve_trends(daily_summary)
+        
+        # 將戰鬥數據注入 summary 供 UI 顯示
+        daily_summary["combat_stats"] = {name: asdict(s) for name, s in combat_stats.items()}
         
         # 將專屬網頁連結注入到 summary 中
         if getattr(config, "GITHUB_PAGES_URL", None):
@@ -221,6 +238,19 @@ async def run_pipeline(dry_run: bool = False):
         logger.error(f"  [FAIL] AI 分析失敗: {e}")
         daily_summary = analyzer._empty_summary()
         analyzed_posts = []
+
+    # ── Step 2.5：生成語音導讀 (Phase 27) ──────────────
+    logger.info(" Step 2.5/4: 生成語音導讀音檔...")
+    audio_gen = AudioBriefingGenerator()
+    audio_url = None
+    try:
+        audio_path = await audio_gen.generate(daily_summary)
+        if audio_path and getattr(config, "GITHUB_PAGES_URL", None):
+            base_url = config.GITHUB_PAGES_URL.rstrip("/")
+            audio_url = f"{base_url}/data/reports/{audio_path.name}"
+            daily_summary["audio_url"] = audio_url
+    except Exception as e:
+        logger.error(f"  [FAIL] 語音生成失敗: {e}")
 
     # 儲存分析結果
     analysis_path = config.DATA_DIR / f"analysis_{datetime.now().strftime('%Y%m%d')}.json"
@@ -261,6 +291,12 @@ async def run_pipeline(dry_run: bool = False):
             telegram_bot = TelegramBotNotifier()
             tg_ok = await telegram_bot.send_daily_report(daily_summary)
             logger.info(f"  {'[OK]' if tg_ok else '[FAIL]'} Telegram 推播: {'成功' if tg_ok else '失敗'}")
+            
+            # 額外推送語音戰報 (Phase 27)
+            date_str = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
+            audio_path = config.DATA_DIR / "reports" / f"aov_briefing_{date_str}.mp3"
+            if audio_path.exists():
+                await telegram_bot.send_voice_briefing(audio_path)
         except Exception as e:
             logger.error(f"  [FAIL] Telegram 推播例外: {e}")
 
@@ -273,7 +309,7 @@ async def run_pipeline(dry_run: bool = False):
 
 
 # ── CLI 與排程 ────────────────────────────────────────
-def main():
+async def main():
     parser = argparse.ArgumentParser(
         description="AoV 自動化輿情監測系統 (Tavily + Gemini)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -289,7 +325,7 @@ def main():
             "\n[bold cyan] AoV 輿情監測系統[/bold cyan] — "
             f"{'乾跑模式 (無推播)' if args.dry_run else '手動執行'}\n"
         )
-        asyncio.run(run_pipeline(dry_run=args.dry_run))
+        await run_pipeline(dry_run=args.dry_run)
     else:
         console.print("\n[bold cyan] AoV 輿情監測系統[/bold cyan] — 排程模式\n")
         
@@ -331,14 +367,16 @@ def main():
         )
 
         scheduler.start()
-        logger.info(f"排程已啟動，下一次監測時間: {scheduler.get_job('daily_monitor').next_run_time}")
-        logger.info(f"下一次備份時間: {scheduler.get_job('github_backup').next_run_time}")
-
-        try:
-            asyncio.get_event_loop().run_forever()
-        except (KeyboardInterrupt, SystemExit):
-            scheduler.shutdown()
-            logger.info("排程已關閉。")
+        logger.info(f"排程已啟動，系統正式服役。")
+        
+        # 保持異步循環在 Python 3.8 穩定運行
+        while True:
+            await asyncio.sleep(1000)
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("系統已手動關閉。")
+    except Exception as e:
+        logger.exception(f"系統運行發生未知錯誤: {e}")

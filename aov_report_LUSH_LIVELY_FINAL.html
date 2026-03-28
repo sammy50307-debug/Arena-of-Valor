@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena of Valor 輿情分析 — 2026-03-29</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 50%, #ecfeff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --primary-cute: #db2777; 
+            --secondary-cute: #7c3aed;
+            --accent-mint: #10b981;
+            --text-main: #1e293b;
+            --card-shadow: 0 10px 40px rgba(219, 39, 119, 0.08);
+            --hover-shadow: 0 20px 60px rgba(219, 39, 119, 0.15);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 3rem;
+        }
+
+        /* ── Glassmorphism Core ──────────────── */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
+                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* ── Double-Layer Isolation (No Jitter) ─ */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .post-container {
+            isolation: isolate; /* 物理隔離關鍵 */
+            padding: 10px 0;
+        }
+
+        .post-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            opacity: 0;
+            transform: scale(0.95) translateY(30px);
+            animation: popIn 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
+                        background 0.3s ease, 
+                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            will-change: transform, box-shadow;
+            contain: content;
+        }
+
+        .post-card:hover {
+            transform: translateY(-10px) scale(1.02) perspective(1000px) rotateX(2deg);
+            background: rgba(255, 255, 255, 0.98);
+            /* 磁力吸附光暈：多層粉嫩陰影營造深度感 */
+            box-shadow: 
+                0 0 0 1px rgba(219, 39, 119, 0.1),
+                0 20px 40px rgba(219, 39, 119, 0.12),
+                0 30px 60px rgba(124, 58, 237, 0.1);
+            z-index: 10;
+        }
+
+        /* ── 精準文字排版 ────────────────── */
+        .post-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-main);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-clamp: 2; /* 標準化屬性 */
+            overflow: hidden;
+        }
+
+        .post-content {
+            font-size: 0.95rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            line-clamp: 3; /* 標準化屬性 */
+            overflow: hidden;
+            line-height: 1.7;
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .post-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
+            z-index: 50;
+            border: 2px solid #f9a8d4;
+            filter: drop-shadow(0 0 10px rgba(249, 168, 212, 0.3));
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .post-platform {
+            font-weight: 600;
+            background: #e2e8f0;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            color: #475569;
+        }
+
+        .post-snippet {
+            font-size: 0.95rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-sentiment {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .text-pos { color: var(--accent-green); }
+        .text-neg { color: var(--accent-red); }
+        .text-neu { color: var(--accent-yellow); }
+
+        /* ── Hero Focus: YaYa Premium ────── */
+        .hero-focus-card {
+            background: linear-gradient(135deg, rgba(253, 242, 248, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 3px solid #f9a8d4;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-focus-card::before {
+            content: '🌸';
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            font-size: 6rem;
+            opacity: 0.12;
+            transform: rotate(-20deg);
+            filter: drop-shadow(0 0 10px #f9a8d4);
+            z-index: -1;
+        }
+
+        .hero-focus-card::after {
+            content: 'HERO FOCUS';
+            position: absolute;
+            top: 24px;
+            right: -42px;
+            background: linear-gradient(135deg, #f472b6, #db2777);
+            color: white;
+            padding: 10px 50px;
+            transform: rotate(45deg);
+            font-size: 0.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 12px rgba(219, 39, 119, 0.25);
+        }
+
+        /* 自然系元素小掛件 */
+        .leaf-decor {
+            position: absolute;
+            top: 15px;
+            left: 55px;
+            font-size: 1.2rem;
+            opacity: 0.25;
+            transform: rotate(15deg);
+            z-index: 1;
+        }
+
+        /* ── Sentiment Mood Bar ── */
+        .mood-container {
+            margin: 1.5rem 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 99px;
+            height: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(251, 207, 232, 0.5);
+        }
+
+        .mood-fill {
+            height: 100%;
+            background: linear-gradient(to right, #f472b6, #db2777);
+            border-radius: 99px;
+            transition: width 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 10px rgba(219, 39, 119, 0.3);
+        }
+
+        .hero-focus-title {
+            color: var(--primary-cute) !important;
+            font-size: 1.6rem !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-focus-badge {
+            background-color: #fbcfe8;
+            color: #be185d;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .hero-summary {
+            font-size: 0.95rem;
+            color: #831843;
+            background: rgba(251, 207, 232, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .hero-post-item {
+            border-left: 3px solid #f472b6;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #be185d;
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Arena of Valor 輿情分析</h1>
+        <div class="date-pill">2026-03-29</div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="layout-container">
+        
+        <!-- Left Column -->
+        <div class="left-col">
+
+            <!-- Hero Focus: YaYa -->
+            
+            <div class="card hero-focus-card">
+                <div class="card-header">
+                    <span class="card-icon">🌸</span>
+                    <h2 class="hero-focus-title">芽芽 觀察室</h2>
+                </div>
+                
+                <div class="hero-summary">
+                    今日「芽芽」在櫻花季現場展示最新系列，甜美氛圍成功消彌了部分玩家關於平衡性的吐槽。玩家紛紛敲碗實體周邊與連動造型。雖然被戲稱為『發霉芽』，但在櫻花瓣的點綴下，萌力值達到歷史新高！
+                </div>
+
+                <div class="hero-grid">
+                    <div>
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
+                        
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">芽芽這造型必買吧！</span>
+                        </div>
+                        
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">發霉芽也要漂漂亮亮的</span>
+                        </div>
+                        
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">櫻花季看到芽芽真的值了</span>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://www.facebook.com/AoVGCS/posts/1551418626996690/" target="_blank" class="hero-link">
+                                [facebook] FW 戰隊在生死局展現驚人韌性，目前全網瘋傳操作片段。
+                            </a>
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://www.instagram.com/p/DWbPi2qCDBX/" target="_blank" class="hero-link">
+                                [instagram] 實體聯動好評爆表，櫻花季造景與芽芽看板娘成為必打卡點。
+                            </a>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+            <!-- Total Volume -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h2>聲量總覽</h2>
+                </div>
+                <div class="metric-big">39</div>
+                <div class="metric-desc">今日相關新聞與社群提及數</div>
+
+                <div class="sentiment-grid">
+                    <div class="sent-box sent-pos">
+                        <div class="num">28</div>
+                        <div class="lbl">正面 👍</div>
+                    </div>
+                    <div class="sent-box sent-neg">
+                        <div class="num">3</div>
+                        <div class="lbl">負面 👎</div>
+                    </div>
+                    <div class="sent-box sent-neu">
+                        <div class="num">8</div>
+                        <div class="lbl">中性 😐</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🧠</span>
+                    <h2>AI 智能解讀 (LLM)</h2>
+                </div>
+                <div class="ai-overview">今日輿情的核心圍繞在 GCS 春季賽 W5D2 的熱血餘威。FW NAILIU 的葉娜操作被公認為操作天花板，在與 ONE 的強強對決中成為焦點話題。同時，高雄櫻花季線下活動也迎來高峰，『芽芽』作為活動門面深受肯定，成功緩解了遊戲內部分負面聲量。聖典 88 篇章的夏日水世界主題亦大幅提升了玩家的回流意願。</div>
+
+                
+                <div class="recommendation-box">
+                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
+                    建議官方利用櫻花季熱度，加開線上『應援芽芽』抽獎活動，將線下正面声量全面導入聖典 88 篇章的預售熱度中。
+                </div>
+                
+
+                <div class="sentiment-guide">
+                    <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
+                    <div class="guide-item"><span class="dot dot-pos"></span> <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug 回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
+                    <div class="guide-item"><span class="dot dot-neu"></span> <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
+                </div>
+            </div>
+            
+            <!-- Hot Topics -->
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🔥</span>
+                    <h2>熱門關鍵話題</h2>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600; color: #334155;"></span>
+                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
+                    </li>
+                    
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600; color: #334155;"></span>
+                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
+                    </li>
+                    
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600; color: #334155;"></span>
+                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
+                    </li>
+                    
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600; color: #334155;"></span>
+                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
+                    </li>
+                    
+                </ul>
+            </div>
+            
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-col">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <span class="card-icon">📰</span>
+                    <h2>最新動態詳情</h2>
+                </div>
+                
+                <div class="feed-container">
+                    
+                    
+                    
+                    <div class="post-container"> <!-- 佈局鎖定層 -->
+                        <a href="#" target="_blank" class="post-card " style="animation-delay: 0.0s;">
+                            <div class="post-title" style="">
+                                
+                                    無內容
+                                
+                            </div>
+                            
+                            <div class="post-meta">
+                                <span class="post-platform" style="">UNKNOWN</span>
+                                <span>時間未知</span>
+                                
+                            </div>
+
+                            <div class="post-snippet" style="">
+                                
+                                    FW 戰隊在生死局展現驚人韌性，目前全網瘋傳操作片段。
+                                
+                            </div>
+                            
+                            
+                            <div class="post-sentiment text-neu" style="">
+                                AI 判定: NEUTRAL 
+                            </div>
+                            
+                        </a>
+                    </div>
+                    
+                    
+                    
+                    <div class="post-container"> <!-- 佈局鎖定層 -->
+                        <a href="#" target="_blank" class="post-card yaya-highlight" style="animation-delay: 0.1s;">
+                            <div class="post-title" style="color: #db2777;">
+                                
+                                    無內容
+                                
+                            </div>
+                            
+                            <div class="post-meta">
+                                <span class="post-platform" style="background: #fdf2f8; color: #db2777;">UNKNOWN</span>
+                                <span>時間未知</span>
+                                
+                            </div>
+
+                            <div class="post-snippet" style="color: #831843;">
+                                
+                                    實體聯動好評爆表，櫻花季造景與芽芽看板娘成為必打卡點。
+                                
+                            </div>
+                            
+                            
+                            <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                AI 判定: NEUTRAL [焦點：芽芽]
+                            </div>
+                            
+                        </a>
+                    </div>
+                    
+                    
+                    
+                    <div class="post-container"> <!-- 佈局鎖定層 -->
+                        <a href="#" target="_blank" class="post-card " style="animation-delay: 0.2s;">
+                            <div class="post-title" style="">
+                                
+                                    無內容
+                                
+                            </div>
+                            
+                            <div class="post-meta">
+                                <span class="post-platform" style="">UNKNOWN</span>
+                                <span>時間未知</span>
+                                
+                            </div>
+
+                            <div class="post-snippet" style="">
+                                
+                                    新聖典引爆夏季氛圍，玩家對水世界主題與技能特效反應熱烈。
+                                
+                            </div>
+                            
+                            
+                            <div class="post-sentiment text-neu" style="">
+                                AI 判定: NEUTRAL 
+                            </div>
+                            
+                        </a>
+                    </div>
+                    
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ── 各平台貼文數量長條圖 ──
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Instagram', 'Threads', 'Facebook'],
+                datasets: [{
+                    label: '貼文數',
+                    data: [
+                        12,
+                        8,
+                        19
+                    ],
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

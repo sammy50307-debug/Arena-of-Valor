@@ -46,10 +46,23 @@ class LineBotNotifier:
             )
             return False
 
-        flex_message = self._build_flex_message(daily_summary)
+        # 採用使用者要求的「標題 + 快速連結」格式
+        title = daily_summary.get("title", "傳說對決 每日情報戰報")
+        report_url = daily_summary.get("report_url", config.GITHUB_PAGES_URL)
+        
+        message_text = (
+            f"📢 {title}\n"
+            f"🔗 旗艦網頁報告：{report_url}"
+        )
+
         payload = {
             "to": self.user_id,
-            "messages": [flex_message],
+            "messages": [
+                {
+                    "type": "text",
+                    "text": message_text
+                }
+            ],
         }
 
         headers = {

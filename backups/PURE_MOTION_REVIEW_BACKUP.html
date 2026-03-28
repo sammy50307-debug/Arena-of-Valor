@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【純淨躍動版】萌系戰情室 — 絕對隔離測試</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 50%, #ecfeff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --primary-cute: #db2777;
+            --secondary-cute: #7c3aed;
+            --text-main: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { width: 100%; max-width: 600px; }
+
+        h1 { margin-bottom: 2rem; color: var(--primary-cute); text-align: center; }
+
+        /* ── 關鍵：雙層隔離架構 ── */
+        .post-wrapper {
+            position: relative;
+            padding-bottom: 1.5rem; /* 固定間距，不受內部跳動影響 */
+            height: auto;
+            width: 100%;
+        }
+
+        .post-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid var(--glass-border);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            
+            /* 基礎動畫控制 */
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
+                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            
+            will-change: transform;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        /* 🔴 絕對隔離切換：只有 transform 會動，不觸發佈局重繪 🔴 */
+        .post-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
+            z-index: 10;
+            border: 2px solid #f9a8d4;
+        }
+
+        .title { font-weight: 900; font-size: 1.2rem; color: #1e293b; margin-bottom: 0.5rem; }
+        .tag { background: #fdf2f8; color: #db2777; padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.7rem; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>絕對隔離：零抖動驗證</h1>
+        <p style="text-align: center; color: #64748b; margin-bottom: 2rem;">✨ 觀察當前一項跳動時，上下鄰居是否「穩如泰山」 ✨</p>
+        
+        <!-- 使用 Wrapper 隔離佈局 -->
+        <div class="post-wrapper">
+            <a href="#" class="post-card">
+                <span class="tag">Alpha</span>
+                <div class="title" style="margin-top: 0.5rem;">我是第一個資訊條</div>
+                <p style="color: #64748b; font-size: 0.9rem;">試著滑過我，看看下方的 Beta 是否會抖動。</p>
+            </a>
+        </div>
+
+        <div class="post-wrapper">
+            <a href="#" class="post-card">
+                <span class="tag">Beta</span>
+                <div class="title" style="margin-top: 0.5rem;">我是中間的 Beta</div>
+                <p style="color: #64748b; font-size: 0.9rem;">被夾在中間最能測試鄰居間的穩定性。</p>
+            </a>
+        </div>
+
+        <div class="post-wrapper">
+            <a href="#" class="post-card">
+                <span class="tag">Gamma</span>
+                <div class="title" style="margin-top: 0.5rem;">我是底部的 Gamma</div>
+                <p style="color: #64748b; font-size: 0.9rem;">我的位置絕對固定，不受上方影響。</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

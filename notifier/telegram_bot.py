@@ -6,6 +6,7 @@ Telegram Bot 推播模組。
 """
 
 import logging
+from pathlib import Path
 from typing import Optional
 
 from telegram import Bot
@@ -44,13 +45,32 @@ class TelegramBotNotifier:
             )
             return False
 
-        message = self._build_message(daily_summary)
+        # 採用使用者要求的「標題 + 快速連結」格式
+        base_title = daily_summary.get("title", "🎮 *傳說對決 每日情報戰報*")
+        
+        # ── 警報提權 (Phase 30) ──
+        h_delta = daily_summary.get("history_delta", {})
+        alerts = h_delta.get("alerts", [])
+        alert_prefix = " [🔴 ALERT]" if alerts else ""
+        
+        title = f"{alert_prefix} {base_title}"
+        report_url = daily_summary.get("report_url", config.GITHUB_PAGES_URL)
+        
+        message_text = (
+            f"📢 *{title}*\n"
+            f"🔗 [點擊查看今日完整網頁報告]({report_url})"
+        )
+        
+        # 若有警報，額外列出簡短原因 (Phase 30)
+        if alerts:
+            alert_lines = "\n".join([f"• {a}" for a in alerts[:2]])
+            message_text += f"\n\n🚨 *關鍵示警：*\n{alert_lines}"
 
         try:
             bot = Bot(token=self.bot_token)
             await bot.send_message(
                 chat_id=self.chat_id,
-                text=message,
+                text=message_text,
                 parse_mode=ParseMode.MARKDOWN,
             )
             self.logger.info("Telegram 推播成功 ✅")
@@ -70,6 +90,32 @@ class TelegramBotNotifier:
             except Exception as e2:
                 self.logger.error(f"Telegram 純文字推播也失敗: {e2}")
                 return False
+
+    async def send_voice_briefing(self, audio_path: Path) -> bool:
+        """
+        將產出的語音戰報 (.mp3) 以語音訊息格式推送到 Telegram。
+        """
+        if not self.bot_token or not self.chat_id:
+            return False
+            
+        if not audio_path.exists():
+            self.logger.warning(f"音檔路徑不存在，跳過語音推送: {audio_path}")
+            return False
+
+        try:
+            from telegram import Bot
+            bot = Bot(token=self.bot_token)
+            with open(audio_path, 'rb') as audio_file:
+                await bot.send_voice(
+                    chat_id=self.chat_id,
+                    voice=audio_file,
+                    caption="🎙️ 今日 AI 研判戰情導讀"
+                )
+            self.logger.info("Telegram 語音戰報推送成功 ✅")
+            return True
+        except Exception as e:
+            self.logger.error(f"Telegram 語音推送失敗: {e}")
+            return False
 
     def _build_message(self, summary: dict) -> str:
         """組建 Markdown 格式的推播訊息。"""
