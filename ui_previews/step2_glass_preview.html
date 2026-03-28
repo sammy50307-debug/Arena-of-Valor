@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旗艦 UI 大改造：步驟二預覽 (Glassmorphism)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 50%, #ecfeff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --primary-cute: #db2777;
+            --secondary-cute: #7c3aed;
+            --text-main: #1e293b;
+            --card-shadow: 0 8px 32px rgba(219, 39, 119, 0.08);
+            --hover-shadow: 0 12px 40px rgba(219, 39, 119, 0.15);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 3rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-section { text-align: center; margin-bottom: 3rem; }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary-cute), var(--secondary-cute));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 99px;
+            font-weight: 700;
+            color: var(--secondary-cute);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ── Glass Cards ── */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        h2 { color: var(--text-main); margin-bottom: 1rem; font-size: 1.4rem; font-weight: 800; }
+        p { color: #475569; line-height: 1.7; }
+
+        .yaya-accent {
+            border: 2px solid #f9a8d4;
+            background: linear-gradient(135deg, rgba(253, 242, 248, 0.7) 0%, rgba(255, 255, 255, 0.7) 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <div class="badge">SUB-PHASE 2: GLASSMORPHISM</div>
+        <h1>毛玻璃質感演進</h1>
+        <p style="color: #64748b;">請試著將滑鼠移到下方的卡片上，感受那種「彈跳」與「光澤」的變化。</p>
+    </div>
+
+    <div class="preview-grid">
+        <div class="glass-card">
+            <h2>✨ 標準玻璃卡片</h2>
+            <p>這是普通的資訊區塊，現在擁有了 24px 的超圓潤邊角，以及能透出背景色彩的半透明霧面質感。</p>
+        </div>
+        
+        <div class="glass-card yaya-accent">
+            <h2>🌸 芽芽觀察室版</h2>
+            <p>針對英雄焦點區，我們加入了粉色系的微弱漸層，讓玻璃質感帶有一層淡淡的櫻粉色濾鏡。</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 4rem; text-align: center; color: #94a3b8; font-size: 0.9rem;">
+        好作品值得慢工出細活。地基與材質已就緒，下一步：裝飾與微動效。
+    </div>
+</body>
+</html>

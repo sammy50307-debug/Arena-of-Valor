@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旗艦 UI 大改造：步驟一預覽</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 50%, #ecfeff 100%);
+            --primary-cute: #db2777;
+            --secondary-cute: #7c3aed;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .preview-box {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary-cute), var(--secondary-cute));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #475569;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            background: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 99px;
+            font-weight: 700;
+            color: var(--secondary-cute);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-box">
+        <div class="badge" style="margin-bottom: 2rem;">SUB-PHASE 1: VISUAL FOUNDATION</div>
+        <h1>Lush & Lively UI</h1>
+        <p>這就是我們「萌系戰情室」的新字體與背景基色。<br>現在看背景，是不是有一種溫潤的遊戲質感了呢？</p>
+        <div style="font-size: 0.9rem; color: #94a3b8;">
+            此頁面僅展示地基效果，接下來我們將開始構築毛玻璃卡片...
+        </div>
+    </div>
+</body>
+</html>
