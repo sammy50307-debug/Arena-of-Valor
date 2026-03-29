@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arena of Valor 輿情分析 — 2026-03-30</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
@@ -820,13 +821,13 @@
                     <span class="card-icon">📊</span>
                     <h2>聲量總覽</h2>
                 </div>
-                <div class="metric-big">12</div>
+                <div class="metric-big">0</div>
                 <div class="metric-desc">今日相關新聞與社群提及數</div>
 
                 <div class="sentiment-grid">
                     <div class="sent-box sent-pos">
                         <div class="num">
-                            8
+                            0
                             
                             <span class="delta-pill delta-up">
                                 ▲ 15.5%
@@ -836,11 +837,11 @@
                         <div class="lbl">正面 👍</div>
                     </div>
                     <div class="sent-box sent-neg">
-                        <div class="num">1</div>
+                        <div class="num">0</div>
                         <div class="lbl">負面 👎</div>
                     </div>
                     <div class="sent-box sent-neu">
-                        <div class="num">3</div>
+                        <div class="num">0</div>
                         <div class="lbl">中性 😐</div>
                     </div>
                 </div>
@@ -891,46 +892,6 @@
             
             <!-- Hot Topics -->
             
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-icon">🔥</span>
-                    <h2>熱門關鍵話題</h2>
-                </div>
-                <ul style="list-style: none; padding: 0;">
-                    
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;"></span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
-                    </li>
-                    
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;"></span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
-                    </li>
-                    
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;"></span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
-                    </li>
-                    
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;"></span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
-                    </li>
-                    
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;"></span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
-                    </li>
-                    
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;"></span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
-                    </li>
-                    
-                </ul>
-            </div>
-            
         </div>
 
         <!-- Right Column -->
@@ -959,7 +920,7 @@
         // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
         try {
             const platformCtx = document.getElementById('platformChart').getContext('2d');
-            const platformDataObj = {"dcard": {"avg_sentiment": 0.5, "post_count": 0}, "facebook": {"avg_sentiment": 0.5, "post_count": 0}, "instagram": {"avg_sentiment": 0.5, "post_count": 0}, "ptt": {"avg_sentiment": 0.5, "post_count": 0}, "threads": {"avg_sentiment": 0.5, "post_count": 0}, "web": {"avg_sentiment": 0.5, "post_count": 0}, "youtube": {"avg_sentiment": 0.5, "post_count": 0}};
+            const platformDataObj = {"dcard": {"avg_sentiment": 0.5, "post_count": 0}, "facebook": {"post_count": 5, "sentiment_ratio": 0.8}, "instagram": {"avg_sentiment": 0.5, "post_count": 0}, "ptt": {"avg_sentiment": 0.5, "post_count": 0}, "threads": {"avg_sentiment": 0.5, "post_count": 0}, "web": {"avg_sentiment": 0.5, "post_count": 0}, "youtube": {"post_count": 3, "sentiment_ratio": 0.9}};
             const platformLabels = Object.keys(platformDataObj);
             const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
 
