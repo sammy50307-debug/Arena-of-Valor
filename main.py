@@ -86,27 +86,38 @@ def setup_logging():
 logger = logging.getLogger("aov_monitor")
 
 
-async def github_backup_job():
-    """自動推播報告到 GitHub 的排程任務。"""
-    logger.info("============================================================")
-    logger.info(" 🚀 開始執行每日 GitHub 自動備份任務 (凌晨 02:00)")
-    logger.info("============================================================")
+async def github_backup_job(is_manual: bool = False):
+    """自動推播報告到 GitHub 的部署任務。"""
+    prefix = "🚀 [自動部署]" if not is_manual else "📦 [每日備份]"
+    logger.info("=" * 60)
+    logger.info(f" {prefix} 啟動 GitHub 雲端同步程序...")
+    logger.info("=" * 60)
     
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # 確保 git 在系統環境變數中
         subprocess.run(["git", "add", "data/reports/"], check=True, capture_output=True)
         
-        commit_msg = f"chore: 機器人自動備份報告 {timestamp}"
+        # 專業變動探測：diff --cached --quiet (exit 1 代表有變動)
+        has_changes = subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode != 0
+        
+        if not has_changes:
+            logger.info("  ℹ️ 雲端已是最新同步狀態，無需重複上傳。")
+            return
+
+        commit_msg = f"docs: 戰略報告自動同步 {timestamp}"
         subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
         subprocess.run(["git", "push"], check=True, capture_output=True)
         
-        logger.info(f"  ✅ GitHub 備份完成！Commit: {commit_msg}")
+        logger.info(f"  ✅ GitHub 同步完成！報表已部署至雲端。")
     except subprocess.CalledProcessError as e:
         output = e.output.decode('utf-8', errors='ignore') if e.output else ""
-        if "nothing to commit" in output or "無檔案要提交" in output:
-            logger.info("  ℹ️ 今日沒有新報告，無需備份。")
+        if "nothing to commit" in output:
+            logger.info("  ℹ️ 今日報告內容無變動，略過同步。")
         else:
-            logger.error(f"  ❌ GitHub 備份失敗: {e.stderr.decode('utf-8', errors='ignore') if e.stderr else str(e)}")
+            logger.error(f"  ❌ GitHub 同步失敗: {e.stderr.decode('utf-8', errors='ignore') if e.stderr else str(e)}")
+    except Exception as e:
+        logger.error(f"  ❌ GitHub 同步例外: {e}")
 
 
 async def obsidian_backup_job():
@@ -161,18 +172,18 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
         logger.info(" [!] 偵測到演示模式：啟用高品質數據備援機制 (12 條精選輿情)...")
         from scrapers.tavily_searcher import SearchResult
         all_results = [
-            SearchResult(title="【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？", url="https://example.com/aov-yaya-guide", content="這波芽芽的護盾增強真的太有感了！在排位賽中幾乎是非 Ban 即選的存在。本文詳細解析如何利用被動進行極致換血...", region="TW", platform="Website", score=0.98),
-            SearchResult(title="2026 傳說職業聯賽：台服戰隊奪冠後，玩家聲量爆棚！", url="https://example.com/aov-pro-league", content="台服戰隊在最後一波團戰中展現了驚人的韌性。玩家們紛紛表示這是有史以來最精彩的一場決賽。台服環境明顯回溫。", region="TW", platform="Facebook", score=0.95),
-            SearchResult(title="[討論] 芽芽目前的裝備選擇？坦裝還是全法？", url="https://example.com/ptt-aov-yaya", content="自從改版後，全法芽芽的出裝週期太長，推薦大家還是走半坦，不僅能抗裝還能維持護盾厚度。鄉民們討論度極高。", region="TW", platform="Forum", score=0.92),
-            SearchResult(title="官方更新：台服平衡調整公告，多名射手遭削弱", url="https://example.com/aov-patch-notes", content="針對台服高端局節奏過快的問題，官方今日宣布對勇、凡恩等射手進行削弱。社群情緒目前呈現兩極化反應。", region="TW", platform="Website", score=0.90),
-            SearchResult(title="【繪畫】萌系芽芽：櫻花下的守護者", url="https://example.com/art-yaya", content="這是我為芽芽畫的新造型想像圖，背景就是櫻花落下的樣子，希望官方能出這套造型！下方社群好評不斷。", region="TW", platform="Instagram", score=0.88),
-            SearchResult(title="職業聯賽戰術解析：芽芽與克里希的配合機制", url="https://example.com/tactics-yaya", content="在最新的 GCS 比賽中，這種配合展現了強大的地圖控制力。分析師認為這將成為本季台服的主流體系。", region="TW", platform="Website", score=0.85),
-            SearchResult(title="[抱怨] 芽芽掛機怎麼檢舉？這機制有問題吧？", url="https://example.com/rant-yaya", content="真的很討厭隊友選了芽芽結果整場不放技能。希望官方能加強檢舉系統。此帖引發了大量共鳴。", region="TW", platform="Forum", score=0.83),
-            SearchResult(title="新角色預告：來自迷霧島的守護靈", url="https://example.com/new-hero-teased", content="官方釋出了神秘的剪影，看起來與芽芽的背景故事有關。台服玩家對此充滿期待。", region="TW", platform="Facebook", score=0.80),
-            SearchResult(title="新手入坑指南：如何從零開始自學芽芽？", url="https://example.com/newbie-guide", content="本指南專為那些喜歡輔助位置的新人設計。詳細列出了技能加點與遊走路線。是目前新手圈最熱門的文章。", region="TW", platform="Website", score=0.78),
-            SearchResult(title="【實測】芽芽被動觸發頻率對會戰的影響", url="https://example.com/test-yaya", content="經過數據測試，在 40% 冷卻縮減下，芽芽能提供幾乎不間斷的護盾。這在後期是大優勢。", region="TW", platform="YouTube", score=0.75),
-            SearchResult(title="台服社群盃報名開始：芽芽禁選令引發熱議", url="https://example.com/community-cup", content="為了比賽多樣性，社群盃宣佈暫時禁選芽芽。這引發了輔助玩家的廣泛討論。", region="TW", platform="Facebook", score=0.72),
-            SearchResult(title="[速報] 傳說對決台服下載量突破新高", url="https://example.com/download-record", content="受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。", region="TW", platform="Website", score=0.70)
+            SearchResult(title="【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？", content="這波芽芽的護盾增強真的太有感了！在排位賽中幾乎是非 Ban 即選的存在。本文詳細解析如何利用被動進行極致換血...", url="https://example.com/aov-yaya-guide", region="TW", platform="Website", score=0.98),
+            SearchResult(title="2026 傳說職業聯賽：台服戰隊奪冠後，玩家聲量爆棚！", content="台服戰隊在最後一波團戰中展現了驚人的韌性。玩家們紛紛表示這是有史以來最精彩的一場決賽。台服環境明顯回溫。", url="https://example.com/aov-pro-league", region="TW", platform="Facebook", score=0.95),
+            SearchResult(title="[討論] 芽芽目前的裝備選擇？坦裝還是全法？", content="自從改版後，全法芽芽的出裝週期太長，推薦大家還是走半坦，不僅能抗裝還能維持護盾厚度。鄉民們討論度極高。", url="https://example.com/ptt-aov-yaya", region="TW", platform="Forum", score=0.92),
+            SearchResult(title="官方更新：台服平衡調整公告，多名射手遭削弱", content="針對台服高端局節奏過快的問題，官方今日宣布對勇、凡恩等射手進行削弱。社群情緒目前呈現兩極化反應。", url="https://example.com/aov-patch-notes", region="TW", platform="Website", score=0.90),
+            SearchResult(title="【繪畫】萌系芽芽：櫻花下的守護者", content="這是我為芽芽畫的新造型想像圖，背景就是櫻花落下的樣子，希望官方能出這套造型！下方社群好評不斷。", url="https://example.com/art-yaya", region="TW", platform="Instagram", score=0.88),
+            SearchResult(title="職業聯賽戰術解析：芽芽與克里希的配合機制", content="在最新的 GCS 比賽中，這種配合展現了強大的地圖控制力。分析師認為這將成為本季台服的主流體系。", url="https://example.com/tactics-yaya", region="TW", platform="Website", score=0.85),
+            SearchResult(title="[抱怨] 芽芽掛機怎麼檢舉？這機制有問題吧？", content="真的很討厭隊友選了芽芽結果整場不放技能。希望官方能加強檢舉系統。此帖引發了大量共鳴。", url="https://example.com/rant-yaya", region="TW", platform="Forum", score=0.83),
+            SearchResult(title="新角色預告：來自迷霧島的守護靈", content="官方釋出了神秘的剪影，看起來與芽芽的背景故事有關。台服玩家對此充滿期待。", url="https://example.com/new-hero-teased", region="TW", platform="Facebook", score=0.80),
+            SearchResult(title="新手入坑指南：如何從零開始自學芽芽？", content="本指南專為那些喜歡輔助位置的新人設計。詳細列出了技能加點與遊走路線。是目前新手圈最熱門的文章。", url="https://example.com/newbie-guide", region="TW", platform="Website", score=0.78),
+            SearchResult(title="【實測】芽芽被動觸發頻率對會戰的影響", content="經過數據測試，在 40% 冷卻縮減下，芽芽能提供幾乎不間斷的護盾。這在後期是大優勢。", url="https://example.com/test-yaya", region="TW", platform="YouTube", score=0.75),
+            SearchResult(title="台服社群盃報名開始：芽芽禁選令引發熱議", content="為了比賽多樣性，社群盃宣佈暫時禁選芽芽。這引發了輔助玩家的廣泛討論。", url="https://example.com/community-cup", region="TW", platform="Facebook", score=0.72),
+            SearchResult(title="[速報] 傳說對決台服下載量突破新高", content="受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。", url="https://example.com/download-record", region="TW", platform="Website", score=0.70)
         ]
     else:
         logger.info(" Step 1/4: 開始使用 Tavily 搜集全球區域情報...")
@@ -300,6 +311,10 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     logger.info(f"   搜集: {len(all_results)} 筆 | 分析: {len(analyzed_posts)} 筆")
     logger.info("=" * 60)
 
+    # ────── 雲端即時部署 (New) ──────────────────────────────────
+    if not dry_run:
+        await github_backup_job(is_manual=False)
+
 
 # ── CLI 與排程 ────────────────────────────────────────
 async def main():
@@ -322,8 +337,8 @@ async def main():
         console.print(
             f"\n[bold cyan] AoV 輿情監測系統[/bold cyan] — {mode_text}\n"
         )
-        # 如果是 showcase，我們可以在這層攔截並注入 mock 調用
-        await run_pipeline(dry_run=(args.dry_run or args.showcase))
+        # 解除綁定：除非用戶明確下 --dry-run，否則 showcase 也要推播通知以展現全功
+        await run_pipeline(dry_run=args.dry_run, showcase=args.showcase)
     else:
         console.print("\n[bold cyan] AoV 輿情監測系統[/bold cyan] — 排程模式\n")
         

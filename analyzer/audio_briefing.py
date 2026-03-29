@@ -81,8 +81,11 @@ class AudioBriefingGenerator:
                 logger.warning(f"  [!] 語音生成失敗 (可能未安裝 edge-tts): {stderr.decode()}")
                 return None
 
+        except FileNotFoundError:
+            logger.info("  [SKIP] 系統未安裝 edge-tts 引擎，跳過語音導讀生成。")
+            return None
         except Exception as e:
-            logger.error(f"  [FAIL] 語音生成發生例外: {e}")
+            logger.warning(f"  [!] 語音生成跳過 (環境限制): {e}")
             return None
 
 # ── 獨立測試 ──────────────────────────────

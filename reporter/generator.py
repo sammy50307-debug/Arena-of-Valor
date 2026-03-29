@@ -52,6 +52,17 @@ class ReportGenerator:
 
         report_date = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
 
+        raw_pb = daily_summary.get("platform_breakdown", {})
+        platform_breakdown = {
+            "instagram": raw_pb.get("instagram", {"post_count": 0, "avg_sentiment": 0.5}),
+            "threads": raw_pb.get("threads", {"post_count": 0, "avg_sentiment": 0.5}),
+            "facebook": raw_pb.get("facebook", {"post_count": 0, "avg_sentiment": 0.5}),
+            "web": raw_pb.get("web", {"post_count": 0, "avg_sentiment": 0.5}),
+            "ptt": raw_pb.get("ptt", {"post_count": 0, "avg_sentiment": 0.5}),
+            "dcard": raw_pb.get("dcard", {"post_count": 0, "avg_sentiment": 0.5}),
+            "youtube": raw_pb.get("youtube", {"post_count": 0, "avg_sentiment": 0.5}),
+        }
+
         # 準備模板變數
         template_vars = {
             "date": report_date,
@@ -65,14 +76,7 @@ class ReportGenerator:
             ),
             "hot_topics": daily_summary.get("hot_topics", []),
             "detected_events": daily_summary.get("detected_events", []),
-            "platform_breakdown": daily_summary.get(
-                "platform_breakdown",
-                {
-                    "instagram": {"post_count": 0, "avg_sentiment": 0},
-                    "threads": {"post_count": 0, "avg_sentiment": 0},
-                    "facebook": {"post_count": 0, "avg_sentiment": 0},
-                },
-            ),
+            "platform_breakdown": platform_breakdown,
             "recommendation": daily_summary.get("recommendation", ""),
             "history_delta": daily_summary.get("history_delta", {"trends": {}, "alerts": []}),
             "global_insights": daily_summary.get("global_insights", {
@@ -92,6 +96,11 @@ class ReportGenerator:
                 or any(k in p.get("post", {}).get("content", "") for k in ["芽", "造型", "可愛", "萌"])
             ][:8],
             "posts": analyzed_posts,
+            "config": {
+                "HERO_FOCUS_NAME": getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+                "ALERT_VOL_DELTA": getattr(config, "ALERT_VOL_DELTA", 20),
+                "ALERT_NEG_RATIO": getattr(config, "ALERT_NEG_RATIO", 30),
+            }
         }
 
         # ── 防空機制：如果 AI 摘要遺失但有抓到文章，手動補齊 ──────────────────

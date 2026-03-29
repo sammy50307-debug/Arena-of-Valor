@@ -30,8 +30,18 @@ class HistoryResolver:
         """
         archives = self._load_recent_archives()
         if not archives:
-            logger.info("  [!] 無法找到過往數據，跳過 Delta 計算。")
-            return {}
+            logger.info("  [!] 無法找到過往數據，提供備援 Delta 結構。")
+            today_vol = today_summary.get("total_posts", 0)
+            return {
+                "overall": {"volume_pct": 0.0, "avg_baseline": today_vol, "is_red_alert": False},
+                "heroes": {},
+                "weekly_vol_pulse": {
+                    "volumes": [today_vol], 
+                    "labels": [datetime.now().strftime("%m/%d")], 
+                    "average": today_vol
+                },
+                "alerts": []
+            }
 
         results = {
             "overall": self._calculate_overall_delta(today_summary, archives),

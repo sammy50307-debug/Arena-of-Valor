@@ -862,10 +862,17 @@
                         <span class="stat-label">WIN RATE</span>
                         <div class="stat-val {% if stats.win_rate > 52 %}pulse-high{% endif %}">{{ stats.win_rate }}%</div>
                     </div>
+                    {% if analysis and analysis.overall %}
                     <div class="stat-card">
-                        <span class="stat-label">PICK RATE</span>
-                        <div class="stat-val">{{ stats.pick_rate }}%</div>
+                        <div class="stat-value">{{ "%.1f"|format(analysis.overall.sentiment_score * 100) }}%</div>
+                        <div class="stat-label">全網正面情緒</div>
                     </div>
+                    {% else %}
+                    <div class="stat-card">
+                        <div class="stat-value">95.0%</div>
+                        <div class="stat-label">旗艦演示模式</div>
+                    </div>
+                    {% endif %}
                     <div class="stat-card">
                         <span class="stat-label">BAN RATE</span>
                         <div class="stat-val">{{ stats.ban_rate }}%</div>
@@ -1007,7 +1014,8 @@
                     {% set a = p.get('analysis', {}) %}
                     {% set post_data = p.get('post', {}) %}
                     {% set region = post_data.get('region', 'TW') %}
-                    {% set is_yaya = (getattr(config, "HERO_FOCUS_NAME", "芽芽") in post_data.get("content", "")) or (getattr(config, "HERO_FOCUS_NAME", "芽芽") in a.get("summary", "")) %}
+                    {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
+                    {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary", "")) %}
                     
                     <div class="post-container filterable-region" data-region="{{ region }}">
                         <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
@@ -1058,7 +1066,7 @@
                                 
                                 {% if a %}
                                 <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}" style="{% if is_yaya %}color: #be185d !important;{% endif %}">
-                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ getattr(config, "HERO_FOCUS_NAME", "芽芽") }}]{% endif %}
+                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ focus_hero }}]{% endif %}
                                 </div>
                                 {% endif %}
                             </a>
