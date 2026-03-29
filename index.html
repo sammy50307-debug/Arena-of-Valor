@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YaYa Tactical Hub | 傳說對決 AI 輿情監測旗艦</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --bg-card: rgba(15, 23, 42, 0.8);
+            --primary: #6366f1;
+            --accent: #f43f5e;
+            --cyan: #22d3ee;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 🌸 櫻花落英效果 */
+        .sakura-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .sakura {
+            position: absolute;
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            border-radius: 100% 0 100% 0;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* 🌌 背景網格 */
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+
+        .hero-section {
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-container {
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px; height: 120px;
+            background: var(--primary);
+            filter: blur(40px);
+            opacity: 0.3;
+            animation: pulse 3s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.2; scale: 1; }
+            to { opacity: 0.5; scale: 1.2; }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .cta-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .main-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            color: white;
+            padding: 1.2rem 3rem;
+            border-radius: 99px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .main-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+            letter-spacing: 1px;
+        }
+
+        .history-grid {
+            margin-top: 4rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .history-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            opacity: 0.5;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--cyan);
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="sakura-container" id="sakura"></div>
+
+    <main class="hero-section">
+        <div class="status-badge">
+            <i data-lucide="shield-check" style="width:14px"></i>
+            系統在線：數據指揮中樞已就緒
+        </div>
+
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <i data-lucide="zap" style="width: 80px; height: 80px; color: var(--cyan); position: relative; z-index: 2;"></i>
+        </div>
+
+        <h1>YaYa Tactical Hub</h1>
+        <p class="subtitle">
+            基於 AI 的自動化輿情與活動監測系統<br>
+            專為傳說對決 (AoV) 打造的統馭級戰略儀表板
+        </p>
+
+        <div class="cta-container">
+            <a href="data/reports/aov_report_2026-03-30.html" class="main-btn">
+                進入最新戰報 (2026-03-30)
+                <i data-lucide="arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="history-grid">
+            <a href="data/reports/aov_report_2026-03-29.html" class="history-item">
+                <i data-lucide="history" style="width: 14px"></i>
+                03/29 戰報
+            </a>
+            <a href="data/reports/aov_report_2026-03-27.html" class="history-item">
+                <i data-lucide="history" style="width: 14px"></i>
+                03/27 戰報
+            </a>
+            <a href="data/reports/aov_report_2026-03-23.html" class="history-item">
+                <i data-lucide="history" style="width: 14px"></i>
+                03/23 戰報
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        &copy; 2026 YaYa AI Strategic Team. All rights reserved.
+    </footer>
+
+    <script>
+        // 🌸 初始化櫻花落英
+        const container = document.getElementById('sakura');
+        for (let i = 0; i < 20; i++) {
+            const petal = document.createElement('div');
+            petal.className = 'sakura';
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.width = Math.random() * 10 + 5 + 'px';
+            petal.style.height = petal.style.width;
+            petal.style.animationDuration = Math.random() * 5 + 5 + 's';
+            petal.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(petal);
+        }
+
+        // 🛠️ 初始化圖標
+        lucide.createIcons();
+    </script>
+</body>
+</html>
