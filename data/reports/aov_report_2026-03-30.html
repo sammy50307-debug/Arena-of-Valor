@@ -956,20 +956,7 @@
     </div>
 
     <script>
-        // ── 各平台貼文數量長條圖 ──
-        const platformCtx = document.getElementById('platformChart').getContext('2d');
-        new Chart(platformCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Instagram', 'Threads', 'Facebook'],
-                datasets: [{
-                    label: '貼文數',
-                    data: [
-                        0,
-                        0,
-                        0
-                    ],
-                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+        // ── 各平台貼文數量長條圖 (Phase 35.12 Dynamic Fix) ──
                     borderRadius: 6
                 }]
             },
@@ -994,49 +981,54 @@
         // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
         
 
-        // ── 7 日聲量脈搏圖 (Phase 29) ──
-        
-        const pulseDom = document.getElementById('weeklyPulseChart');
-        if (pulseDom) {
-            const pulseChart = echarts.init(pulseDom);
-            const pulseOption = {
-                grid: { top: 5, bottom: 20, left: 0, right: 0 },
-                xAxis: {
-                    type: 'category',
-                    data: ["03/24", "03/25", "03/26", "03/27", "03/28", "03/29", "03/30"],
-                    show: true,
-                    axisLine: { show: false },
-                    axisTick: { show: false },
-                    axisLabel: { color: '#94a3b8', fontSize: 10 }
-                },
-                yAxis: { type: 'value', show: false },
-                series: [
-                    {
-                        data: [45, 52, 48, 70, 85, 62, 78],
-                        type: 'line',
-                        smooth: true,
-                        symbol: 'none',
-                        lineStyle: { color: '#6366f1', width: 2 },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
-                                { offset: 1, color: 'rgba(99, 102, 241, 0)' }
-                            ])
+        // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
+        try {
+            const historyData = {"alerts": [], "overall": {"avg_baseline": 65.0, "is_red_alert": false, "volume_pct": 15.5}, "weekly_vol_pulse": {"average": 62.8, "labels": ["03/24", "03/25", "03/26", "03/27", "03/28", "03/29", "03/30"], "volumes": [45, 52, 48, 70, 85, 62, 78]}};
+            if (historyData && historyData.weekly_vol_pulse) {
+                const pulseDom = document.getElementById('weeklyPulseChart');
+                if (pulseDom) {
+                    const pulseChart = echarts.init(pulseDom);
+                    const pulseOption = {
+                        grid: { top: 5, bottom: 20, left: 0, right: 0 },
+                        xAxis: {
+                            type: 'category',
+                            data: historyData.weekly_vol_pulse.labels || [],
+                            show: true,
+                            axisLine: { show: false },
+                            axisTick: { show: false },
+                            axisLabel: { color: '#94a3b8', fontSize: 10 }
                         },
-                        markLine: {
-                            silent: true,
-                            symbol: 'none',
-                            label: { show: false },
-                            data: [{ yAxis: 62.8 }],
-                            lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
-                        }
-                    }
-                ]
-            };
-            pulseChart.setOption(pulseOption);
-            window.addEventListener('resize', () => pulseChart.resize());
+                        yAxis: { type: 'value', show: false },
+                        series: [
+                            {
+                                data: historyData.weekly_vol_pulse.volumes || [],
+                                type: 'line',
+                                smooth: true,
+                                symbol: 'none',
+                                lineStyle: { color: '#6366f1', width: 2 },
+                                areaStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                                        { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+                                    ])
+                                },
+                                markLine: {
+                                    silent: true,
+                                    symbol: 'none',
+                                    label: { show: false },
+                                    data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
+                                    lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
+                                }
+                            }
+                        ]
+                    };
+                    pulseChart.setOption(pulseOption);
+                    window.addEventListener('resize', () => pulseChart.resize());
+                }
+            }
+        } catch (e) {
+            console.error('⚠️ Weekly Pulse Chart Error:', e);
         }
-        
     </script>
     <script>
         // Phase 33: 區域切換邏輯
