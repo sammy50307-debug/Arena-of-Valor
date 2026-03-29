@@ -956,27 +956,46 @@
     </div>
 
     <script>
-        // ── 各平台貼文數量長條圖 (Phase 35.12 Dynamic Fix) ──
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+        // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
+        try {
+            const platformCtx = document.getElementById('platformChart').getContext('2d');
+            const platformDataObj = {"dcard": {"avg_sentiment": 0.5, "post_count": 0}, "facebook": {"avg_sentiment": 0.5, "post_count": 0}, "instagram": {"avg_sentiment": 0.5, "post_count": 0}, "ptt": {"avg_sentiment": 0.5, "post_count": 0}, "threads": {"avg_sentiment": 0.5, "post_count": 0}, "web": {"avg_sentiment": 0.5, "post_count": 0}, "youtube": {"avg_sentiment": 0.5, "post_count": 0}};
+            const platformLabels = Object.keys(platformDataObj);
+            const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
+
+            new Chart(platformCtx, {
+                type: 'bar',
+                data: {
+                    labels: platformLabels,
+                    datasets: [{
+                        label: '貼文數',
+                        data: platformValues,
+                        backgroundColor: platformLabels.map(p => {
+                            const plat = p.toLowerCase();
+                            if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
+                            if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
+                            if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃
+                            return '#94a3b8';
+                        }),
+                        borderRadius: 8
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { cornerRadius: 8 }
                     },
-                    x: {
-                        grid: { display: false }
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { grid: { display : false } }
                     }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('⚠️ Platform Chart Error:', e);
+        }
 
         // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
         
