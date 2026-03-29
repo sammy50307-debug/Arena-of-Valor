@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena of Valor 輿情分析 — 2026-03-30</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            /* ── Phase 34.2: Lush Strategic Fusion (粉嫩戰略融合) ── */
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(219, 39, 119, 0.2);
+            --primary-accent: #db2777; /* 旗艦桃紅 */
+            --secondary-accent: #9333ea; /* 紫羅蘭 */
+            --accent-mint: #10b981;
+            --text-main: #1e293b; /* 保持專業深灰對比 */
+            --text-muted: #64748b;
+            --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
+            --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
+            --tw-color: #db2777;
+            --glow-neon: 0 0 15px rgba(219, 39, 119, 0.4);
+            --glow-pulse: 0 0 25px rgba(219, 39, 119, 0.6);
+        }
+
+        @keyframes neon-breath {
+            0% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
+            50% { box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4); }
+            100% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
+        }
+
+        @keyframes live-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 3rem;
+            margin: 0;
+            scroll-behavior: smooth;
+        }
+
+        /* ── Modern Mesh Background ── */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ── Glassmorphism 2.0 ── */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
+                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* ── Double-Layer Isolation (No Jitter) ─ */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .post-container {
+            isolation: isolate; /* 物理隔離關鍵 */
+            padding: 10px 0;
+        }
+
+        .post-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            opacity: 0;
+            transform: scale(0.95) translateY(30px);
+            animation: popIn 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
+                        background 0.3s ease, 
+                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            will-change: transform, box-shadow, opacity;
+            transform: translateZ(0); 
+            backface-visibility: hidden;
+            contain: layout style;
+        }
+
+        /* ── 精準文字排版 (修正相容性) ────────────────── */
+        .post-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--primary-accent);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-clamp: 2;
+            overflow: hidden;
+        }
+
+        .post-content {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+            overflow: hidden;
+            line-height: 1.7;
+        }
+
+        /* ── Global Hub Shimmer Animation ── */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 100% 0; }
+        }
+
+        .global-insights-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, 
+                rgba(30, 41, 59, 0.7) 0%, 
+                rgba(56, 189, 248, 0.1) 50%, 
+                rgba(30, 41, 59, 0.7) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 10s infinite linear;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .live-pulse {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse-live 1.5s infinite;
+        }
+
+        @keyframes pulse-live {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
+        .hero-focus-card {
+            border: 2px solid var(--primary-accent) !important;
+            filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.4));
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(253, 242, 248, 0.9) 100%) !important;
+            animation: neon-breath 4s ease-in-out infinite;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .post-platform {
+            font-weight: 600;
+            background: #e2e8f0;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            color: #475569;
+        }
+
+        .post-snippet {
+            font-size: 0.95rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-sentiment {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .text-pos { color: var(--accent-green); }
+        .text-neg { color: var(--accent-red); }
+        .text-neu { color: var(--accent-yellow); }
+
+        /* ── Hero Focus: YaYa Premium UI ────── */
+        .hero-focus-title {
+            color: var(--primary-accent) !important;
+            font-size: 2.2rem !important;
+            font-weight: 800 !important;
+            text-shadow: 0 0 20px rgba(219, 39, 119, 0.4);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-scanline {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(219, 39, 119, 0.05) 50.5%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.3;
+        }
+
+        .hero-focus-badge {
+            background-color: #fbcfe8;
+            color: #be185d;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .hero-summary {
+            font-size: 0.95rem;
+            color: #831843;
+            background: rgba(251, 207, 232, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .hero-post-item {
+            border-left: 3px solid #f472b6;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #be185d;
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Delta Indicators (Phase 29) */
+        .delta-pill {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-left: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+        }
+        .delta-up { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .delta-down { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .delta-pulse { animation: deltaPulse 2s infinite; }
+        @keyframes deltaPulse {
+            0% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.8; transform: scale(1); }
+        }
+
+        /* ── Combat Stats Panel ── */
+        .combat-stats-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(251, 207, 232, 1);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 8px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.65rem;
+            color: #be185d;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #831843;
+        }
+
+        .pulse-high {
+            animation: statPulse 2s infinite;
+        }
+
+        @keyframes statPulse {
+            0% { text-shadow: 0 0 0px rgba(190, 24, 93, 0); }
+            50% { text-shadow: 0 0 8px rgba(190, 24, 93, 0.5); }
+            100% { text-shadow: 0 0 0px rgba(190, 24, 93, 0); }
+        }
+
+        /* ── Audio Briefing Sticky Bar ── */
+        .audio-player-container {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(251, 207, 232, 1);
+            border-radius: 20px;
+            padding: 12px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(190, 24, 93, 0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            animation: playerFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes playerFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .audio-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .audio-icon {
+            font-size: 1.5rem;
+            animation: rotateBeat 2s linear infinite;
+        }
+
+        @keyframes rotateBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .audio-text h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #be185d;
+        }
+
+        .audio-text p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: rgba(190, 24, 93, 0.7);
+        }
+
+        .visualizer {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 20px;
+        }
+
+        .bar {
+            width: 3px;
+            height: 100%;
+            background: #f472b6;
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { height: 20%; }
+            50% { height: 100%; }
+        }
+
+        audio {
+            height: 35px;
+            border-radius: 50px;
+            outline: none;
+        }
+
+        /* ── Tactical Advice Hub (Phase 31) ───── */
+        .alert-banner {
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            border: 2px solid #ef4444;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 20px rgba(239, 68, 68, 0.2);
+            animation: redGlow 3s infinite alternate ease-in-out;
+            transform: translateZ(0); /* Phase 30.1 Fix */
+            will-change: transform;
+        }
+
+        .alert-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .alert-entry {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .alert-label-text {
+            font-weight: 700;
+            color: #fecaca;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tactical-box {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(5px);
+            border-left: 4px solid #38bdf8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .advice-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .advice-body {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        @keyframes redGlow {
+            from { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+            to { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+        }
+
+        /* ── Sentiment WordCloud (Phase 32) ───── */
+        .tag-cloud-section {
+            margin-top: 1.5rem;
+            padding-top: 1.2rem;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .tag-cloud-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tags-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .tag-pill {
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            color: #475569;
+            transition: all 0.3s ease;
+            cursor: default;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .tag-pos {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+            color: #059669;
+        }
+
+        .tag-neg {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+            color: #dc2626;
+        }
+
+        .tag-pill:hover {
+            transform: scale(1.1) rotate(2deg);
+            background: white;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        /* ── Global War Room UI (Phase 33) ───── */
+        .region-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: sticky;
+            top: 1rem;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            justify-content: center;
+        }
+
+        .region-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+        }
+
+        .region-btn.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: rgba(0,0,0,0.05);
+        }
+
+        .region-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .btn-tw .region-indicator { background: var(--tw-color); }
+        .btn-th .region-indicator { background: var(--th-color); }
+        .btn-vn .region-indicator { background: var(--vn-color); }
+
+        .hide-region {
+            display: none !important;
+        }
+
+        .region-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .tag-tw { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .tag-th { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .tag-vn { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        .translate-btn {
+            background: rgba(219, 39, 119, 0.05);
+            border: 1px solid rgba(219, 39, 119, 0.1);
+            color: #db2777;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .translate-btn:hover { background: rgba(219, 39, 119, 0.1); }
+
+        .live-pulse {
+            width: 10px; height: 10px;
+            background: var(--primary-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--primary-accent);
+            animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .global-insights-card {
+            /* 演示模式：戰略通訊中心 */
+            background: linear-gradient(135deg, rgba(219, 39, 119, 0.03) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
+            border: 2px solid var(--primary-accent) !important;
+            animation: neon-breath 4s ease-in-out infinite;
+        }
+
+        .global-insights-card::before {
+            content: 'GLOBAL PULSE';
+            position: absolute;
+            right: -20px;
+            bottom: -10px;
+            font-size: 5rem;
+            font-weight: 900;
+            opacity: 0.05;
+            color: white;
+        }
+
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .insight-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .insight-box h4 {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .region-tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .tag-tw { background: rgba(59, 130, 246, 0.1); color: var(--tw-color); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .tag-th { background: rgba(245, 158, 11, 0.1); color: var(--th-color); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .tag-vn { background: rgba(239, 68, 68, 0.1); color: var(--vn-color); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        /* ── Sakura Particles (Phase 34.2 Restore) ── */
+        .sakura-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .sakura {
+            position: absolute;
+            background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
+            border-radius: 100% 0 100% 0;
+            opacity: 0.3;
+            animation: sakura-fall linear infinite;
+        }
+        @keyframes sakura-fall {
+            0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ── Tactical Glow Adjustments ── */
+        .card {
+            box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
+            border: 1px solid var(--glass-border);
+        }
+        .card:hover { border: 1px solid rgba(219, 39, 119, 0.4); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Arena of Valor 輿情分析</h1>
+        <div class="date-pill">2026-03-30</div>
+    </header>
+
+    <div class="sakura-container" id="sakura-box"></div>
+    <script>
+        // Sakura Particle Generator
+        function createSakura() {
+            const container = document.getElementById('sakura-box');
+            if(!container) return;
+            const s = document.createElement('div');
+            s.className = 'sakura';
+            const size = Math.random() * 10 + 5;
+            s.style.width = size + 'px';
+            s.style.height = size + 'px';
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDuration = Math.random() * 5 + 5 + 's';
+            s.style.opacity = Math.random() * 0.4 + 0.1;
+            container.appendChild(s);
+            setTimeout(() => s.remove(), 10000);
+        }
+        setInterval(createSakura, 300);
+    </script>
+
+    <nav class="region-nav">
+        <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
+            <span class="region-indicator" style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span> 
+            🌸 傳說對決：台服旗艦監視中心 (TW SINGLE-CORE OPS)
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="layout-container">
+
+        <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
+        <div class="global-insights-card" style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">🛰️ 台服戰略通訊中心 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN TACTICAL COMMAND</span></h2>
+                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
+            </div>
+            <div style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
+                今日輿情共搜集到 12 筆資料。在系統備援模式下穩定運作。
+            </div>
+        </div>
+
+        
+        
+        <!-- Audio Briefing Player (Phase 27) -->
+        
+
+        <!-- Left Column -->
+        <div class="left-col">
+
+            <!-- Hero Focus: YaYa -->
+            
+            <div class="card hero-focus-card">
+                <div class="card-header">
+                    <span class="card-icon">🌸</span>
+                    <h2 class="hero-focus-title">芽芽 觀察室</h2>
+                </div>
+                
+                <div class="hero-summary">
+                    在演示模式下展現了統馭級穩定性。
+                </div>
+
+                <div class="hero-grid">
+                    <div>
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
+                        
+                    </div>
+                    
+                    
+                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://example.com/aov-yaya-guide" target="_blank" class="hero-link">
+                                [Website] 分析失敗
+                            </a>
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://example.com/ptt-aov-yaya" target="_blank" class="hero-link">
+                                [Forum] 分析失敗
+                            </a>
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://example.com/art-yaya" target="_blank" class="hero-link">
+                                [Instagram] 分析失敗
+                            </a>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+
+                <!-- Combat Stats Dashboard -->
+                
+                
+            </div>
+            
+            
+            <!-- Total Volume -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h2>聲量總覽</h2>
+                </div>
+                <div class="metric-big">12</div>
+                <div class="metric-desc">今日相關新聞與社群提及數</div>
+
+                <div class="sentiment-grid">
+                    <div class="sent-box sent-pos">
+                        <div class="num">
+                            0
+                            
+                        </div>
+                        <div class="lbl">正面 👍</div>
+                    </div>
+                    <div class="sent-box sent-neg">
+                        <div class="num">0</div>
+                        <div class="lbl">負面 👎</div>
+                    </div>
+                    <div class="sent-box sent-neu">
+                        <div class="num">12</div>
+                        <div class="lbl">中性 😐</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="platformChart"></canvas>
+                </div>
+
+                <!-- Hero Sentiment Heatmap (Phase 28) -->
+                
+                <!-- 7 日聲量脈搏 (Phase 29) -->
+                
+                <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
+                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈 7 日聲量脈搏</h3>
+                    <div id="weeklyPulseChart" style="width: 100%; height: 80px;"></div>
+                    <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
+                        虛線標示: 7 日平均熱度 ()
+                    </div>
+                </div>
+                
+
+                <!-- 全域情緒詞雲 (Phase 32) -->
+                
+            </div>
+
+            <!-- AI Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🧠</span>
+                    <h2>AI 智能解讀 (LLM)</h2>
+                </div>
+                <div class="ai-overview">今日輿情共搜集到 12 筆資料。在系統備援模式下穩定運作。</div>
+
+                
+                <div class="recommendation-box">
+                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
+                    偵測到 API 限制，已啟動旗艦演示備援數據。
+                </div>
+                
+
+                <div class="sentiment-guide">
+                    <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
+                    <div class="guide-item"><span class="dot dot-pos"></span> <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug 回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
+                    <div class="guide-item"><span class="dot dot-neu"></span> <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
+                </div>
+            </div>
+            
+            <!-- Hot Topics -->
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🔥</span>
+                    <h2>熱門關鍵話題</h2>
+                </div>
+                <ul style="list-style: none; padding: 0;">
+                    
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600; color: #334155;"></span>
+                        <span style="color: #64748b; font-size: 0.9rem;">提及: </span>
+                    </li>
+                    
+                </ul>
+            </div>
+            
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-col">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <span class="card-icon">📰</span>
+                    <h2>最新動態詳情</h2>
+                </div>
+                
+                <div class="feed-container">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 0.0s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/aov-yaya-guide" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        這波芽芽的護盾增強真的太有感了！在排位賽中幾乎是非 Ban 即選的存在。本文詳細解析如何利用被動進行極致換血...
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            這波芽芽的護盾增強真的太有感了！在排位賽中幾乎是非 Ban 即選的存在。本文詳細解析如何利用被動進行極致換血......
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 0.1s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/aov-pro-league" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                        台服戰隊在最後一波團戰中展現了驚人的韌性。玩家們紛紛表示這是有史以來最精彩的一場決賽。台服環境明顯回溫。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="">FACEBOOK</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" ">
+                                        
+                                            台服戰隊在最後一波團戰中展現了驚人的韌性。玩家們紛紛表示這是有史以來最精彩的一場決賽。台服環境明顯回溫。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="">
+                                    AI 判定: NEUTRAL 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 0.2s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/ptt-aov-yaya" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        自從改版後，全法芽芽的出裝週期太長，推薦大家還是走半坦，不僅能抗裝還能維持護盾厚度。鄉民們討論度極高。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">FORUM</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            自從改版後，全法芽芽的出裝週期太長，推薦大家還是走半坦，不僅能抗裝還能維持護盾厚度。鄉民們討論度極高。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 0.30000000000000004s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/aov-patch-notes" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                        針對台服高端局節奏過快的問題，官方今日宣布對勇、凡恩等射手進行削弱。社群情緒目前呈現兩極化反應。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" ">
+                                        
+                                            針對台服高端局節奏過快的問題，官方今日宣布對勇、凡恩等射手進行削弱。社群情緒目前呈現兩極化反應。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="">
+                                    AI 判定: NEUTRAL 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 0.4s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/art-yaya" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        這是我為芽芽畫的新造型想像圖，背景就是櫻花落下的樣子，希望官方能出這套造型！下方社群好評不斷。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">INSTAGRAM</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            這是我為芽芽畫的新造型想像圖，背景就是櫻花落下的樣子，希望官方能出這套造型！下方社群好評不斷。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 0.5s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/tactics-yaya" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                        在最新的 GCS 比賽中，這種配合展現了強大的地圖控制力。分析師認為這將成為本季台服的主流體系。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" ">
+                                        
+                                            在最新的 GCS 比賽中，這種配合展現了強大的地圖控制力。分析師認為這將成為本季台服的主流體系。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="">
+                                    AI 判定: NEUTRAL 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 0.6000000000000001s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/rant-yaya" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        真的很討厭隊友選了芽芽結果整場不放技能。希望官方能加強檢舉系統。此帖引發了大量共鳴。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">FORUM</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            真的很討厭隊友選了芽芽結果整場不放技能。希望官方能加強檢舉系統。此帖引發了大量共鳴。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 0.7000000000000001s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/new-hero-teased" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        官方釋出了神秘的剪影，看起來與芽芽的背景故事有關。台服玩家對此充滿期待。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">FACEBOOK</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            官方釋出了神秘的剪影，看起來與芽芽的背景故事有關。台服玩家對此充滿期待。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 0.8s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/newbie-guide" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                        本指南專為那些喜歡輔助位置的新人設計。詳細列出了技能加點與遊走路線。是目前新手圈最熱門的文章。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" ">
+                                        
+                                            本指南專為那些喜歡輔助位置的新人設計。詳細列出了技能加點與遊走路線。是目前新手圈最熱門的文章。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="">
+                                    AI 判定: NEUTRAL 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 0.9s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/test-yaya" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        經過數據測試，在 40% 冷卻縮減下，芽芽能提供幾乎不間斷的護盾。這在後期是大優勢。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">YOUTUBE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            經過數據測試，在 40% 冷卻縮減下，芽芽能提供幾乎不間斷的護盾。這在後期是大優勢。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight" style="animation-delay: 1.0s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/community-cup" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                        為了比賽多樣性，社群盃宣佈暫時禁選芽芽。這引發了輔助玩家的廣泛討論。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="background: #fdf2f8; color: #db2777;">FACEBOOK</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" color: #831843;">
+                                        
+                                            為了比賽多樣性，社群盃宣佈暫時禁選芽芽。這引發了輔助玩家的廣泛討論。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 1.1s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/download-record" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                        受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。
+                                    
+                                </div>
+                                
+                                <div class="post-meta">
+                                    <span class="post-platform" style="">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" ">
+                                        
+                                            受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。...
+                                        
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                                <div class="post-sentiment text-neu" style="">
+                                    AI 判定: NEUTRAL 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ── 各平台貼文數量長條圖 ──
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Instagram', 'Threads', 'Facebook'],
+                datasets: [{
+                    label: '貼文數',
+                    data: [
+                        0,
+                        0,
+                        0
+                    ],
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
+        
+
+        // ── 7 日聲量脈搏圖 (Phase 29) ──
+        
+        const pulseDom = document.getElementById('weeklyPulseChart');
+        if (pulseDom) {
+            const pulseChart = echarts.init(pulseDom);
+            const pulseOption = {
+                grid: { top: 5, bottom: 20, left: 0, right: 0 },
+                xAxis: {
+                    type: 'category',
+                    data: ["03/29", "03/30"],
+                    show: true,
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: '#94a3b8', fontSize: 10 }
+                },
+                yAxis: { type: 'value', show: false },
+                series: [
+                    {
+                        data: [0, 0],
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        lineStyle: { color: '#6366f1', width: 2 },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                                { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+                            ])
+                        },
+                        markLine: {
+                            silent: true,
+                            symbol: 'none',
+                            label: { show: false },
+                            data: [{ yAxis: 0.0 }],
+                            lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
+                        }
+                    }
+                ]
+            };
+            pulseChart.setOption(pulseOption);
+            window.addEventListener('resize', () => pulseChart.resize());
+        }
+        
+    </script>
+    <script>
+        // Phase 33: 區域切換邏輯
+        function switchRegion(region) {
+            console.log('🌍 切換目標區域:', region);
+            
+            // 1. 更新按鈕樣式
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 處理點擊事件中的 DOM
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                // 如果是 onload 觸發，需手動查找按鈕
+                const btn = document.querySelector(`.btn-${region.toLowerCase()}`);
+                if (btn) btn.classList.add('active');
+            }
+
+            // 2. 核心過濾：隱藏非選定區域的內容
+            const posts = document.querySelectorAll('.filterable-region');
+            let found = 0;
+            
+            posts.forEach(post => {
+                if (region === 'ALL' || post.getAttribute('data-region') === region) {
+                    post.classList.remove('hide-region');
+                    found++;
+                } else {
+                    post.classList.add('hide-region');
+                }
+            });
+
+            // 3. 處理「該區無資料」的視覺反饋
+            const container = document.querySelector('.feed-container');
+            let emptyMsg = document.getElementById('empty-feed-msg');
+            
+            if (found === 0) {
+                if (!emptyMsg) {
+                    emptyMsg = document.createElement('div');
+                    emptyMsg.id = 'empty-feed-msg';
+                    emptyMsg.innerHTML = `
+                        <div style="text-align: center; color: #94a3b8; padding: 4rem 2rem; background: rgba(255,255,255,0.2); border-radius: 20px; border: 2px dashed rgba(0,0,0,0.1);">
+                            🏝️ 該區域尚未收到情報數據<br>
+                            <small style="opacity: 0.6; margin-top: 10px; display: block;">請嘗試切換全球視角或其他分區</small>
+                        </div>`;
+                    container.appendChild(emptyMsg);
+                }
+            } else if (emptyMsg) {
+                emptyMsg.remove();
+            }
+
+            // 平滑回滾頂部，營造更換戰場的儀式感
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Phase 33: AI 翻譯/原文對覽切換
+        function toggleTranslation(btn) {
+            const card = btn.closest('.post-card');
+            const original = card.querySelector('.original-content');
+            const translated = card.querySelector('.translated-content');
+            
+            if (original.style.display === 'none') {
+                original.style.display = 'block';
+                translated.style.display = 'none';
+                btn.innerHTML = '<span class="icon">🔍</span> 查看譯文';
+            } else {
+                original.style.display = 'none';
+                translated.style.display = 'block';
+                btn.innerHTML = '<span class="icon">🔍</span> 原文對覽';
+            }
+        }
+
+        // 預設鎖定台服視角 (Phase 33 Preference)
+        window.addEventListener('load', () => {
+            switchRegion('TW');
+        });
+    </script>
+</body>
+</html>
