@@ -21,14 +21,33 @@ class HistoryResolver:
         self.data_dir = data_dir or config.DATA_DIR
         self.history_days = 7
 
-    def resolve_trends(self, today_summary: Dict[str, Any]) -> Dict[str, Any]:
+    def resolve_trends(self, today_summary: Dict[str, Any], showcase: bool = False) -> Dict[str, Any]:
         """
-        比對今日與過去一週的數據，計算 Delta。
+        比對今日與過去一週的數據，計算 Delta。支援任務演示模式 (Phase 34)。
+        """
+        self.logger.info(f"  [History] 正在解析趨勢 (Showcase Mode: {showcase})")
         
-        Returns:
-            Dict 包含各英雄、各指標的漲跌百分比與趨勢標記。
-        """
-        archives = self._load_recent_archives()
+        # ── 演示模式數據補全 (Phase 34)：強制最高優先權 ──
+        if showcase:
+            self.logger.info("啟動任務演示模式：正在注入 7 天精選趨勢數據...")
+            from datetime import timedelta
+            import random
+            
+            # 建立過去 7 天的標籤與模擬聲量峰值
+            labels = [(datetime.now() - timedelta(days=i)).strftime("%m/%d") for i in range(6, -1, -1)]
+            volumes = [random.randint(45, 98) for _ in range(7)]
+            
+            return {
+                "overall": {"volume_pct": 15.5, "is_red_alert": False},
+                "heroes": {hero: {"volume_pct": random.uniform(5, 20)} for hero in config.HERO_WATCHLIST},
+                "weekly_vol_pulse": {
+                    "volumes": volumes,
+                    "labels": labels,
+                    "average": sum(volumes) / len(volumes)
+                },
+                "alerts": []
+            }
+
         if not archives:
             logger.info("  [!] 無法找到過往數據，提供備援 Delta 結構。")
             today_vol = today_summary.get("total_posts", 0)

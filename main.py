@@ -210,26 +210,27 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     )
     logger.info(f"   原始搜集資料已儲存: {raw_data_path}")
 
-    # ── Step 2：AI 分析 (Gemini) ───────────────────────
-    logger.info(" Step 2/4: Gemini AI 分析中...")
-
+    # ── Step 2：數據分析 ────────────────────────────────
+    logger.info(" Step 2/4: 啟動 AI 大腦進行語意與情緒拆解...")
     analyzer = SentimentAnalyzer()
     stats_scraper = HeroStatsScraper()
 
     try:
-        # 同步抓取戰鬥數據
-        combat_stats = await stats_scraper.fetch_watchlist_stats()
+        # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
+        try:
+            combat_stats = await stats_scraper.fetch_watchlist_stats()
+            daily_summary["combat_stats"] = {name: asdict(s) for name, s in combat_stats.items()}
+        except Exception as se:
+            logger.warning(f"  [!] 戰鬥數據同步延遲或失敗: {se} (流程繼續)")
+            daily_summary["combat_stats"] = {}
         
-        analyzed_posts = await analyzer.analyze_posts(all_results)
-        daily_summary = await analyzer.generate_daily_summary(analyzed_posts)
+        analyzed_posts = await analyzer.analyze_posts(all_results, showcase=showcase)
+        daily_summary = await analyzer.generate_daily_summary(analyzed_posts, showcase=showcase, date=daily_summary.get("date"))
         
         # ── Step 2.2：計算歷史趨勢 (Phase 29) ──────────
         logger.info(" Step 2.2/4: 啟動情報時光機，計算週趨勢...")
         history_gen = HistoryResolver()
-        daily_summary["history_delta"] = history_gen.resolve_trends(daily_summary)
-        
-        # 將戰鬥數據注入 summary 供 UI 顯示
-        daily_summary["combat_stats"] = {name: asdict(s) for name, s in combat_stats.items()}
+        daily_summary["history_delta"] = history_gen.resolve_trends(daily_summary, showcase=showcase)
         
         # 將專屬網頁連結注入到 summary 中
         if getattr(config, "GITHUB_PAGES_URL", None):
@@ -239,8 +240,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
             
         logger.info("  [OK] AI 分析完成")
     except Exception as e:
-        logger.error(f"  [FAIL] AI 分析失敗: {e}")
-        daily_summary = analyzer._empty_summary()
+        logger.error(f"  [FAIL] AI 分析發生嚴重錯誤: {e} (啟動旗艦演示備援)")
+        daily_summary = analyzer._empty_summary(showcase=showcase)
         analyzed_posts = []
 
     # ── Step 2.5：生成語音導讀 (Phase 27) ──────────────
