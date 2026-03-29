@@ -9,20 +9,19 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
         :root {
-            --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            --glass-bg: rgba(30, 41, 59, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --primary-accent: #38bdf8;
-            --secondary-accent: #7c3aed;
+            /* ── Phase 34.2: Lush Strategic Fusion (粉嫩戰略融合) ── */
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(219, 39, 119, 0.2);
+            --primary-accent: #db2777; /* 旗艦桃紅 */
+            --secondary-accent: #9333ea; /* 紫羅蘭 */
             --accent-mint: #10b981;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            --hover-shadow: 0 20px 60px rgba(56, 189, 248, 0.15);
-            --tw-color: #3b82f6; /* 電磁藍 */
-            --th-color: #f59e0b; /* 琥珀金 */
-            --vn-color: #ef4444; /* 烈焰紅 */
-            --global-color: #8b5cf6; /* 戰略紫 */
+            --text-main: #1e293b; /* 保持專業深灰對比 */
+            --text-muted: #64748b;
+            --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
+            --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
+            --tw-color: #db2777;
+            --glow-neon: 0 0 15px rgba(219, 39, 119, 0.4);
         }
 
         body {
@@ -677,9 +676,34 @@
         .tag-th { background: rgba(245, 158, 11, 0.1); color: var(--th-color); border: 1px solid rgba(245, 158, 11, 0.2); }
         .tag-vn { background: rgba(239, 68, 68, 0.1); color: var(--vn-color); border: 1px solid rgba(239, 68, 68, 0.2); }
 
-        /* Region Filtering Logic */
-        .filterable-region { transition: all 0.4s ease; }
-        .hide-region { display: none !important; }
+        /* ── Sakura Particles (Phase 34.2 Restore) ── */
+        .sakura-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .sakura {
+            position: absolute;
+            background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
+            border-radius: 100% 0 100% 0;
+            opacity: 0.3;
+            animation: sakura-fall linear infinite;
+        }
+        @keyframes sakura-fall {
+            0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ── Tactical Glow Adjustments ── */
+        .card {
+            box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
+            border: 1px solid var(--glass-border);
+        }
+        .card:hover { border: 1px solid rgba(219, 39, 119, 0.4); }
     </style>
 </head>
 <body>
@@ -688,48 +712,46 @@
         <div class="date-pill">{{ date }}</div>
     </header>
 
+    <div class="sakura-container" id="sakura-box"></div>
+    <script>
+        // Sakura Particle Generator
+        function createSakura() {
+            const container = document.getElementById('sakura-box');
+            if(!container) return;
+            const s = document.createElement('div');
+            s.className = 'sakura';
+            const size = Math.random() * 10 + 5;
+            s.style.width = size + 'px';
+            s.style.height = size + 'px';
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDuration = Math.random() * 5 + 5 + 's';
+            s.style.opacity = Math.random() * 0.4 + 0.1;
+            container.appendChild(s);
+            setTimeout(() => s.remove(), 10000);
+        }
+        setInterval(createSakura, 300);
+    </script>
+
     <nav class="region-nav">
-        <button class="region-btn btn-tw active" onclick="switchRegion('TW')">
-            <span class="region-indicator"></span> 🇹🇼 台灣 (TW)
-        </button>
-        <button class="region-btn btn-th" onclick="switchRegion('TH')">
-            <span class="region-indicator"></span> 🇹🇭 泰國 (TH)
-        </button>
-        <button class="region-btn btn-vn" onclick="switchRegion('VN')">
-            <span class="region-indicator"></span> 🇻🇳 越南 (VN)
-        </button>
-        <button class="region-btn" onclick="switchRegion('ALL')">
-             🌐 全球 (GLOBAL)
-        </button>
+        <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
+            <span class="region-indicator" style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span> 
+            🌸 傳說對決：台服旗艦監視中心 (TW SINGLE-CORE OPS)
+        </div>
     </nav>
 
     <!-- Main Content -->
     <div class="layout-container">
 
-        <!-- Global Insights Dashboard (Phase 33) -->
-        {% if global_insights %}
-        <div class="global-insights-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.8rem;">
-                <h2 style="font-size: 1.5rem; color: #f8fafc; margin: 0; background: linear-gradient(to right, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🌍 全球戰略觀察室 <span style="font-size: 0.8rem; font-weight: 400; color: #64748b; vertical-align: middle;">GLOBAL COMMAND CENTER</span></h2>
-                <div class="live-pulse"></div>
+        <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
+        <div class="global-insights-card" style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">🛰️ 台服戰略通訊中心 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN TACTICAL COMMAND</span></h2>
+                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
-            <div class="insight-grid">
-                {% for r_code, r_data in global_insights.items() %}
-                <div class="insight-box" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <h4 style="margin: 0; color: var(--{{ r_code|lower }}-color); text-transform: uppercase; letter-spacing: 1px;">{{ r_code }} PERSPECTIVE</h4>
-                        <span class="region-badge-{{ r_code|lower }}">STATUS: LIVE</span>
-                    </div>
-                    <p style="font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.6; color: #cbd5e1;">{{ r_data.summary }}</p>
-                    <div style="display: flex; align-items: center; gap: 0.8rem; font-size: 0.8rem; color: #94a3b8; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">
-                        <span>🔥 TRENDING:</span>
-                        <span class="tag-{{ r_code|lower }}" style="color: #fff; font-weight: 600;">{{ r_data.hot_hero }}</span>
-                    </div>
-                </div>
-                {% endfor %}
+            <div style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
+                {{ overview }}
             </div>
         </div>
-        {% endif %}
 
         {% if history_delta and history_delta.alerts %}
         <div class="alert-banner">

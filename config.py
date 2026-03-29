@@ -51,18 +51,13 @@ SEARCH_KEYWORDS = [
     if kw.strip()
 ]
 
-# ── 區域化設定 (Phase 33) ──────────────────────────────
-REGIONS = ["TW", "TH", "VN"]
+# ── 區域化設定 (Phase 34.2: TW Single-Core Focus) ──────────────────────────
+REGIONS = ["TW"]
 REGIONAL_KEYWORDS = {
-    "TW": ["傳說對決", "AOV 台服"],
-    "TH": ["Garena RoV", "RoV Thailand"],
-    "VN": ["Garena Liên Quân Mobile", "Liên Quân Vietnam"]
+    "TW": ["傳說對決", "AOV 台服", "Garena Arena of Valor TW"]
 }
-# 各區專屬 Slang/核心詞 (Scraper 使用)
-REGIONAL_SLANG = {
-    "TH": "เห็ดป่า, แครี่, เมจ", # 泰文: 野區, 射手, 法師
-    "VN": "Rừng, Xạ thủ, Pháp sư" # 越南文: 打野, 射手, 法師
-}
+# 各區專屬 Slang (現僅保留台服核心)
+REGIONAL_SLANG = {} 
 
 # ── 排程設定 ─────────────────────────────────────────
 SCHEDULE_HOUR = int(os.getenv("SCHEDULE_HOUR", "9"))
