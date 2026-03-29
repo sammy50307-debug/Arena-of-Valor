@@ -22,6 +22,19 @@
             --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
             --tw-color: #db2777;
             --glow-neon: 0 0 15px rgba(219, 39, 119, 0.4);
+            --glow-pulse: 0 0 25px rgba(219, 39, 119, 0.6);
+        }
+
+        @keyframes neon-breath {
+            0% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
+            50% { box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4); }
+            100% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
+        }
+
+        @keyframes live-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         body {
@@ -156,9 +169,12 @@
             50% { transform: scale(1.5); opacity: 0.4; }
             100% { transform: scale(1); opacity: 1; }
         }
-
-            border: 2px solid #f9a8d4;
-            filter: drop-shadow(0 0 10px rgba(249, 168, 212, 0.3));
+        /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
+        .hero-focus-card {
+            border: 2px solid var(--primary-accent) !important;
+            filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.4));
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(253, 242, 248, 0.9) 100%) !important;
+            animation: neon-breath 4s ease-in-out infinite;
         }
 
         .post-title {
@@ -208,31 +224,23 @@
         .text-neg { color: var(--accent-red); }
         .text-neu { color: var(--accent-yellow); }
 
-        /* ── Hero Focus: YaYa Premium ────── */
-        .hero-focus-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-            border: 2px solid var(--tw-color);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .hero-focus-card::before {
-            content: '⚔️';
-            position: absolute;
-            bottom: -15px;
-            right: -15px;
-            font-size: 6rem;
-            opacity: 0.05;
-            transform: rotate(-20deg);
-            z-index: -1;
-        }
-
+        /* ── Hero Focus: YaYa Premium UI ────── */
         .hero-focus-title {
-            color: var(--tw-color) !important;
-            font-size: 1.8rem !important;
+            color: var(--primary-accent) !important;
+            font-size: 2.2rem !important;
             font-weight: 800 !important;
-            text-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            text-shadow: 0 0 20px rgba(219, 39, 119, 0.4);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-scanline {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(219, 39, 119, 0.05) 50.5%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.3;
         }
 
         .hero-focus-badge {
@@ -621,14 +629,20 @@
 
         .translate-btn:hover { background: rgba(219, 39, 119, 0.1); }
 
+        .live-pulse {
+            width: 10px; height: 10px;
+            background: var(--primary-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--primary-accent);
+            animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
         .global-insights-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            margin-bottom: 2rem;
-            padding: 2rem;
-            border-radius: 24px;
-            position: relative;
-            overflow: hidden;
+            /* 演示模式：戰略通訊中心 */
+            background: linear-gradient(135deg, rgba(219, 39, 119, 0.03) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
+            border: 2px solid var(--primary-accent) !important;
+            animation: neon-breath 4s ease-in-out infinite;
         }
 
         .global-insights-card::before {
