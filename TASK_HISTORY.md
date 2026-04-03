@@ -253,6 +253,12 @@
 - **星芒透明化特例排除 (Emoji Rendering Fix)**：
   - 主標題的 `✨` 因繼承大外框的 `-webkit-text-fill-color: transparent` 而呈現隱形狀態。透過額外在 `.header h1::before` 中覆寫 `-webkit-text-fill-color: initial;` 成功破除透明化詛咒，將尊榮星芒迎回旗艦版面。
 
+### 🛠️ Phase 40.4：主視覺清透度升級 (Visual Depth Polish)
+
+- **深層透明度調校 (Opacity Calibration)**：
+  - 本真診斷：主公指示原有的背景透明度 (`0.25`) 雖然清晰，但可稍微加重存在感以達到最佳的沉浸體驗。
+  - 無損處置：將 `report.html` 與 Showcase 內的 `body::after` `opacity` 從 `0.25` 提升至 `0.35`，使得芽芽的整體輪廓更加鮮明，並完美與前端玻璃透視特效 (Glassmorphism 2.0) 結合。
+
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**
