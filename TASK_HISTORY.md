@@ -245,6 +245,14 @@
   - 修復因行高與空行差異導致的 CSS 覆寫失敗問題，透過精準打擊的行位鎖定 (Targeted Replacement)，將原本遺漏更新的 Showcase 暗黑卡片成功套用「透白奶油質感 (`rgba(255,255,255,0.7)`)」。
   - 成功將缺少的大標星芒 `✨` 給補回 `ui_previews/Phase39_Flagship_Showcase.html` 的專屬選取器裡。
 
+### 🛠️ Phase 40.3：尊榮視覺微調與路徑校準計畫 (Final Polish)
+
+- **深層檔名轉譯與校準 (File System Integrity)**：
+  - 本真診斷：查明因為終端環境對中文命名的解析脫鉤（原 `芽起來啦寶貝.png` 變異為 `ް_Ӱ_.png`），導致瀏覽器實體路徑失效。
+  - 無損處置：將背景圖片安全遷移命名為 `yaya_bg.png`，並將前端 `report.html` 與 Showcase 的參照路徑完美對接。
+- **星芒透明化特例排除 (Emoji Rendering Fix)**：
+  - 主標題的 `✨` 因繼承大外框的 `-webkit-text-fill-color: transparent` 而呈現隱形狀態。透過額外在 `.header h1::before` 中覆寫 `-webkit-text-fill-color: initial;` 成功破除透明化詛咒，將尊榮星芒迎回旗艦版面。
+
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**
