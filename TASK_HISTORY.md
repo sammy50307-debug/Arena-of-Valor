@@ -237,6 +237,14 @@
 * **檢討**：在 Phase 18~23 左右，為了追求標準化，曾一度移除可愛視覺元素。
 * **結論**：美工與視覺就是「功能」的一環。我們最終找回了櫻花落英與霓虹呼吸燈，並成功與深色戰略模式（Phase 31+）完美融合，這才是旗艦級系統應有的面貌。
 
+### 🛠️ Phase 40.2：終極除錯修復計畫 (Final Bugfix)
+
+- **圖示連結校準 (Image Binding)**：
+  - 將 `report.html` 與 `Phase39_Flagship_Showcase.html` 內負責沉浸式背景圖的 CSS，修改為完美對應新圖檔名稱 `url('../../芽芽起來寶貝.png')` 與 `url('../芽芽起來寶貝.png')`。
+- **預覽版樣式強制同步 (Showcase CSS Sync)**：
+  - 修復因行高與空行差異導致的 CSS 覆寫失敗問題，透過精準打擊的行位鎖定 (Targeted Replacement)，將原本遺漏更新的 Showcase 暗黑卡片成功套用「透白奶油質感 (`rgba(255,255,255,0.7)`)」。
+  - 成功將缺少的大標星芒 `✨` 給補回 `ui_previews/Phase39_Flagship_Showcase.html` 的專屬選取器裡。
+
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**

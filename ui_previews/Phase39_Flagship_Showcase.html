@@ -96,7 +96,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('../step.jpg');
+            background-image: url('../芽芽起來寶貝.png');
             background-size: cover;
             background-position: center center;
             opacity: 0.25;
@@ -696,33 +696,35 @@
         }
 
         .alert-entry {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(245, 158, 11, 0.2);
             border-radius: 16px;
             padding: 1.2rem;
             margin-bottom: 0.8rem;
+            color: #b45309;
         }
 
         .alert-label-text {
-            font-weight: 700;
-            color: #fecaca;
+            font-weight: 800;
+            color: #d97706;
             font-size: 1.05rem;
             margin-bottom: 0.5rem;
         }
 
         .tactical-box {
-            background: rgba(30, 41, 59, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(5px);
-            border-left: 4px solid #38bdf8;
+            border-left: 4px solid #f59e0b;
             padding: 1rem;
             border-radius: 8px;
             margin-top: 0.5rem;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.05);
         }
 
         .advice-header {
             font-size: 0.75rem;
             font-weight: 800;
-            color: #38bdf8;
+            color: #d97706;
             margin-bottom: 0.3rem;
             display: flex;
             align-items: center;
@@ -731,7 +733,7 @@
 
         .advice-body {
             font-size: 0.9rem;
-            color: #e2e8f0;
+            color: #78350f;
             line-height: 1.6;
         }
 
@@ -1047,10 +1049,16 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -1px;
-            filter: drop-shadow(0 4px 15px rgba(219, 39, 119, 0.3));
+            filter: drop-shadow(0 4px 10px rgba(219, 39, 119, 0.2));
             display: flex;
             align-items: center;
             gap: 0.8rem;
+        }
+
+        .header h1::before {
+            content: '✨';
+            font-size: 2.2rem;
+            animation: rotateBeat 3s infinite;
         }
 
         .date-pill {
