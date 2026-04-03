@@ -57,7 +57,20 @@
             background: 
                 radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-            z-index: -1;
+            z-index: -1; /* Mesh layer */
+            pointer-events: none;
+        }
+
+        /* ── Phase 40: Immersive Character Background ── */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('../step.jpg');
+            background-size: cover;
+            background-position: center center;
+            opacity: 0.25;
+            z-index: -2; /* Underneath the mesh layer and UI cards */
             pointer-events: none;
         }
 

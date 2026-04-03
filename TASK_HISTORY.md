@@ -219,6 +219,15 @@
 - **標題美學突破 (Premium Header)**：
   - 導入全新的 `.header h1` CSS 結構，為「Arena of Valor 輿情分析」主標套用專屬的漸層高光 (`background-clip: text`) 與文字倒影 (`drop-shadow`)，完美疊加高級視覺感。
 
+
+### 🛠️ Phase 40：沉浸式背景植入計畫 (Immersive Background UI)
+
+- **目標**：接獲指揮官最新指示，將特定圖片 (`step.jpg`) 滿版植入網站背景，同時維持良好閱讀性與滾動浮動效果。
+- **技術實作**：
+  - 增設 `body::after` 偽元素並套用 `position: fixed` 與 `pointer-events: none` 確保滾動時圖像不發生位移，且不阻擋滑鼠互動。
+  - 將不透明度設定為 `opacity: 0.15`，以確保背景隱若現，並交由上層的 Glassmorphism (.card 的 `backdrop-filter: blur(24px)`) 產生完美的透視折射。
+  - 完美相容 `ui_previews/` 與 `data/reports/` 不同層級的相對路徑讀取 (`../step.jpg` 與 `../../step.jpg`)。
+
 ---
 
 ## 💡 靈魂反思：當全球化對上靈魂美學 (Self-Reflection)
