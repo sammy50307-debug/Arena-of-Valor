@@ -265,6 +265,20 @@
   - 本真診斷：主公指示原先的 `0.35` 雖然通透，但若要發揮角色圖片的張力，可以進一步解放透明度至 `0.6`。
   - 無損處置：將 `report.html` 與 Showcase 內的 `body::after` `opacity` 從 `0.35` 拔擢至 `0.6`，在保證毛玻璃卡片可視性的前提下，讓芽芽的魅力佔滿整個螢幕視覺。
 
+### 🛠️ Phase 40.6：主公欽定黃金版本 (The Golden Build) ⭐
+
+- **最終透明度定案 (Final Opacity Lock)**：
+  - 主公經過 `0.25 → 0.35 → 0.6 → 0.8` 四輪精密試調後，最終欽定 **`opacity: 0.8`** 為黃金標準值。
+  - 此數值在保障前方毛玻璃卡片 (`backdrop-filter: blur(24px)`) 文字可讀性的前提下，讓芽芽的角色圖以近乎全彩的姿態佔領全螢幕背景視覺。
+- **完整技術快照 (Technical Snapshot)**：
+  - `body::after` 背景層：`url('../../yaya_bg.png')` / `url('../yaya_bg.png')`
+  - `background-size: cover` + `background-position: center center`
+  - `position: fixed` + `pointer-events: none` + `z-index: -2`
+  - `opacity: 0.8` ← **主公欽定值**
+  - `.header h1::before`：`content: '✨'` + `-webkit-text-fill-color: initial` (破除透明繼承)
+  - 「今日焦點」內部卡片：`rgba(255,255,255,0.5)` 奶油透玻璃 + `#d97706` 琥珀字體
+- **此版本已由主公親自確認為「喜歡的版本」，標記為 Phase 40 系列的黃金定案。**
+
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**
