@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +15,13 @@
             --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
             --glass-bg: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(219, 39, 119, 0.2);
-            --primary-accent: #db2777; /* 旗艦桃紅 */
-            --secondary-accent: #9333ea; /* 紫羅蘭 */
+            --primary-accent: #db2777;
+            /* 旗艦桃紅 */
+            --secondary-accent: #9333ea;
+            /* 紫羅蘭 */
             --accent-mint: #10b981;
-            --text-main: #1e293b; /* 保持專業深灰對比 */
+            --text-main: #1e293b;
+            /* 保持專業深灰對比 */
             --text-muted: #64748b;
             --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
             --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
@@ -27,15 +31,34 @@
         }
 
         @keyframes neon-breath {
-            0% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
-            50% { box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4); }
-            100% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
+            0% {
+                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+            }
         }
 
         @keyframes live-pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         body {
@@ -53,11 +76,15 @@
         body::before {
             content: "";
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
                 radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-            z-index: -1; /* Mesh layer */
+            z-index: -1;
+            /* Mesh layer */
             pointer-events: none;
         }
 
@@ -65,12 +92,16 @@
         body::after {
             content: "";
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: url('../../step.jpg');
             background-size: cover;
             background-position: center center;
             opacity: 0.25;
-            z-index: -2; /* Underneath the mesh layer and UI cards */
+            z-index: -2;
+            /* Underneath the mesh layer and UI cards */
             pointer-events: none;
         }
 
@@ -83,8 +114,8 @@
             padding: 2rem;
             box-shadow: var(--card-shadow);
             border: 1px solid var(--glass-border);
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
-                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
             margin-bottom: 2rem;
         }
 
@@ -124,6 +155,7 @@
                 grid-template-columns: 1fr;
                 padding: 0 1rem;
             }
+
             .right-col {
                 position: relative;
                 top: 0;
@@ -158,7 +190,8 @@
         }
 
         .post-container {
-            isolation: isolate; /* 物理隔離關鍵 */
+            isolation: isolate;
+            /* 物理隔離關鍵 */
             padding: 10px 0;
         }
 
@@ -174,11 +207,11 @@
             opacity: 0;
             transform: scale(0.95) translateY(30px);
             animation: popIn 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
-                        background 0.3s ease, 
-                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                background 0.3s ease,
+                box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
             will-change: transform, box-shadow, opacity;
-            transform: translateZ(0); 
+            transform: translateZ(0);
             backface-visibility: hidden;
             contain: layout style;
         }
@@ -209,17 +242,22 @@
 
         /* ── Global Hub Shimmer Animation ── */
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 100% 0; }
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 100% 0;
+            }
         }
 
         .global-insights-card {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(90deg, 
-                rgba(30, 41, 59, 0.7) 0%, 
-                rgba(56, 189, 248, 0.1) 50%, 
-                rgba(30, 41, 59, 0.7) 100%);
+            background: linear-gradient(90deg,
+                    rgba(30, 41, 59, 0.7) 0%,
+                    rgba(56, 189, 248, 0.1) 50%,
+                    rgba(30, 41, 59, 0.7) 100%);
             background-size: 200% 100%;
             animation: shimmer 10s infinite linear;
             border: 1px solid rgba(56, 189, 248, 0.2);
@@ -235,10 +273,22 @@
         }
 
         @keyframes pulse-live {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
+
         /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
         .hero-focus-card {
             border: 2px solid var(--primary-accent) !important;
@@ -290,9 +340,18 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
-        .text-pos { color: var(--accent-green); }
-        .text-neg { color: var(--accent-red); }
-        .text-neu { color: var(--accent-yellow); }
+
+        .text-pos {
+            color: var(--accent-green);
+        }
+
+        .text-neg {
+            color: var(--accent-red);
+        }
+
+        .text-neu {
+            color: var(--accent-yellow);
+        }
 
         /* ── Hero Focus: YaYa Premium UI ────── */
         .hero-focus-title {
@@ -309,7 +368,10 @@
 
         .hero-scanline {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(to bottom, transparent 50%, rgba(219, 39, 119, 0.05) 50.5%);
             background-size: 100% 4px;
             pointer-events: none;
@@ -345,20 +407,31 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .hero-summary::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
             transform: skewX(-20deg);
             animation: glassSweep 6s infinite;
         }
-        
+
         @keyframes glassSweep {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
+            0% {
+                left: -100%;
+            }
+
+            20% {
+                left: 200%;
+            }
+
+            100% {
+                left: 200%;
+            }
         }
 
         .hero-post-item {
@@ -393,7 +466,7 @@
             border-radius: 6px;
             transition: all 0.3s ease;
         }
-        
+
         .hero-link:hover {
             background: rgba(219, 39, 119, 0.2);
             transform: translateX(5px);
@@ -410,13 +483,38 @@
             align-items: center;
             vertical-align: middle;
         }
-        .delta-up { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-        .delta-down { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .delta-pulse { animation: deltaPulse 2s infinite; }
+
+        .delta-up {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .delta-down {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .delta-pulse {
+            animation: deltaPulse 2s infinite;
+        }
+
         @keyframes deltaPulse {
-            0% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.8; transform: scale(1); }
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
         }
 
         /* ── Combat Stats Panel ── */
@@ -460,9 +558,17 @@
         }
 
         @keyframes statPulse {
-            0% { text-shadow: 0 0 0px rgba(190, 24, 93, 0); }
-            50% { text-shadow: 0 0 8px rgba(190, 24, 93, 0.5); }
-            100% { text-shadow: 0 0 0px rgba(190, 24, 93, 0); }
+            0% {
+                text-shadow: 0 0 0px rgba(190, 24, 93, 0);
+            }
+
+            50% {
+                text-shadow: 0 0 8px rgba(190, 24, 93, 0.5);
+            }
+
+            100% {
+                text-shadow: 0 0 0px rgba(190, 24, 93, 0);
+            }
         }
 
         /* ── Audio Briefing Sticky Bar ── */
@@ -484,8 +590,15 @@
         }
 
         @keyframes playerFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         .audio-info {
@@ -500,8 +613,15 @@
         }
 
         @keyframes rotateBeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         .audio-text h4 {
@@ -532,8 +652,15 @@
         }
 
         @keyframes wave {
-            0%, 100% { height: 20%; }
-            50% { height: 100%; }
+
+            0%,
+            100% {
+                height: 20%;
+            }
+
+            50% {
+                height: 100%;
+            }
         }
 
         audio {
@@ -552,7 +679,8 @@
             color: #d97706;
             box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(245, 158, 11, 0.05);
             animation: amberGlow 3s infinite alternate ease-in-out;
-            transform: translateZ(0); /* Phase 30.1 Fix */
+            transform: translateZ(0);
+            /* Phase 30.1 Fix */
             will-change: transform;
         }
 
@@ -608,8 +736,13 @@
         }
 
         @keyframes amberGlow {
-            from { box-shadow: 0 0 10px rgba(245, 158, 11, 0.1); }
-            to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); }
+            from {
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+            }
+
+            to {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+            }
         }
 
         /* ── Sentiment WordCloud (Phase 32) ───── */
@@ -645,7 +778,7 @@
             color: #475569;
             transition: all 0.3s ease;
             cursor: default;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         .tag-pos {
@@ -663,7 +796,7 @@
         .tag-pill:hover {
             transform: scale(1.1) rotate(2deg);
             background: white;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
             z-index: 10;
         }
 
@@ -680,7 +813,7 @@
             position: sticky;
             top: 1rem;
             z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
             justify-content: center;
         }
 
@@ -701,8 +834,8 @@
         .region-btn.active {
             background: white;
             color: #1e293b;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-color: rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: rgba(0, 0, 0, 0.05);
         }
 
         .region-indicator {
@@ -712,9 +845,17 @@
             display: inline-block;
         }
 
-        .btn-tw .region-indicator { background: var(--tw-color); }
-        .btn-th .region-indicator { background: var(--th-color); }
-        .btn-vn .region-indicator { background: var(--vn-color); }
+        .btn-tw .region-indicator {
+            background: var(--tw-color);
+        }
+
+        .btn-th .region-indicator {
+            background: var(--th-color);
+        }
+
+        .btn-vn .region-indicator {
+            background: var(--vn-color);
+        }
 
         .hide-region {
             display: none !important;
@@ -728,9 +869,23 @@
             text-transform: uppercase;
         }
 
-        .tag-tw { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
-        .tag-th { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
-        .tag-vn { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .tag-tw {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .tag-th {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .tag-vn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
         .translate-btn {
             background: rgba(219, 39, 119, 0.05);
@@ -743,10 +898,13 @@
             transition: all 0.2s;
         }
 
-        .translate-btn:hover { background: rgba(219, 39, 119, 0.1); }
+        .translate-btn:hover {
+            background: rgba(219, 39, 119, 0.1);
+        }
 
         .live-pulse {
-            width: 10px; height: 10px;
+            width: 10px;
+            height: 10px;
             background: var(--primary-accent);
             border-radius: 50%;
             display: inline-block;
@@ -802,18 +960,36 @@
             vertical-align: middle;
         }
 
-        .tag-tw { background: rgba(59, 130, 246, 0.1); color: var(--tw-color); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .tag-th { background: rgba(245, 158, 11, 0.1); color: var(--th-color); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .tag-vn { background: rgba(239, 68, 68, 0.1); color: var(--vn-color); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .tag-tw {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--tw-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .tag-th {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--th-color);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .tag-vn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--vn-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
         /* ── Sakura Particles (Phase 34.2 Restore) ── */
         .sakura-container {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
         }
+
         .sakura {
             position: absolute;
             background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
@@ -821,11 +997,25 @@
             opacity: 0.3;
             animation: sakura-fall linear infinite;
         }
+
         @keyframes sakura-fall {
-            0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+            0% {
+                transform: translateY(-10%) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         /* ── Tactical Glow Adjustments ── */
@@ -833,7 +1023,10 @@
             box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
             border: 1px solid var(--glass-border);
         }
-        .card:hover { border: 1px solid rgba(219, 39, 119, 0.4); }
+
+        .card:hover {
+            border: 1px solid rgba(219, 39, 119, 0.4);
+        }
 
         /* ── Premium Header Design (Phase 39.6) ── */
         .header {
@@ -873,6 +1066,7 @@
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <h1>Arena of Valor 輿情分析</h1>
@@ -884,7 +1078,7 @@
         // Sakura Particle Generator
         function createSakura() {
             const container = document.getElementById('sakura-box');
-            if(!container) return;
+            if (!container) return;
             const s = document.createElement('div');
             s.className = 'sakura';
             const size = Math.random() * 10 + 5;
@@ -901,7 +1095,8 @@
 
     <nav class="region-nav">
         <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
-            <span class="region-indicator" style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span> 
+            <span class="region-indicator"
+                style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span>
             🌸 傳說對決：台服旗艦監視中心 (TW SINGLE-CORE OPS)
         </div>
     </nav>
@@ -910,12 +1105,19 @@
     <div class="layout-container">
 
         <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
-        <div class="global-insights-card" style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">💬 台服消息資訊中心 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN INFO CENTER</span></h2>
-                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
+        <div class="global-insights-card"
+            style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">💬 台服消息資訊中心
+                    <span
+                        style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN
+                        INFO CENTER</span></h2>
+                <div class="live-pulse"
+                    style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
-            <div style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
+            <div
+                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
                 {{ overview }}
             </div>
         </div>
@@ -942,7 +1144,7 @@
             </div>
         </div>
         {% endif %}
-        
+
         <!-- Audio Briefing Player (Phase 27) -->
         {% if audio_url %}
         <div class="audio-player-container">
@@ -977,7 +1179,7 @@
                     <span class="card-icon">🌸</span>
                     <h2 class="hero-focus-title">{{ hero_focus.name }} 觀察室</h2>
                 </div>
-                
+
                 <div class="hero-summary">
                     {{ hero_focus.summary }}
                 </div>
@@ -991,7 +1193,7 @@
                         </div>
                         {% endfor %}
                     </div>
-                    
+
                     {% if hero_focus_posts %}
                     <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
                         <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
@@ -1013,7 +1215,8 @@
                 <div class="combat-stats-panel">
                     <div class="stat-card">
                         <span class="stat-label">WIN RATE</span>
-                        <div class="stat-val {% if stats.win_rate > 52 %}pulse-high{% endif %}">{{ stats.win_rate }}%</div>
+                        <div class="stat-val {% if stats.win_rate > 52 %}pulse-high{% endif %}">{{ stats.win_rate }}%
+                        </div>
                     </div>
                     {% if analysis and analysis.overall %}
                     <div class="stat-card">
@@ -1034,7 +1237,7 @@
                 {% endif %}
             </div>
             {% endif %}
-            
+
             <!-- Total Volume -->
             <div class="card">
                 <div class="card-header">
@@ -1049,8 +1252,10 @@
                         <div class="num">
                             {{ sentiment_distribution.positive }}
                             {% if history_delta.overall.volume_pct %}
-                            <span class="delta-pill {% if history_delta.overall.volume_pct > 0 %}delta-up{% else %}delta-down{% endif %}">
-                                {{ '▲' if history_delta.overall.volume_pct > 0 else '▼' }} {{ history_delta.overall.volume_pct|abs }}%
+                            <span
+                                class="delta-pill {% if history_delta.overall.volume_pct > 0 %}delta-up{% else %}delta-down{% endif %}">
+                                {{ '▲' if history_delta.overall.volume_pct > 0 else '▼' }} {{
+                                history_delta.overall.volume_pct|abs }}%
                             </span>
                             {% endif %}
                         </div>
@@ -1074,13 +1279,15 @@
                 {% if heatmap_data %}
                 <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
                     <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 1rem;">🔥 英雄 24H 聲量熱度圖</h3>
-                    <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;"></div>
+                    <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;">
+                    </div>
                 </div>
                 {% endif %}
                 <!-- 7 日聲量脈搏 (Phase 29) -->
                 {% if history_delta and history_delta.weekly_vol_pulse %}
                 <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
-                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈 7 日聲量脈搏</h3>
+                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈
+                        7 日聲量脈搏</h3>
                     <div id="weeklyPulseChart" style="width: 100%; height: 80px;"></div>
                     <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
                         虛線標示: 7 日平均熱度 ({{ history_delta.overall.avg_baseline }})
@@ -1094,7 +1301,8 @@
                     <div class="tag-cloud-title" style="color: #059669;">✨ 今日社群讚點 (Praise)</div>
                     <div class="tags-flex">
                         {% for tag in wordcloud.positive %}
-                        <span class="tag-pill tag-pos" style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
+                        <span class="tag-pill tag-pos"
+                            style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
                             {{ tag.text }}
                         </span>
                         {% endfor %}
@@ -1103,7 +1311,8 @@
                     <div class="tag-cloud-title" style="color: #dc2626; margin-top: 1.5rem;">🔥 今日社群痛點 (Pain)</div>
                     <div class="tags-flex">
                         {% for tag in wordcloud.negative %}
-                        <span class="tag-pill tag-neg" style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
+                        <span class="tag-pill tag-neg"
+                            style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
                             {{ tag.text }}
                         </span>
                         {% endfor %}
@@ -1129,12 +1338,15 @@
 
                 <div class="sentiment-guide">
                     <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
-                    <div class="guide-item"><span class="dot dot-pos"></span> <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
-                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug 回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
-                    <div class="guide-item"><span class="dot dot-neu"></span> <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
+                    <div class="guide-item"><span class="dot dot-pos"></span>
+                        <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug
+                        回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
+                    <div class="guide-item"><span class="dot dot-neu"></span>
+                        <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
                 </div>
             </div>
-            
+
             <!-- Hot Topics -->
             {% if hot_topics %}
             <div class="card">
@@ -1144,7 +1356,8 @@
                 </div>
                 <ul style="list-style: none; padding: 0;">
                     {% for topic in hot_topics %}
-                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                    <li
+                        style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
                         <span style="font-weight: 600; color: #334155;">{{ topic.topic }}</span>
                         <span style="color: #64748b; font-size: 0.9rem;">提及: {{ topic.mention_count }}</span>
                     </li>
@@ -1161,21 +1374,24 @@
                     <span class="card-icon">📰</span>
                     <h2>最新動態詳情</h2>
                 </div>
-                
+
                 <div class="feed-container">
                     {% for p in posts %}
                     {% set a = p.get('analysis', {}) %}
                     {% set post_data = p.get('post', {}) %}
                     {% set region = post_data.get('region', 'TW') %}
                     {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
-                    {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary", "")) %}
-                    
+                    {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary",
+                    "")) %}
+
                     <div class="post-container filterable-region" data-region="{{ region }}">
-                        <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                        <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}"
+                            style="animation-delay: {{ loop.index0 * 0.1 }}s;">
                             <!-- 區域標籤 (Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-{{ region|lower }}">
-                                    {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN' %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
+                                    {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN'
+                                    %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
                                 </span>
                                 {% if post_data.translated_content %}
                                 <button class="translate-btn" onclick="toggleTranslation(this)">
@@ -1184,49 +1400,59 @@
                                 {% endif %}
                             </div>
 
-                            <a href="{{ post_data.get('url', '#') }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            <a href="{{ post_data.get('url', '#') }}" target="_blank"
+                                style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
                                     {% if post_data.get('content') %}
-                                        {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
+                                    {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
                                     {% else %}
-                                        無內容
+                                    無內容
                                     {% endif %}
                                 </div>
-                                
+
                                 <div class="post-meta">
-                                    <span class="post-platform" style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{ post_data.get('platform', 'Unknown')|upper }}</span>
-                                    <span>{{ post_data.get('published_date') if post_data.get('published_date') else post_data.get('timestamp', '時間未知') }}</span>
+                                    <span class="post-platform"
+                                        style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
+                                        post_data.get('platform', 'Unknown')|upper }}</span>
+                                    <span>{{ post_data.get('published_date') if post_data.get('published_date') else
+                                        post_data.get('timestamp', '時間未知') }}</span>
                                     {% if post_data.get('author') and post_data.author != 'unknown' %}
                                     <span>· @{{ post_data.author }}</span>
                                     {% endif %}
                                 </div>
 
                                 <div class="post-snippet-container">
-                                    <div class="post-snippet original-content" style="{% if post_data.translated_content %}display: none;{% endif %} {% if is_yaya %}color: #831843;{% endif %}">
+                                    <div class="post-snippet original-content"
+                                        style="{% if post_data.translated_content %}display: none;{% endif %} {% if is_yaya %}color: #831843;{% endif %}">
                                         {% if a and a.get('summary') and a.summary != '分析失敗' %}
-                                            {{ a.summary }}
+                                        {{ a.summary }}
                                         {% else %}
-                                            {{ post_data.get('content', '')[:100] }}...
+                                        {{ post_data.get('content', '')[:100] }}...
                                         {% endif %}
                                     </div>
                                     {% if post_data.translated_content %}
-                                    <div class="post-snippet translated-content" style="{% if is_yaya %}color: #831843;{% endif %}">
-                                        <div style="font-size: 0.75rem; color: #be185d; font-weight: 700; margin-bottom: 0.3rem;">✨ AI 繁中翻譯：</div>
+                                    <div class="post-snippet translated-content"
+                                        style="{% if is_yaya %}color: #831843;{% endif %}">
+                                        <div
+                                            style="font-size: 0.75rem; color: #be185d; font-weight: 700; margin-bottom: 0.3rem;">
+                                            ✨ AI 繁中翻譯：</div>
                                         {{ post_data.translated_content }}
                                     </div>
                                     {% endif %}
                                 </div>
-                                
+
                                 {% if a %}
-                                <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}" style="{% if is_yaya %}color: #be185d !important;{% endif %}">
-                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ focus_hero }}]{% endif %}
+                                <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}"
+                                    style="{% if is_yaya %}color: #be185d !important;{% endif %}">
+                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ focus_hero
+                                    }}]{% endif %}
                                 </div>
                                 {% endif %}
                             </a>
                         </div>
                     </div>
                     {% endfor %}
-                    
+
                     {% if not posts %}
                     <div style="text-align: center; color: #94a3b8; padding: 2rem;">
                         今日暫無相關動態。
@@ -1242,49 +1468,50 @@
         // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
         try {
             const platformCtx = document.getElementById('platformChart').getContext('2d');
-            const platformDataObj = {{ platform_breakdown | tojson }};
-            const platformLabels = Object.keys(platformDataObj);
-            const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
+            const platformDataObj = {{ platform_breakdown | tojson
+        }};
+        const platformLabels = Object.keys(platformDataObj);
+        const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
 
-            new Chart(platformCtx, {
-                type: 'bar',
-                data: {
-                    labels: platformLabels,
-                    datasets: [{
-                        label: '貼文數',
-                        data: platformValues,
-                        backgroundColor: platformLabels.map(p => {
-                            const plat = p.toLowerCase();
-                            if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
-                            if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
-                            if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃
-                            return '#94a3b8';
-                        }),
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { 
-                            cornerRadius: 12,
-                            backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                            titleColor: '#db2777',
-                            bodyColor: '#1e293b',
-                            borderColor: 'rgba(219, 39, 119, 0.3)',
-                            borderWidth: 1,
-                            padding: 12,
-                            boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { grid: { display : false } }
+        new Chart(platformCtx, {
+            type: 'bar',
+            data: {
+                labels: platformLabels,
+                datasets: [{
+                    label: '貼文數',
+                    data: platformValues,
+                    backgroundColor: platformLabels.map(p => {
+                        const plat = p.toLowerCase();
+                        if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
+                        if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
+                        if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃
+                        return '#94a3b8';
+                    }),
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        cornerRadius: 12,
+                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                        titleColor: '#db2777',
+                        bodyColor: '#1e293b',
+                        borderColor: 'rgba(219, 39, 119, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
                     }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                    x: { grid: { display: false } }
                 }
-            });
+            }
+        });
         } catch (e) {
             console.error('⚠️ Platform Chart Error:', e);
         }
@@ -1318,92 +1545,94 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: {{ heatmap_data.hours | tojson }},
-                    splitArea: { show: true },
-                    axisLabel: { color: '#64748b' }
+                    data: {{ heatmap_data.hours | tojson
+        }},
+        splitArea: { show: true },
+        axisLabel: { color: '#64748b' }
                 },
-                yAxis: {
-                    type: 'category',
-                    data: {{ heatmap_data.heroes | tojson }},
-                    splitArea: { show: true },
-                    axisLabel: { color: '#64748b', fontWeight: 'bold' }
-                },
-                visualMap: {
-                    min: -5,
-                    max: 10,
+        yAxis: {
+            type: 'category',
+                data: { { heatmap_data.heroes | tojson } },
+            splitArea: { show: true },
+            axisLabel: { color: '#64748b', fontWeight: 'bold' }
+        },
+        visualMap: {
+            min: -5,
+                max: 10,
                     calculable: true,
-                    orient: 'horizontal',
-                    left: 'center',
-                    bottom: '0',
-                    inRange: {
-                        color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
-                    },
-                    text: ['火熱', '平靜'],
-                    show: false
-                },
-                series: [{
-                    name: '熱度趨勢',
-                    type: 'heatmap',
-                    data: {{ heatmap_data.data | tojson }},
-                    label: { show: false },
-                    emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-                        }
-                    }
+                        orient: 'horizontal',
+                            left: 'center',
+                                bottom: '0',
+                                    inRange: {
+                color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
+            },
+            text: ['火熱', '平靜'],
+                show: false
+        },
+        series: [{
+            name: '熱度趨勢',
+            type: 'heatmap',
+            data: {{ heatmap_data.data | tojson }},
+            label: { show: false },
+            emphasis: {
+            itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+        }
                 }]
             };
-            heatmapChart.setOption(heatmapOption);
-            window.addEventListener('resize', () => heatmapChart.resize());
+        heatmapChart.setOption(heatmapOption);
+        window.addEventListener('resize', () => heatmapChart.resize());
         }
         {% endif %}
 
         // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
         try {
-            const historyData = {{ history_delta | tojson if history_delta else '{}' }};
-            if (historyData && historyData.weekly_vol_pulse) {
-                const pulseDom = document.getElementById('weeklyPulseChart');
-                if (pulseDom) {
-                    const pulseChart = echarts.init(pulseDom);
-                    const pulseOption = {
-                        grid: { top: 5, bottom: 20, left: 0, right: 0 },
-                        xAxis: {
-                            type: 'category',
-                            data: historyData.weekly_vol_pulse.labels || [],
-                            show: true,
-                            axisLine: { show: false },
-                            axisTick: { show: false },
-                            axisLabel: { color: '#94a3b8', fontSize: 10 }
-                        },
-                        yAxis: { type: 'value', show: false },
-                        series: [
-                            {
-                                data: historyData.weekly_vol_pulse.volumes || [],
-                                type: 'line',
-                                smooth: true,
+            const historyData = {{ history_delta | tojson if history_delta else '{}'
+        }};
+        if (historyData && historyData.weekly_vol_pulse) {
+            const pulseDom = document.getElementById('weeklyPulseChart');
+            if (pulseDom) {
+                const pulseChart = echarts.init(pulseDom);
+                const pulseOption = {
+                    grid: { top: 5, bottom: 20, left: 0, right: 0 },
+                    xAxis: {
+                        type: 'category',
+                        data: historyData.weekly_vol_pulse.labels || [],
+                        show: true,
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#94a3b8', fontSize: 10 }
+                    },
+                    yAxis: { type: 'value', show: false },
+                    series: [
+                        {
+                            data: historyData.weekly_vol_pulse.volumes || [],
+                            type: 'line',
+                            smooth: true,
+                            symbol: 'none',
+                            lineStyle: { color: '#6366f1', width: 2 },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                                    { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+                                ])
+                            },
+                            markLine: {
+                                silent: true,
                                 symbol: 'none',
-                                lineStyle: { color: '#6366f1', width: 2 },
-                                areaStyle: {
-                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                        { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
-                                        { offset: 1, color: 'rgba(99, 102, 241, 0)' }
-                                    ])
-                                },
-                                markLine: {
-                                    silent: true,
-                                    symbol: 'none',
-                                    label: { show: false },
-                                    data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
-                                    lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
-                                }
+                                label: { show: false },
+                                data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
+                                lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
                             }
-                        ]
-                    };
-                    pulseChart.setOption(pulseOption);
-                    window.addEventListener('resize', () => pulseChart.resize());
-                }
+                        }
+                    ]
+                };
+                pulseChart.setOption(pulseOption);
+                window.addEventListener('resize', () => pulseChart.resize());
             }
+        }
         } catch (e) {
             console.error('⚠️ Weekly Pulse Chart Error:', e);
         }
@@ -1412,12 +1641,12 @@
         // Phase 33: 區域切換邏輯
         function switchRegion(region) {
             console.log('🌍 切換目標區域:', region);
-            
+
             // 1. 更新按鈕樣式
             document.querySelectorAll('.region-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             // 處理點擊事件中的 DOM
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
@@ -1430,7 +1659,7 @@
             // 2. 核心過濾：隱藏非選定區域的內容
             const posts = document.querySelectorAll('.filterable-region');
             let found = 0;
-            
+
             posts.forEach(post => {
                 if (region === 'ALL' || post.getAttribute('data-region') === region) {
                     post.classList.remove('hide-region');
@@ -1443,7 +1672,7 @@
             // 3. 處理「該區無資料」的視覺反饋
             const container = document.querySelector('.feed-container');
             let emptyMsg = document.getElementById('empty-feed-msg');
-            
+
             if (found === 0) {
                 if (!emptyMsg) {
                     emptyMsg = document.createElement('div');
@@ -1468,7 +1697,7 @@
             const card = btn.closest('.post-card');
             const original = card.querySelector('.original-content');
             const translated = card.querySelector('.translated-content');
-            
+
             if (original.style.display === 'none') {
                 original.style.display = 'block';
                 translated.style.display = 'none';
@@ -1486,4 +1715,5 @@
         });
     </script>
 </body>
+
 </html>

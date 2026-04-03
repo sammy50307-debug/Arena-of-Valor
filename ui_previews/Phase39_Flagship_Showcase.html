@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +15,13 @@
             --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
             --glass-bg: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(219, 39, 119, 0.2);
-            --primary-accent: #db2777; /* 旗艦桃紅 */
-            --secondary-accent: #9333ea; /* 紫羅蘭 */
+            --primary-accent: #db2777;
+            /* 旗艦桃紅 */
+            --secondary-accent: #9333ea;
+            /* 紫羅蘭 */
             --accent-mint: #10b981;
-            --text-main: #1e293b; /* 保持專業深灰對比 */
+            --text-main: #1e293b;
+            /* 保持專業深灰對比 */
             --text-muted: #64748b;
             --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
             --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
@@ -27,15 +31,34 @@
         }
 
         @keyframes neon-breath {
-            0% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
-            50% { box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4); }
-            100% { box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1); }
+            0% {
+                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+            }
         }
 
         @keyframes live-pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         body {
@@ -53,11 +76,15 @@
         body::before {
             content: "";
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
                 radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-            z-index: -1; /* Mesh layer */
+            z-index: -1;
+            /* Mesh layer */
             pointer-events: none;
         }
 
@@ -65,12 +92,16 @@
         body::after {
             content: "";
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: url('../step.jpg');
             background-size: cover;
             background-position: center center;
             opacity: 0.25;
-            z-index: -2; /* Underneath the mesh layer and UI cards */
+            z-index: -2;
+            /* Underneath the mesh layer and UI cards */
             pointer-events: none;
         }
 
@@ -83,8 +114,8 @@
             padding: 2rem;
             box-shadow: var(--card-shadow);
             border: 1px solid var(--glass-border);
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
-                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
             margin-bottom: 2rem;
         }
 
@@ -124,6 +155,7 @@
                 grid-template-columns: 1fr;
                 padding: 0 1rem;
             }
+
             .right-col {
                 position: relative;
                 top: 0;
@@ -158,7 +190,8 @@
         }
 
         .post-container {
-            isolation: isolate; /* 物理隔離關鍵 */
+            isolation: isolate;
+            /* 物理隔離關鍵 */
             padding: 10px 0;
         }
 
@@ -174,11 +207,11 @@
             opacity: 0;
             transform: scale(0.95) translateY(30px);
             animation: popIn 0.7s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), 
-                        background 0.3s ease, 
-                        box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                background 0.3s ease,
+                box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1);
             will-change: transform, box-shadow, opacity;
-            transform: translateZ(0); 
+            transform: translateZ(0);
             backface-visibility: hidden;
             contain: layout style;
         }
@@ -209,17 +242,22 @@
 
         /* ── Global Hub Shimmer Animation ── */
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 100% 0; }
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 100% 0;
+            }
         }
 
         .global-insights-card {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(90deg, 
-                rgba(30, 41, 59, 0.7) 0%, 
-                rgba(56, 189, 248, 0.1) 50%, 
-                rgba(30, 41, 59, 0.7) 100%);
+            background: linear-gradient(90deg,
+                    rgba(30, 41, 59, 0.7) 0%,
+                    rgba(56, 189, 248, 0.1) 50%,
+                    rgba(30, 41, 59, 0.7) 100%);
             background-size: 200% 100%;
             animation: shimmer 10s infinite linear;
             border: 1px solid rgba(56, 189, 248, 0.2);
@@ -235,10 +273,22 @@
         }
 
         @keyframes pulse-live {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
+
         /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
         .hero-focus-card {
             border: 2px solid var(--primary-accent) !important;
@@ -290,9 +340,18 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
-        .text-pos { color: var(--accent-green); }
-        .text-neg { color: var(--accent-red); }
-        .text-neu { color: var(--accent-yellow); }
+
+        .text-pos {
+            color: var(--accent-green);
+        }
+
+        .text-neg {
+            color: var(--accent-red);
+        }
+
+        .text-neu {
+            color: var(--accent-yellow);
+        }
 
         /* ── Hero Focus: YaYa Premium UI ────── */
         .hero-focus-title {
@@ -309,7 +368,10 @@
 
         .hero-scanline {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(to bottom, transparent 50%, rgba(219, 39, 119, 0.05) 50.5%);
             background-size: 100% 4px;
             pointer-events: none;
@@ -345,20 +407,31 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .hero-summary::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
             transform: skewX(-20deg);
             animation: glassSweep 6s infinite;
         }
-        
+
         @keyframes glassSweep {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
+            0% {
+                left: -100%;
+            }
+
+            20% {
+                left: 200%;
+            }
+
+            100% {
+                left: 200%;
+            }
         }
 
         .hero-post-item {
@@ -393,7 +466,7 @@
             border-radius: 6px;
             transition: all 0.3s ease;
         }
-        
+
         .hero-link:hover {
             background: rgba(219, 39, 119, 0.2);
             transform: translateX(5px);
@@ -410,13 +483,38 @@
             align-items: center;
             vertical-align: middle;
         }
-        .delta-up { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-        .delta-down { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .delta-pulse { animation: deltaPulse 2s infinite; }
+
+        .delta-up {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .delta-down {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .delta-pulse {
+            animation: deltaPulse 2s infinite;
+        }
+
         @keyframes deltaPulse {
-            0% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.8; transform: scale(1); }
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
         }
 
         /* ── Combat Stats Panel ── */
@@ -460,9 +558,17 @@
         }
 
         @keyframes statPulse {
-            0% { text-shadow: 0 0 0px rgba(190, 24, 93, 0); }
-            50% { text-shadow: 0 0 8px rgba(190, 24, 93, 0.5); }
-            100% { text-shadow: 0 0 0px rgba(190, 24, 93, 0); }
+            0% {
+                text-shadow: 0 0 0px rgba(190, 24, 93, 0);
+            }
+
+            50% {
+                text-shadow: 0 0 8px rgba(190, 24, 93, 0.5);
+            }
+
+            100% {
+                text-shadow: 0 0 0px rgba(190, 24, 93, 0);
+            }
         }
 
         /* ── Audio Briefing Sticky Bar ── */
@@ -484,8 +590,15 @@
         }
 
         @keyframes playerFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         .audio-info {
@@ -500,8 +613,15 @@
         }
 
         @keyframes rotateBeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         .audio-text h4 {
@@ -532,8 +652,15 @@
         }
 
         @keyframes wave {
-            0%, 100% { height: 20%; }
-            50% { height: 100%; }
+
+            0%,
+            100% {
+                height: 20%;
+            }
+
+            50% {
+                height: 100%;
+            }
         }
 
         audio {
@@ -552,7 +679,8 @@
             color: #d97706;
             box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), inset 0 0 10px rgba(245, 158, 11, 0.05);
             animation: amberGlow 3s infinite alternate ease-in-out;
-            transform: translateZ(0); /* Phase 30.1 Fix */
+            transform: translateZ(0);
+            /* Phase 30.1 Fix */
             will-change: transform;
         }
 
@@ -608,8 +736,13 @@
         }
 
         @keyframes amberGlow {
-            from { box-shadow: 0 0 10px rgba(245, 158, 11, 0.1); }
-            to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); }
+            from {
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+            }
+
+            to {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+            }
         }
 
         /* ── Sentiment WordCloud (Phase 32) ───── */
@@ -645,7 +778,7 @@
             color: #475569;
             transition: all 0.3s ease;
             cursor: default;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
         .tag-pos {
@@ -663,7 +796,7 @@
         .tag-pill:hover {
             transform: scale(1.1) rotate(2deg);
             background: white;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
             z-index: 10;
         }
 
@@ -680,7 +813,7 @@
             position: sticky;
             top: 1rem;
             z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
             justify-content: center;
         }
 
@@ -701,8 +834,8 @@
         .region-btn.active {
             background: white;
             color: #1e293b;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-color: rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: rgba(0, 0, 0, 0.05);
         }
 
         .region-indicator {
@@ -712,9 +845,17 @@
             display: inline-block;
         }
 
-        .btn-tw .region-indicator { background: var(--tw-color); }
-        .btn-th .region-indicator { background: var(--th-color); }
-        .btn-vn .region-indicator { background: var(--vn-color); }
+        .btn-tw .region-indicator {
+            background: var(--tw-color);
+        }
+
+        .btn-th .region-indicator {
+            background: var(--th-color);
+        }
+
+        .btn-vn .region-indicator {
+            background: var(--vn-color);
+        }
 
         .hide-region {
             display: none !important;
@@ -728,9 +869,23 @@
             text-transform: uppercase;
         }
 
-        .tag-tw { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
-        .tag-th { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
-        .tag-vn { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .tag-tw {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .tag-th {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .tag-vn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
         .translate-btn {
             background: rgba(219, 39, 119, 0.05);
@@ -743,10 +898,13 @@
             transition: all 0.2s;
         }
 
-        .translate-btn:hover { background: rgba(219, 39, 119, 0.1); }
+        .translate-btn:hover {
+            background: rgba(219, 39, 119, 0.1);
+        }
 
         .live-pulse {
-            width: 10px; height: 10px;
+            width: 10px;
+            height: 10px;
             background: var(--primary-accent);
             border-radius: 50%;
             display: inline-block;
@@ -802,18 +960,36 @@
             vertical-align: middle;
         }
 
-        .tag-tw { background: rgba(59, 130, 246, 0.1); color: var(--tw-color); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .tag-th { background: rgba(245, 158, 11, 0.1); color: var(--th-color); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .tag-vn { background: rgba(239, 68, 68, 0.1); color: var(--vn-color); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .tag-tw {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--tw-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .tag-th {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--th-color);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .tag-vn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--vn-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
         /* ── Sakura Particles (Phase 34.2 Restore) ── */
         .sakura-container {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
         }
+
         .sakura {
             position: absolute;
             background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
@@ -821,11 +997,25 @@
             opacity: 0.3;
             animation: sakura-fall linear infinite;
         }
+
         @keyframes sakura-fall {
-            0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+            0% {
+                transform: translateY(-10%) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         /* ── Tactical Glow Adjustments ── */
@@ -833,7 +1023,10 @@
             box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
             border: 1px solid var(--glass-border);
         }
-        .card:hover { border: 1px solid rgba(219, 39, 119, 0.4); }
+
+        .card:hover {
+            border: 1px solid rgba(219, 39, 119, 0.4);
+        }
 
         /* ── Premium Header Design (Phase 39.6) ── */
         .header {
@@ -873,6 +1066,7 @@
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <h1>Arena of Valor 輿情分析</h1>
@@ -884,7 +1078,7 @@
         // Sakura Particle Generator
         function createSakura() {
             const container = document.getElementById('sakura-box');
-            if(!container) return;
+            if (!container) return;
             const s = document.createElement('div');
             s.className = 'sakura';
             const size = Math.random() * 10 + 5;
@@ -901,7 +1095,8 @@
 
     <nav class="region-nav">
         <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
-            <span class="region-indicator" style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span> 
+            <span class="region-indicator"
+                style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span>
             🌸 傳說對決：台服旗艦監視中心 (TW SINGLE-CORE OPS)
         </div>
     </nav>
@@ -910,23 +1105,30 @@
     <div class="layout-container">
 
         <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
-        <div class="global-insights-card" style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">💬 台服消息資訊中心 <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN INFO CENTER</span></h2>
-                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
+        <div class="global-insights-card"
+            style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">💬 台服消息資訊中心
+                    <span
+                        style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN
+                        INFO CENTER</span></h2>
+                <div class="live-pulse"
+                    style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
-            <div style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
+            <div
+                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
                 這是為 Phase 39 前端尊榮視覺升級準備的演示資料。我們已經套用了全新的 Responsive Grid、玻璃透視特效 (Glassmorphism) 以及芽芽的高光光暈微動畫。
             </div>
         </div>
 
-        
+
         <div class="alert-banner">
             <div class="alert-title">
                 <span>📌</span> 今日焦點 (TODAY'S FOCUS)
             </div>
             <div class="alert-container">
-                
+
                 <div class="alert-entry">
                     <div class="alert-label-text">玩家活躍高峰</div>
                     <div class="tactical-box">
@@ -938,25 +1140,25 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
-        
-        
+
+
         <!-- Audio Briefing Player (Phase 27) -->
-        
+
 
         <!-- Left Column -->
         <div class="left-col">
 
             <!-- Hero Focus: YaYa -->
-            
+
             <div class="card hero-focus-card">
                 <div class="card-header">
                     <span class="card-icon">🌸</span>
                     <h2 class="hero-focus-title">芽芽 YaYa 觀察室</h2>
                 </div>
-                
+
                 <div class="hero-summary">
                     【Phase 39 尊榮展示】芽芽近期勝率達到顛峰，社群滿意度極高，此區域已升級為帶有陰影流光折射 (Glass Sweep) 與上浮微動畫的尊榮級玻璃卡片。
                 </div>
@@ -964,44 +1166,44 @@
                 <div class="hero-grid">
                     <div>
                         <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
-                        
+
                         <div class="hero-post-item">
                             <span style="font-size: 0.9rem;">芽芽加這件裝備根本無解，這個玻璃卡特效太美了！</span>
                         </div>
-                        
+
                         <div class="hero-post-item">
                             <span style="font-size: 0.9rem;">滑鼠放上去居然會有立體浮空感！</span>
                         </div>
-                        
+
                     </div>
-                    
-                    
+
+
                 </div>
 
                 <!-- Combat Stats Dashboard -->
-                
-                
-                
+
+
+
                 <div class="combat-stats-panel">
                     <div class="stat-card">
                         <span class="stat-label">WIN RATE</span>
                         <div class="stat-val pulse-high">56.4%</div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-value">95.0%</div>
                         <div class="stat-label">全網正面情緒</div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <span class="stat-label">BAN RATE</span>
                         <div class="stat-val">88.2%</div>
                     </div>
                 </div>
-                
+
             </div>
-            
-            
+
+
             <!-- Total Volume -->
             <div class="card">
                 <div class="card-header">
@@ -1015,11 +1217,11 @@
                     <div class="sent-box sent-pos">
                         <div class="num">
                             9500
-                            
+
                             <span class="delta-pill delta-up">
                                 ▲ 12.5%
                             </span>
-                            
+
                         </div>
                         <div class="lbl">正面 👍</div>
                     </div>
@@ -1038,57 +1240,59 @@
                 </div>
 
                 <!-- Hero Sentiment Heatmap (Phase 28) -->
-                
+
                 <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
                     <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 1rem;">🔥 英雄 24H 聲量熱度圖</h3>
-                    <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;"></div>
+                    <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;">
+                    </div>
                 </div>
-                
+
                 <!-- 7 日聲量脈搏 (Phase 29) -->
-                
+
                 <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
-                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈 7 日聲量脈搏</h3>
+                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈
+                        7 日聲量脈搏</h3>
                     <div id="weeklyPulseChart" style="width: 100%; height: 80px;"></div>
                     <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
                         虛線標示: 7 日平均熱度 (11000)
                     </div>
                 </div>
-                
+
 
                 <!-- 全域情緒詞雲 (Phase 32) -->
-                
+
                 <div class="tag-cloud-section">
                     <div class="tag-cloud-title" style="color: #059669;">✨ 今日社群讚點 (Praise)</div>
                     <div class="tags-flex">
-                        
+
                         <span class="tag-pill tag-pos" style="font-size: 24px; opacity: 1.0;">
                             特效真香
                         </span>
-                        
+
                         <span class="tag-pill tag-pos" style="font-size: 18px; opacity: 0.9;">
                             手感好
                         </span>
-                        
+
                         <span class="tag-pill tag-pos" style="font-size: 10px; opacity: 0.7666666666666666;">
                             神缺
                         </span>
-                        
+
                     </div>
 
                     <div class="tag-cloud-title" style="color: #dc2626; margin-top: 1.5rem;">🔥 今日社群痛點 (Pain)</div>
                     <div class="tags-flex">
-                        
+
                         <span class="tag-pill tag-neg" style="font-size: 20px; opacity: 0.9333333333333333;">
                             Bug
                         </span>
-                        
+
                         <span class="tag-pill tag-neg" style="font-size: 14px; opacity: 0.8333333333333334;">
                             爆Ping
                         </span>
-                        
+
                     </div>
                 </div>
-                
+
             </div>
 
             <!-- AI Overview -->
@@ -1097,20 +1301,24 @@
                     <span class="card-icon">🧠</span>
                     <h2>AI 智能解讀 (LLM)</h2>
                 </div>
-                <div class="ai-overview">這是為 Phase 39 前端尊榮視覺升級準備的演示資料。我們已經套用了全新的 Responsive Grid、玻璃透視特效 (Glassmorphism) 以及芽芽的高光光暈微動畫。</div>
+                <div class="ai-overview">這是為 Phase 39 前端尊榮視覺升級準備的演示資料。我們已經套用了全新的 Responsive Grid、玻璃透視特效 (Glassmorphism)
+                    以及芽芽的高光光暈微動畫。</div>
 
-                
+
 
                 <div class="sentiment-guide">
                     <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
-                    <div class="guide-item"><span class="dot dot-pos"></span> <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
-                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug 回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
-                    <div class="guide-item"><span class="dot dot-neu"></span> <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
+                    <div class="guide-item"><span class="dot dot-pos"></span>
+                        <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug
+                        回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
+                    <div class="guide-item"><span class="dot dot-neu"></span>
+                        <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
                 </div>
             </div>
-            
+
             <!-- Hot Topics -->
-            
+
         </div>
 
         <!-- Right Column -->
@@ -1120,15 +1328,15 @@
                     <span class="card-icon">📰</span>
                     <h2>最新動態詳情</h2>
                 </div>
-                
+
                 <div class="feed-container">
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+
+
+
+
+
+
+
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card " style="animation-delay: 0.0s;">
                             <!-- 區域標籤 (Phase 33) -->
@@ -1136,46 +1344,46 @@
                                 <span class="region-tag tag-tw">
                                     🇹🇼 TW
                                 </span>
-                                
+
                             </div>
 
                             <a href="#" target="_blank" style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="">
-                                    
-                                        這次的女團造型太香了，芽芽專屬的高光版面簡直是藝術品！
-                                    
+
+                                    這次的女團造型太香了，芽芽專屬的高光版面簡直是藝術品！
+
                                 </div>
-                                
+
                                 <div class="post-meta">
                                     <span class="post-platform" style="">FACEBOOK</span>
                                     <span>時間未知</span>
-                                    
+
                                 </div>
 
                                 <div class="post-snippet-container">
                                     <div class="post-snippet original-content" style=" ">
-                                        
-                                            對英雄專屬區塊的版面感到驚艷。
-                                        
+
+                                        對英雄專屬區塊的版面感到驚艷。
+
                                     </div>
-                                    
+
                                 </div>
-                                
-                                
+
+
                                 <div class="post-sentiment text-pos" style="">
-                                    AI 判定: POSITIVE 
+                                    AI 判定: POSITIVE
                                 </div>
-                                
+
                             </a>
                         </div>
                     </div>
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+
+
+
+
+
+
+
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card " style="animation-delay: 0.1s;">
                             <!-- 區域標籤 (Phase 33) -->
@@ -1183,42 +1391,42 @@
                                 <span class="region-tag tag-tw">
                                     🇹🇼 TW
                                 </span>
-                                
+
                             </div>
 
                             <a href="#" target="_blank" style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="">
-                                    
-                                        手機上看也超級清楚耶，版面排版超完美
-                                    
+
+                                    手機上看也超級清楚耶，版面排版超完美
+
                                 </div>
-                                
+
                                 <div class="post-meta">
                                     <span class="post-platform" style="">THREADS</span>
                                     <span>時間未知</span>
-                                    
+
                                 </div>
 
                                 <div class="post-snippet-container">
                                     <div class="post-snippet original-content" style=" ">
-                                        
-                                            讚賞響應式格線 (CSS Grid) 升級
-                                        
+
+                                        讚賞響應式格線 (CSS Grid) 升級
+
                                     </div>
-                                    
+
                                 </div>
-                                
-                                
+
+
                                 <div class="post-sentiment text-pos" style="">
-                                    AI 判定: POSITIVE 
+                                    AI 判定: POSITIVE
                                 </div>
-                                
+
                             </a>
                         </div>
                     </div>
-                    
-                    
-                    
+
+
+
                 </div>
             </div>
         </div>
@@ -1229,7 +1437,7 @@
         // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
         try {
             const platformCtx = document.getElementById('platformChart').getContext('2d');
-            const platformDataObj = {"Facebook \u8a0e\u8ad6\u5340": 5000, "Instagram": 3000, "Threads": 2850, "YouTube \u5be6\u6cc1": 2000};
+            const platformDataObj = { "Facebook \u8a0e\u8ad6\u5340": 5000, "Instagram": 3000, "Threads": 2850, "YouTube \u5be6\u6cc1": 2000 };
             const platformLabels = Object.keys(platformDataObj);
             const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
 
@@ -1253,9 +1461,9 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
+                    plugins: {
                         legend: { display: false },
-                        tooltip: { 
+                        tooltip: {
                             cornerRadius: 12,
                             backgroundColor: 'rgba(255, 255, 255, 0.85)',
                             titleColor: '#db2777',
@@ -1268,7 +1476,7 @@
                     },
                     scales: {
                         y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { grid: { display : false } }
+                        x: { grid: { display: false } }
                     }
                 }
             });
@@ -1277,7 +1485,7 @@
         }
 
         // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
-        
+
         const heatmapDom = document.getElementById('heatmapChart');
         if (heatmapDom) {
             const heatmapChart = echarts.init(heatmapDom);
@@ -1344,11 +1552,11 @@
             heatmapChart.setOption(heatmapOption);
             window.addEventListener('resize', () => heatmapChart.resize());
         }
-        
+
 
         // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
         try {
-            const historyData = {"alerts": [{"advice": "\u5efa\u8b70\u628a\u63e1\u76ee\u524d\u9ad8\u6b63\u9762\u60c5\u7dd2\u7684\u6642\u6a5f\uff0c\u91cb\u51fa\u65b0\u8cfd\u5b63\u9810\u544a\u3002", "label": "\u73a9\u5bb6\u6d3b\u8e8d\u9ad8\u5cf0"}], "overall": {"avg_baseline": 11000, "volume_pct": 12.5}, "weekly_vol_pulse": {"average": 11550, "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "volumes": [9500, 10200, 9800, 11500, 12000, 15000, 12850]}};
+            const historyData = { "alerts": [{ "advice": "\u5efa\u8b70\u628a\u63e1\u76ee\u524d\u9ad8\u6b63\u9762\u60c5\u7dd2\u7684\u6642\u6a5f\uff0c\u91cb\u51fa\u65b0\u8cfd\u5b63\u9810\u544a\u3002", "label": "\u73a9\u5bb6\u6d3b\u8e8d\u9ad8\u5cf0" }], "overall": { "avg_baseline": 11000, "volume_pct": 12.5 }, "weekly_vol_pulse": { "average": 11550, "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "volumes": [9500, 10200, 9800, 11500, 12000, 15000, 12850] } };
             if (historyData && historyData.weekly_vol_pulse) {
                 const pulseDom = document.getElementById('weeklyPulseChart');
                 if (pulseDom) {
@@ -1399,12 +1607,12 @@
         // Phase 33: 區域切換邏輯
         function switchRegion(region) {
             console.log('🌍 切換目標區域:', region);
-            
+
             // 1. 更新按鈕樣式
             document.querySelectorAll('.region-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             // 處理點擊事件中的 DOM
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
@@ -1417,7 +1625,7 @@
             // 2. 核心過濾：隱藏非選定區域的內容
             const posts = document.querySelectorAll('.filterable-region');
             let found = 0;
-            
+
             posts.forEach(post => {
                 if (region === 'ALL' || post.getAttribute('data-region') === region) {
                     post.classList.remove('hide-region');
@@ -1430,7 +1638,7 @@
             // 3. 處理「該區無資料」的視覺反饋
             const container = document.querySelector('.feed-container');
             let emptyMsg = document.getElementById('empty-feed-msg');
-            
+
             if (found === 0) {
                 if (!emptyMsg) {
                     emptyMsg = document.createElement('div');
@@ -1455,7 +1663,7 @@
             const card = btn.closest('.post-card');
             const original = card.querySelector('.original-content');
             const translated = card.querySelector('.translated-content');
-            
+
             if (original.style.display === 'none') {
                 original.style.display = 'block';
                 translated.style.display = 'none';
@@ -1473,4 +1681,5 @@
         });
     </script>
 </body>
+
 </html>
