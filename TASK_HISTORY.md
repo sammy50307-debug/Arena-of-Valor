@@ -172,6 +172,53 @@
 - **圖表渲染修復**：修正 `report.html` 中的 Chart.js 初始化邏輯，拋棄硬編碼，實現 **「平台自動偵測」** 與 **「Moe 配色 (粉藍/粉紅/亮黃)」**。
 - **數據鏈加固**：使用 `try-catch` 保護渲染執行序，確保週量趨勢線圖不再因單一平台數據異常而消失。
 
+### 🛠️ Phase 37：全域系統法典佈建 (Global Agent Rules)
+
+- **目標**：確保所有未來的 AI 接手者皆能嚴格遵循「謀定而後動」與「無損存檔」法則。
+- **技術細節**：於專案根目錄實體化 `.windsurfrules` 與 `.cursorrules`。
+- **核心文本約束**：
+  - 強制開局讀取「Phase 壓縮記憶檔」與「Phase 0 計畫書」。
+  - 強制執行事前提交「精美版面計畫書」並必須獲得「用戶明確核准」。
+  - 確立對未知事物查證並以繁體中文撰寫、忌用僵化詞彙之日常律法。
+
+### 🛠️ Phase 38：API 限速防護閥 (Rate Limit 5P Hardening)
+
+- **目標**：統一全線情報搜集的物理上限，避免觸發 `HTTP 429 Too Many Requests`。
+- **技術細節**：將神經中樞 `main.py` 及三大底層爬蟲的檢索上限全部鎖定為 **5** 篇。
+- **原始代碼**：
+  - `main.py`：`all_results = await searcher.search(max_results_per_region=5)`
+  - `tavily_searcher.py`：`max_results_per_region: int = 5`
+  - `apify_scraper.py`：`max_results_per_keyword: int = 5`
+  - `base_scraper.py`：`async def scrape(self, keywords: List[str], max_posts: int = 5) -> List[Post]:`
+
+### 🛠️ Phase 39：前端視覺尊榮升級 (UI/UX Flagship Enhancement)
+
+- **目標**：在不改變 Cyber 戰略 ✕ Sakura 粉嫩主色的前提下，全面升級響應式佈局與微動畫質感。
+- **排版系統重建 (CSS Grid)**：
+  - 於 `report.html` 注入 `.layout-container` 雙軌網格 (2:1 黃金比例)。
+  - 實作 `@media (max-width: 992px)` 行動裝置完美折疊直列顯示。
+- **英雄專屬卡片尊榮化 (Hero VIP Card)**：
+  - `.hero-summary` 升級為玻璃透視材質 (`backdrop-filter`)，並加入每 6 秒一次的物理光學折射動畫 `glassSweep`。
+  - `.hero-post-item` 改版為帶有陰影的浮空玻璃卡，懸停時觸發上浮微動畫 (`transform: translateY(-3px)`)。
+  - `.hero-focus-title` 文字改為漸層炫光 (`background-clip: text`)。
+- **互動圖表玻璃化 (Glassmorphism Charts)**：
+  - 增設 `.chart-wrapper` 包覆層，附帶 `blur(10px)` 及呼吸光暈懸停特效。
+  - 覆寫 Chart.js 及 ECharts 提示框 (Tooltip)，強制取消預設黑框，全面注入半透明琉璃材質與圓角 `cornerRadius: 12` 設定。
+
+
+### 🛠️ Phase 39.5：前端視覺柔和化與尊榮標題升級 (UI Refinement & Polish)
+
+- **目標**：接獲指揮官指示，針對資訊中心、預警板塊以及頂部主標題進行文字降溫及高光特效的二次精修。
+- **資訊中心 (Info Center)**：
+  - 由「台服戰略通訊中心」更名為更具親和力的「台服消息資訊中心 (TAIWAN INFO CENTER)」。
+  - 捨棄生硬的衛星圖標 🛰️，導入對話感十足的 `💬`。
+- **今日焦點 (Today's Focus)**：
+  - 褪去「戰略級預警中心」帶來的紅色壓迫感。
+  - 將背板與警示光替換為「柔和琥珀晨光色 (Amber/Yellow)」(`linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)`)。
+  - Icon 切換為帶有提示意味的 `📌`。
+- **標題美學突破 (Premium Header)**：
+  - 導入全新的 `.header h1` CSS 結構，為「Arena of Valor 輿情分析」主標套用專屬的漸層高光 (`background-clip: text`) 與文字倒影 (`drop-shadow`)，完美疊加高級視覺感。
+
 ---
 
 ## 💡 靈魂反思：當全球化對上靈魂美學 (Self-Reflection)

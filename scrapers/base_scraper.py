@@ -49,7 +49,7 @@ class BaseScraper(ABC):
         self.headless = headless
         self.logger = logging.getLogger(f"{__name__}.{self.PLATFORM}")
 
-    async def scrape(self, keywords: List[str], max_posts: int = 30) -> List[Post]:
+    async def scrape(self, keywords: List[str], max_posts: int = 5) -> List[Post]:
         """
         對外公開的爬取介面。內建重試與延遲機制。
         """

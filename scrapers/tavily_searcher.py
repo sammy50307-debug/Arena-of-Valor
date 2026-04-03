@@ -47,7 +47,7 @@ class TavilySearcher:
 
     async def search(
         self,
-        max_results_per_region: int = 15,
+        max_results_per_region: int = 5,
     ) -> List[SearchResult]:
         """
         遍歷各個區域並執行同步搜尋與匯流。

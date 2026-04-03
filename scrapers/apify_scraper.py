@@ -25,7 +25,7 @@ class ApifyInstagramScraper:
     async def search(
         self,
         keywords: List[str],
-        max_results_per_keyword: int = 3,
+        max_results_per_keyword: int = 5,
     ) -> List[SearchResult]:
         """
         對每個關鍵字呼叫 Apify Instagram 爬蟲。

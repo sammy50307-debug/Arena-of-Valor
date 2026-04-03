@@ -189,7 +189,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
         logger.info(" Step 1/4: 開始使用 Tavily 搜集全球區域情報...")
         searcher = TavilySearcher()
         try:
-            all_results = await searcher.search(max_results_per_region=3)
+            all_results = await searcher.search(max_results_per_region=5)
         except Exception as e:
             logger.error(f"  [FAIL] 全球情報搜集失敗: {e}")
             return
