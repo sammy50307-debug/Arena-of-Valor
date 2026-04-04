@@ -18,6 +18,7 @@ class HistoryResolver:
     """負責歷史數據的比對與趨勢分析。"""
 
     def __init__(self, data_dir: Path = None):
+        self.logger = logging.getLogger(f"{__name__}.HistoryResolver")
         self.data_dir = data_dir or config.DATA_DIR
         self.history_days = 7
 
@@ -38,7 +39,7 @@ class HistoryResolver:
             volumes = [random.randint(45, 98) for _ in range(7)]
             
             return {
-                "overall": {"volume_pct": 15.5, "is_red_alert": False},
+                "overall": {"volume_pct": 15.5, "avg_baseline": 65.0, "is_red_alert": False},
                 "heroes": {hero: {"volume_pct": random.uniform(5, 20)} for hero in config.HERO_WATCHLIST},
                 "weekly_vol_pulse": {
                     "volumes": volumes,
@@ -49,7 +50,7 @@ class HistoryResolver:
             }
 
         if not archives:
-            logger.info("  [!] 無法找到過往數據，提供備援 Delta 結構。")
+            self.logger.info("  [!] 無法找到過往數據，提供備援 Delta 結構。")
             today_vol = today_summary.get("total_posts", 0)
             return {
                 "overall": {"volume_pct": 0.0, "avg_baseline": today_vol, "is_red_alert": False},
@@ -175,9 +176,16 @@ class HistoryResolver:
             if file_path.exists():
                 try:
                     data = json.loads(file_path.read_text(encoding="utf-8"))
+                    
+                    # ── 數據正規化：確保舊版 Schema 向下兼容 ──
+                    if "total_posts" not in data and "total_mention_count" in data:
+                        data["total_posts"] = data["total_mention_count"]
+                    if "total_posts" not in data:
+                        data["total_posts"] = 0
+                        
                     archives.append(data)
                 except Exception as e:
-                    logger.error(f"  [!] 加载歷史檔失敗 {file_path.name}: {e}")
+                    self.logger.error(f"  [!] 加載歷史檔失敗 {file_path.name}: {e}")
         
         return archives
 
@@ -204,12 +212,6 @@ class HistoryResolver:
             "avg_baseline": round(float(avg_vol), 1),
             "is_red_alert": vol_delta > 30.0 # 比平均高出 30% 視為異常
         }
-
-    def _calculate_hero_deltas(self, today: Dict[str, Any], archives: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """計算特定英雄在聲量、情緒比例上的週均值變動。"""
-        hero_deltas = {}
-        # 這裡可以擴展細節英雄的移動平均比對
-        return hero_deltas
 
     def _get_weekly_pulse(self, today: Dict[str, Any], archives: List[Dict[str, Any]]) -> Dict[str, Any]:
         """產出過去 7 天的數據序列，供前端畫週脈搏圖。"""

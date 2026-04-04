@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arena of Valor 輿情分析 — {{ date }}</title>
+    <title>Arena of Valor 輿情分析 — 2026-04-03 旗艦預覽</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
@@ -96,7 +96,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('yaya_bg.png');
+            background-image: url('../yaya_bg.png');
             background-size: cover;
             background-position: center center;
             opacity: 0.8;
@@ -122,31 +122,17 @@
         .card:hover {
             transform: translateY(-5px);
             box-shadow: var(--hover-shadow);
-            border: 1px solid var(--primary-accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         /* ── Responsive CSS Grid Backbone (Phase 39) ── */
         .layout-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            grid-template-rows: auto auto auto; /* Explicitly define rows */
             gap: 2rem;
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
-        }
-
-        .global-insights-card, .alert-banner {
-            /* Parallel Grid Managed via specific class overrides */
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        .alert-banner {
-            grid-column: unset !important; /* Ensure 2fr 1fr parallelism */
-        }
-
-        .audio-player-container {
-            grid-column: 1 / -1 !important; 
         }
 
         .left-col {
@@ -236,18 +222,20 @@
             font-weight: 700;
             margin-bottom: 0.8rem;
             color: var(--primary-accent);
-            line-clamp: 2;
+            display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            line-clamp: 2;
             overflow: hidden;
         }
 
         .post-content {
             font-size: 0.95rem;
             color: var(--text-muted);
-            line-clamp: 3;
+            display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
+            line-clamp: 3;
             overflow: hidden;
             line-height: 1.7;
         }
@@ -266,15 +254,13 @@
         .global-insights-card {
             position: relative;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(12px) saturate(180%);
-            -webkit-backdrop-filter: blur(12px) saturate(180%);
-            border: 2px solid var(--primary-accent) !important;
-            border-radius: 28px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--glow-neon);
-            grid-column: unset !important; /* Ensure 2fr 1fr parallelism */
+            background: linear-gradient(90deg,
+                    rgba(30, 41, 59, 0.7) 0%,
+                    rgba(56, 189, 248, 0.1) 50%,
+                    rgba(30, 41, 59, 0.7) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 10s infinite linear;
+            border: 1px solid rgba(56, 189, 248, 0.2);
         }
 
         .live-pulse {
@@ -786,7 +772,6 @@
             align-items: center;
         }
 
-
         .tag-pill {
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
@@ -929,6 +914,12 @@
             animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
+        .global-insights-card {
+            /* 演示模式：戰略通訊中心 */
+            background: linear-gradient(135deg, rgba(219, 39, 119, 0.03) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
+            border: 2px solid var(--primary-accent) !important;
+            animation: neon-breath 4s ease-in-out infinite;
+        }
 
         .global-insights-card::before {
             content: 'GLOBAL PULSE';
@@ -1088,7 +1079,7 @@
 <body>
     <header class="header">
         <h1>Arena of Valor 輿情分析</h1>
-        <div class="date-pill">{{ date }}</div>
+        <div class="date-pill">2026-04-03 旗艦預覽</div>
     </header>
 
     <div class="sakura-container" id="sakura-box"></div>
@@ -1123,149 +1114,104 @@
     <div class="layout-container">
 
         <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
-        <div class="global-insights-card">
+        <div class="global-insights-card"
+            style="background: linear-gradient(135deg, #fdf2f8 0%, #fff1f2 100%); border: 2px solid var(--primary-accent); box-shadow: var(--glow-neon);">
             <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2);">💬 台服消息資訊中心
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800;">💬 台服消息資訊中心
                     <span
                         style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN
                         INFO CENTER</span></h2>
-                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
+                <div class="live-pulse"
+                    style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
             <div
-                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
-                {{ overview }}
+                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 16px;">
+                這是為 Phase 39 前端尊榮視覺升級準備的演示資料。我們已經套用了全新的 Responsive Grid、玻璃透視特效 (Glassmorphism) 以及芽芽的高光光暈微動畫。
             </div>
         </div>
+
 
         <div class="alert-banner">
             <div class="alert-title">
                 <span>📌</span> 今日焦點 (TODAY'S FOCUS)
             </div>
             <div class="alert-container">
-                {% if history_delta and history_delta.alerts %}
-                    {% for alert in history_delta.alerts %}
-                    <div class="alert-entry">
-                        <div class="alert-label-text">{{ alert.label }}</div>
-                        <div class="tactical-box">
-                            <div class="advice-header">
-                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
-                            </div>
-                            <div class="advice-body">
-                                {{ alert.advice }}
-                            </div>
+
+                <div class="alert-entry">
+                    <div class="alert-label-text">玩家活躍高峰</div>
+                    <div class="tactical-box">
+                        <div class="advice-header">
+                            <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
+                        </div>
+                        <div class="advice-body">
+                            建議把握目前高正面情緒的時機，釋出新賽季預告。
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Flagship Fallback (Phase 39 Consistency) -->
-                    <div class="alert-entry">
-                        <div class="alert-label-text">玩家活躍高峰</div>
-                        <div class="tactical-box">
-                            <div class="advice-header">
-                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
-                            </div>
-                            <div class="advice-body">
-                                今日 AoV 台服熱度持續攀升。玩家正密切關注芽芽新版本變動。
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
+                </div>
+
             </div>
         </div>
 
+
         <!-- Audio Briefing Player (Phase 27) -->
-        {% if audio_url %}
-        <div class="audio-player-container">
-            <div class="audio-info">
-                <span class="audio-icon">🎙️</span>
-                <div class="audio-text">
-                    <h4>今日戰情導讀</h4>
-                    <p>AI 自動生成語音彙報</p>
-                </div>
-                <div class="visualizer">
-                    <div class="bar" style="animation-delay: -0.1s;"></div>
-                    <div class="bar" style="animation-delay: -0.3s;"></div>
-                    <div class="bar" style="animation-delay: -0.5s;"></div>
-                    <div class="bar" style="animation-delay: -0.2s;"></div>
-                    <div class="bar" style="animation-delay: -0.4s;"></div>
-                </div>
-            </div>
-            <audio controls>
-                <source src="{{ audio_url }}" type="audio/mpeg">
-                您的瀏覽器不支援播放器。
-            </audio>
-        </div>
-        {% endif %}
+
 
         <!-- Left Column -->
         <div class="left-col">
 
             <!-- Hero Focus: YaYa -->
-            {% if hero_focus %}
+
             <div class="card hero-focus-card">
                 <div class="card-header">
                     <span class="card-icon">🌸</span>
-                    <h2 class="hero-focus-title">{{ hero_focus.name }} 觀察室</h2>
+                    <h2 class="hero-focus-title">芽芽 YaYa 觀察室</h2>
                 </div>
 
                 <div class="hero-summary">
-                    {{ hero_focus.summary }}
+                    【Phase 39 尊榮展示】芽芽近期勝率達到顛峰，社群滿意度極高，此區域已升級為帶有陰影流光折射 (Glass Sweep) 與上浮微動畫的尊榮級玻璃卡片。
                 </div>
 
                 <div class="hero-grid">
                     <div>
                         <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
-                        {% for comment in hero_focus.top_comments %}
+
                         <div class="hero-post-item">
-                            <span style="font-size: 0.9rem;">{{ comment }}</span>
+                            <span style="font-size: 0.9rem;">芽芽加這件裝備根本無解，這個玻璃卡特效太美了！</span>
                         </div>
-                        {% endfor %}
+
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">滑鼠放上去居然會有立體浮空感！</span>
+                        </div>
+
                     </div>
 
-                    {% if hero_focus_posts %}
-                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
-                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
-                        {% for hp in hero_focus_posts[:3] %}
-                        <div style="margin-bottom: 0.5rem;">
-                            <a href="{{ hp.post.url }}" target="_blank" class="hero-link">
-                                [{{ hp.post.platform }}] {{ hp.analysis.summary }}
-                            </a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+
                 </div>
 
                 <!-- Combat Stats Dashboard -->
-                {% set hero_name = hero_focus.name %}
-                {% if combat_stats and hero_name in combat_stats %}
-                {% set stats = combat_stats[hero_name] %}
+
+
+
                 <div class="combat-stats-panel">
                     <div class="stat-card">
                         <span class="stat-label">WIN RATE</span>
-                        <div class="stat-val {% if stats.win_rate > 52 %}pulse-high{% endif %}">{{ stats.win_rate }}%
-                        </div>
+                        <div class="stat-val pulse-high">56.4%</div>
                     </div>
-                    {% if analysis and analysis.overall %}
-                    <div class="stat-card">
-                        <div class="stat-value">{{ "%.1f"|format(analysis.overall.sentiment_score * 100) }}%</div>
-                        <div class="stat-label">全網正面情緒</div>
-                    </div>
-                    {% else %}
+
                     <div class="stat-card">
                         <div class="stat-value">95.0%</div>
-                        <div class="stat-label">旗艦演示模式</div>
+                        <div class="stat-label">全網正面情緒</div>
                     </div>
-                    {% endif %}
+
                     <div class="stat-card">
                         <span class="stat-label">BAN RATE</span>
-                        <div class="stat-val">{{ stats.ban_rate }}%</div>
+                        <div class="stat-val">88.2%</div>
                     </div>
                 </div>
-                {% endif %}
+
             </div>
-            {% endif %}
+
 
             <!-- Total Volume -->
             <div class="card">
@@ -1273,29 +1219,27 @@
                     <span class="card-icon">📊</span>
                     <h2>聲量總覽</h2>
                 </div>
-                <div class="metric-big">{{ total_posts }}</div>
+                <div class="metric-big">12850</div>
                 <div class="metric-desc">今日相關新聞與社群提及數</div>
 
                 <div class="sentiment-grid">
                     <div class="sent-box sent-pos">
                         <div class="num">
-                            {{ sentiment_distribution.positive }}
-                            {% if history_delta.overall.volume_pct %}
-                            <span
-                                class="delta-pill {% if history_delta.overall.volume_pct > 0 %}delta-up{% else %}delta-down{% endif %}">
-                                {{ '▲' if history_delta.overall.volume_pct > 0 else '▼' }} {{
-                                history_delta.overall.volume_pct|abs }}%
+                            9500
+
+                            <span class="delta-pill delta-up">
+                                ▲ 12.5%
                             </span>
-                            {% endif %}
+
                         </div>
                         <div class="lbl">正面 👍</div>
                     </div>
                     <div class="sent-box sent-neg">
-                        <div class="num">{{ sentiment_distribution.negative }}</div>
+                        <div class="num">1500</div>
                         <div class="lbl">負面 👎</div>
                     </div>
                     <div class="sent-box sent-neu">
-                        <div class="num">{{ sentiment_distribution.neutral }}</div>
+                        <div class="num">1850</div>
                         <div class="lbl">中性 😐</div>
                     </div>
                 </div>
@@ -1305,49 +1249,59 @@
                 </div>
 
                 <!-- Hero Sentiment Heatmap (Phase 28) -->
-                {% if heatmap_data %}
+
                 <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
                     <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 1rem;">🔥 英雄 24H 聲量熱度圖</h3>
                     <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;">
                     </div>
                 </div>
-                {% endif %}
+
                 <!-- 7 日聲量脈搏 (Phase 29) -->
-                {% if history_delta and history_delta.weekly_vol_pulse %}
+
                 <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
                     <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈
                         7 日聲量脈搏</h3>
                     <div id="weeklyPulseChart" style="width: 100%; height: 80px;"></div>
                     <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
-                        虛線標示: 7 日平均熱度 ({{ history_delta.overall.avg_baseline }})
+                        虛線標示: 7 日平均熱度 (11000)
                     </div>
                 </div>
-                {% endif %}
+
 
                 <!-- 全域情緒詞雲 (Phase 32) -->
-                {% if wordcloud %}
+
                 <div class="tag-cloud-section">
                     <div class="tag-cloud-title" style="color: #059669;">✨ 今日社群讚點 (Praise)</div>
                     <div class="tags-flex">
-                        {% for tag in wordcloud.positive %}
-                        <span class="tag-pill tag-pos"
-                            style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
-                            {{ tag.text }}
+
+                        <span class="tag-pill tag-pos" style="font-size: 24px; opacity: 1.0;">
+                            特效真香
                         </span>
-                        {% endfor %}
+
+                        <span class="tag-pill tag-pos" style="font-size: 18px; opacity: 0.9;">
+                            手感好
+                        </span>
+
+                        <span class="tag-pill tag-pos" style="font-size: 10px; opacity: 0.7666666666666666;">
+                            神缺
+                        </span>
+
                     </div>
 
                     <div class="tag-cloud-title" style="color: #dc2626; margin-top: 1.5rem;">🔥 今日社群痛點 (Pain)</div>
                     <div class="tags-flex">
-                        {% for tag in wordcloud.negative %}
-                        <span class="tag-pill tag-neg"
-                            style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
-                            {{ tag.text }}
+
+                        <span class="tag-pill tag-neg" style="font-size: 20px; opacity: 0.9333333333333333;">
+                            Bug
                         </span>
-                        {% endfor %}
+
+                        <span class="tag-pill tag-neg" style="font-size: 14px; opacity: 0.8333333333333334;">
+                            爆Ping
+                        </span>
+
                     </div>
                 </div>
-                {% endif %}
+
             </div>
 
             <!-- AI Overview -->
@@ -1356,22 +1310,10 @@
                     <span class="card-icon">🧠</span>
                     <h2>AI 智能解讀 (LLM)</h2>
                 </div>
-                <div class="ai-overview">
-                    <div style="margin-bottom: 1rem;">{{ overview }}</div>
-                    {% if reasoning %}
-                    <details style="margin-top: 1rem; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 0.8rem;">
-                        <summary style="font-size: 0.85rem; color: #64748b; cursor: pointer; font-weight: 600;">🧠 邏輯推演過程 (Chain of Thought)</summary>
-                        <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.6; white-space: pre-wrap;">{{ reasoning }}</div>
-                    </details>
-                    {% endif %}
-                </div>
+                <div class="ai-overview">這是為 Phase 39 前端尊榮視覺升級準備的演示資料。我們已經套用了全新的 Responsive Grid、玻璃透視特效 (Glassmorphism)
+                    以及芽芽的高光光暈微動畫。</div>
 
-                {% if recommendation %}
-                <div class="recommendation-box">
-                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
-                    {{ recommendation }}
-                </div>
-                {% endif %}
+
 
                 <div class="sentiment-guide">
                     <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
@@ -1385,23 +1327,7 @@
             </div>
 
             <!-- Hot Topics -->
-            {% if hot_topics %}
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-icon">🔥</span>
-                    <h2>熱門關鍵話題</h2>
-                </div>
-                <ul style="list-style: none; padding: 0;">
-                    {% for topic in hot_topics %}
-                    <li
-                        style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;">{{ topic.topic }}</span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: {{ topic.mention_count }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
+
         </div>
 
         <!-- Right Column -->
@@ -1413,90 +1339,103 @@
                 </div>
 
                 <div class="feed-container">
-                    {# Combined feed with fallback #}
-                    {% set display_posts = posts if posts else (hero_focus_posts if hero_focus_posts else top_links) %}
-                    
-                    {% for p in display_posts %}
-                    {% set a = p.get('analysis', {}) %}
-                    {% set post_data = p.get('post', p) %} {# Handle different nesting levels #}
-                    {% set region = post_data.get('region', 'TW') %}
-                    {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
-                    {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary", "")) %}
 
-                    <div class="post-container filterable-region" data-region="{{ region }}">
-                        <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}"
-                            style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+
+
+
+
+
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 0.0s;">
                             <!-- 區域標籤 (Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <span class="region-tag tag-{{ region|lower }}">
-                                    {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN'
-                                    %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
                                 </span>
-                                {% if post_data.translated_content %}
-                                <button class="translate-btn" onclick="toggleTranslation(this)">
-                                    <span class="icon">🔍</span> 原文對覽
-                                </button>
-                                {% endif %}
+
                             </div>
 
-                            <a href="{{ post_data.get('url', '#') }}" target="_blank"
-                                style="text-decoration: none; color: inherit;">
-                                <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
-                                    {% if post_data.get('content') %}
-                                    {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
-                                    {% else %}
-                                    無內容
-                                    {% endif %}
+                            <a href="#" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+
+                                    這次的女團造型太香了，芽芽專屬的高光版面簡直是藝術品！
+
                                 </div>
 
                                 <div class="post-meta">
-                                    <span class="post-platform"
-                                        style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
-                                        post_data.get('platform', 'Unknown')|upper }}</span>
-                                    <span>{{ post_data.get('published_date') if post_data.get('published_date') else
-                                        post_data.get('timestamp', '時間未知') }}</span>
-                                    {% if post_data.get('author') and post_data.author != 'unknown' %}
-                                    <span>· @{{ post_data.author }}</span>
-                                    {% endif %}
+                                    <span class="post-platform" style="">FACEBOOK</span>
+                                    <span>時間未知</span>
+
                                 </div>
 
                                 <div class="post-snippet-container">
-                                    <div class="post-snippet original-content"
-                                        style="{% if post_data.translated_content %}display: none;{% endif %} {% if is_yaya %}color: #831843;{% endif %}">
-                                        {% if a and a.get('summary') and a.summary != '分析失敗' %}
-                                        {{ a.summary }}
-                                        {% else %}
-                                        {{ post_data.get('content', '')[:100] }}...
-                                        {% endif %}
+                                    <div class="post-snippet original-content" style=" ">
+
+                                        對英雄專屬區塊的版面感到驚艷。
+
                                     </div>
-                                    {% if post_data.translated_content %}
-                                    <div class="post-snippet translated-content"
-                                        style="{% if is_yaya %}color: #831843;{% endif %}">
-                                        <div
-                                            style="font-size: 0.75rem; color: #be185d; font-weight: 700; margin-bottom: 0.3rem;">
-                                            ✨ AI 繁中翻譯：</div>
-                                        {{ post_data.translated_content }}
-                                    </div>
-                                    {% endif %}
+
                                 </div>
 
-                                {% if a %}
-                                <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}"
-                                    style="{% if is_yaya %}color: #be185d !important;{% endif %}">
-                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ focus_hero
-                                    }}]{% endif %}
+
+                                <div class="post-sentiment text-pos" style="">
+                                    AI 判定: POSITIVE
                                 </div>
-                                {% endif %}
+
                             </a>
                         </div>
                     </div>
-                    {% endfor %}
 
-                    {% if not posts %}
-                    <div style="text-align: center; color: #94a3b8; padding: 2rem;">
-                        今日暫無相關動態。
+
+
+
+
+
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card " style="animation-delay: 0.1s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+
+                            </div>
+
+                            <a href="#" target="_blank" style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+
+                                    手機上看也超級清楚耶，版面排版超完美
+
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform" style="">THREADS</span>
+                                    <span>時間未知</span>
+
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content" style=" ">
+
+                                        讚賞響應式格線 (CSS Grid) 升級
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="post-sentiment text-pos" style="">
+                                    AI 判定: POSITIVE
+                                </div>
+
+                            </a>
+                        </div>
                     </div>
-                    {% endif %}
+
+
+
                 </div>
             </div>
         </div>
@@ -1507,56 +1446,55 @@
         // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
         try {
             const platformCtx = document.getElementById('platformChart').getContext('2d');
-            const platformDataObj = {{ platform_breakdown | tojson
-        }};
-        const platformLabels = Object.keys(platformDataObj);
-        const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
+            const platformDataObj = { "Facebook \u8a0e\u8ad6\u5340": 5000, "Instagram": 3000, "Threads": 2850, "YouTube \u5be6\u6cc1": 2000 };
+            const platformLabels = Object.keys(platformDataObj);
+            const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
 
-        new Chart(platformCtx, {
-            type: 'bar',
-            data: {
-                labels: platformLabels,
-                datasets: [{
-                    label: '貼文數',
-                    data: platformValues,
-                    backgroundColor: platformLabels.map(p => {
-                        const plat = p.toLowerCase();
-                        if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
-                        if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
-                        if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃
-                        return '#94a3b8';
-                    }),
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        cornerRadius: 12,
-                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                        titleColor: '#db2777',
-                        bodyColor: '#1e293b',
-                        borderColor: 'rgba(219, 39, 119, 0.3)',
-                        borderWidth: 1,
-                        padding: 12,
-                        boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
-                    }
+            new Chart(platformCtx, {
+                type: 'bar',
+                data: {
+                    labels: platformLabels,
+                    datasets: [{
+                        label: '貼文數',
+                        data: platformValues,
+                        backgroundColor: platformLabels.map(p => {
+                            const plat = p.toLowerCase();
+                            if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
+                            if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
+                            if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃
+                            return '#94a3b8';
+                        }),
+                        borderRadius: 8
+                    }]
                 },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                    x: { grid: { display: false } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            cornerRadius: 12,
+                            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                            titleColor: '#db2777',
+                            bodyColor: '#1e293b',
+                            borderColor: 'rgba(219, 39, 119, 0.3)',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { grid: { display: false } }
+                    }
                 }
-            }
-        });
+            });
         } catch (e) {
             console.error('⚠️ Platform Chart Error:', e);
         }
 
         // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
-        {% if heatmap_data %}
+
         const heatmapDom = document.getElementById('heatmapChart');
         if (heatmapDom) {
             const heatmapChart = echarts.init(heatmapDom);
@@ -1584,94 +1522,92 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: {{ heatmap_data.hours | tojson
-        }},
-        splitArea: { show: true },
-        axisLabel: { color: '#64748b' }
+                    data: ["00", "04", "08", "12", "16", "20"],
+                    splitArea: { show: true },
+                    axisLabel: { color: '#64748b' }
                 },
-        yAxis: {
-            type: 'category',
-                data: {{ heatmap_data.heroes | tojson }},
-            splitArea: { show: true },
-            axisLabel: { color: '#64748b', fontWeight: 'bold' }
-        },
-        visualMap: {
-            min: -5,
-                max: 10,
+                yAxis: {
+                    type: 'category',
+                    data: ["\u82bd\u82bd", "\u51e1\u6069", "\u5200\u92d2"],
+                    splitArea: { show: true },
+                    axisLabel: { color: '#64748b', fontWeight: 'bold' }
+                },
+                visualMap: {
+                    min: -5,
+                    max: 10,
                     calculable: true,
-                        orient: 'horizontal',
-                            left: 'center',
-                                bottom: '0',
-                                    inRange: {
-                color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
-            },
-            text: ['火熱', '平靜'],
-                show: false
-        },
-        series: [{
-            name: '熱度趨勢',
-            type: 'heatmap',
-            data: {{ heatmap_data.data | tojson }},
-            label: { show: false },
-            emphasis: {
-            itemStyle: {
-                shadowBlur: 10,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-        }
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '0',
+                    inRange: {
+                        color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
+                    },
+                    text: ['火熱', '平靜'],
+                    show: false
+                },
+                series: [{
+                    name: '熱度趨勢',
+                    type: 'heatmap',
+                    data: [[0, 0, 5, 1], [0, 1, 2, 0], [0, 2, 8, 1], [1, 0, -2, -1], [1, 1, 6, 1], [1, 2, -4, -1], [2, 0, 10, 1], [2, 1, 0, 0], [2, 2, 7, 1]],
+                    label: { show: false },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
                 }]
             };
-        heatmapChart.setOption(heatmapOption);
-        window.addEventListener('resize', () => heatmapChart.resize());
+            heatmapChart.setOption(heatmapOption);
+            window.addEventListener('resize', () => heatmapChart.resize());
         }
-        {% endif %}
+
 
         // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
         try {
-            const historyData = {{ history_delta | tojson if history_delta else '{}'
-        }};
-        if (historyData && historyData.weekly_vol_pulse) {
-            const pulseDom = document.getElementById('weeklyPulseChart');
-            if (pulseDom) {
-                const pulseChart = echarts.init(pulseDom);
-                const pulseOption = {
-                    grid: { top: 5, bottom: 20, left: 0, right: 0 },
-                    xAxis: {
-                        type: 'category',
-                        data: historyData.weekly_vol_pulse.labels || [],
-                        show: true,
-                        axisLine: { show: false },
-                        axisTick: { show: false },
-                        axisLabel: { color: '#94a3b8', fontSize: 10 }
-                    },
-                    yAxis: { type: 'value', show: false },
-                    series: [
-                        {
-                            data: historyData.weekly_vol_pulse.volumes || [],
-                            type: 'line',
-                            smooth: true,
-                            symbol: 'none',
-                                lineStyle: { color: '#db2777', width: 3 }, // 旗艦玫瑰主線
+            const historyData = { "alerts": [{ "advice": "\u5efa\u8b70\u628a\u63e1\u76ee\u524d\u9ad8\u6b63\u9762\u60c5\u7dd2\u7684\u6642\u6a5f\uff0c\u91cb\u51fa\u65b0\u8cfd\u5b63\u9810\u544a\u3002", "label": "\u73a9\u5bb6\u6d3b\u8e8d\u9ad8\u5cf0" }], "overall": { "avg_baseline": 11000, "volume_pct": 12.5 }, "weekly_vol_pulse": { "average": 11550, "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "volumes": [9500, 10200, 9800, 11500, 12000, 15000, 12850] } };
+            if (historyData && historyData.weekly_vol_pulse) {
+                const pulseDom = document.getElementById('weeklyPulseChart');
+                if (pulseDom) {
+                    const pulseChart = echarts.init(pulseDom);
+                    const pulseOption = {
+                        grid: { top: 5, bottom: 20, left: 0, right: 0 },
+                        xAxis: {
+                            type: 'category',
+                            data: historyData.weekly_vol_pulse.labels || [],
+                            show: true,
+                            axisLine: { show: false },
+                            axisTick: { show: false },
+                            axisLabel: { color: '#94a3b8', fontSize: 10 }
+                        },
+                        yAxis: { type: 'value', show: false },
+                        series: [
+                            {
+                                data: historyData.weekly_vol_pulse.volumes || [],
+                                type: 'line',
+                                smooth: true,
+                                symbol: 'none',
+                                lineStyle: { color: '#6366f1', width: 2 },
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                        { offset: 0, color: 'rgba(219, 39, 119, 0.4)' },
-                                        { offset: 1, color: 'rgba(219, 39, 119, 0)' }
+                                        { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+                                        { offset: 1, color: 'rgba(99, 102, 241, 0)' }
                                     ])
                                 },
-                            markLine: {
-                                silent: true,
-                                symbol: 'none',
-                                label: { show: false },
-                                data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
-                                lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
+                                markLine: {
+                                    silent: true,
+                                    symbol: 'none',
+                                    label: { show: false },
+                                    data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
+                                    lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
+                                }
                             }
-                        }
-                    ]
-                };
-                pulseChart.setOption(pulseOption);
-                window.addEventListener('resize', () => pulseChart.resize());
+                        ]
+                    };
+                    pulseChart.setOption(pulseOption);
+                    window.addEventListener('resize', () => pulseChart.resize());
+                }
             }
-        }
         } catch (e) {
             console.error('⚠️ Weekly Pulse Chart Error:', e);
         }

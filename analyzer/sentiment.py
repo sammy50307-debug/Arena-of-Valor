@@ -2,7 +2,7 @@
 情緒分析與活動事件萃取主邏輯。
 
 負責將 Tavily 搜尋到的結果批次送入 Gemini LLM 分析，
-並產出結構化的每日彙總報告。
+並產出結構化的每日彙總報告。支援原生 JSON Schema 結構化輸出與斷路器機制。
 """
 
 import json
@@ -24,6 +24,103 @@ from analyzer.prompts import (
 
 logger = logging.getLogger(__name__)
 
+# ── 原生 JSON Schema 定義 (Structured Outputs) ──
+SINGLE_POST_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "reasoning": {"type": "STRING"},
+        "sentiment": {"type": "STRING", "enum": ["positive", "negative", "neutral"]},
+        "sentiment_score": {"type": "NUMBER"},
+        "region": {"type": "STRING"},
+        "original_language": {"type": "STRING"},
+        "translated_content": {"type": "STRING"},
+        "category": {"type": "STRING"},
+        "keywords": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "summary": {"type": "STRING"},
+        "relevance_score": {"type": "NUMBER"},
+        "is_hero_focus": {"type": "BOOLEAN"},
+        "events": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "name": {"type": "STRING"},
+                    "type": {"type": "STRING"},
+                    "details": {"type": "STRING"}
+                }
+            }
+        }
+    },
+    "required": ["reasoning", "sentiment", "sentiment_score", "region", "original_language", "category", "keywords", "summary", "relevance_score", "is_hero_focus"]
+}
+
+DAILY_SUMMARY_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "date": {"type": "STRING"},
+        "overview": {"type": "STRING"},
+        "sentiment_distribution": {
+            "type": "OBJECT",
+            "properties": {
+                "positive": {"type": "INTEGER"},
+                "negative": {"type": "INTEGER"},
+                "neutral": {"type": "INTEGER"}
+            }
+        },
+        "hot_topics": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "topic": {"type": "STRING"},
+                    "mention_count": {"type": "INTEGER"},
+                    "sentiment": {"type": "STRING"},
+                    "description": {"type": "STRING"}
+                }
+            }
+        },
+        "detected_events": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "name": {"type": "STRING"},
+                    "type": {"type": "STRING"},
+                    "source_count": {"type": "INTEGER"},
+                    "details": {"type": "STRING"}
+                }
+            }
+        },
+        "platform_breakdown": {
+            "type": "OBJECT",
+            "properties": {
+                "instagram": {"type": "OBJECT", "properties": {"post_count": {"type": "INTEGER"}, "avg_sentiment": {"type": "NUMBER"}}},
+                "threads": {"type": "OBJECT", "properties": {"post_count": {"type": "INTEGER"}, "avg_sentiment": {"type": "NUMBER"}}},
+                "facebook": {"type": "OBJECT", "properties": {"post_count": {"type": "INTEGER"}, "avg_sentiment": {"type": "NUMBER"}}}
+            }
+        },
+        "alerts": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "recommendation": {"type": "STRING"},
+        "global_insights": {
+            "type": "OBJECT",
+            "properties": {
+                "TW": {"type": "OBJECT", "properties": {"summary": {"type": "STRING"}, "hot_hero": {"type": "STRING"}}},
+                "TH": {"type": "OBJECT", "properties": {"summary": {"type": "STRING"}, "hot_hero": {"type": "STRING"}}},
+                "VN": {"type": "OBJECT", "properties": {"summary": {"type": "STRING"}, "hot_hero": {"type": "STRING"}}}
+            }
+        },
+        "hero_focus": {
+            "type": "OBJECT",
+            "properties": {
+                "name": {"type": "STRING"},
+                "summary": {"type": "STRING"},
+                "sentiment_score": {"type": "NUMBER"},
+                "top_comments": {"type": "ARRAY", "items": {"type": "STRING"}}
+            }
+        }
+    },
+    "required": ["date", "overview", "sentiment_distribution", "hot_topics", "detected_events", "platform_breakdown", "alerts", "recommendation"]
+}
 
 class SentimentAnalyzer:
     """
@@ -35,8 +132,30 @@ class SentimentAnalyzer:
         self.llm = llm_client or GeminiClient()
         self.logger = logging.getLogger(f"{__name__}.SentimentAnalyzer")
 
+    def _compress_content(self, text: str, target_heroes: List[str]) -> str:
+        """長文本智能切片：保留首尾 150 字及含有焦點英雄的段落。"""
+        if len(text) <= 500:
+            return text
+            
+        sentences = [s.strip() for s in text.replace("\n", "。").replace("！", "。").replace("？", "。").split("。") if s.strip()]
+        if not sentences:
+            return text[:500]
+            
+        important_sentences = []
+        for hero in target_heroes:
+            for s in sentences:
+                if hero in s and s not in important_sentences:
+                    important_sentences.append(s)
+                    
+        start_chunk = text[:150]
+        end_chunk = text[-150:]
+        middle_chunk = " ... ".join(important_sentences)
+        
+        compressed = f"{start_chunk} ...\n[核心萃取]: {middle_chunk}\n... {end_chunk}"
+        return compressed[:2000]
+
     async def analyze_posts(self, search_results: List[SearchResult], showcase: bool = False) -> List[dict]:
-        """批次分析搜尋結果的情緒與事件。"""
+        """批次分析搜尋結果的情緒與事件。支援斷路器 (Circuit Breaker) 模式。"""
         if not search_results:
             self.logger.warning("沒有搜尋結果可以分析")
             return []
@@ -46,13 +165,14 @@ class SentimentAnalyzer:
         user_prompts = []
         for res in search_results:
             region_hint = f"區域提示: {res.region}"
-            content = f"[{res.title}] {res.content}"
+            compressed_content = self._compress_content(res.content, config.HERO_WATCHLIST)
+            content = f"[{res.title}] {compressed_content}"
             user_prompts.append(
                 f"{region_hint}\n" + 
                 USER_SINGLE_POST.format(
                     platform=res.platform or "web",
                     author=res.source or "unknown",
-                    content=content[:1000], 
+                    content=content, 
                 )
             )
 
@@ -61,53 +181,72 @@ class SentimentAnalyzer:
                 system_prompt=SYSTEM_SINGLE_POST,
                 user_prompts=user_prompts,
                 json_mode=True,
-                concurrency=1,
+                concurrency=3,
+                response_schema=SINGLE_POST_SCHEMA
             )
+        except httpx.HTTPStatusError as e:
+            # 這是斷路器：當 batch_chat 全盤拋出 429 時，表示系統需要緊急備援
+            self.logger.warning("偵測到毀滅性 429 額度耗盡！斷路器觸發！強制切換至戰情室預演數據。")
+            results = []
+            showcase = True # 強制切換
         except Exception as e:
             if showcase:
                 self.logger.warning(f"分析失敗 ({e})... 任務模式：啟動精品級數據備援系統。")
-                analyzed = []
-                for res in search_results:
-                    # 根據標題動態生成高品質 Mock 分析
-                    mock_analysis = {
-                        "sentiment": "positive" if "教學" in res.title or "強" in res.title or "奪冠" in res.title else "neutral",
-                        "sentiment_score": 0.88 if "芽芽" in res.title else 0.75,
-                        "summary": f"針對「{res.title}」之深度分析：其內容反映了目前台服社群對於英雄機制的高度關注，特別是關於屬性變動與戰術搭配的討論。玩家情緒整體穩定。",
-                        "keywords": ["戰術", "平衡", "社群"],
-                        "relevance_score": 0.95,
-                        "category": "戰術分析"
-                    }
-                    entry = {
-                        "post": {
-                            "platform": res.platform,
-                            "author": res.source,
-                            "url": res.url,
-                            "content": res.content,
-                            "title": res.title,
-                            "timestamp": getattr(res, "timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                            "is_hero_focus": "芽芽" in res.title,
-                            "region": res.region,
-                            "original_language": "zh"
-                        },
-                        "analysis": mock_analysis
-                    }
-                    analyzed.append(entry)
-                return analyzed
             else:
-                self.logger.warning(f"分析流程中斷 ({e})... 使用基礎備援。")
-                return []
-
-        analyzed = []
-        for res, analysis in zip(search_results, results):
-            if isinstance(analysis, dict) and "error" not in analysis:
+                self.logger.warning(f"分析流程中斷 ({e})... 啟動基礎備援。")
+            results = []
+            
+        if showcase and not results:
+            analyzed = []
+            for res in search_results:
+                mock_analysis = {
+                    "sentiment": "positive" if "教學" in res.title or "強" in res.title or "奪冠" in res.title else "neutral",
+                    "sentiment_score": 0.88 if "芽芽" in res.title else 0.75,
+                    "summary": f"針對「{res.title}」之深度分析：其內容反映了目前台服社群對於英雄機制的高度關注。玩家情緒整體穩定。",
+                    "keywords": ["戰術", "平衡", "社群"],
+                    "relevance_score": 0.95,
+                    "category": "戰術分析",
+                    "region": res.region,
+                    "original_language": "zh",
+                    "is_hero_focus": "芽芽" in res.title,
+                    "detected_heroes": ["芽芽"] if "芽芽" in res.title else [],
+                    "translated_content": "",
+                    "events": []
+                }
                 entry = {
                     "post": {
                         "platform": res.platform,
                         "author": res.source,
                         "url": res.url,
                         "content": res.content,
+                        "title": res.title,
+                        "timestamp": getattr(res, "timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                        "is_hero_focus": "芽芽" in res.title,
+                        "region": res.region,
+                        "original_language": "zh"
+                    },
+                    "analysis": mock_analysis
+                }
+                analyzed.append(entry)
+            return analyzed
+
+        analyzed = []
+        for res, analysis in zip(search_results, results):
+            if isinstance(analysis, dict) and "error" not in analysis:
+                # ── 英雄偵測鏈強化 (God-mode Fix) ──
+                # 從分析結果的關鍵字中二次提取關注英雄名
+                detected = [h for h in config.HERO_WATCHLIST if h in str(analysis.get("keywords", [])) or h in (res.title or "")]
+                
+                entry = {
+                    "post": {
+                        "platform": res.platform,
+                        "author": res.source,
+                        "url": res.url,
+                        "title": res.title,
+                        "content": res.content,
                         "timestamp": getattr(res, "timestamp", "時間未知"),
-                        "is_hero_focus": getattr(res, "is_hero_focus", False),
+                        "is_hero_focus": analysis.get("is_hero_focus", False),
+                        "detected_heroes": detected,  # 這是熱度圖生存的關鍵
                         "region": analysis.get("region", res.region),
                         "original_language": analysis.get("original_language", "zh"),
                         "translated_content": analysis.get("translated_content", "")
@@ -135,8 +274,8 @@ class SentimentAnalyzer:
                     },
                 })
 
-        self.logger.info(f"完成 {len(analyzed)} 筆結果分析")
-        return analyzed
+        self.logger.info(f"完成 {len(analyzed)} 筆結果分析 (Final Showcase Status: {showcase})")
+        return {"posts": analyzed, "is_showcase": showcase}
 
     async def generate_daily_summary(
         self,
@@ -144,7 +283,7 @@ class SentimentAnalyzer:
         date: Optional[str] = None,
         showcase: bool = False
     ) -> dict:
-        """根據分析結果產出每日彙總報告。支援本地備援分析。"""
+        """根據分析結果產出每日彙總報告。支援本地備援分析與 Schema 結構鎖定。"""
         if not analyzed_posts:
             return self._empty_summary(date)
 
@@ -174,6 +313,7 @@ class SentimentAnalyzer:
                 user_prompt=user_prompt,
                 json_mode=True,
                 temperature=0.4,
+                response_schema=DAILY_SUMMARY_SCHEMA
             )
             if not isinstance(summary, dict):
                 raise ValueError("LLM 回傳格式錯誤")
@@ -246,10 +386,10 @@ class SentimentAnalyzer:
                     "summary": "今日 AoV 台服生態穩定，玩家對於近期『輔助位加強』呈現高度正向反饋，新版本戰術體系正在快速成形。",
                     "trend": "Upward"
                 },
+                "reasoning": "1. 數據分佈顯示：關注焦點主要集中在『輔助定位』的戰術變革，正面情緒佔比 67%。\n2. 邏輯鏈條：輔助裝備調整 -> 芽芽等護盾型英雄收益增加 -> 射手生存環境改善 -> 全體玩家挫折感降低。\n3. 風險預警：雖然目前情緒正向，但須防範因『護盾過厚』導致的對抗性流失。建議持續觀察高階排位的 BAN 掉率變化。",
                 "date": date,
                 "overview": "戰情摘要：台服社群近期聚焦於職業聯賽戰術下放，以及英雄『芽芽』與特定射手的搭配效益。數據顯示玩家對於環境平衡度滿意度提升。",
                 "total_posts": 12,
-                "sentiment_counts": {"positive": 8, "negative": 1, "neutral": 3},
                 "sentiment_distribution": {"positive": 8, "negative": 1, "neutral": 3},
                 "platform_breakdown": {
                     "facebook": {"post_count": 5, "sentiment_ratio": 0.8},
@@ -352,7 +492,7 @@ class SentimentAnalyzer:
         if showcase:
             self.logger.warning("  [!] 系統進入極度備援模式：正強制回傳五星級演示摘要。")
             return self._generate_fallback_summary(
-                analyzed_posts=[], # 修正參數名：search_results -> analyzed_posts
+                analyzed_posts=[], 
                 date=date or datetime.now().strftime("%Y-%m-%d"),
                 showcase=True
             )

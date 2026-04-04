@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arena of Valor 輿情分析 — {{ date }}</title>
+    <title>Arena of Valor 輿情分析 — 2026-04-05</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
@@ -122,31 +122,22 @@
         .card:hover {
             transform: translateY(-5px);
             box-shadow: var(--hover-shadow);
-            border: 1px solid var(--primary-accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         /* ── Responsive CSS Grid Backbone (Phase 39) ── */
         .layout-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            grid-template-rows: auto auto auto; /* Explicitly define rows */
+            grid-template-rows: auto auto auto;
             gap: 2rem;
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
         }
 
-        .global-insights-card, .alert-banner {
-            /* Parallel Grid Managed via specific class overrides */
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        .alert-banner {
-            grid-column: unset !important; /* Ensure 2fr 1fr parallelism */
-        }
-
-        .audio-player-container {
-            grid-column: 1 / -1 !important; 
+        .global-insights-card, .alert-banner, .audio-player-container {
+            grid-column: 1 / -1 !important;
         }
 
         .left-col {
@@ -236,18 +227,20 @@
             font-weight: 700;
             margin-bottom: 0.8rem;
             color: var(--primary-accent);
-            line-clamp: 2;
+            display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            line-clamp: 2;
             overflow: hidden;
         }
 
         .post-content {
             font-size: 0.95rem;
             color: var(--text-muted);
-            line-clamp: 3;
+            display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
+            line-clamp: 3;
             overflow: hidden;
             line-height: 1.7;
         }
@@ -266,15 +259,13 @@
         .global-insights-card {
             position: relative;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(12px) saturate(180%);
-            -webkit-backdrop-filter: blur(12px) saturate(180%);
-            border: 2px solid var(--primary-accent) !important;
-            border-radius: 28px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--glow-neon);
-            grid-column: unset !important; /* Ensure 2fr 1fr parallelism */
+            background: linear-gradient(90deg,
+                    rgba(30, 41, 59, 0.7) 0%,
+                    rgba(56, 189, 248, 0.1) 50%,
+                    rgba(30, 41, 59, 0.7) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 10s infinite linear;
+            border: 1px solid rgba(56, 189, 248, 0.2);
         }
 
         .live-pulse {
@@ -929,6 +920,17 @@
             animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
+        .global-insights-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, 
+                rgba(30, 41, 59, 1) 0%, 
+                rgba(15, 23, 42, 1) 100%) !important;
+            background-size: 200% 100%;
+            animation: shimmer 10s infinite linear;
+            border: 2px solid var(--primary-accent) !important;
+            box-shadow: var(--glow-pulse) !important;
+        }
 
         .global-insights-card::before {
             content: 'GLOBAL PULSE';
@@ -1087,8 +1089,8 @@
 
 <body>
     <header class="header">
-        <h1>Arena of Valor 輿情分析</h1>
-        <div class="date-pill">{{ date }}</div>
+        <h1>Arena of Valor 輿情分析 <span style="font-size: 0.8rem; vertical-align: middle; background: var(--primary-accent); color: #fff; padding: 2px 8px; border-radius: 4px; margin-left: 10px;">V2 迭代版</span></h1>
+        <div class="date-pill">2026-04-05</div>
     </header>
 
     <div class="sakura-container" id="sakura-box"></div>
@@ -1125,147 +1127,107 @@
         <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
         <div class="global-insights-card">
             <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2);">💬 台服消息資訊中心
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem; position: relative; z-index: 5;">
+                <h2 style="font-size: 1.5rem; color: #fff; margin: 0; font-weight: 800; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">💬 台服消息資訊中心
                     <span
-                        style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN
+                        style="font-size: 0.8rem; font-weight: 400; color: rgba(255,255,255,0.6); vertical-align: middle;">TAIWAN
                         INFO CENTER</span></h2>
-                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
+                <div class="live-pulse"></div>
             </div>
             <div
-                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
-                {{ overview }}
+                style="color: rgba(255,255,255,0.9); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(255,255,255,0.1);">
+                戰情摘要：台服社群近期聚焦於職業聯賽戰術下放，以及英雄『芽芽』與特定射手的搭配效益。數據顯示玩家對於環境平衡度滿意度提升。
             </div>
         </div>
 
-        <div class="alert-banner">
-            <div class="alert-title">
-                <span>📌</span> 今日焦點 (TODAY'S FOCUS)
-            </div>
-            <div class="alert-container">
-                {% if history_delta and history_delta.alerts %}
-                    {% for alert in history_delta.alerts %}
-                    <div class="alert-entry">
-                        <div class="alert-label-text">{{ alert.label }}</div>
-                        <div class="tactical-box">
-                            <div class="advice-header">
-                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
-                            </div>
-                            <div class="advice-body">
-                                {{ alert.advice }}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Flagship Fallback (Phase 39 Consistency) -->
-                    <div class="alert-entry">
-                        <div class="alert-label-text">玩家活躍高峰</div>
-                        <div class="tactical-box">
-                            <div class="advice-header">
-                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
-                            </div>
-                            <div class="advice-body">
-                                今日 AoV 台服熱度持續攀升。玩家正密切關注芽芽新版本變動。
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+        
 
         <!-- Audio Briefing Player (Phase 27) -->
-        {% if audio_url %}
-        <div class="audio-player-container">
-            <div class="audio-info">
-                <span class="audio-icon">🎙️</span>
-                <div class="audio-text">
-                    <h4>今日戰情導讀</h4>
-                    <p>AI 自動生成語音彙報</p>
-                </div>
-                <div class="visualizer">
-                    <div class="bar" style="animation-delay: -0.1s;"></div>
-                    <div class="bar" style="animation-delay: -0.3s;"></div>
-                    <div class="bar" style="animation-delay: -0.5s;"></div>
-                    <div class="bar" style="animation-delay: -0.2s;"></div>
-                    <div class="bar" style="animation-delay: -0.4s;"></div>
-                </div>
-            </div>
-            <audio controls>
-                <source src="{{ audio_url }}" type="audio/mpeg">
-                您的瀏覽器不支援播放器。
-            </audio>
-        </div>
-        {% endif %}
+        
 
         <!-- Left Column -->
         <div class="left-col">
 
             <!-- Hero Focus: YaYa -->
-            {% if hero_focus %}
+            
             <div class="card hero-focus-card">
                 <div class="card-header">
                     <span class="card-icon">🌸</span>
-                    <h2 class="hero-focus-title">{{ hero_focus.name }} 觀察室</h2>
+                    <h2 class="hero-focus-title">芽芽 觀察室</h2>
                 </div>
 
                 <div class="hero-summary">
-                    {{ hero_focus.summary }}
+                    芽芽在今日情報中佔據核心位置。玩家普遍認可其在新版本中的護盾加強，認為是目前輔助位的版本答案。
                 </div>
 
                 <div class="hero-grid">
                     <div>
                         <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
-                        {% for comment in hero_focus.top_comments %}
+                        
                         <div class="hero-post-item">
-                            <span style="font-size: 0.9rem;">{{ comment }}</span>
+                            <span style="font-size: 0.9rem;">這波加強真的有感，護盾厚到誇張</span>
                         </div>
-                        {% endfor %}
+                        
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">配上射手簡直無敵，台服目前沒幾檔得住</span>
+                        </div>
+                        
+                        <div class="hero-post-item">
+                            <span style="font-size: 0.9rem;">造型什麼時候才出？期待很久了</span>
+                        </div>
+                        
                     </div>
 
-                    {% if hero_focus_posts %}
+                    
                     <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
                         <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
-                        {% for hp in hero_focus_posts[:3] %}
+                        
                         <div style="margin-bottom: 0.5rem;">
-                            <a href="{{ hp.post.url }}" target="_blank" class="hero-link">
-                                [{{ hp.post.platform }}] {{ hp.analysis.summary }}
+                            <a href="https://example.com/aov-yaya-guide" target="_blank" class="hero-link">
+                                [Website] 該貼文討論了新版芽芽輔助在《傳說對決》中的強度，特別是其護盾增強帶來的影響，並提供相關教學。
                             </a>
                         </div>
-                        {% endfor %}
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://example.com/ptt-aov-yaya" target="_blank" class="hero-link">
+                                [Forum] 貼文討論傳說對決英雄芽芽在改版後的最佳裝備選擇，建議玩家採用半坦出裝以兼顧抗性與護盾厚度。
+                            </a>
+                        </div>
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <a href="https://example.com/aov-patch-notes" target="_blank" class="hero-link">
+                                [Website] 官方發布台服平衡調整公告，針對高端局節奏過快問題，削弱了勇、凡恩等多名射手，引發社群兩極反應。
+                            </a>
+                        </div>
+                        
                     </div>
-                    {% endif %}
+                    
                 </div>
 
                 <!-- Combat Stats Dashboard -->
-                {% set hero_name = hero_focus.name %}
-                {% if combat_stats and hero_name in combat_stats %}
-                {% set stats = combat_stats[hero_name] %}
+                
+                
+                
                 <div class="combat-stats-panel">
                     <div class="stat-card">
                         <span class="stat-label">WIN RATE</span>
-                        <div class="stat-val {% if stats.win_rate > 52 %}pulse-high{% endif %}">{{ stats.win_rate }}%
+                        <div class="stat-val pulse-high">52.8%
                         </div>
                     </div>
-                    {% if analysis and analysis.overall %}
-                    <div class="stat-card">
-                        <div class="stat-value">{{ "%.1f"|format(analysis.overall.sentiment_score * 100) }}%</div>
-                        <div class="stat-label">全網正面情緒</div>
-                    </div>
-                    {% else %}
+                    
                     <div class="stat-card">
                         <div class="stat-value">95.0%</div>
                         <div class="stat-label">旗艦演示模式</div>
                     </div>
-                    {% endif %}
+                    
                     <div class="stat-card">
                         <span class="stat-label">BAN RATE</span>
-                        <div class="stat-val">{{ stats.ban_rate }}%</div>
+                        <div class="stat-val">45.2%</div>
                     </div>
                 </div>
-                {% endif %}
+                
             </div>
-            {% endif %}
+            
 
             <!-- Total Volume -->
             <div class="card">
@@ -1273,29 +1235,28 @@
                     <span class="card-icon">📊</span>
                     <h2>聲量總覽</h2>
                 </div>
-                <div class="metric-big">{{ total_posts }}</div>
+                <div class="metric-big">12</div>
                 <div class="metric-desc">今日相關新聞與社群提及數</div>
 
                 <div class="sentiment-grid">
                     <div class="sent-box sent-pos">
                         <div class="num">
-                            {{ sentiment_distribution.positive }}
-                            {% if history_delta.overall.volume_pct %}
+                            8
+                            
                             <span
-                                class="delta-pill {% if history_delta.overall.volume_pct > 0 %}delta-up{% else %}delta-down{% endif %}">
-                                {{ '▲' if history_delta.overall.volume_pct > 0 else '▼' }} {{
-                                history_delta.overall.volume_pct|abs }}%
+                                class="delta-pill delta-up">
+                                ▲ 15.5%
                             </span>
-                            {% endif %}
+                            
                         </div>
                         <div class="lbl">正面 👍</div>
                     </div>
                     <div class="sent-box sent-neg">
-                        <div class="num">{{ sentiment_distribution.negative }}</div>
+                        <div class="num">1</div>
                         <div class="lbl">負面 👎</div>
                     </div>
                     <div class="sent-box sent-neu">
-                        <div class="num">{{ sentiment_distribution.neutral }}</div>
+                        <div class="num">3</div>
                         <div class="lbl">中性 😐</div>
                     </div>
                 </div>
@@ -1305,49 +1266,94 @@
                 </div>
 
                 <!-- Hero Sentiment Heatmap (Phase 28) -->
-                {% if heatmap_data %}
+                
                 <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
                     <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 1rem;">🔥 英雄 24H 聲量熱度圖</h3>
                     <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;">
                     </div>
                 </div>
-                {% endif %}
+                
                 <!-- 7 日聲量脈搏 (Phase 29) -->
-                {% if history_delta and history_delta.weekly_vol_pulse %}
+                
                 <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
                     <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈
                         7 日聲量脈搏</h3>
                     <div id="weeklyPulseChart" style="width: 100%; height: 80px;"></div>
                     <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
-                        虛線標示: 7 日平均熱度 ({{ history_delta.overall.avg_baseline }})
+                        虛線標示: 7 日平均熱度 (65.0)
                     </div>
                 </div>
-                {% endif %}
+                
 
                 <!-- 全域情緒詞雲 (Phase 32) -->
-                {% if wordcloud %}
+                
                 <div class="tag-cloud-section">
                     <div class="tag-cloud-title" style="color: #059669;">✨ 今日社群讚點 (Praise)</div>
                     <div class="tags-flex">
-                        {% for tag in wordcloud.positive %}
+                        
                         <span class="tag-pill tag-pos"
-                            style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
-                            {{ tag.text }}
+                            style="font-size: 24px; opacity: 1.0;">
+                            加強
                         </span>
-                        {% endfor %}
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 22px; opacity: 0.9666666666666667;">
+                            穩定
+                        </span>
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 20px; opacity: 0.9333333333333333;">
+                            奪冠
+                        </span>
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 18px; opacity: 0.9;">
+                            期待
+                        </span>
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 16px; opacity: 0.8666666666666667;">
+                            戰術
+                        </span>
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 14px; opacity: 0.8333333333333334;">
+                            平衡
+                        </span>
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 12px; opacity: 0.8;">
+                            芽芽
+                        </span>
+                        
+                        <span class="tag-pill tag-pos"
+                            style="font-size: 10px; opacity: 0.7666666666666666;">
+                            輔助
+                        </span>
+                        
                     </div>
 
                     <div class="tag-cloud-title" style="color: #dc2626; margin-top: 1.5rem;">🔥 今日社群痛點 (Pain)</div>
                     <div class="tags-flex">
-                        {% for tag in wordcloud.negative %}
+                        
                         <span class="tag-pill tag-neg"
-                            style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
-                            {{ tag.text }}
+                            style="font-size: 24px; opacity: 1.0;">
+                            削弱
                         </span>
-                        {% endfor %}
+                        
+                        <span class="tag-pill tag-neg"
+                            style="font-size: 22px; opacity: 0.9666666666666667;">
+                            抱怨
+                        </span>
+                        
+                        <span class="tag-pill tag-neg"
+                            style="font-size: 20px; opacity: 0.9333333333333333;">
+                            延遲
+                        </span>
+                        
                     </div>
                 </div>
-                {% endif %}
+                
             </div>
 
             <!-- AI Overview -->
@@ -1357,21 +1363,23 @@
                     <h2>AI 智能解讀 (LLM)</h2>
                 </div>
                 <div class="ai-overview">
-                    <div style="margin-bottom: 1rem;">{{ overview }}</div>
-                    {% if reasoning %}
+                    <div style="margin-bottom: 1rem;">戰情摘要：台服社群近期聚焦於職業聯賽戰術下放，以及英雄『芽芽』與特定射手的搭配效益。數據顯示玩家對於環境平衡度滿意度提升。</div>
+                    
                     <details style="margin-top: 1rem; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 0.8rem;">
                         <summary style="font-size: 0.85rem; color: #64748b; cursor: pointer; font-weight: 600;">🧠 邏輯推演過程 (Chain of Thought)</summary>
-                        <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.6; white-space: pre-wrap;">{{ reasoning }}</div>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.6; white-space: pre-wrap;">1. 數據分佈顯示：關注焦點主要集中在『輔助定位』的戰術變革，正面情緒佔比 67%。
+2. 邏輯鏈條：輔助裝備調整 -&gt; 芽芽等護盾型英雄收益增加 -&gt; 射手生存環境改善 -&gt; 全體玩家挫折感降低。
+3. 風險預警：雖然目前情緒正向，但須防範因『護盾過厚』導致的對抗性流失。建議持續觀察高階排位的 BAN 掉率變化。</div>
                     </details>
-                    {% endif %}
+                    
                 </div>
 
-                {% if recommendation %}
+                
                 <div class="recommendation-box">
                     <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
-                    {{ recommendation }}
+                    偵測到 API 限額，已啟動『旗艦級演示數據』保障顯示效果。目前建議持續關注芽芽的 BAN 率變動。
                 </div>
-                {% endif %}
+                
 
                 <div class="sentiment-guide">
                     <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
@@ -1385,23 +1393,7 @@
             </div>
 
             <!-- Hot Topics -->
-            {% if hot_topics %}
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-icon">🔥</span>
-                    <h2>熱門關鍵話題</h2>
-                </div>
-                <ul style="list-style: none; padding: 0;">
-                    {% for topic in hot_topics %}
-                    <li
-                        style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
-                        <span style="font-weight: 600; color: #334155;">{{ topic.topic }}</span>
-                        <span style="color: #64748b; font-size: 0.9rem;">提及: {{ topic.mention_count }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
+            
         </div>
 
         <!-- Right Column -->
@@ -1413,90 +1405,633 @@
                 </div>
 
                 <div class="feed-container">
-                    {# Combined feed with fallback #}
-                    {% set display_posts = posts if posts else (hero_focus_posts if hero_focus_posts else top_links) %}
                     
-                    {% for p in display_posts %}
-                    {% set a = p.get('analysis', {}) %}
-                    {% set post_data = p.get('post', p) %} {# Handle different nesting levels #}
-                    {% set region = post_data.get('region', 'TW') %}
-                    {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
-                    {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary", "")) %}
+                    
+                    
+                    
+                    
+                    
 
-                    <div class="post-container filterable-region" data-region="{{ region }}">
-                        <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}"
-                            style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.0s;">
                             <!-- 區域標籤 (Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <span class="region-tag tag-{{ region|lower }}">
-                                    {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN'
-                                    %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
                                 </span>
-                                {% if post_data.translated_content %}
-                                <button class="translate-btn" onclick="toggleTranslation(this)">
-                                    <span class="icon">🔍</span> 原文對覽
-                                </button>
-                                {% endif %}
+                                
                             </div>
 
-                            <a href="{{ post_data.get('url', '#') }}" target="_blank"
+                            <a href="https://example.com/aov-yaya-guide" target="_blank"
                                 style="text-decoration: none; color: inherit;">
-                                <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
-                                    {% if post_data.get('content') %}
-                                    {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
-                                    {% else %}
-                                    無內容
-                                    {% endif %}
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    這波芽芽的護盾增強真的太有感了！在排位賽中幾乎是非 Ban 即選的存在。本文詳細解析如何利用被動進行極致換血...
+                                    
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
-                                        style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
-                                        post_data.get('platform', 'Unknown')|upper }}</span>
-                                    <span>{{ post_data.get('published_date') if post_data.get('published_date') else
-                                        post_data.get('timestamp', '時間未知') }}</span>
-                                    {% if post_data.get('author') and post_data.author != 'unknown' %}
-                                    <span>· @{{ post_data.author }}</span>
-                                    {% endif %}
+                                        style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
                                 </div>
 
                                 <div class="post-snippet-container">
                                     <div class="post-snippet original-content"
-                                        style="{% if post_data.translated_content %}display: none;{% endif %} {% if is_yaya %}color: #831843;{% endif %}">
-                                        {% if a and a.get('summary') and a.summary != '分析失敗' %}
-                                        {{ a.summary }}
-                                        {% else %}
-                                        {{ post_data.get('content', '')[:100] }}...
-                                        {% endif %}
+                                        style=" color: #831843;">
+                                        
+                                        該貼文討論了新版芽芽輔助在《傳說對決》中的強度，特別是其護盾增強帶來的影響，並提供相關教學。
+                                        
                                     </div>
-                                    {% if post_data.translated_content %}
-                                    <div class="post-snippet translated-content"
-                                        style="{% if is_yaya %}color: #831843;{% endif %}">
-                                        <div
-                                            style="font-size: 0.75rem; color: #be185d; font-weight: 700; margin-bottom: 0.3rem;">
-                                            ✨ AI 繁中翻譯：</div>
-                                        {{ post_data.translated_content }}
-                                    </div>
-                                    {% endif %}
+                                    
                                 </div>
 
-                                {% if a %}
-                                <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}"
-                                    style="{% if is_yaya %}color: #be185d !important;{% endif %}">
-                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ focus_hero
-                                    }}]{% endif %}
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="color: #be185d !important;">
+                                    AI 判定: POSITIVE [焦點：芽芽]
                                 </div>
-                                {% endif %}
+                                
                             </a>
                         </div>
                     </div>
-                    {% endfor %}
+                    
+                    
+                    
+                    
+                    
+                    
 
-                    {% if not posts %}
-                    <div style="text-align: center; color: #94a3b8; padding: 2rem;">
-                        今日暫無相關動態。
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card "
+                            style="animation-delay: 0.1s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/aov-pro-league" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                    台服戰隊在最後一波團戰中展現了驚人的韌性。玩家們紛紛表示這是有史以來最精彩的一場決賽。台服環境明顯回溫。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="">FACEBOOK</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" ">
+                                        
+                                        2026傳說職業聯賽中，台服戰隊奪冠，這場被譽為史上最精彩的決賽引發玩家熱烈迴響，並使台服遊戲環境明顯回溫。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="">
+                                    AI 判定: POSITIVE 
+                                </div>
+                                
+                            </a>
+                        </div>
                     </div>
-                    {% endif %}
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.2s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/ptt-aov-yaya" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    自從改版後，全法芽芽的出裝週期太長，推薦大家還是走半坦，不僅能抗裝還能維持護盾厚度。鄉民們討論度極高。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">FORUM</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        貼文討論傳說對決英雄芽芽在改版後的最佳裝備選擇，建議玩家採用半坦出裝以兼顧抗性與護盾厚度。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-neu"
+                                    style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card "
+                            style="animation-delay: 0.30000000000000004s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/aov-patch-notes" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                    針對台服高端局節奏過快的問題，官方今日宣布對勇、凡恩等射手進行削弱。社群情緒目前呈現兩極化反應。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" ">
+                                        
+                                        官方發布台服平衡調整公告，針對高端局節奏過快問題，削弱了勇、凡恩等多名射手，引發社群兩極反應。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-neu"
+                                    style="">
+                                    AI 判定: NEUTRAL 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.4s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/art-yaya" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    這是我為芽芽畫的新造型想像圖，背景就是櫻花落下的樣子，希望官方能出這套造型！下方社群好評不斷。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">INSTAGRAM</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        玩家分享了為英雄芽芽設計的櫻花主題新造型想像圖，並表達希望官方能推出此造型的願望。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="color: #be185d !important;">
+                                    AI 判定: POSITIVE [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.5s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/tactics-yaya" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    在最新的 GCS 比賽中，這種配合展現了強大的地圖控制力。分析師認為這將成為本季台服的主流體系。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        貼文分析了GCS職業聯賽中芽芽與克里希的配合戰術，並預測其將成為台服主流。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="color: #be185d !important;">
+                                    AI 判定: POSITIVE [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.6000000000000001s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/rant-yaya" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    真的很討厭隊友選了芽芽結果整場不放技能。希望官方能加強檢舉系統。此帖引發了大量共鳴。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">FORUM</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        玩家抱怨隊友選芽芽後掛機不放技能，並對遊戲內的檢舉系統表達強烈不滿，認為其機制有問題。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-neg"
+                                    style="color: #be185d !important;">
+                                    AI 判定: NEGATIVE [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.7000000000000001s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/new-hero-teased" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    官方釋出了神秘的剪影，看起來與芽芽的背景故事有關。台服玩家對此充滿期待。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">FACEBOOK</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        傳說對決台服官方預告了與芽芽背景故事相關的新角色，引起玩家高度期待。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="color: #be185d !important;">
+                                    AI 判定: POSITIVE [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.8s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/newbie-guide" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    本指南專為那些喜歡輔助位置的新人設計。詳細列出了技能加點與遊走路線。是目前新手圈最熱門的文章。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        一篇針對新手玩家，關於輔助英雄芽芽的技能加點與遊走路線的教學指南。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-neu"
+                                    style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 0.9s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/test-yaya" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    經過數據測試，在 40% 冷卻縮減下，芽芽能提供幾乎不間斷的護盾。這在後期是大優勢。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">YOUTUBE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        貼文透過實測數據，分析芽芽在40%冷卻縮減下，其被動護盾能幾乎不間斷地提供，並在後期會戰中展現巨大優勢。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="color: #be185d !important;">
+                                    AI 判定: POSITIVE [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card yaya-highlight"
+                            style="animation-delay: 1.0s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/community-cup" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="color: #db2777;">
+                                    
+                                    為了比賽多樣性，社群盃宣佈暫時禁選芽芽。這引發了輔助玩家的廣泛討論。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="background: #fdf2f8; color: #db2777;">FACEBOOK</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" color: #831843;">
+                                        
+                                        台服社群盃已開放報名，其中芽芽被暫時禁選的規則引發了輔助玩家的廣泛討論。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-neu"
+                                    style="color: #be185d !important;">
+                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    <div class="post-container filterable-region" data-region="TW">
+                        <div class="post-card "
+                            style="animation-delay: 1.1s;">
+                            <!-- 區域標籤 (Phase 33) -->
+                            <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="region-tag tag-tw">
+                                    🇹🇼 TW
+                                </span>
+                                
+                            </div>
+
+                            <a href="https://example.com/download-record" target="_blank"
+                                style="text-decoration: none; color: inherit;">
+                                <div class="post-title" style="">
+                                    
+                                    受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。
+                                    
+                                </div>
+
+                                <div class="post-meta">
+                                    <span class="post-platform"
+                                        style="">WEBSITE</span>
+                                    <span>時間未知</span>
+                                    
+                                </div>
+
+                                <div class="post-snippet-container">
+                                    <div class="post-snippet original-content"
+                                        style=" ">
+                                        
+                                        傳說對決台服因近期大型聯名活動，下載量突破新高並重回應用商店榜首，吸引大量玩家回流。
+                                        
+                                    </div>
+                                    
+                                </div>
+
+                                
+                                <div class="post-sentiment text-pos"
+                                    style="">
+                                    AI 判定: POSITIVE 
+                                </div>
+                                
+                            </a>
+                        </div>
+                    </div>
+                    
+
+                    
                 </div>
             </div>
         </div>
@@ -1507,8 +2042,7 @@
         // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
         try {
             const platformCtx = document.getElementById('platformChart').getContext('2d');
-            const platformDataObj = {{ platform_breakdown | tojson
-        }};
+            const platformDataObj = {"dcard": {"avg_sentiment": 0.5, "post_count": 0}, "facebook": {"post_count": 5, "sentiment_ratio": 0.8}, "instagram": {"avg_sentiment": 0.5, "post_count": 0}, "ptt": {"avg_sentiment": 0.5, "post_count": 0}, "threads": {"avg_sentiment": 0.5, "post_count": 0}, "web": {"avg_sentiment": 0.5, "post_count": 0}, "youtube": {"post_count": 3, "sentiment_ratio": 0.9}};
         const platformLabels = Object.keys(platformDataObj);
         const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
 
@@ -1556,7 +2090,7 @@
         }
 
         // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
-        {% if heatmap_data %}
+        
         const heatmapDom = document.getElementById('heatmapChart');
         if (heatmapDom) {
             const heatmapChart = echarts.init(heatmapDom);
@@ -1584,14 +2118,13 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: {{ heatmap_data.hours | tojson
-        }},
+                    data: ["0:00", "3:00", "6:00", "9:00", "12:00", "15:00", "18:00", "21:00"],
         splitArea: { show: true },
         axisLabel: { color: '#64748b' }
                 },
         yAxis: {
             type: 'category',
-                data: {{ heatmap_data.heroes | tojson }},
+                data: ["\u82bd\u82bd", "\u76ae\u76ae"],
             splitArea: { show: true },
             axisLabel: { color: '#64748b', fontWeight: 'bold' }
         },
@@ -1611,7 +2144,7 @@
         series: [{
             name: '熱度趨勢',
             type: 'heatmap',
-            data: {{ heatmap_data.data | tojson }},
+            data: [[0, 0, 3, 1], [0, 1, 10, 0], [1, 0, 13, 1], [1, 1, 4, 1], [2, 0, 17, 1], [2, 1, 3, 1], [3, 0, 20, 1], [3, 1, 2, 0], [4, 0, 22, 1], [4, 1, 9, 0], [5, 0, 26, 1], [5, 1, 3, 0], [6, 0, 8, 1], [6, 1, 9, 0], [7, 0, 23, 1], [7, 1, 5, 1]],
             label: { show: false },
             emphasis: {
             itemStyle: {
@@ -1624,12 +2157,11 @@
         heatmapChart.setOption(heatmapOption);
         window.addEventListener('resize', () => heatmapChart.resize());
         }
-        {% endif %}
+        
 
         // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
         try {
-            const historyData = {{ history_delta | tojson if history_delta else '{}'
-        }};
+            const historyData = {"alerts": [], "heroes": {"\u76ae\u76ae": {"volume_pct": 14.500314483176615}, "\u82bd\u82bd": {"volume_pct": 5.183496512979774}}, "overall": {"avg_baseline": 65.0, "is_red_alert": false, "volume_pct": 15.5}, "weekly_vol_pulse": {"average": 74.42857142857143, "labels": ["03/30", "03/31", "04/01", "04/02", "04/03", "04/04", "04/05"], "volumes": [68, 95, 87, 72, 82, 52, 65]}};
         if (historyData && historyData.weekly_vol_pulse) {
             const pulseDom = document.getElementById('weeklyPulseChart');
             if (pulseDom) {

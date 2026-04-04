@@ -1,0 +1,1077 @@
+Comparing files D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html and D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+    6:      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    7:      <title>Arena of Valor e??a??a??a?? a€? {{ date }}</title>
+    8:      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+    6:      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    7:      <title>Arena of Valor e??a??a??a?? a€? 2026-04-03 a??e?|e??e|?</title>
+    8:      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+   99:              height: 100%;
+  100:              background-image: url('../../yaya_bg.png');
+  101:              background-size: cover;
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+   99:              height: 100%;
+  100:              background-image: url('../yaya_bg.png');
+  101:              background-size: cover;
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  699:          .alert-entry {
+  700:              background: rgba(0, 0, 0, 0.3);
+  701:              border: 1px solid rgba(255, 255, 255, 0.1);
+  702:              border-radius: 16px;
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  699:          .alert-entry {
+  700:              background: rgba(255, 255, 255, 0.5);
+  701:              border: 1px solid rgba(245, 158, 11, 0.2);
+  702:              border-radius: 16px;
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  704:              margin-bottom: 0.8rem;
+  705:          }
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  704:              margin-bottom: 0.8rem;
+  705:              color: #b45309;
+  706:          }
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  707:          .alert-label-text {
+  708:              font-weight: 700;
+  709:              color: #fecaca;
+  710:              font-size: 1.05rem;
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  708:          .alert-label-text {
+  709:              font-weight: 800;
+  710:              color: #d97706;
+  711:              font-size: 1.05rem;
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  714:          .tactical-box {
+  715:              background: rgba(30, 41, 59, 0.6);
+  716:              backdrop-filter: blur(5px);
+  717:              border-left: 4px solid #38bdf8;
+  718:              padding: 1rem;
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  715:          .tactical-box {
+  716:              background: rgba(255, 255, 255, 0.7);
+  717:              backdrop-filter: blur(5px);
+  718:              border-left: 4px solid #f59e0b;
+  719:              padding: 1rem;
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  720:              margin-top: 0.5rem;
+  721:          }
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  721:              margin-top: 0.5rem;
+  722:              box-shadow: 0 4px 10px rgba(245, 158, 11, 0.05);
+  723:          }
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  725:              font-weight: 800;
+  726:              color: #38bdf8;
+  727:              margin-bottom: 0.3rem;
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  727:              font-weight: 800;
+  728:              color: #d97706;
+  729:              margin-bottom: 0.3rem;
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+  734:              font-size: 0.9rem;
+  735:              color: #e2e8f0;
+  736:              line-height: 1.6;
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+  736:              font-size: 0.9rem;
+  737:              color: #78350f;
+  738:              line-height: 1.6;
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1080:          <h1>Arena of Valor e??a??a??a??</h1>
+ 1081:          <div class="date-pill">{{ date }}</div>
+ 1082:      </header>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1082:          <h1>Arena of Valor e??a??a??a??</h1>
+ 1083:          <div class="date-pill">2026-04-03 a??e?|e??e|?</div>
+ 1084:      </header>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1132:  5,0.5); border-radius: 16px;">
+ 1133:                  {{ overview }}
+ 1134:              </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1134:  5,0.5); border-radius: 16px;">
+ 1135:                  e€?a?¡Âc?o Phase 39 a??c?¡Âa¢X?a|Re|?e|oa??c¡¦?ao?a??c??a??c?oe3?a??a€?a??a€?a¡P2c??a¢D?c?¡Lao?a?¡La?¢Xc?? Responsive Gr
+ 1136:  ida€?c??c??e€?e|?c?1a?? (Glassmorphism) a?¢Da??e??e??c??e??a??a??a??a?Ra??c??a€?
+ 1137:              </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1136:  
+ 1137:          {% if history_delta and history_delta.alerts %}
+ 1138:          <div class="alert-banner">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1139:  
+ 1140:  
+ 1141:          <div class="alert-banner">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1142:              <div class="alert-container">
+ 1143:                  {% for alert in history_delta.alerts %}
+ 1144:                  <div class="alert-entry">
+ 1145:                      <div class="alert-label-text">{{ alert.label }}</div>
+ 1146:                      <div class="tactical-box">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1145:              <div class="alert-container">
+ 1146:  
+ 1147:                  <div class="alert-entry">
+ 1148:                      <div class="alert-label-text">c?caR?a¡¦?eo?e??a3¢X</div>
+ 1149:                      <div class="tactical-box">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1150:                          <div class="advice-body">
+ 1151:                              {{ alert.advice }}
+ 1152:                          </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1153:                          <div class="advice-body">
+ 1154:                              a?oe-¢Xa??a?!c?Ra??e??a-¢Ge?¢Fa??c¡P?c??a??ac?i??e??a?oa?¢Xe3?a-¢Ge??a??a€?
+ 1155:                          </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1154:                  </div>
+ 1155:                  {% endfor %}
+ 1156:              </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1157:                  </div>
+ 1158:  
+ 1159:              </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1157:          </div>
+ 1158:          {% endif %}
+ 1159:  
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1160:          </div>
+ 1161:  
+ 1162:  
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1160:          <!-- Audio Briefing Player (Phase 27) -->
+ 1161:          {% if audio_url %}
+ 1162:          <div class="audio-player-container">
+ 1163:              <div class="audio-info">
+ 1164:                  <span class="audio-icon">e???i¡M?</span>
+ 1165:                  <div class="audio-text">
+ 1166:                      <h4>a??a?¢Da?¢Xa??a¢X?eR€</h4>
+ 1167:                      <p>AI e?aa??c??a??ea?e?3a??a?¡Ó</p>
+ 1168:                  </div>
+ 1169:                  <div class="visualizer">
+ 1170:                      <div class="bar" style="animation-delay: -0.1s;"></div>
+ 1171:                      <div class="bar" style="animation-delay: -0.3s;"></div>
+ 1172:                      <div class="bar" style="animation-delay: -0.5s;"></div>
+ 1173:                      <div class="bar" style="animation-delay: -0.2s;"></div>
+ 1174:                      <div class="bar" style="animation-delay: -0.4s;"></div>
+ 1175:                  </div>
+ 1176:              </div>
+ 1177:              <audio controls>
+ 1178:                  <source src="{{ audio_url }}" type="audio/mpeg">
+ 1179:                  a?¡Lc??c€?e|?a?¡La¡M?a?¡Âa?¡¦a?-a??a?¡La€?
+ 1180:              </audio>
+ 1181:          </div>
+ 1182:          {% endif %}
+ 1183:  
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1163:          <!-- Audio Briefing Player (Phase 27) -->
+ 1164:  
+ 1165:  
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1187:              <!-- Hero Focus: YaYa -->
+ 1188:              {% if hero_focus %}
+ 1189:              <div class="card hero-focus-card">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1169:              <!-- Hero Focus: YaYa -->
+ 1170:  
+ 1171:              <div class="card hero-focus-card">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1191:                      <span class="card-icon">e??¡M</span>
+ 1192:                      <h2 class="hero-focus-title">{{ hero_focus.name }} e¡±€a¡Â?aR?</h2>
+ 1193:                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1173:                      <span class="card-icon">e??¡M</span>
+ 1174:                      <h2 class="hero-focus-title">e??e?? YaYa e¡±€a¡Â?aR?</h2>
+ 1175:                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1195:                  <div class="hero-summary">
+ 1196:                      {{ hero_focus.summary }}
+ 1197:                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1177:                  <div class="hero-summary">
+ 1178:                      a€?Phase 39 a¢X?a|Ra¡Ó?c?oa€?e??e??e??a??a??c??e??a?¢Xe!?a3¢Xi??c??c??a??a??ao|a¢D£ge??i??a-?a?€a??a¡P2a??c¡¦?c?oa¡M
+ 1179:  ?a??e?¢Xa?¡Óa£g?a??a??a¢X? (Glass Sweep) e??a¡M?a£gRa?Ra??c??c??a¢X?a|Rc¡¦?c??c??a?!c??a€?
+ 1180:                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1201:                          <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">a?¡L c?caR?c?¡Óe-¢Xc?|e??</h3>
+ 1202:                          {% for comment in hero_focus.top_comments %}
+ 1203:                          <div class="hero-post-item">
+ 1204:                              <span style="font-size: 0.9rem;">{{ comment }}</span>
+ 1205:                          </div>
+ 1206:                          {% endfor %}
+ 1207:                      </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1184:                          <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">a?¡L c?caR?c?¡Óe-¢Xc?|e??</h3>
+ 1185:  
+ 1186:                          <div class="hero-post-item">
+ 1187:                              <span style="font-size: 0.9rem;">e??e??a??e€?a??e¢G?a??a?1a??c?!e¡±¢Gi??e€?a€?c??c??a?!c?1a??a?ac??ao?
+ 1188:  i??</span>
+ 1189:                          </div>
+ 1190:  
+ 1191:                          <div class="hero-post-item">
+ 1192:                              <span style="font-size: 0.9rem;">a??e??a??a¡M?a??a¡Ó?c??a??a??c??e??a£gRccoa??i??</span>
+ 1193:                          </div>
+ 1194:  
+ 1195:                      </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1208:  
+ 1209:                      {% if hero_focus_posts %}
+ 1210:                      <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
+ 1211:                          <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">e??? a¢X?a¡Ó?e¡L?e??e€¢Gc£g?</h3>
+ 1212:                          {% for hp in hero_focus_posts[:3] %}
+ 1213:                          <div style="margin-bottom: 0.5rem;">
+ 1214:                              <a href="{{ hp.post.url }}" target="_blank" class="hero-link">
+ 1215:                                  [{{ hp.post.platform }}] {{ hp.analysis.summary }}
+ 1216:                              </a>
+ 1217:                          </div>
+ 1218:                          {% endfor %}
+ 1219:                      </div>
+ 1220:                      {% endif %}
+ 1221:                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1196:  
+ 1197:  
+ 1198:                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1223:                  <!-- Combat Stats Dashboard -->
+ 1224:                  {% set hero_name = hero_focus.name %}
+ 1225:                  {% if combat_stats and hero_name in combat_stats %}
+ 1226:                  {% set stats = combat_stats[hero_name] %}
+ 1227:                  <div class="combat-stats-panel">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1200:                  <!-- Combat Stats Dashboard -->
+ 1201:  
+ 1202:  
+ 1203:  
+ 1204:                  <div class="combat-stats-panel">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1229:                          <span class="stat-label">WIN RATE</span>
+ 1230:                          <div class="stat-val {% if stats.win_rate > 52 %}pulse-high{% endif %}">{{ stats.win_rate }}%
+ 1231:                          </div>
+ 1232:                      </div>
+ 1233:                      {% if analysis and analysis.overall %}
+ 1234:                      <div class="stat-card">
+ 1235:                          <div class="stat-value">{{ "%.1f"|format(analysis.overall.sentiment_score * 100) }}%</div>
+ 1236:                          <div class="stat-label">a?¡Lc?2a-¢Ge?¢Fa??c¡P?</div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1206:                          <span class="stat-label">WIN RATE</span>
+ 1207:                          <div class="stat-val pulse-high">56.4%</div>
+ 1208:                      </div>
+ 1209:  
+ 1210:                      <div class="stat-card">
+ 1211:                          <div class="stat-value">95.0%</div>
+ 1212:                          <div class="stat-label">a?¡Lc?2a-¢Ge?¢Fa??c¡P?</div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1237:                      </div>
+ 1238:                      {% else %}
+ 1239:                      <div class="stat-card">
+ 1240:                          <div class="stat-value">95.0%</div>
+ 1241:                          <div class="stat-label">a??e?|a??c?oa¡L!a??</div>
+ 1242:                      </div>
+ 1243:                      {% endif %}
+ 1244:                      <div class="stat-card">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1213:                      </div>
+ 1214:  
+ 1215:                      <div class="stat-card">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1245:                          <span class="stat-label">BAN RATE</span>
+ 1246:                          <div class="stat-val">{{ stats.ban_rate }}%</div>
+ 1247:                      </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1216:                          <span class="stat-label">BAN RATE</span>
+ 1217:                          <div class="stat-val">88.2%</div>
+ 1218:                      </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1248:                  </div>
+ 1249:                  {% endif %}
+ 1250:              </div>
+ 1251:              {% endif %}
+ 1252:  
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1219:                  </div>
+ 1220:  
+ 1221:              </div>
+ 1222:  
+ 1223:  
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1258:                  </div>
+ 1259:                  <div class="metric-big">{{ total_posts }}</div>
+ 1260:                  <div class="metric-desc">a??a?¢Dc?¡Me??a?¢Xe??e??c??c??a??a??a?¡M</div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1229:                  </div>
+ 1230:                  <div class="metric-big">12850</div>
+ 1231:                  <div class="metric-desc">a??a?¢Dc?¡Me??a?¢Xe??e??c??c??a??a??a?¡M</div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1264:                          <div class="num">
+ 1265:                              {{ sentiment_distribution.positive }}
+ 1266:                              {% if history_delta.overall.volume_pct %}
+ 1267:                              <span
+ 1268:                                  class="delta-pill {% if history_delta.overall.volume_pct > 0 %}delta-up{% else %}delta-down{% e
+ 1269:  ndif %}">
+ 1270:                                  {{ 'a?2' if history_delta.overall.volume_pct > 0 else 'a??' }} {{
+ 1271:                                  history_delta.overall.volume_pct|abs }}%
+ 1272:                              </span>
+ 1273:                              {% endif %}
+ 1274:                          </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1235:                          <div class="num">
+ 1236:                              9500
+ 1237:  
+ 1238:                              <span class="delta-pill delta-up">
+ 1239:                                  a?2 12.5%
+ 1240:                              </span>
+ 1241:  
+ 1242:                          </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1277:                      <div class="sent-box sent-neg">
+ 1278:                          <div class="num">{{ sentiment_distribution.negative }}</div>
+ 1279:                          <div class="lbl">e2?e?¢F e???</div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1245:                      <div class="sent-box sent-neg">
+ 1246:                          <div class="num">1500</div>
+ 1247:                          <div class="lbl">e2?e?¢F e???</div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1281:                      <div class="sent-box sent-neu">
+ 1282:                          <div class="num">{{ sentiment_distribution.neutral }}</div>
+ 1283:                          <div class="lbl">a¡M-a€¡± e???</div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1249:                      <div class="sent-box sent-neu">
+ 1250:                          <div class="num">1850</div>
+ 1251:                          <div class="lbl">a¡M-a€¡± e???</div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1291:                  <!-- Hero Sentiment Heatmap (Phase 28) -->
+ 1292:                  {% if heatmap_data %}
+ 1293:                  <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1259:                  <!-- Hero Sentiment Heatmap (Phase 28) -->
+ 1260:  
+ 1261:                  <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1297:                  </div>
+ 1298:                  {% endif %}
+ 1299:                  <!-- 7 a?¢De?2e??e??a?? (Phase 29) -->
+ 1300:                  {% if history_delta and history_delta.weekly_vol_pulse %}
+ 1301:                  <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1265:                  </div>
+ 1266:  
+ 1267:                  <!-- 7 a?¢De?2e??e??a?? (Phase 29) -->
+ 1268:  
+ 1269:                  <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1305:                      <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
+ 1306:                          e??c¡P?a¡L?c?o: 7 a?¢Da13a??c?¡Óao| ({{ history_delta.overall.avg_baseline }})
+ 1307:                      </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1273:                      <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
+ 1274:                          e??c¡P?a¡L?c?o: 7 a?¢Da13a??c?¡Óao| (11000)
+ 1275:                      </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1308:                  </div>
+ 1309:                  {% endif %}
+ 1310:  
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1276:                  </div>
+ 1277:  
+ 1278:  
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1311:                  <!-- a?¡La??a??c¡P?ec?e?2 (Phase 32) -->
+ 1312:                  {% if wordcloud %}
+ 1313:                  <div class="tag-cloud-section">
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1279:                  <!-- a?¡La??a??c¡P?ec?e?2 (Phase 32) -->
+ 1280:  
+ 1281:                  <div class="tag-cloud-section">
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1315:                      <div class="tags-flex">
+ 1316:                          {% for tag in wordcloud.positive %}
+ 1317:                          <span class="tag-pill tag-pos"
+ 1318:                              style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
+ 1319:                              {{ tag.text }}
+ 1320:                          </span>
+ 1321:                          {% endfor %}
+ 1322:                      </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1283:                      <div class="tags-flex">
+ 1284:  
+ 1285:                          <span class="tag-pill tag-pos" style="font-size: 24px; opacity: 1.0;">
+ 1286:                              c?1a??c??e|?
+ 1287:                          </span>
+ 1288:  
+ 1289:                          <span class="tag-pill tag-pos" style="font-size: 18px; opacity: 0.9;">
+ 1290:                              a??a??a¢D?
+ 1291:                          </span>
+ 1292:  
+ 1293:                          <span class="tag-pill tag-pos" style="font-size: 10px; opacity: 0.7666666666666666;">
+ 1294:                              c¢D?c?o
+ 1295:                          </span>
+ 1296:  
+ 1297:                      </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1326:                      <div class="tags-flex">
+ 1327:                          {% for tag in wordcloud.negative %}
+ 1328:                          <span class="tag-pill tag-neg"
+ 1329:                              style="font-size: {{ tag.weight }}px; opacity: {{ 0.6 + (tag.weight/24)*0.4 }};">
+ 1330:                              {{ tag.text }}
+ 1331:                          </span>
+ 1332:                          {% endfor %}
+ 1333:                      </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1301:                      <div class="tags-flex">
+ 1302:  
+ 1303:                          <span class="tag-pill tag-neg" style="font-size: 20px; opacity: 0.9333333333333333;">
+ 1304:                              Bug
+ 1305:                          </span>
+ 1306:  
+ 1307:                          <span class="tag-pill tag-neg" style="font-size: 14px; opacity: 0.8333333333333334;">
+ 1308:                              c??Ping
+ 1309:                          </span>
+ 1310:  
+ 1311:                      </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1334:                  </div>
+ 1335:                  {% endif %}
+ 1336:              </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1312:                  </div>
+ 1313:  
+ 1314:              </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1343:                  </div>
+ 1344:                  <div class="ai-overview">{{ overview }}</div>
+ 1345:  
+ 1346:                  {% if recommendation %}
+ 1347:                  <div class="recommendation-box">
+ 1348:                      <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">e??! c??e??e!?a??a?oe-¢X</strong>
+ 1349:                      {{ recommendation }}
+ 1350:                  </div>
+ 1351:                  {% endif %}
+ 1352:  
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1321:                  </div>
+ 1322:                  <div class="ai-overview">e€?a?¡Âc?o Phase 39 a??c?¡Âa¢X?a|Re|?e|oa??c¡¦?ao?a??c??a??c?oe3?a??a€?a??a€?a¡P2c??a¢D?c?¡La
+ 1323:  o?a?¡La?¢Xc?? Responsive Grida€?c??c??e€?e|?c?1a?? (Glassmorphism)
+ 1324:                      a?¢Da??e??e??c??e??a??a??a??a?Ra??c??a€?</div>
+ 1325:  
+ 1326:  
+ 1327:  
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1365:              <!-- Hot Topics -->
+ 1366:              {% if hot_topics %}
+ 1367:              <div class="card">
+ 1368:                  <div class="card-header">
+ 1369:                      <span class="card-icon">e??¢D</span>
+ 1370:                      <h2>c?¡Óe?€e??e?£gec¡Óe!?</h2>
+ 1371:                  </div>
+ 1372:                  <ul style="list-style: none; padding: 0;">
+ 1373:                      {% for topic in hot_topics %}
+ 1374:                      <li
+ 1375:                          style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-betwe
+ 1376:  en;">
+ 1377:                          <span style="font-weight: 600; color: #334155;">{{ topic.topic }}</span>
+ 1378:                          <span style="color: #64748b; font-size: 0.9rem;">a??a??: {{ topic.mention_count }}</span>
+ 1379:                      </li>
+ 1380:                      {% endfor %}
+ 1381:                  </ul>
+ 1382:              </div>
+ 1383:              {% endif %}
+ 1384:          </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1340:              <!-- Hot Topics -->
+ 1341:  
+ 1342:          </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1394:                  <div class="feed-container">
+ 1395:                      {% for p in posts %}
+ 1396:                      {% set a = p.get('analysis', {}) %}
+ 1397:                      {% set post_data = p.get('post', {}) %}
+ 1398:                      {% set region = post_data.get('region', 'TW') %}
+ 1399:                      {% set focus_hero = config.HERO_FOCUS_NAME or "e??e??" %}
+ 1400:                      {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary",
+ 1401:                      "")) %}
+ 1402:  
+ 1403:                      <div class="post-container filterable-region" data-region="{{ region }}">
+ 1404:                          <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}"
+ 1405:                              style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+ 1406:                              <!-- a?€a??a¡L?c¡Ó? (Phase 33) -->
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1352:                  <div class="feed-container">
+ 1353:  
+ 1354:  
+ 1355:  
+ 1356:  
+ 1357:  
+ 1358:  
+ 1359:  
+ 1360:                      <div class="post-container filterable-region" data-region="TW">
+ 1361:                          <div class="post-card " style="animation-delay: 0.0s;">
+ 1362:                              <!-- a?€a??a¡L?c¡Ó? (Phase 33) -->
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1407:                              <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+ 1408:                                  <span class="region-tag tag-{{ region|lower }}">
+ 1409:                                      {% if region == 'TW' %}e??1e??? TW{% elif region == 'TH' %}e??1e??- TH{% elif region == 'VN
+ 1410:  '
+ 1411:                                      %}e???e??3 VN{% else %}e??? GLOBAL{% endif %}
+ 1412:                                  </span>
+ 1413:                                  {% if post_data.translated_content %}
+ 1414:                                  <button class="translate-btn" onclick="toggleTranslation(this)">
+ 1415:                                      <span class="icon">e???</span> a??a??a¢X?e|?
+ 1416:                                  </button>
+ 1417:                                  {% endif %}
+ 1418:                              </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1363:                              <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+ 1364:                                  <span class="region-tag tag-tw">
+ 1365:                                      e??1e??? TW
+ 1366:                                  </span>
+ 1367:  
+ 1368:                              </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1419:  
+ 1420:                              <a href="{{ post_data.get('url', '#') }}" target="_blank"
+ 1421:                                  style="text-decoration: none; color: inherit;">
+ 1422:                                  <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
+ 1423:                                      {% if post_data.get('content') %}
+ 1424:                                      {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
+ 1425:                                      {% else %}
+ 1426:                                      c?!a?¡±aR1
+ 1427:                                      {% endif %}
+ 1428:                                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1369:  
+ 1370:                              <a href="#" target="_blank" style="text-decoration: none; color: inherit;">
+ 1371:                                  <div class="post-title" style="">
+ 1372:  
+ 1373:                                      e€?a?!c??a¢D3a??e€?a??a?ae|?ao?i??e??e??a¢X?a¡Ó?c??e??a??c??e?¢Fc¢X!c?¡¦a?¡Âe??e!?a??i??
+ 1374:  
+ 1375:                                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1430:                                  <div class="post-meta">
+ 1431:                                      <span class="post-platform"
+ 1432:                                          style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
+ 1433:                                          post_data.get('platform', 'Unknown')|upper }}</span>
+ 1434:                                      <span>{{ post_data.get('published_date') if post_data.get('published_date') else
+ 1435:                                          post_data.get('timestamp', 'a??e??a?ac?¢D') }}</span>
+ 1436:                                      {% if post_data.get('author') and post_data.author != 'unknown' %}
+ 1437:                                      <span>A¡P @{{ post_data.author }}</span>
+ 1438:                                      {% endif %}
+ 1439:                                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1377:                                  <div class="post-meta">
+ 1378:                                      <span class="post-platform" style="">FACEBOOK</span>
+ 1379:                                      <span>a??e??a?ac?¢D</span>
+ 1380:  
+ 1381:                                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1441:                                  <div class="post-snippet-container">
+ 1442:                                      <div class="post-snippet original-content"
+ 1443:                                          style="{% if post_data.translated_content %}display: none;{% endif %} {% if is_yaya %}c
+ 1444:  olor: #831843;{% endif %}">
+ 1445:                                          {% if a and a.get('summary') and a.summary != 'a??a??a?¡Óa??' %}
+ 1446:                                          {{ a.summary }}
+ 1447:                                          {% else %}
+ 1448:                                          {{ post_data.get('content', '')[:100] }}...
+ 1449:                                          {% endif %}
+ 1450:                                      </div>
+ 1451:                                      {% if post_data.translated_content %}
+ 1452:                                      <div class="post-snippet translated-content"
+ 1453:                                          style="{% if is_yaya %}color: #831843;{% endif %}">
+ 1454:                                          <div
+ 1455:                                              style="font-size: 0.75rem; color: #be185d; font-weight: 700; margin-bottom: 0.3rem;
+ 1456:  ">
+ 1457:                                              a?¡L AI c1?a¡M-c??e-¡Âi??</div>
+ 1458:                                          {{ post_data.translated_content }}
+ 1459:                                      </div>
+ 1460:                                      {% endif %}
+ 1461:                                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1383:                                  <div class="post-snippet-container">
+ 1384:                                      <div class="post-snippet original-content" style=" ">
+ 1385:  
+ 1386:                                          a¢X?e?¡Óe??a¢X?a¡Ó?a?€a!?c??c??e?¢Fa??a?¢Xec?e?¡Pa€?
+ 1387:  
+ 1388:                                      </div>
+ 1389:  
+ 1390:                                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1462:  
+ 1463:                                  {% if a %}
+ 1464:                                  <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'ne
+ 1465:  gative' %}neg{% else %}neu{% endif %}"
+ 1466:                                      style="{% if is_yaya %}color: #be185d !important;{% endif %}">
+ 1467:                                      AI a??aR?: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[c?|e??i??{{ focus_her
+ 1468:  o
+ 1469:                                      }}]{% endif %}
+ 1470:                                  </div>
+ 1471:                                  {% endif %}
+ 1472:                              </a>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1391:  
+ 1392:  
+ 1393:                                  <div class="post-sentiment text-pos" style="">
+ 1394:                                      AI a??aR?: POSITIVE
+ 1395:                                  </div>
+ 1396:  
+ 1397:                              </a>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1474:                      </div>
+ 1475:                      {% endfor %}
+ 1476:  
+ 1477:                      {% if not posts %}
+ 1478:                      <div style="text-align: center; color: #94a3b8; padding: 2rem;">
+ 1479:                          a??a?¢Da??c?!c?¡Me??a??a??a€?
+ 1480:                      </div>
+ 1481:                      {% endif %}
+ 1482:                  </div>
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1399:                      </div>
+ 1400:  
+ 1401:  
+ 1402:  
+ 1403:  
+ 1404:  
+ 1405:  
+ 1406:  
+ 1407:                      <div class="post-container filterable-region" data-region="TW">
+ 1408:                          <div class="post-card " style="animation-delay: 0.1s;">
+ 1409:                              <!-- a?€a??a¡L?c¡Ó? (Phase 33) -->
+ 1410:                              <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+ 1411:                                  <span class="region-tag tag-tw">
+ 1412:                                      e??1e??? TW
+ 1413:                                  </span>
+ 1414:  
+ 1415:                              </div>
+ 1416:  
+ 1417:                              <a href="#" target="_blank" style="text-decoration: none; color: inherit;">
+ 1418:                                  <div class="post-title" style="">
+ 1419:  
+ 1420:                                      a??ac?a¡M?c??a1?e??c¡¦?a¡M?a¢D?e€?i??c??e?¢Fa??c??e??aR?c??
+ 1421:  
+ 1422:                                  </div>
+ 1423:  
+ 1424:                                  <div class="post-meta">
+ 1425:                                      <span class="post-platform" style="">THREADS</span>
+ 1426:                                      <span>a??e??a?ac?¢D</span>
+ 1427:  
+ 1428:                                  </div>
+ 1429:  
+ 1430:                                  <div class="post-snippet-container">
+ 1431:                                      <div class="post-snippet original-content" style=" ">
+ 1432:  
+ 1433:                                          eR?e3?e??a??a??a??c¡P? (CSS Grid) a??c¡¦?
+ 1434:  
+ 1435:                                      </div>
+ 1436:  
+ 1437:                                  </div>
+ 1438:  
+ 1439:  
+ 1440:                                  <div class="post-sentiment text-pos" style="">
+ 1441:                                      AI a??aR?: POSITIVE
+ 1442:                                  </div>
+ 1443:  
+ 1444:                              </a>
+ 1445:                          </div>
+ 1446:                      </div>
+ 1447:  
+ 1448:  
+ 1449:  
+ 1450:                  </div>
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1491:              const platformCtx = document.getElementById('platformChart').getContext('2d');
+ 1492:              const platformDataObj = {{ platform_breakdown | tojson
+ 1493:          }};
+ 1494:          const platformLabels = Object.keys(platformDataObj);
+ 1495:          const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
+ 1496:  
+ 1497:          new Chart(platformCtx, {
+ 1498:              type: 'bar',
+ 1499:              data: {
+ 1500:                  labels: platformLabels,
+ 1501:                  datasets: [{
+ 1502:                      label: 'e2?a??a?¡M',
+ 1503:                      data: platformValues,
+ 1504:                      backgroundColor: platformLabels.map(p => {
+ 1505:                          const plat = p.toLowerCase();
+ 1506:                          if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // c2?e??
+ 1507:                          if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // c
+ 1508:  2?c¡¦?
+ 1509:                          if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // a
+ 1510:  oRe??
+ 1511:                          return '#94a3b8';
+ 1512:                      }),
+ 1513:                      borderRadius: 8
+ 1514:                  }]
+ 1515:              },
+ 1516:              options: {
+ 1517:                  responsive: true,
+ 1518:                  maintainAspectRatio: false,
+ 1519:                  plugins: {
+ 1520:                      legend: { display: false },
+ 1521:                      tooltip: {
+ 1522:                          cornerRadius: 12,
+ 1523:                          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+ 1524:                          titleColor: '#db2777',
+ 1525:                          bodyColor: '#1e293b',
+ 1526:                          borderColor: 'rgba(219, 39, 119, 0.3)',
+ 1527:                          borderWidth: 1,
+ 1528:                          padding: 12,
+ 1529:                          boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
+ 1530:                      }
+ 1531:                  },
+ 1532:                  scales: {
+ 1533:                      y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+ 1534:                      x: { grid: { display: false } }
+ 1535:                  }
+ 1536:              }
+ 1537:          });
+ 1538:          } catch (e) {
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1459:              const platformCtx = document.getElementById('platformChart').getContext('2d');
+ 1460:              const platformDataObj = { "Facebook \u8a0e\u8ad6\u5340": 5000, "Instagram": 3000, "Threads": 2850, "YouTube \u5be6\
+ 1461:  u6cc1": 2000 };
+ 1462:              const platformLabels = Object.keys(platformDataObj);
+ 1463:              const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
+ 1464:  
+ 1465:              new Chart(platformCtx, {
+ 1466:                  type: 'bar',
+ 1467:                  data: {
+ 1468:                      labels: platformLabels,
+ 1469:                      datasets: [{
+ 1470:                          label: 'e2?a??a?¡M',
+ 1471:                          data: platformValues,
+ 1472:                          backgroundColor: platformLabels.map(p => {
+ 1473:                              const plat = p.toLowerCase();
+ 1474:                              if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // c2?e??
+ 1475:                              if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; 
+ 1476:  // c2?c¡¦?
+ 1477:                              if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; 
+ 1478:  // aoRe??
+ 1479:                              return '#94a3b8';
+ 1480:                          }),
+ 1481:                          borderRadius: 8
+ 1482:                      }]
+ 1483:                  },
+ 1484:                  options: {
+ 1485:                      responsive: true,
+ 1486:                      maintainAspectRatio: false,
+ 1487:                      plugins: {
+ 1488:                          legend: { display: false },
+ 1489:                          tooltip: {
+ 1490:                              cornerRadius: 12,
+ 1491:                              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+ 1492:                              titleColor: '#db2777',
+ 1493:                              bodyColor: '#1e293b',
+ 1494:                              borderColor: 'rgba(219, 39, 119, 0.3)',
+ 1495:                              borderWidth: 1,
+ 1496:                              padding: 12,
+ 1497:                              boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
+ 1498:                          }
+ 1499:                      },
+ 1500:                      scales: {
+ 1501:                          y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+ 1502:                          x: { grid: { display: false } }
+ 1503:                      }
+ 1504:                  }
+ 1505:              });
+ 1506:          } catch (e) {
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1542:          // a?€a?€ e?¡Óe?? 24H e?2e??c?¡Óao|a?? (Phase 28) a?€a?€
+ 1543:          {% if heatmap_data %}
+ 1544:          const heatmapDom = document.getElementById('heatmapChart');
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1510:          // a?€a?€ e?¡Óe?? 24H e?2e??c?¡Óao|a?? (Phase 28) a?€a?€
+ 1511:  
+ 1512:          const heatmapDom = document.getElementById('heatmapChart');
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1573:                      type: 'category',
+ 1574:                      data: {{ heatmap_data.hours | tojson
+ 1575:          }},
+ 1576:          splitArea: { show: true },
+ 1577:          axisLabel: { color: '#64748b' }
+ 1578:                  },
+ 1579:          yAxis: {
+ 1580:              type: 'category',
+ 1581:                  data: { { heatmap_data.heroes | tojson } },
+ 1582:              splitArea: { show: true },
+ 1583:              axisLabel: { color: '#64748b', fontWeight: 'bold' }
+ 1584:          },
+ 1585:          visualMap: {
+ 1586:              min: -5,
+ 1587:                  max: 10,
+ 1588:                      calculable: true,
+ 1589:                          orient: 'horizontal',
+ 1590:                              left: 'center',
+ 1591:                                  bottom: '0',
+ 1592:                                      inRange: {
+ 1593:                  color: ['#f43f5e', '#f1f5f9', '#10b981'] // e2?c¡¦?a€?a¡M-c?¢Xc??a€?a-¢Gc??
+ 1594:              },
+ 1595:              text: ['c??c?¡Ó', 'a13e??'],
+ 1596:                  show: false
+ 1597:          },
+ 1598:          series: [{
+ 1599:              name: 'c?¡Óao|e?¡La?¢F',
+ 1600:              type: 'heatmap',
+ 1601:              data: {{ heatmap_data.data | tojson }},
+ 1602:              label: { show: false },
+ 1603:              emphasis: {
+ 1604:              itemStyle: {
+ 1605:                  shadowBlur: 10,
+ 1606:                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+ 1607:              }
+ 1608:          }
+ 1609:                  }]
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1541:                      type: 'category',
+ 1542:                      data: ["00", "04", "08", "12", "16", "20"],
+ 1543:                      splitArea: { show: true },
+ 1544:                      axisLabel: { color: '#64748b' }
+ 1545:                  },
+ 1546:                  yAxis: {
+ 1547:                      type: 'category',
+ 1548:                      data: ["\u82bd\u82bd", "\u51e1\u6069", "\u5200\u92d2"],
+ 1549:                      splitArea: { show: true },
+ 1550:                      axisLabel: { color: '#64748b', fontWeight: 'bold' }
+ 1551:                  },
+ 1552:                  visualMap: {
+ 1553:                      min: -5,
+ 1554:                      max: 10,
+ 1555:                      calculable: true,
+ 1556:                      orient: 'horizontal',
+ 1557:                      left: 'center',
+ 1558:                      bottom: '0',
+ 1559:                      inRange: {
+ 1560:                          color: ['#f43f5e', '#f1f5f9', '#10b981'] // e2?c¡¦?a€?a¡M-c?¢Xc??a€?a-¢Gc??
+ 1561:                      },
+ 1562:                      text: ['c??c?¡Ó', 'a13e??'],
+ 1563:                      show: false
+ 1564:                  },
+ 1565:                  series: [{
+ 1566:                      name: 'c?¡Óao|e?¡La?¢F',
+ 1567:                      type: 'heatmap',
+ 1568:                      data: [[0, 0, 5, 1], [0, 1, 2, 0], [0, 2, 8, 1], [1, 0, -2, -1], [1, 1, 6, 1], [1, 2, -4, -1], [2, 0, 10, 1
+ 1569:  ], [2, 1, 0, 0], [2, 2, 7, 1]],
+ 1570:                      label: { show: false },
+ 1571:                      emphasis: {
+ 1572:                          itemStyle: {
+ 1573:                              shadowBlur: 10,
+ 1574:                              shadowColor: 'rgba(0, 0, 0, 0.5)'
+ 1575:                          }
+ 1576:                      }
+ 1577:                  }]
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1610:              };
+ 1611:          heatmapChart.setOption(heatmapOption);
+ 1612:          window.addEventListener('resize', () => heatmapChart.resize());
+ 1613:          }
+ 1614:          {% endif %}
+ 1615:  
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1578:              };
+ 1579:              heatmapChart.setOption(heatmapOption);
+ 1580:              window.addEventListener('resize', () => heatmapChart.resize());
+ 1581:          }
+ 1582:  
+ 1583:  
+*****
+
+***** D:\CODING PROJECT\ARENA OF VALOR\REPORTER\TEMPLATES\report.html
+ 1617:          try {
+ 1618:              const historyData = {{ history_delta | tojson if history_delta else '{}'
+ 1619:          }};
+ 1620:          if (historyData && historyData.weekly_vol_pulse) {
+ 1621:              const pulseDom = document.getElementById('weeklyPulseChart');
+ 1622:              if (pulseDom) {
+ 1623:                  const pulseChart = echarts.init(pulseDom);
+ 1624:                  const pulseOption = {
+ 1625:                      grid: { top: 5, bottom: 20, left: 0, right: 0 },
+ 1626:                      xAxis: {
+ 1627:                          type: 'category',
+ 1628:                          data: historyData.weekly_vol_pulse.labels || [],
+ 1629:                          show: true,
+ 1630:                          axisLine: { show: false },
+ 1631:                          axisTick: { show: false },
+ 1632:                          axisLabel: { color: '#94a3b8', fontSize: 10 }
+ 1633:                      },
+ 1634:                      yAxis: { type: 'value', show: false },
+ 1635:                      series: [
+ 1636:                          {
+ 1637:                              data: historyData.weekly_vol_pulse.volumes || [],
+ 1638:                              type: 'line',
+ 1639:                              smooth: true,
+ 1640:                              symbol: 'none',
+ 1641:                              lineStyle: { color: '#6366f1', width: 2 },
+ 1642:                              areaStyle: {
+ 1643:                                  color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+ 1644:                                      { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+ 1645:                                      { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+ 1646:                                  ])
+ 1647:                              },
+ 1648:                              markLine: {
+ 1649:                                  silent: true,
+ 1650:                                  symbol: 'none',
+ 1651:                                  label: { show: false },
+ 1652:                                  data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
+ 1653:                                  lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
+ 1654:                              }
+ 1655:                          }
+ 1656:                      ]
+ 1657:                  };
+ 1658:                  pulseChart.setOption(pulseOption);
+ 1659:                  window.addEventListener('resize', () => pulseChart.resize());
+ 1660:              }
+ 1661:          }
+ 1662:          } catch (e) {
+***** D:\CODING PROJECT\ARENA OF VALOR\UI_PREVIEWS\PHASE39_FLAGSHIP_SHOWCASE.HTML
+ 1585:          try {
+ 1586:              const historyData = { "alerts": [{ "advice": "\u5efa\u8b70\u628a\u63e1\u76ee\u524d\u9ad8\u6b63\u9762\u60c5\u7dd2\u7
+ 1587:  684\u6642\u6a5f\uff0c\u91cb\u51fa\u65b0\u8cfd\u5b63\u9810\u544a\u3002", "label": "\u73a9\u5bb6\u6d3b\u8e8d\u9ad8\u5cf0" }], "ov
+ 1588:  erall": { "avg_baseline": 11000, "volume_pct": 12.5 }, "weekly_vol_pulse": { "average": 11550, "labels": ["Mon", "Tue", "Wed", 
+ 1589:  "Thu", "Fri", "Sat", "Sun"], "volumes": [9500, 10200, 9800, 11500, 12000, 15000, 12850] } };
+ 1590:              if (historyData && historyData.weekly_vol_pulse) {
+ 1591:                  const pulseDom = document.getElementById('weeklyPulseChart');
+ 1592:                  if (pulseDom) {
+ 1593:                      const pulseChart = echarts.init(pulseDom);
+ 1594:                      const pulseOption = {
+ 1595:                          grid: { top: 5, bottom: 20, left: 0, right: 0 },
+ 1596:                          xAxis: {
+ 1597:                              type: 'category',
+ 1598:                              data: historyData.weekly_vol_pulse.labels || [],
+ 1599:                              show: true,
+ 1600:                              axisLine: { show: false },
+ 1601:                              axisTick: { show: false },
+ 1602:                              axisLabel: { color: '#94a3b8', fontSize: 10 }
+ 1603:                          },
+ 1604:                          yAxis: { type: 'value', show: false },
+ 1605:                          series: [
+ 1606:                              {
+ 1607:                                  data: historyData.weekly_vol_pulse.volumes || [],
+ 1608:                                  type: 'line',
+ 1609:                                  smooth: true,
+ 1610:                                  symbol: 'none',
+ 1611:                                  lineStyle: { color: '#6366f1', width: 2 },
+ 1612:                                  areaStyle: {
+ 1613:                                      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+ 1614:                                          { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
+ 1615:                                          { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+ 1616:                                      ])
+ 1617:                                  },
+ 1618:                                  markLine: {
+ 1619:                                      silent: true,
+ 1620:                                      symbol: 'none',
+ 1621:                                      label: { show: false },
+ 1622:                                      data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
+ 1623:                                      lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
+ 1624:                                  }
+ 1625:                              }
+ 1626:                          ]
+ 1627:                      };
+ 1628:                      pulseChart.setOption(pulseOption);
+ 1629:                      window.addEventListener('resize', () => pulseChart.resize());
+ 1630:                  }
+ 1631:              }
+ 1632:          } catch (e) {
+*****
+
