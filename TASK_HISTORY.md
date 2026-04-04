@@ -205,7 +205,6 @@
   - 增設 `.chart-wrapper` 包覆層，附帶 `blur(10px)` 及呼吸光暈懸停特效。
   - 覆寫 Chart.js 及 ECharts 提示框 (Tooltip)，強制取消預設黑框，全面注入半透明琉璃材質與圓角 `cornerRadius: 12` 設定。
 
-
 ### 🛠️ Phase 39.5：前端視覺柔和化與尊榮標題升級 (UI Refinement & Polish)
 
 - **目標**：接獲指揮官指示，針對資訊中心、預警板塊以及頂部主標題進行文字降溫及高光特效的二次精修。
@@ -218,7 +217,6 @@
   - Icon 切換為帶有提示意味的 `📌`。
 - **標題美學突破 (Premium Header)**：
   - 導入全新的 `.header h1` CSS 結構，為「Arena of Valor 輿情分析」主標套用專屬的漸層高光 (`background-clip: text`) 與文字倒影 (`drop-shadow`)，完美疊加高級視覺感。
-
 
 ### 🛠️ Phase 40：沉浸式背景植入計畫 (Immersive Background UI)
 
@@ -312,6 +310,7 @@
     - 背景色鎖定為 **`rgba(255, 255, 255, 0.1)`**（透明白桃玻璃）。
     - 內部文字盒調亮至 **`rgba(255, 255, 255, 0.4)`**，確保文字於芽芽背景上的高辨識度。
   - **粉嫩主色回歸 (Pink Dominance)**：標題色系全面鎖定為 **旗艦桃紅 (#db2777)**。
+
 ### 🛠️ Phase 40.18：並行資產歸檔機制 (Parallel Asset Archiving)
 
 - **目標**：遵奉主公聖旨，確保每一份生成的戰報皆能同步保留於 `ui_previews/` 目錄中，且嚴格執行「不覆蓋」原則以追蹤 UI 迭代細節。
@@ -334,6 +333,19 @@
   - **佈局**：`2fr 1fr` 側欄並行完美無損。
   - **美學**：旗艦粉玻璃質感飽滿，文字辨識度達標。
   - **持久化**：全量戰報版本 (V1-V9) 已完整封存於 GitHub 與本地預覽目錄。
+
+### 🏮 Phase 40.20：Line 內顯背景硬化與分歧校正 (Mobile Tiling Fix)
+
+- **情境診斷**：
+  - **移動端分歧**：主公回報 Line 內建瀏覽器 (In-App Browser) 與桌面端渲染不一致。
+  - **背景增生 (Tiling)**：截圖顯示背景 `yaya_bg.png` 在移動端出現無限重複拼接現象，破壞視覺沉浸感。
+- **技術實作**：
+  - **重複壓制 (Repeat Suppression)**：於 `report.html` 強制注入 `background-repeat: no-repeat !important`。
+  - **Viewport 定錨**：將背景圖層寬高鎖定為 `100vw` / `100vh`，確保在 Line 頂欄位移時仍能維持全屏覆蓋。
+  - **引擎相容 (Webkit)**：補齊 `-webkit-background-size: cover` 屬性，確保行動裝置核心正確執行圖像縮放。
+- **成果驗印**：
+  - 成功產出 **V10 (06:52)** 旗艦報表。
+  - 確認 `ui_previews` 同步正常，已準備好進行最終 Line 實機驗核。
 
 ---
 
