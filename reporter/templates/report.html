@@ -89,8 +89,7 @@
         }
 
         /* ── Phase 40: Immersive Character Background ── */
-        body::after {
-            content: "";
+        .fixed-background-fortress {
             position: fixed;
             top: 0;
             left: 0;
@@ -100,12 +99,15 @@
             background-size: cover !important;
             -webkit-background-size: cover !important;
             background-repeat: no-repeat !important;
-            background-attachment: fixed !important;
+            background-attachment: scroll !important;
             background-position: center center;
             opacity: 0.8;
-            z-index: -2;
-            /* Underneath the mesh layer and UI cards */
+            z-index: -20;
             pointer-events: none;
+            /* ⚡ 硬體加速：強制 GPU 渲染，解決行動端跳動與拼接錯誤 ⚡ */
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -1113,6 +1115,9 @@
         }
         setInterval(createSakura, 300);
     </script>
+    
+    <!-- 🏮 Phase 40.21: 視覺定錨堡壘 (GPU Accelerated) 🏮 -->
+    <div class="fixed-background-fortress"></div>
 
     <nav class="region-nav">
         <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">

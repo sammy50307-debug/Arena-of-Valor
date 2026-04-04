@@ -199,6 +199,15 @@ class ReportGenerator:
             output_path = output_dir / f"{base_filename}_v{version}.html"
         
         output_path.write_text(html_content, encoding="utf-8")
+        
+        # ── 🏮 Phase 40.21：同步至主戰線 (Canonical Sync) 🏮 ──
+        # 這是為了解決 Line 連結與本地差異的問題。Line 傳送的通常是固定的主日期檔。
+        try:
+            canonical_path = output_dir / f"{base_filename}.html"
+            shutil.copy2(output_path, canonical_path)
+            self.logger.info(f"  [⚡] 主線更新：已覆寫推播連結至最新版本 {output_path.name}")
+        except Exception as ce:
+            self.logger.warning(f"  [!] 主線更新失敗: {ce}")
 
         # ── 資源同步：解決背景圖片失聯問題 ──
         try:

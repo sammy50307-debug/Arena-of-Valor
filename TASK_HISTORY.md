@@ -347,6 +347,19 @@
   - 成功產出 **V10 (06:52)** 旗艦報表。
   - 確認 `ui_previews` 同步正常，已準備好進行最終 Line 實機驗核。
 
+### 🏮 Phase 40.21：背景定錨堡壘與推播同步 (The High-Stability Fortress)
+
+- **情境診斷**：
+  - **背景增生持續**：確認先前 `body::after` 在行動端對 `fixed` 背景的支援度已達物理極限。
+  - **推播分歧**：主公發現 Line 連結內容與本地不同，判斷為 Line 機器人固定傳送主日期檔，而生成器卻不斷產出版本號副本，導致主線未能更新。
+- **技術實作**：
+  - **架構革命 (Fortress DIV)**：完全棄用偽元素背景。改在 `<body>` 最頂層建立實體圖層 `.fixed-background-fortress`。
+  - **GPU 渲染鎖定**：注入 `-webkit-transform: translate3d(0,0,0)` 強制二維平面 3D 化，利用 GPU 鎖死背景防止 tiling。
+  - **主戰線更新 (Canonical Sync)**：修改 `generator.py` 邏輯。每當產出新的版本化報表 (如 V13)，即刻自動覆寫主日期檔 (`aov_report_YYYY-MM-DD.html`)。
+- **成果驗印**：
+  - **V13 產出**：已確認生成的 V13 原始碼包含最新 Fortress 鎖定技術。
+  - **同步驗收**：主日期檔已與 V13 內容 100% 同步，確保 Line 連結之呈現與旗艦標準一致。
+
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**

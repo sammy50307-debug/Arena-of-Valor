@@ -89,20 +89,25 @@
         }
 
         /* ── Phase 40: Immersive Character Background ── */
-        body::after {
-            content: "";
+        .fixed-background-fortress {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background-image: url('yaya_bg.png');
-            background-size: cover;
+            background-size: cover !important;
+            -webkit-background-size: cover !important;
+            background-repeat: no-repeat !important;
+            background-attachment: scroll !important;
             background-position: center center;
             opacity: 0.8;
-            z-index: -2;
-            /* Underneath the mesh layer and UI cards */
+            z-index: -20;
             pointer-events: none;
+            /* ⚡ 硬體加速：強制 GPU 渲染，解決行動端跳動與拼接錯誤 ⚡ */
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -122,17 +127,31 @@
         .card:hover {
             transform: translateY(-5px);
             box-shadow: var(--hover-shadow);
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            border: 1px solid var(--primary-accent);
         }
 
         /* ── Responsive CSS Grid Backbone (Phase 39) ── */
         .layout-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
+            grid-template-rows: auto auto auto; /* Explicitly define rows */
             gap: 2rem;
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
+        }
+
+        .global-insights-card, .alert-banner {
+            /* Parallel Grid Managed via specific class overrides */
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .alert-banner {
+            grid-column: unset !important; /* Ensure 2fr 1fr parallelism */
+        }
+
+        .audio-player-container {
+            grid-column: 1 / -1 !important; 
         }
 
         .left-col {
@@ -222,20 +241,18 @@
             font-weight: 700;
             margin-bottom: 0.8rem;
             color: var(--primary-accent);
-            display: -webkit-box;
+            line-clamp: 2;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
-            line-clamp: 2;
             overflow: hidden;
         }
 
         .post-content {
             font-size: 0.95rem;
             color: var(--text-muted);
-            display: -webkit-box;
+            line-clamp: 3;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
-            line-clamp: 3;
             overflow: hidden;
             line-height: 1.7;
         }
@@ -254,13 +271,15 @@
         .global-insights-card {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(90deg,
-                    rgba(30, 41, 59, 0.7) 0%,
-                    rgba(56, 189, 248, 0.1) 50%,
-                    rgba(30, 41, 59, 0.7) 100%);
-            background-size: 200% 100%;
-            animation: shimmer 10s infinite linear;
-            border: 1px solid rgba(56, 189, 248, 0.2);
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 2px solid var(--primary-accent) !important;
+            border-radius: 28px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--glow-neon);
+            grid-column: unset !important; /* Ensure 2fr 1fr parallelism */
         }
 
         .live-pulse {
@@ -915,18 +934,6 @@
             animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        .global-insights-card {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(90deg,
-                    rgba(30, 41, 59, 0.7) 0%,
-                    rgba(56, 189, 248, 0.1) 50%,
-                    rgba(30, 41, 59, 0.7) 100%);
-            background-size: 200% 100%;
-            animation: shimmer 10s infinite linear;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            box-shadow: var(--glow-neon) !important;
-        }
 
         .global-insights-card::before {
             content: 'GLOBAL PULSE';
@@ -1108,6 +1115,9 @@
         }
         setInterval(createSakura, 300);
     </script>
+    
+    <!-- 🏮 Phase 40.21: 視覺定錨堡壘 (GPU Accelerated) 🏮 -->
+    <div class="fixed-background-fortress"></div>
 
     <nav class="region-nav">
         <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
@@ -1123,20 +1133,40 @@
         <!-- Taiwan Tactical Command Hub (Repurposed from Global Insights) -->
         <div class="global-insights-card">
             <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--glass-border); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: #fff; margin: 0; font-weight: 800; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);">💬 台服消息資訊中心
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2);">💬 台服消息資訊中心
                     <span
-                        style="font-size: 0.8rem; font-weight: 400; color: rgba(255,255,255,0.6); vertical-align: middle;">TAIWAN
+                        style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN
                         INFO CENTER</span></h2>
-                <div class="live-pulse"></div>
+                <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
             <div
-                style="color: rgba(255,255,255,0.9); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(255,255,255,0.1);">
+                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
                 戰情摘要：台服社群近期聚焦於職業聯賽戰術下放，以及英雄『芽芽』與特定射手的搭配效益。數據顯示玩家對於環境平衡度滿意度提升。
             </div>
         </div>
 
-        
+        <div class="alert-banner">
+            <div class="alert-title">
+                <span>📌</span> 今日焦點 (TODAY'S FOCUS)
+            </div>
+            <div class="alert-container">
+                
+                    <!-- Flagship Fallback (Phase 39 Consistency) -->
+                    <div class="alert-entry">
+                        <div class="alert-label-text">玩家活躍高峰</div>
+                        <div class="tactical-box">
+                            <div class="advice-header">
+                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
+                            </div>
+                            <div class="advice-body">
+                                今日 AoV 台服熱度持續攀升。玩家正密切關注芽芽新版本變動。
+                            </div>
+                        </div>
+                    </div>
+                
+            </div>
+        </div>
 
         <!-- Audio Briefing Player (Phase 27) -->
         
@@ -1406,6 +1436,9 @@
                     
                     
                     
+                     
+                    
+                    
                     
 
                     <div class="post-container filterable-region" data-region="TW">
@@ -1455,7 +1488,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1507,7 +1540,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1559,7 +1592,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1611,7 +1644,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1663,7 +1696,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1715,7 +1748,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1767,7 +1800,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1819,7 +1852,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1871,7 +1904,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1923,7 +1956,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -1975,7 +2008,7 @@
                     </div>
                     
                     
-                    
+                     
                     
                     
                     
@@ -2120,7 +2153,7 @@
                 },
         yAxis: {
             type: 'category',
-                data: ["\u82bd\u82bd", "\u76ae\u76ae"],
+                data: ["\u76ae\u76ae", "\u82bd\u82bd"],
             splitArea: { show: true },
             axisLabel: { color: '#64748b', fontWeight: 'bold' }
         },
@@ -2140,7 +2173,7 @@
         series: [{
             name: '熱度趨勢',
             type: 'heatmap',
-            data: [[0, 0, 3, 1], [0, 1, 10, 0], [1, 0, 13, 1], [1, 1, 4, 1], [2, 0, 17, 1], [2, 1, 3, 1], [3, 0, 20, 1], [3, 1, 2, 0], [4, 0, 22, 1], [4, 1, 9, 0], [5, 0, 26, 1], [5, 1, 3, 0], [6, 0, 8, 1], [6, 1, 9, 0], [7, 0, 23, 1], [7, 1, 5, 1]],
+            data: [[0, 0, 8, 0], [0, 1, 6, 1], [1, 0, 8, 1], [1, 1, 19, 1], [2, 0, 10, 1], [2, 1, 7, 1], [3, 0, 8, 1], [3, 1, 24, 1], [4, 0, 2, 1], [4, 1, 20, 1], [5, 0, 3, 1], [5, 1, 24, 1], [6, 0, 9, 0], [6, 1, 6, 1], [7, 0, 3, 0], [7, 1, 16, 1]],
             label: { show: false },
             emphasis: {
             itemStyle: {
@@ -2157,7 +2190,7 @@
 
         // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
         try {
-            const historyData = {"alerts": [], "heroes": {"\u76ae\u76ae": {"volume_pct": 14.500314483176615}, "\u82bd\u82bd": {"volume_pct": 5.183496512979774}}, "overall": {"avg_baseline": 65.0, "is_red_alert": false, "volume_pct": 15.5}, "weekly_vol_pulse": {"average": 74.42857142857143, "labels": ["03/30", "03/31", "04/01", "04/02", "04/03", "04/04", "04/05"], "volumes": [68, 95, 87, 72, 82, 52, 65]}};
+            const historyData = {"alerts": [], "heroes": {"\u76ae\u76ae": {"volume_pct": 11.639606648054038}, "\u82bd\u82bd": {"volume_pct": 5.087956162864042}}, "overall": {"avg_baseline": 65.0, "is_red_alert": false, "volume_pct": 15.5}, "weekly_vol_pulse": {"average": 68.14285714285714, "labels": ["03/30", "03/31", "04/01", "04/02", "04/03", "04/04", "04/05"], "volumes": [56, 80, 84, 54, 55, 66, 82]}};
         if (historyData && historyData.weekly_vol_pulse) {
             const pulseDom = document.getElementById('weeklyPulseChart');
             if (pulseDom) {
