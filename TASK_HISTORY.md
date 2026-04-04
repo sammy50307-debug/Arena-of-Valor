@@ -373,6 +373,18 @@
   - **V14 產出**：已確認生成的 V14 原始碼包含完整自適應邏輯。
   - **實機模擬驗證**：使用子代理程式於 iPhone X (375x812) 環境下執行視覺檢樣，確認佈局「疊加順滑、讀取流暢 (Orderly)」，完全符合旗艦視覺標竿。
 
+### 🏮 Phase 40.23：性能與定錨校準計畫 (Performance Strategy - Proposed)
+
+- **情境診斷**：
+  - **行動端背景適配**：行動端瀏覽器動態網址列 (Address Bar) 導致 `100vh` 回退時出現底圖不貼合。
+  - **桌面端渲染卡頓 (Lag)**：偵測到 300ms 產出之櫻花粒子 (`.sakura`) 配上多層桌面端 `backdrop-filter: blur(10px)` 造成 GPU/CPU 負載過重。
+- **未來實作策略**：
+  - **背景精準適配**：採用 `-webkit-fill-available` 與 `min-height` 100% 物理鎖定技術。
+  - **靈力性能優化**：粒子頻率調降為 600ms，限制同屏總數；毛玻璃模糊度調優以降低渲染開銷。
+- **歸檔紀錄**：
+  - **旗艦聖經**：已產出 `Phase40_Flagship_Bible.md` 供 Obsidian 同步。
+  - **金版備份**：已將 V16 狀態封存於 `ui_previews/aov_report_2026-04-05_V16_GOLDEN_BUILD.html`。
+
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**
