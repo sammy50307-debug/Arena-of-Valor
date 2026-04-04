@@ -211,5 +211,21 @@ class ReportGenerator:
         except Exception as re:
             self.logger.warning(f"  [!] 資源同步失敗: {re}")
 
+        # ── 同步至 ui_previews (主公規格：不得覆蓋) ──
+        try:
+            ui_dir = Path(__file__).resolve().parent.parent / "ui_previews"
+            ui_dir.mkdir(parents=True, exist_ok=True)
+            
+            ui_output_path = ui_dir / output_path.name
+            shutil.copy2(output_path, ui_output_path)
+            self.logger.info(f"  [+] 旗艦備份：已同步至 {ui_output_path}")
+            
+            # 同步圖片至 ui_previews 以確保預閱正常
+            ui_img = ui_dir / "yaya_bg.png"
+            if source_img.exists() and not ui_img.exists():
+                shutil.copy2(source_img, ui_img)
+        except Exception as uie:
+            self.logger.warning(f"  [!] ui_previews 同步失敗: {uie}")
+
         self.logger.info(f"報告已生成: {output_path}")
         return output_path
