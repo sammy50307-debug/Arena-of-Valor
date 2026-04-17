@@ -1,0 +1,30 @@
+category,keyword_en,keyword_zh,keyword_ja,priority
+LLM模型,Claude,Claude / 大型語言模型,Claude / 基盤モデル,HIGH
+LLM模型,GPT / OpenAI,GPT / OpenAI,GPT / OpenAI,HIGH
+LLM模型,Gemini,Gemini / Google AI,Gemini,HIGH
+LLM模型,LLaMA / Meta AI,Meta AI 模型,Meta AI,MEDIUM
+LLM模型,Mistral,Mistral,Mistral,LOW
+AI代理,AI Agent / Agentic AI,AI代理 / 自動化工作流,AIエージェント,HIGH
+AI代理,Multi-agent system,多代理系統,マルチエージェント,MEDIUM
+AI代理,Copilot,AI助理 / Copilot,Copilot,MEDIUM
+AI安全,AI Safety / AI Alignment,AI安全 / 可控AI,AIの安全性 / アライメント,HIGH
+AI安全,Cybersecurity AI,AI資安 / 資安威脅,サイバーセキュリティ,HIGH
+AI安全,AI Governance,AI治理 / AI倫理,AIガバナンス,MEDIUM
+硬體基礎,GPU / NPU,算力 / AI晶片,GPU / AI半導体,HIGH
+硬體基礎,CoWoS / Advanced Packaging,先進封裝 / 台積電,先進封裝,HIGH
+硬體基礎,Data Center AI,AI資料中心,AIデータセンター,MEDIUM
+硬體基礎,Terafab,Terafab / 晶圓廠,Terafab,LOW
+機器人,Humanoid Robot,人形機器人,人型ロボット,HIGH
+機器人,Physical AI,實體AI / 具身AI,フィジカルAI,HIGH
+機器人,Boston Dynamics / Figure,機器人商業化,ロボティクス商用化,MEDIUM
+企業應用,Enterprise AI,企業AI導入,企業向けAI,HIGH
+企業應用,AI ROI,AI投資回報率,AI ROI,HIGH
+企業應用,DX / Digital Transformation,數位轉型,DX / デジタルトランスフォーメーション,HIGH
+企業應用,Generative AI business,生成AI企業應用,生成AI活用,MEDIUM
+市場動態,AI IPO / Funding,AI新創 / 融資,AIスタートアップ,MEDIUM
+市場動態,TSMC / Semiconductor,台積電 / 半導體產業,半導体,HIGH
+市場動態,Stanford AI Index,AI指數報告,スタンフォードAI指数,LOW
+台灣產業,Taiwan AI,台灣AI產業,台湾AI,HIGH
+台灣產業,NVIDIA Taiwan,輝達 / 黃仁勳,NVIDIA,HIGH
+日本AI,Japan Sovereign AI,日本主權AI,日本主権AI,MEDIUM
+日本AI,SoftBank AI,軟銀AI,ソフトバンクAI,MEDIUM

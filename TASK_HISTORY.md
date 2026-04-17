@@ -388,3 +388,241 @@
 ---
 
 **慢工出細活。本編年史受 [.agent/rules.md] 保護，記載了我們對旗艦品質的最終堅持。**
+
+---
+
+### 🛰️ Phase 43：AI 情報雷達 Skill 正式建立與全域部署 (AI News Radar Skill)
+
+- **目標**：打造一個純情報蒐集型的 Agent Skill (`ai-news-radar`)，讓 AI 助理能夠從 9 大科技媒體（繁中 × 英文 × 日文）自動抓取最新 AI 動態，輸出繁體中文整合報告。
+- **觸發背景**：主公提供 9 個頂級媒體來源（INSIDE / 數位時代 / iThome / 科技新報 / 科技報橘 / VentureBeat / The Rundown AI / Ledge.ai / AINOW），要求以此素材建立可被未來對話重用的 Skill 模組。
+
+#### 核心技術實作
+
+**Skill 目錄結構（`.agent/skills/ai-news-radar/`）**
+```
+ai-news-radar/
+├── SKILL.md                     ← 主要指令文件（metadata + 工作流程 + CLI 速查）
+├── scripts/
+│   ├── fetch_news.py            ← 主爬蟲腳本（AINewsRadar + ReportFormatter）
+│   └── test_skill.py            ← 8 項自動化測試腳本（15/15 全通過）
+├── resources/
+│   ├── sources.json             ← 9 大媒體來源定義（id/name/url/language/region/ai_focus）
+│   └── keywords.csv             ← 29 條 AI 主題關鍵字庫（中/英/日三語，9 個類別）
+└── examples/
+    └── sample_output.md         ← 範例輸出報告（繁中整合格式）
+```
+
+**核心類別設計 (`fetch_news.py`)**
+```python
+@dataclass
+class NewsArticle:
+    title: str; summary: str; url: str
+    source_name: str; source_id: str
+    language: str; region: str; category: str
+    fetched_at: str; topics: List[str]
+
+class AINewsRadar:
+    # 使用現有 apify_client (apify/rag-web-browser Actor)
+    # 備援：httpx 直接爬取
+    async def run(self, lang="all", topic_filter=None, limit=3) -> List[NewsArticle]
+
+class ReportFormatter:
+    @staticmethod
+    def to_markdown(articles) -> str   # Markdown 整合報告
+    @staticmethod
+    def to_json(articles) -> str       # JSON 結構化輸出
+    @staticmethod
+    def to_summary(articles) -> str    # Line/Telegram 推播摘要
+```
+
+**Keywords 分類系統（`keywords.csv`）**
+```csv
+category,keyword_en,keyword_zh,keyword_ja,priority
+LLM模型,Claude,Claude / 大型語言模型,基盤モデル,HIGH
+AI代理,AI Agent / Agentic AI,AI代理 / 自動化工作流,AIエージェント,HIGH
+AI安全,AI Safety / AI Alignment,AI安全 / 可控AI,AIの安全性,HIGH
+硬體基礎,GPU / NPU,算力 / AI晶片,GPU / AI半導体,HIGH
+機器人,Humanoid Robot,人形機器人,人型ロボット,HIGH
+企業應用,Enterprise AI,企業AI導入,企業向けAI,HIGH
+台灣產業,Taiwan AI,台灣AI產業,台湾AI,HIGH
+```
+
+#### 自動化測試結果（15/15 全通過）
+
+| # | 測試項目 | 結果 |
+|---|---------|------|
+| 1 | sources.json 結構驗證（9 個來源） | ✅ PASS |
+| 2 | keywords.csv 結構驗證（29 條目，9 分類） | ✅ PASS |
+| 3 | apify_client、httpx、python-dotenv 匯入 | ✅ PASS（全3項） |
+| 4 | APIFY_TOKEN 環境變數讀取 | ✅ PASS（已設定） |
+| 5 | fetch_news.py 語法及類別存在驗證 | ✅ PASS |
+| 6 | AINewsRadar 初始化 + 語系過濾 + 主題偵測 | ✅ PASS（全3項） |
+| 7 | Markdown / JSON / 推播摘要格式輸出 | ✅ PASS（全3項） |
+| 8 | SKILL.md + sample_output.md 存在性 | ✅ PASS（全2項） |
+
+- **Python 執行環境**：`C:\Users\sammy\AppData\Local\Programs\Python\Python38-32\python.exe` (Python 3.8.5)
+- **PYTHONIOENCODING=utf-8**：需設定以正常顯示繁中 + Emoji
+
+#### 全域部署
+
+```
+C:\Users\sammy\.gemini\antigravity\skills\ai-news-radar\
+├── SKILL.md (7,569 bytes)
+├── examples\sample_output.md (4,237 bytes)
+├── resources\keywords.csv (2,054 bytes)
+├── resources\sources.json (2,479 bytes)
+└── scripts\
+    ├── fetch_news.py (16,713 bytes)
+    └── test_skill.py (13,581 bytes)
+```
+
+- **部署指令**：`Copy-Item` 遞迴複製至 `C:\Users\sammy\.gemini\antigravity\skills\ai-news-radar\`
+- **狀態**：✅ 全域 Skill 已就緒，可被任何對話視窗讀取調用
+
+#### CLI 常用速查
+```bash
+$py = "C:\Users\sammy\AppData\Local\Programs\Python\Python38-32\python.exe"
+$env:PYTHONIOENCODING = "utf-8"
+
+# 全語系 Markdown 日報
+& $py ".agent/skills/ai-news-radar/scripts/fetch_news.py" --format markdown
+
+# 台灣繁中推播摘要
+& $py ".agent/skills/ai-news-radar/scripts/fetch_news.py" --lang zh-TW --format summary
+
+# AI Agent 主題深掘
+& $py ".agent/skills/ai-news-radar/scripts/fetch_news.py" --topic "AI Agent" --limit 5
+
+# 存檔
+& $py ".agent/skills/ai-news-radar/scripts/fetch_news.py" --output data/reports/ai_news.md
+```
+
+---
+
+### 📱 Phase 44：多平台文案生成 Skill 建立與全域部署 (Instagram × Facebook × Dcard Platform Copywriter)
+
+- **目標**：打造一個對話式觸發的多平台文案生成 Agent Skill (`instagram-facebook-dcard-platform-copywriter`)，輸入一段原始素材，AI 依照固定品牌調性自動產出三平台合規文案，含 Hashtag、CTA，輸出結構化 JSON。
+- **觸發背景**：主公參考課程「多平台發文助手」最小實作版本，要求以 Antigravity Skill 架構實現，三平台定為 Instagram / Facebook / Dcard，調性定為「親切生活感 × 溫暖日常」，適用電商 / 科技 / 個人品牌。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 三平台選擇 | 各種平台組合 | **Instagram / Facebook / Dcard** | 主公指定，台灣市場主力 |
+| 品牌調性 | A親切生活感 / B年輕有梗 / C質感精緻 / D故事敘事 | **選項A：親切生活感 × 溫暖日常** | 萬用性最高，適合電商/科技/個人品牌 |
+| 觸發方式 | Python 腳本 / AI 對話觸發 | **AI 對話直接生成（方式B）** | 主公指定「自然語言觸發」，無需開終端機 |
+| JSON 格式 | 基本欄位 / 加入 CTA 欄位 | **加入 `cta` 欄位** | 讓輸出更完整，直接複製貼上可發文 |
+| 平台規則來源 | 自行定義 / 查閱官方規範 | **查閱官方規範 + 網路研究** | 依 Meta Community Standards、Instagram Shadowban 研究（2025）、Dcard 站規（2024/10更新）制定 |
+
+#### Skill 目錄結構（`.agent/skills/instagram-facebook-dcard-platform-copywriter/`）
+```
+instagram-facebook-dcard-platform-copywriter/
+├── SKILL.md                              ← 主指令文件（調性 + 流程 + 合規規則 + JSON格式）
+├── resources/
+│   ├── brand_voice.md                   ← 品牌調性說明書（推薦詞彙 / 禁止語氣 / 三平台字數基準）
+│   └── platform_rules.json              ← 三平台禁忌規則（官方來源 + hard_limits + cta_style）
+└── examples/
+    └── sample_output.json               ← 完整範例輸出（無線耳機素材，含CTA）
+```
+
+#### SKILL.md 核心生成流程
+```
+Step 1：理解素材（提取核心賣點 + 情境 + 目標讀者）
+Step 2：三平台分頭生成（語氣完全不同）
+  - Instagram：50-150字 + 5-10 Hashtag + Emoji + 互動問句 CTA
+  - Facebook：100-300字 + 故事感 + 溫和互動 CTA
+  - Dcard：20字標題 + 200-400字第一人稱心得 + 必含真實感缺點 + 閒聊 CTA
+Step 3：合規檢查（三平台各自禁止清單逐一核對）
+Step 4：輸出完整 JSON（meta / copies / compliance_check）
+```
+
+#### JSON 輸出格式（含 CTA 欄位，物理真相）
+```json
+{
+  "meta": {
+    "input_material": "原始素材摘要",
+    "generated_at": "ISO 8601",
+    "skill_version": "1.0.0",
+    "brand_tone": "親切生活感 × 溫暖日常"
+  },
+  "copies": {
+    "instagram": {
+      "caption": "正文（50-150字）",
+      "hashtags": ["#標籤"],
+      "char_count": 0,
+      "cta": "輕鬆互動問句 CTA",
+      "notes": "給主公的注意事項"
+    },
+    "facebook": {
+      "caption": "正文（100-300字，含故事感）",
+      "char_count": 0,
+      "cta": "溫和互動 CTA",
+      "notes": "注意事項"
+    },
+    "dcard": {
+      "title": "自然感標題（10-20字）",
+      "content": "正文（200-400字，含真實缺點）",
+      "char_count": 0,
+      "cta": "閒聊共鳴 CTA",
+      "notes": "注意事項"
+    }
+  },
+  "compliance_check": {
+    "passed": true,
+    "warnings": [],
+    "reminder": "業配聲明提醒文字（Dcard 未揭露永久停權風險）"
+  }
+}
+```
+
+#### 三平台禁忌規則（`platform_rules.json`，基於官方規範）
+
+| 平台 | 關鍵禁忌 | 來源 |
+|------|---------|------|
+| Instagram | Shadowban Hashtag（#single #dating #dm #teen 等）、PG-13新政、性暗示 | tameladamico.com 2025 / Meta Community Standards |
+| Facebook | 政治立場、誇大醫療保證、仇恨歧視、誘導互刷 | Meta Community Standards（transparency.meta.com）|
+| Dcard | 直接銷售話術、未標示業配（永久停權）、外部商業連結、全正面業配語氣 | Dcard 廣告商業內容規範公告（2024/10）|
+| 三平台共通 | 絕對保證語、誇大緊迫感、自傷暴力歧視 | 各平台通用規範 |
+
+#### 自動化測試結果（11/11 全通過）
+
+| # | 測試項目 | 結果 |
+|---|---------|------|
+| 1 | SKILL.md 存在且包含所有關鍵字 | ✅ PASS (6,206 bytes) |
+| 2 | brand_voice.md 存在 | ✅ PASS (1,968 bytes) |
+| 3 | platform_rules.json 三平台結構正確 | ✅ PASS |
+| 4 | platform_rules.json 含 hard_limits + cta_style | ✅ PASS |
+| 5 | platform_rules.json 含 5 條 universal_limits | ✅ PASS |
+| 6 | sample_output.json compliance_check 結構正確 | ✅ PASS |
+| 7 | sample_output.json 所有欄位格式正確（含CTA）| ✅ PASS |
+| 8-11 | 目錄結構完整性（4檔全存在）| ✅ PASS（全4項）|
+
+#### 全域部署清單
+
+```
+C:\Users\sammy\.gemini\antigravity\skills\
+instagram-facebook-dcard-platform-copywriter\
+├── SKILL.md                          (6,206 bytes)
+├── examples\sample_output.json       (3,262 bytes)
+└── resources\
+    ├── brand_voice.md                (1,968 bytes)
+    └── platform_rules.json           (3,576 bytes)
+```
+
+- **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\`
+- **狀態**：✅ 全域 Skill 已就緒
+
+#### 觸發速查
+
+```
+說：「幫我把這段文字改成三平台文案：[素材]」
+→ AI 讀 SKILL.md → 生成三平台文案 → 輸出完整 JSON
+```
+
+#### 全域 Skills 現況（截至 Phase 44）
+
+```
+C:\Users\sammy\.gemini\antigravity\skills\
+├── ai-news-radar\                                         ← Phase 43
+└── instagram-facebook-dcard-platform-copywriter\          ← Phase 44（本次）
+```

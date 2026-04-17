@@ -1,0 +1,85 @@
+{
+  "sources": [
+    {
+      "id": "inside",
+      "name": "INSIDE 硬塞的網路趨勢觀察",
+      "url": "https://www.inside.com.tw/",
+      "language": "zh-TW",
+      "category": "tech-trend",
+      "region": "taiwan",
+      "ai_focus": ["LLM", "AI政策", "新創", "科技趨勢"]
+    },
+    {
+      "id": "bnext",
+      "name": "數位時代 Business Next",
+      "url": "https://www.bnext.com.tw/",
+      "language": "zh-TW",
+      "category": "business-tech",
+      "region": "taiwan",
+      "ai_focus": ["AI工具教學", "半導體", "企業數位轉型", "商業科技"]
+    },
+    {
+      "id": "ithome",
+      "name": "iThome",
+      "url": "https://www.ithome.com.tw/",
+      "language": "zh-TW",
+      "category": "it-security",
+      "region": "taiwan",
+      "ai_focus": ["資安", "AI Agent", "企業IT", "雲端運算"]
+    },
+    {
+      "id": "technews",
+      "name": "科技新報 TechNews",
+      "url": "https://technews.tw/",
+      "language": "zh-TW",
+      "category": "deep-tech",
+      "region": "taiwan",
+      "ai_focus": ["半導體", "AI硬體", "深度分析", "晶片"]
+    },
+    {
+      "id": "techorange",
+      "name": "科技報橘 TechOrange",
+      "url": "https://buzzorange.com/techorange/",
+      "language": "zh-TW",
+      "category": "innovation",
+      "region": "taiwan",
+      "ai_focus": ["Physical AI", "機器人", "新興趨勢", "數位轉型"]
+    },
+    {
+      "id": "venturebeat",
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/",
+      "language": "en",
+      "category": "enterprise-ai",
+      "region": "global",
+      "ai_focus": ["企業AI部署", "AI Agent架構", "融資", "AI研究"]
+    },
+    {
+      "id": "therundown",
+      "name": "The Rundown AI",
+      "url": "https://www.therundown.ai/",
+      "language": "en",
+      "category": "ai-newsletter",
+      "region": "global",
+      "ai_focus": ["每日AI快報", "AI工具", "商業應用", "LLM動態"]
+    },
+    {
+      "id": "ledgeai",
+      "name": "Ledge.ai",
+      "url": "https://ledge.ai/",
+      "language": "ja",
+      "category": "ai-news",
+      "region": "japan",
+      "ai_focus": ["AI安全", "日本主權AI", "企業案例", "AI政策"]
+    },
+    {
+      "id": "ainow",
+      "name": "AINOW",
+      "url": "https://ainow.ai/",
+      "language": "ja",
+      "category": "ai-education",
+      "region": "japan",
+      "ai_focus": ["AI導入實務", "DX推進", "生成AI", "企業ROI"]
+    }
+  ]
+}
