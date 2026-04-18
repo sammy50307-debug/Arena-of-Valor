@@ -754,3 +754,50 @@ class SemanticCacheShield:
 #### 全域部署清單
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\semantic-cache-shield`
 - **狀態**：✅ 本地專案端與全域端的神盾系統已就位。
+
+---
+
+### 🛡️ Phase 47：思維鏈與結構化萃取器 Skill 實作與全域部署 (CoT Prompt Compactor / Milestone 1)
+
+- **目標**：原先的 `analyzer/prompts.py` 為了要求 LLM 以特定格式輸出，不得不在 Prompt 內部寫入龐大的 JSON Schema 範例與警告語。這不僅長期霸佔高昂的 Token，也難以保證 `json.loads` 絕對不報錯。本階段我們將其拆解為嚴格的 Pydantic 模型，啟動 Structured Outputs 特性。
+- **觸發背景**：遵循 Milestone 1 的第二步工作指派。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 結構化套件 | Python `typing` / `marshmallow` / `pydantic` | **`pydantic`** | 現今各大 LLM (含 Gemini / OpenAI) 最完美支援的 Schema 產生器，能直接轉為 `response_schema`。 |
+| Prompt 改造 | 保留範例 / 徹底刪除格式設定 | **徹底刪除格式設定** | 將「你必須以 JSON 回覆...」等冗長字眼全數刪除，只留下最純粹的「情境教學 (Few-shot)」與「分析職責」。 |
+
+#### Skill 目錄結構（`.agent/skills/cot-prompt-compactor/`）
+```
+cot-prompt-compactor/
+├── SKILL.md                 ← 技能指令說明
+├── scripts/
+│   ├── compactor.py         ← 已經過「抽脂」處理的純淨版 SYSTEM PROMPT
+│   └── prompts_schema.py    ← 完整對接 `analyzer/prompts.py` 的 Pydantic 物件庫
+└── test_skill.py            ← 自動化驗證 Pydantic Validation 與 Token 壓縮率
+```
+
+#### 核心類別設計 (`prompts_schema.py`)
+```python
+class SinglePostAnalysisSchema(BaseModel):
+    reasoning: str = Field(description="簡短推論，先在此判斷真實意圖與潛台詞（尤其是反諷）。")
+    sentiment: Literal["positive", "negative", "neutral"]
+    is_hero_focus: bool
+    # ...等總計 11 項嚴格屬性
+
+class DailySummarySchema(BaseModel):
+    # 包含了巢狀的 RegionInsight、HotTopic 等深度檢驗物件
+```
+
+#### 自動化檢驗與 Token 壓縮數據
+執行 `test_skill.py`：
+- ✅ **Pydantic Validation**：成功通過嚴格的 Type Checking 與強制轉型檢查。
+- **舊版 System Prompt 長度**: 1435 chars
+- **瘦身版 System Prompt 長度**: 539 chars
+- **純文字 Token 節省**: **62.44%** 
+
+#### 全域部署清單
+- **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\cot-prompt-compactor`
+- **狀態**：✅ 本地落實完備。
