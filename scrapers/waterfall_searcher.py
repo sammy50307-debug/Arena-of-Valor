@@ -94,6 +94,16 @@ class WaterfallSearcher:
         - 若源回傳空結果   → 記錄並切換下一個（網路問題也繼續嘗試）
         """
         for name, source in self._sources:
+            # Phase 57：付費源呼叫前先檢查守衛
+            guardian = getattr(source, "guardian", None)
+            if guardian is not None and guardian.should_fallback():
+                st = guardian.status()
+                self.logger.warning(
+                    f"[Waterfall] ⚠️  {name} 額度守衛觸發 "
+                    f"({st['used']}/{st['limit']}, {st['percent']}%)，主動跳過"
+                )
+                continue
+
             try:
                 self.logger.info(f"[Waterfall] 嘗試搜尋源：{name}")
                 results = await source.search(max_results_per_region=max_results_per_region)

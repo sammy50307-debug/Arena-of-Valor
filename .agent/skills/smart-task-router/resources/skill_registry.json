@@ -100,6 +100,15 @@
       "task_type": "scrape",
       "keywords": ["搜尋", "search", "備援", "fallback", "輪用", "額度", "quota", "tavily", "ddg", "瀑布"],
       "description": "Tavily 額度耗盡時自動切換至 DDG 免費搜尋，確保日報不中斷"
+    },
+    {
+      "id": "api-quota-guardian",
+      "name": "API 額度守衛",
+      "milestone": 4,
+      "phase": 57,
+      "task_type": "monitor",
+      "keywords": ["額度", "quota", "守衛", "guardian", "配額", "限額", "預警", "monitor", "tavily", "用量"],
+      "description": "持久化追蹤 Tavily 月用量，80%/95% 門檻警示並驅動瀑布鏈主動切換"
     }
   ],
   "task_type_map": {
@@ -109,6 +118,7 @@
     "compress": "壓縮最佳化類 — 縮減輸入體積",
     "validate": "品管驗證類 — 確認輸出品質",
     "route": "任務調度類 — 分配工作流程",
-    "deploy": "部署發布類 — 輸出成果至外部系統"
+    "deploy": "部署發布類 — 輸出成果至外部系統",
+    "monitor": "監測守衛類 — 觀察系統健康與資源用量"
   }
 }

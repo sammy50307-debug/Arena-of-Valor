@@ -1363,3 +1363,47 @@ scrapers/
 ```
 
 - **狀態**：✅ Phase 56 完成，Milestone 4 第一個特種兵上線。
+
+---
+
+### 🛠️ Phase 57：API 額度守衛 (API Quota Guardian)
+
+**核心痛點解決**：原本只能等 Tavily 回傳 429 才發現額度耗盡（被動），現在事前主動追蹤用量並在達門檻時讓瀑布鏈預先切換。
+
+#### 三層門檻
+| 區間 | verdict | 行為 |
+|------|---------|------|
+| 0% ~ 79% | OK | 正常呼叫 |
+| 80% ~ 94% | WARN | 日誌警告 |
+| 95% ~ 100% | CRITICAL | `should_fallback()=True`，瀑布鏈主動跳過 Tavily |
+
+#### 狀態持久化 `data/quota_state.json`
+```json
+{
+  "tavily": { "month": "2026-04", "used": 42, "limit": 1000 }
+}
+```
+每月第一次呼叫時自動 rollover（`month` 不同 → used 歸零）。
+
+#### 整合點
+| 檔案 | 變更 |
+|------|------|
+| `scrapers/tavily_searcher.py` | `__init__` 載入 Guardian；每次 `_search_keyword` 成功後 `record(1)` |
+| `scrapers/waterfall_searcher.py` | 呼叫源前檢查 `guardian.should_fallback()`，True 則 `continue` 跳過 |
+
+#### 月額度參數
+- 預設 `1000`（Tavily 免費方案）
+- 可透過 `.env` 的 `TAVILY_MONTHLY_LIMIT` 覆寫
+
+#### 測試結果
+```
+✅ PASS  初始狀態：used=0 / verdict=OK
+✅ PASS  record 累加：3+2=5
+✅ PASS  79%=OK, 80%=WARN
+✅ PASS  94%=WARN/should_fallback=False, 95%=CRITICAL/True
+✅ PASS  持久化：新實例讀檔 used=42
+✅ PASS  月份 rollover：1999-01 舊資料自動歸零
+6/6 通過
+```
+
+- **狀態**：✅ Phase 57 完成，Milestone 4 第二個特種兵上線。瀑布鏈具備「事前主動切換」能力。

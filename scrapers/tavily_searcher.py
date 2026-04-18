@@ -44,6 +44,27 @@ class TavilySearcher:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or config.TAVILY_API_KEY
         self.logger = logging.getLogger(f"{__name__}.TavilySearcher")
+        # API Quota Guardian 整合（Phase 57）
+        try:
+            from importlib import util
+            from pathlib import Path
+            spec = util.spec_from_file_location(
+                "guardian",
+                Path(__file__).resolve().parent.parent
+                / ".agent" / "skills" / "api-quota-guardian"
+                / "scripts" / "guardian.py",
+            )
+            g_mod = util.module_from_spec(spec)
+            spec.loader.exec_module(g_mod)
+            monthly_limit = int(
+                __import__("os").getenv("TAVILY_MONTHLY_LIMIT", "1000")
+            )
+            self.guardian = g_mod.APIQuotaGuardian(
+                provider="tavily", monthly_limit=monthly_limit
+            )
+        except Exception as e:
+            self.logger.debug(f"Guardian 載入失敗（略過）: {e}")
+            self.guardian = None
 
     async def search(
         self,
@@ -70,6 +91,12 @@ class TavilySearcher:
                         results = await self._search_keyword(
                             client, keyword, max_results_per_region // len(keywords), region
                         )
+                        # Phase 57：每次成功呼叫記錄一次額度
+                        if self.guardian:
+                            try:
+                                self.guardian.record(1)
+                            except Exception:
+                                pass
                         for r in results:
                             if r.url not in seen_urls:
                                 seen_urls.add(r.url)
