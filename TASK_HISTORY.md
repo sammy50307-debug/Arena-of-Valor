@@ -836,6 +836,38 @@ auto-proxy-evader/
   - 最終回報達最大次數才安全放棄，保護外殼完美運作。
 - **狀態**：✅ 測試全數通過，Milestone 1 三大防護機制全面竣工。
 
-#### 全域部署清單
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\auto-proxy-evader`
+- **狀態**：✅ 本地落實完備。
+
+---
+## 👑 【霸業擴張期間 Milestone 2 深度滲透】
+
+### 🛡️ Phase 49：動態網頁渲染刺客 Skill 實作與全域部署 (Firecrawl Dynamic Breacher)
+
+- **目標**：原先的爬蟲如果遇到嚴重依賴 JavaScript 動態渲染的系統 (SPA)，往往只能拿到無用的空標籤。為了解決這個瓶頸，同時避免拖垮本地算力，我們將攻堅任務丟入 Firecrawl API 的無頭伺服器叢集，直接換取高品質的 Markdown 情報。
+- **觸發背景**：MileStone 2 首次出擊 (由「自動批准協定」認可了不自行安裝 Playwright 的輕量化戰略)。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 渲染解決方案 | 自行安裝 `Playwright` + Chromium / Firecrawl (REST) 計畫 | **方案 A（Firecrawl API 路由）** | 開源專案需顧及可攜性，若本機硬裝幾百 MB 的內核與相關依賴容易使得布署崩潰。改接雲端算力對抗反爬盾並抽取純 Markdwon，既乾淨且穩定。 |
+| 備援機制 | 不作為 | **原生靜態備援** | 若缺乏 API Key，智能退階改用原生的 Request 直打，以免系統停擺。 |
+
+#### Skill 目錄結構（`.agent/skills/firecrawl-dynamic-breacher/`）
+```
+firecrawl-dynamic-breacher/
+├── SKILL.md                 ← 技能攻堅說明
+├── scripts/
+│   └── breacher.py         ← `FirecrawlBreacher` 類別封裝，提供 `breach_and_extract`
+└── test_skill.py            ← 向下相容測試與 API 發送模擬
+```
+
+#### 自動化檢驗結果
+執行 `test_skill.py` 驗證：
+- 在未設置 API_KEY 環境變數時，系統精準抓出了例外，並成功切換至靜態備援模式，直通目標網站取得 DOM。
+- 日後若佈署 `FIRECRAWL_API_KEY`，系統會自動在 payload 指定 `formats=markdown` 與 `waitFor=3000` 來穿透 JS 陣列，達成完美渲染刺殺。
+
+#### 全域部署清單
+- **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\firecrawl-dynamic-breacher`
 - **狀態**：✅ 本地落實完備。

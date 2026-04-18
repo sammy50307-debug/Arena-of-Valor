@@ -1,4 +1,10 @@
 import py_compile
+import sys
+
+# 強制 Windows 終端機輸出 UTF-8，防止亂碼
+if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 try:
     py_compile.compile('analyzer/gemini_client.py', doraise=True)
     print("gemini ok")

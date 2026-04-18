@@ -22,6 +22,11 @@ import logging
 import argparse
 import sys
 import os
+
+# 強制 Windows 終端機輸出 UTF-8，防止亂碼
+if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
