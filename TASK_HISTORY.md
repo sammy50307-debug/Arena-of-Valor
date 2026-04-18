@@ -871,3 +871,37 @@ firecrawl-dynamic-breacher/
 #### 全域部署清單
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\firecrawl-dynamic-breacher`
 - **狀態**：✅ 本地落實完備。
+
+---
+
+### 🛡️ Phase 50：輿情核爆異常觀測儀 Skill 實作與全域部署 (Trend Anomaly Detector / Milestone 2)
+
+- **目標**：日報產出速度跟不上社群炎上速度，因為缺乏即時監控機制。此觀測儀將純粹依賴數學模型，不經過耗時的 LLM，瞬間捕捉突發的「流量暴增」與「情緒負偏」，並能吐出 1~3 級別的警戒信號。
+- **觸發背景**：完成 Milestone 2 第一目標後，接續推進。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 核心演算法 | 移動平均 (Moving Avg) / **標準分 (Z-Score)** | **標準分 (Z-Score)** | 移動平均只能看出趨勢，但無法嚴格定義「多嚴重才叫炎上」。Z-Score 透過衡量距離平均值多少個標準差 (Sigma)，若 >= 3.0 代表統計學上的極端離群值發生，是最適合炎上告警的模型。 |
+| 套件依賴 | `numpy` / 原生 Python | **原生 Python `math`** | 防禦模組應保持輕量。幾百筆數字的陣列計算，原生的 List 運算與 `math.sqrt` 已是毫秒級別，不需安裝肥大的 DataFrame 套件。 |
+
+#### Skill 目錄結構（`.agent/skills/trend-anomaly-detector/`）
+```
+trend-anomaly-detector/
+├── SKILL.md                 ← 技能攻堅說明與閾值設計
+├── scripts/
+│   └── anomaly_detector.py  ← `TrendAnomalyDetector` 類別封裝，提供 `detect` 診斷功能
+└── test_skill.py            ← 模擬平穩的過去 7 天數據與突發的暴漲流量點測試
+```
+
+#### 自動化檢驗結果
+執行 `test_skill.py` 驗證：
+- 模擬過去 7 天極度平穩的討論聲量（平均約 50，標準差 2.16）。
+- **測試一**：當天湧入 55 篇文。判定 Z-Score = 2.31，觸發 `YELLOW_ALERT (異常增溫)`。
+- **測試二**：當天湧入 200 篇文 (模擬官方亂改版)。判定 Z-Score = 69.44，觸發極端 `RED_ALERT (輿情核爆)`。
+- 防呆設計驗證：分母 (標準差) 為 0 時，能自動攔截並賦予 `999.0` 極大值，避免系統崩潰。
+
+#### 全域部署清單
+- **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\trend-anomaly-detector`
+- **狀態**：✅ 本地落實完備。
