@@ -941,3 +941,304 @@ class AsyncSynthesizer:
 #### 全域部署清單
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\multi-thread-synthesizer`
 - **狀態**：✅ 本地落實完備。Milestone 2 已全面竣工！
+
+---
+
+## 👑 【霸業擴張期間 Milestone 3 指揮所與自動化】
+
+### 🏛️ Phase 52：AI 幻覺裁判 Skill 實作與全域部署 (Hallucination Judge / Milestone 3)
+
+- **目標**：防止 AI 在生成每日戰情報告時，捏造不存在的英雄名稱（如「滅世龍帝」）或產出荒謬數值（勝率 150%、情緒分數 2.5），以三層防線確保每份戰報的資料品質。
+- **觸發背景**：Milestone 3 首支特種兵，解決 AI 幻覺污染戰報品質的核心痛點。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 英雄名稱比對 | LLM 語意判斷 / 白名單比對 | **官方白名單 JSON 比對** | 不浪費 LLM Token 在名稱校驗上；白名單可隨官方更新直接擴充，維護成本最低。 |
+| 數值校驗 | 人工設定邊界 / 正規表達式自動擷取 | **正規表達式擷取 + 邊界比對** | 能自動從文本中擷取多種格式的數值，不依賴固定 JSON 結構，泛用性更高。 |
+| 幻覺模式 | 無 / 預設模式庫 | **正則模式庫 (`HALLUCINATION_PATTERNS`)** | 能捕捉 LLM 常見的誇大敘述（三位數勝率、分數超過 1）等固定語言特徵。 |
+
+#### Skill 目錄結構（`.agent/skills/hallucination-judge/`）
+```
+hallucination-judge/
+├── SKILL.md                        ← 技能說明文件
+├── scripts/
+│   └── judge.py                    ← HallucinationJudge 主類別（三層防線邏輯）
+├── resources/
+│   └── hero_whitelist.json         ← 官方英雄白名單（中英文，涵蓋 5 大職業）
+└── test_skill.py                   ← 5 項自動化測試
+```
+
+#### 核心類別設計 (`judge.py`)
+```python
+class HallucinationJudge:
+    def check_hero_names(self, text: str) -> Dict:
+        # 第一層：擷取文本中英雄提及，比對官方白名單，回傳未知英雄清單
+
+    def check_numeric_bounds(self, text: str) -> Dict:
+        # 第二層：正則擷取 sentiment_score / 勝率 / 負面比例，校驗是否越界
+
+    def check_hallucination_patterns(self, text: str) -> Dict:
+        # 第三層：正則比對預設幻覺特徵模式（三位數勝率等）
+
+    def judge(self, text: str) -> Dict:
+        # 整合三層結果，輸出 verdict(PASS/WARN/FAIL) + confidence_score(0~100)
+```
+
+#### 英雄白名單（`hero_whitelist.json` 物理真相）
+```json
+{
+  "version": "1.0.0",
+  "heroes": {
+    "warriors": ["亞瑟", "Arthur", "泰坦", "Thane", "超人", "Superman", "蝙蝠俠", "Batman", ...],
+    "assassins": ["飛燕", "Butterfly", "蒙奇", "Murad", "影魂", "Keera", ...],
+    "mages": ["芽芽", "Yena", "皮皮", "Pepe", "露西亞", "Lucia", ...],
+    "marksmen": ["蒙泰爾", "Yorn", "鳳蝶", "Laville", "驚雷", "Violet", ...],
+    "supports": ["小鷺", "Alice", "小精靈", "Flicker", "心醫", "Krizzix", ...]
+  },
+  "all_names": [ ...共 80+ 個中英文英雄名稱... ]
+}
+```
+
+#### 輸出格式（物理真相）
+```json
+{
+  "verdict": "PASS | WARN | FAIL",
+  "confidence_score": 100,
+  "issues": [],
+  "details": {
+    "hero_check": { "unknown_heroes": [], "known_heroes": ["芽芽"], "passed": true },
+    "numeric_check": { "violations": [], "passed": true },
+    "pattern_check": { "triggered_patterns": [], "passed": true }
+  }
+}
+```
+
+#### 扣分邏輯（物理真相）
+- **未知英雄**：每發現一個，`confidence_score -= 20`
+- **數值越界**：每發現一個，`confidence_score -= 25`
+- **幻覺模式觸發**：每發現一個，`confidence_score -= 15`
+- `confidence_score >= 60` → WARN；`< 60` → FAIL
+
+#### 自動化測試結果（5/5 全通過）
+
+| # | 測試情境 | 輸入 | 預期判定 | 結果 |
+|---|---------|------|---------|------|
+| 1 | 乾淨正常戰報 | 合法英雄 + 合法數值 | PASS / 100分 | ✅ |
+| 2 | 假英雄名稱 | 「滅世龍帝」「暗黑審判者」 | 偵測未知英雄 | ✅ WARN / 60分 |
+| 3 | 情緒分數越界 | `sentiment_score: 1.95` | 數值違規 | ✅ WARN / 75分 |
+| 4 | 勝率幻覺 | 「勝率高達 150%」 | 幻覺模式觸發 | ✅ WARN / 75分 |
+| 5 | 合法英雄+數值 | 飛燕/超人 + -0.3 + 45% | PASS / 100分 | ✅ |
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`re`, `json`），零外部依賴
+
+#### 本地部署清單
+```
+D:\Coding Project\Arena of Valor\.agent\skills\
+hallucination-judge\
+├── SKILL.md
+├── scripts\
+│   └── judge.py
+├── resources\
+│   └── hero_whitelist.json
+└── test_skill.py
+```
+- **狀態**：✅ 本地落實完備，Milestone 3 第一支特種兵上線！
+
+---
+
+### 🧭 Phase 53：智能任務路由器 Skill 實作與全域部署 (Smart Task Router / Milestone 3)
+
+- **目標**：在擁有 10 支特種兵後，讓戰情室大腦能根據自然語言描述自動判斷任務類型，精準分派最適合的特種兵，無需人工判斷。
+- **觸發背景**：Milestone 3 第二支特種兵，解決「10 支特種兵選擇困難」的調度問題。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 路由演算法 | LLM 語意分類 / 關鍵字評分 | **關鍵字評分 (Keyword Scoring)** | 10 支技能的邊界清晰，關鍵字比對已足夠精準，且無需消耗 LLM Token，速度極快。 |
+| 技能冊格式 | 寫死在 Python / 分離 JSON | **分離為 `skill_registry.json`** | 新增 Milestone 4+ 的技能時，只需更新 JSON 檔，無需修改 Python 邏輯。 |
+| 推薦數量 | 只回傳第一名 / TOP-N | **TOP-3 候選 + 信心等級** | 面對模糊任務描述，提供候選清單讓使用者自行選擇，比強行給答案更實用。 |
+
+#### Skill 目錄結構（`.agent/skills/smart-task-router/`）
+```
+smart-task-router/
+├── SKILL.md
+├── scripts/
+│   └── router.py                 ← SmartTaskRouter 主類別
+├── resources/
+│   └── skill_registry.json       ← 10 支特種兵登記冊（含關鍵字與任務類型）
+└── test_skill.py                 ← 6 項自動化測試
+```
+
+#### 核心類別設計 (`router.py`)
+```python
+class SmartTaskRouter:
+    def _score_skill(self, skill: Dict, query: str) -> int:
+        # 計算一個 skill 與 query 的關鍵字匹配分數
+
+    def route(self, query: str, top_n: int = 3) -> Dict:
+        # 核心路由邏輯：評分 → 排序 → 回傳 TOP-N 推薦 + 信心等級
+
+    def list_all_skills(self) -> List[Dict]:
+        # 列出所有已登記的特種兵（供查詢用）
+```
+
+#### 技能冊（`skill_registry.json` 物理真相，共 10 支）
+```json
+{
+  "skills": [
+    { "id": "html-markdown-distiller", "milestone": 1, "phase": 45, "task_type": "scrape",
+      "keywords": ["html", "網頁", "廣告", "雜訊", "markdown", "蒸餾", ...] },
+    { "id": "semantic-cache-shield",   "milestone": 1, "phase": 46, "task_type": "cache",
+      "keywords": ["快取", "cache", "重複", "洗版", "攔截", ...] },
+    { "id": "cot-prompt-compactor",    "milestone": 1, "phase": 47, "task_type": "compress",
+      "keywords": ["prompt", "提示詞", "壓縮", "pydantic", ...] },
+    { "id": "auto-proxy-evader",       "milestone": 1, "phase": 48, "task_type": "scrape",
+      "keywords": ["403", "429", "封鎖", "user-agent", "退避", ...] },
+    { "id": "firecrawl-dynamic-breacher", "milestone": 2, "phase": 49, "task_type": "scrape",
+      "keywords": ["spa", "javascript", "動態", "渲染", "firecrawl", ...] },
+    { "id": "trend-anomaly-detector",  "milestone": 2, "phase": 50, "task_type": "analyze",
+      "keywords": ["異常", "z-score", "炎上", "核爆", "警報", ...] },
+    { "id": "multi-thread-synthesizer","milestone": 2, "phase": 51, "task_type": "scrape",
+      "keywords": ["並行", "asyncio", "多線程", "多平台", "加速", ...] },
+    { "id": "hallucination-judge",     "milestone": 3, "phase": 52, "task_type": "validate",
+      "keywords": ["幻覺", "驗證", "英雄", "錯誤", "準確", ...] },
+    { "id": "smart-task-router",       "milestone": 3, "phase": 53, "task_type": "route",
+      "keywords": ["路由", "分派", "任務", "判斷", "選擇", ...] },
+    { "id": "hot-deployer",            "milestone": 3, "phase": 54, "task_type": "deploy",
+      "keywords": ["部署", "deploy", "github", "git", "報表", "看板", ...] }
+  ],
+  "task_type_map": {
+    "scrape": "情報收集類", "analyze": "分析研判類", "cache": "快取管理類",
+    "compress": "壓縮最佳化類", "validate": "品管驗證類",
+    "route": "任務調度類", "deploy": "部署發布類"
+  }
+}
+```
+
+#### 自動化測試結果（6/6 全通過）
+
+| # | 輸入任務描述 | 預期路由 | 信心 | 結果 |
+|---|------------|---------|------|------|
+| 1 | 「IG/FB SPA 動態渲染爬取」 | firecrawl-dynamic-breacher | HIGH | ✅ |
+| 2 | 「攔截重複洗版貼文節省費用」 | semantic-cache-shield | HIGH | ✅ |
+| 3 | 「論壇炎上聲量爆衝即時警報」 | trend-anomaly-detector | HIGH | ✅ |
+| 4 | 「報表推送 GitHub 部署看板」 | hot-deployer | HIGH | ✅ |
+| 5 | 「AI 生成戰報英雄名稱驗證」 | hallucination-judge | HIGH | ✅ |
+| 6 | 技能冊完整性（10 個） | 10 個 skill | — | ✅ |
+
+- **相依套件**：純標準庫（`json`, `pathlib`），零外部依賴
+
+#### 本地部署清單
+```
+D:\Coding Project\Arena of Valor\.agent\skills\
+smart-task-router\
+├── SKILL.md
+├── scripts\
+│   └── router.py
+├── resources\
+│   └── skill_registry.json
+└── test_skill.py
+```
+- **狀態**：✅ 本地落實完備，Milestone 3 第二支特種兵上線！
+
+---
+
+### 🚀 Phase 54：熱部署儀 Skill 實作與全域部署 (Hot Deployer / Milestone 3)
+
+- **目標**：將整個「生成報表 → 同步備份 → 更新索引 → 部署看板」的流程全面自動化，讓每次 `main.py` 跑完後，戰情看板立即反映最新戰報，無需人工介入。
+- **觸發背景**：Milestone 3 壓軸特種兵，Milestone 3 **全面竣工**。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 報表偵測方式 | 監聽檔案系統事件 / 按修改時間排序 | **`stat().st_mtime` 排序取最新** | 輕量無依賴；`watchdog` 套件需常駐程式，過於重量，不符合「單次觸發」的使用場景。 |
+| Git 操作 | `gitpython` 套件 / `subprocess` 呼叫 | **`subprocess` 呼叫原生 git** | 不引入第三方依賴，且 `subprocess` 可完整捕捉 stdout/stderr 用於狀態判斷。 |
+| dry_run 設計 | 無 / 必要參數 | **`dry_run=True` 為測試預設值** | 確保測試環境不會意外推送假報表至 GitHub；正式使用時明確傳入 `False`。 |
+
+#### Skill 目錄結構（`.agent/skills/hot-deployer/`）
+```
+hot-deployer/
+├── SKILL.md
+├── scripts/
+│   └── deployer.py   ← HotDeployer 主類別（4 步驟完整部署流程）
+└── test_skill.py     ← 4 項自動化測試（dry_run 模式）
+```
+
+#### 核心類別設計 (`deployer.py`)
+```python
+class HotDeployer:
+    def find_latest_report(self) -> Optional[Path]:
+        # 掃描 data/reports/，依 mtime 排序，回傳最新 HTML 戰報路徑
+
+    def sync_to_previews(self, report_path: Path) -> Path:
+        # shutil.copy2 同步至 ui_previews/，並自動補全 yaya_bg.png
+
+    def update_index(self, report_path: Path) -> bool:
+        # 正規表達式替換 index.html 中指向舊報表的連結
+
+    def git_push(self, report_path: Path) -> Dict:
+        # git add → commit（含時間戳） → push；dry_run 時跳過並回傳 skipped
+
+    def deploy(self) -> Dict:
+        # 一鍵整合上述四步，回傳完整部署結果報告
+```
+
+#### 完整部署輸出（物理真相）
+```json
+{
+  "status": "success",
+  "report": "aov_report_2026-04-19.html",
+  "synced_to": "ui_previews/aov_report_2026-04-19.html",
+  "index_updated": true,
+  "git": {
+    "status": "success",
+    "commit_message": "deploy: 自動熱部署戰報 aov_report_2026-04-19.html [2026-04-19 09:00:00]"
+  },
+  "dry_run": false,
+  "deployed_at": "2026-04-19T09:00:00"
+}
+```
+
+#### 自動化測試結果（4/4 全通過）
+
+| # | 測試項目 | 驗證重點 | 結果 |
+|---|---------|---------|------|
+| 1 | 偵測最新報表 | 找到 `aov_report_2026-04-05.html` | ✅ |
+| 2 | 同步至 ui_previews | `shutil.copy2` 正確複製至臨時目標 | ✅ |
+| 3 | dry_run Git 攔截 | `git_push` 回傳 `skipped` + dry_run 原因 | ✅ |
+| 4 | 完整部署流程 (dry_run) | `deploy()` 完整執行，git 狀態為 `skipped` | ✅ |
+
+- **相依套件**：純標準庫（`shutil`, `subprocess`, `pathlib`），零外部依賴
+
+#### 本地部署清單
+```
+D:\Coding Project\Arena of Valor\.agent\skills\
+hot-deployer\
+├── SKILL.md
+├── scripts\
+│   └── deployer.py
+└── test_skill.py
+```
+- **狀態**：✅ 本地落實完備。**Milestone 3 已全面竣工！霸業擴張 9 大特種兵完整部署完成！**
+
+---
+
+### 🏆 霸業擴張總藍圖最終完成紀錄
+
+| Milestone | 任務 | Phase | 特種兵 | 狀態 |
+|----------|------|-------|-------|------|
+| M1 地基固化 | HTML 淨化 | 45 | html-markdown-distiller | ✅ |
+| M1 地基固化 | 語意快取 | 46 | semantic-cache-shield | ✅ |
+| M1 地基固化 | 提示詞壓縮 | 47 | cot-prompt-compactor | ✅ |
+| M1 地基固化 | 抗封鎖偽裝 | 48 | auto-proxy-evader | ✅ |
+| M2 深度滲透 | 動態渲染 | 49 | firecrawl-dynamic-breacher | ✅ |
+| M2 深度滲透 | 異常觀測 | 50 | trend-anomaly-detector | ✅ |
+| M2 深度滲透 | 跨維度聚合 | 51 | multi-thread-synthesizer | ✅ |
+| M3 指揮所 | 幻覺裁判 | 52 | hallucination-judge | ✅ |
+| M3 指揮所 | 任務路由 | 53 | smart-task-router | ✅ |
+| M3 指揮所 | 熱部署儀 | 54 | hot-deployer | ✅ |

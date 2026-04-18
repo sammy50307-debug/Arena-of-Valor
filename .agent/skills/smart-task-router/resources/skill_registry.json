@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "description": "芽芽戰情室所有特種兵技能登記冊，供智能任務路由器查詢分派",
+  "skills": [
+    {
+      "id": "html-markdown-distiller",
+      "name": "網頁淨化蒸餾器",
+      "milestone": 1,
+      "phase": 45,
+      "task_type": "scrape",
+      "keywords": ["html", "網頁", "廣告", "雜訊", "markdown", "蒸餾", "清理", "轉換", "token節省"],
+      "description": "將帶有廣告雜訊的 HTML 轉成高密度 Markdown，節省 86% Token"
+    },
+    {
+      "id": "semantic-cache-shield",
+      "name": "語意快取神盾",
+      "milestone": 1,
+      "phase": 46,
+      "task_type": "cache",
+      "keywords": ["快取", "cache", "重複", "洗版", "攔截", "相似", "hash", "省錢"],
+      "description": "攔截 100% 重複貼文，避免重複消耗 API Token"
+    },
+    {
+      "id": "cot-prompt-compactor",
+      "name": "思維鏈壓縮機",
+      "milestone": 1,
+      "phase": 47,
+      "task_type": "compress",
+      "keywords": ["prompt", "提示詞", "壓縮", "瘦身", "pydantic", "schema", "結構化"],
+      "description": "將冗長 Prompt 壓縮 62%，搭配 Pydantic 強制結構化輸出"
+    },
+    {
+      "id": "auto-proxy-evader",
+      "name": "抗封鎖偽裝兵",
+      "milestone": 1,
+      "phase": 48,
+      "task_type": "scrape",
+      "keywords": ["403", "429", "封鎖", "ban", "user-agent", "ua", "重試", "退避", "爬蟲"],
+      "description": "自動切換 UA 與指數退避，防禦 403/429 封鎖"
+    },
+    {
+      "id": "firecrawl-dynamic-breacher",
+      "name": "動態渲染刺客",
+      "milestone": 2,
+      "phase": 49,
+      "task_type": "scrape",
+      "keywords": ["spa", "javascript", "js", "動態", "渲染", "firecrawl", "instagram", "fb", "facebook"],
+      "description": "透過 Firecrawl API 攻克 JS 動態渲染網頁"
+    },
+    {
+      "id": "trend-anomaly-detector",
+      "name": "輿情異常觀測儀",
+      "milestone": 2,
+      "phase": 50,
+      "task_type": "analyze",
+      "keywords": ["異常", "z-score", "炎上", "核爆", "警報", "alert", "聲量", "情緒崩盤", "爆衝"],
+      "description": "Z-Score 即時偵測輿情異常，紅黃雙層警戒"
+    },
+    {
+      "id": "multi-thread-synthesizer",
+      "name": "跨維度聚合兵",
+      "milestone": 2,
+      "phase": 51,
+      "task_type": "scrape",
+      "keywords": ["並行", "並發", "asyncio", "多線程", "多平台", "聚合", "同時", "加速"],
+      "description": "asyncio.gather 並行打撈 12+ 論壇，縮短 84% 時間"
+    },
+    {
+      "id": "hallucination-judge",
+      "name": "AI 幻覺裁判",
+      "milestone": 3,
+      "phase": 52,
+      "task_type": "validate",
+      "keywords": ["幻覺", "hallucination", "驗證", "校驗", "英雄", "錯誤", "胡言", "準確"],
+      "description": "校驗 AI 生成戰報中的英雄名稱與數值是否合理"
+    },
+    {
+      "id": "smart-task-router",
+      "name": "智能任務路由器",
+      "milestone": 3,
+      "phase": 53,
+      "task_type": "route",
+      "keywords": ["路由", "分派", "router", "任務", "判斷", "選擇", "指派"],
+      "description": "自動判斷任務類型並分派最適合的特種兵"
+    },
+    {
+      "id": "hot-deployer",
+      "name": "熱部署儀",
+      "milestone": 3,
+      "phase": 54,
+      "task_type": "deploy",
+      "keywords": ["部署", "deploy", "發布", "推送", "github", "git", "報表", "看板", "自動"],
+      "description": "自動生成報表並即時部署至戰情看板"
+    }
+  ],
+  "task_type_map": {
+    "scrape": "情報收集類 — 從網路抓取原始資料",
+    "analyze": "分析研判類 — 對資料進行演算或 AI 評估",
+    "cache": "快取管理類 — 避免重複查詢節省資源",
+    "compress": "壓縮最佳化類 — 縮減輸入體積",
+    "validate": "品管驗證類 — 確認輸出品質",
+    "route": "任務調度類 — 分配工作流程",
+    "deploy": "部署發布類 — 輸出成果至外部系統"
+  }
+}

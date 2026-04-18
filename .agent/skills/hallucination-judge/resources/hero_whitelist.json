@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0",
+  "description": "傳說對決 (Arena of Valor) 官方英雄白名單，用於 AI 幻覺裁判校驗",
+  "heroes": {
+    "warriors": [
+      "亞瑟", "Arthur", "泰坦", "Thane", "卡爾", "Karl", "光明女神", "Mina",
+      "潮汐", "Taara", "修羅", "Xeniel", "大龍", "Rourke", "閃電俠", "Flash",
+      "超人", "Superman", "蝙蝠俠", "Batman", "水行俠", "Aquaman",
+      "鋼鐵俠", "Iron Man", "雷神", "Thor", "蜘蛛人", "Spider-Man",
+      "光之勇士", "Maloch", "暗魔", "Skud", "騎士", "Ormarr",
+      "巨人", "Baldum", "石人", "Grakk", "鐵拳", "Roxie"
+    ],
+    "assassins": [
+      "飛燕", "Butterfly", "蒙奇", "Murad", "赤鱗", "Zephys",
+      "黑旋風", "Raz", "影武者", "Nakroth", "毒伶", "Quillen",
+      "影魂", "Keera", "幽靈刺客", "Kriknak", "血刃", "Wukong",
+      "暗影劍客", "Zill", "劍姬", "Xoulder", "紅蓮", "Ryoma"
+    ],
+    "mages": [
+      "芽芽", "Yena", "露西亞", "Lucia", "皮皮", "Pepe",
+      "泰麗莎", "Azzen'Ka", "永恆", "Ignis", "千里眼", "Liliana",
+      "神奇女俠", "Wonder Woman", "維蘭茲", "Valir", "魔法師", "Tulen",
+      "星光", "Raz", "冰雪", "Ilumia", "暗影法師", "Veres",
+      "鏡中人", "Ishar", "命運", "Lorion", "時間使者", "Krixi",
+      "沙暴", "Dirak", "海浪", "Natalya", "火焰", "Kahlii"
+    ],
+    "marksmen": [
+      "蒙泰爾", "Yorn", "雷霆", "Hayate", "流星", "Slimz",
+      "鳳蝶", "Laville", "鐵甲", "Valhein", "阿扣", "Tel'Annas",
+      "彩虹", "Elsu", "驚雷", "Violet", "燕尾", "Wiro",
+      "寒冰射手", "Lindis", "星際", "Capheny", "蠍子", "Arum"
+    ],
+    "supports": [
+      "小鷺", "Alice", "聖光", "Lumburr", "迷霧", "Zip",
+      "小精靈", "Flicker", "心醫", "Krizzix", "羽翼", "Ata",
+      "神鹿", "Gildur", "天使", "Annette", "守護", "Chaugnar"
+    ]
+  },
+  "all_names": [
+    "亞瑟", "Arthur", "泰坦", "Thane", "卡爾", "Karl", "光明女神", "Mina",
+    "潮汐", "Taara", "修羅", "Xeniel", "大龍", "Rourke", "閃電俠", "Flash",
+    "超人", "Superman", "蝙蝠俠", "Batman", "水行俠", "Aquaman",
+    "鋼鐵俠", "Iron Man", "雷神", "Thor", "蜘蛛人", "Spider-Man",
+    "光之勇士", "Maloch", "暗魔", "Skud", "騎士", "Ormarr",
+    "巨人", "Baldum", "石人", "Grakk", "鐵拳", "Roxie",
+    "飛燕", "Butterfly", "蒙奇", "Murad", "赤鱗", "Zephys",
+    "黑旋風", "Raz", "影武者", "Nakroth", "毒伶", "Quillen",
+    "影魂", "Keera", "幽靈刺客", "Kriknak", "血刃", "Wukong",
+    "暗影劍客", "Zill", "劍姬", "Xoulder", "紅蓮", "Ryoma",
+    "芽芽", "Yena", "露西亞", "Lucia", "皮皮", "Pepe",
+    "泰麗莎", "Azzen'Ka", "永恆", "Ignis", "千里眼", "Liliana",
+    "神奇女俠", "Wonder Woman", "維蘭茲", "Valir", "魔法師", "Tulen",
+    "冰雪", "Ilumia", "暗影法師", "Veres", "鏡中人", "Ishar",
+    "命運", "Lorion", "時間使者", "Krixi", "沙暴", "Dirak",
+    "海浪", "Natalya", "火焰", "Kahlii",
+    "蒙泰爾", "Yorn", "雷霆", "Hayate", "流星", "Slimz",
+    "鳳蝶", "Laville", "鐵甲", "Valhein", "阿扣", "Tel'Annas",
+    "彩虹", "Elsu", "驚雷", "Violet", "燕尾", "Wiro",
+    "寒冰射手", "Lindis", "星際", "Capheny", "蠍子", "Arum",
+    "小鷺", "Alice", "聖光", "Lumburr", "迷霧", "Zip",
+    "小精靈", "Flicker", "心醫", "Krizzix", "羽翼", "Ata",
+    "神鹿", "Gildur", "天使", "Annette", "守護", "Chaugnar"
+  ]
+}
