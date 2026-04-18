@@ -105,8 +105,9 @@ class TavilySearcher:
             "search_depth": "advanced", # 升級回進階搜尋以確保資料品質
             "max_results": max_results,
             "include_domains": [
-                "dcard.tw", "threads.net", "instagram.com", "ptt.cc", 
+                "dcard.tw", "threads.net", "instagram.com", "ptt.cc",
                 "facebook.com", "youtube.com", "mobile01.com",
+                "forum.gamer.com.tw",
                 "pantip.com", "sanook.com", "gamek.vn", "lienquan.garena.vn"
             ],
             "include_raw_content": False,

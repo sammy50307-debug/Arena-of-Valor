@@ -45,6 +45,8 @@ from rich.logging import RichHandler
 
 import config
 from scrapers.tavily_searcher import TavilySearcher
+from scrapers.dcard_scraper import DcardScraper
+from scrapers.bahamut_scraper import BahamutScraper
 from scrapers.apify_scraper import ApifyInstagramScraper
 from scrapers.hero_stats import HeroStatsScraper
 from analyzer.sentiment import SentimentAnalyzer
@@ -186,13 +188,43 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
             SearchResult(title="[速報] 傳說對決台服下載量突破新高", content="受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。", url="https://example.com/download-record", region="TW", platform="Website", score=0.70)
         ]
     else:
-        logger.info(" Step 1/4: 開始使用 Tavily 搜集全球區域情報...")
+        logger.info(" Step 1/4: 開始搜集全球區域情報（Tavily + Dcard + 巴哈）...")
         searcher = TavilySearcher()
         try:
             all_results = await searcher.search(max_results_per_region=5)
         except Exception as e:
-            logger.error(f"  [FAIL] 全球情報搜集失敗: {e}")
+            logger.error(f"  [FAIL] Tavily 情報搜集失敗: {e}")
             return
+
+        # ── 補充 Dcard + 巴哈姆特 爬蟲 ────────────────────
+        tw_keywords = config.REGIONAL_KEYWORDS.get("TW", ["傳說對決"])
+        seen_urls = {r.url for r in all_results}
+
+        try:
+            dcard = DcardScraper()
+            dcard_results = await dcard.search(tw_keywords, max_results=8)
+            added = 0
+            for r in dcard_results:
+                if r.url not in seen_urls:
+                    seen_urls.add(r.url)
+                    all_results.append(r)
+                    added += 1
+            logger.info(f"   [Dcard] 新增 {added} 篇不重複文章")
+        except Exception as e:
+            logger.warning(f"  [!] Dcard 爬蟲失敗（跳過）: {e}")
+
+        try:
+            bahamut = BahamutScraper()
+            baha_results = await bahamut.search(tw_keywords, max_results=8)
+            added = 0
+            for r in baha_results:
+                if r.url not in seen_urls:
+                    seen_urls.add(r.url)
+                    all_results.append(r)
+                    added += 1
+            logger.info(f"   [巴哈] 新增 {added} 篇不重複文章")
+        except Exception as e:
+            logger.warning(f"  [!] 巴哈姆特爬蟲失敗（跳過）: {e}")
 
     if not all_results:
         logger.warning("[!] 沒有搜集到任何資料，流程提前結束。")

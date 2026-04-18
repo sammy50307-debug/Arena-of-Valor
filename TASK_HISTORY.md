@@ -1242,3 +1242,61 @@ hot-deployer\
 | M3 指揮所 | 幻覺裁判 | 52 | hallucination-judge | ✅ |
 | M3 指揮所 | 任務路由 | 53 | smart-task-router | ✅ |
 | M3 指揮所 | 熱部署儀 | 54 | hot-deployer | ✅ |
+
+---
+
+### 🛠️ Phase 55：雙平台爬蟲擴展 (Dcard + 巴哈姆特)
+
+**任務目標**：將 Dcard 傳說對決板及巴哈姆特 AOV 哈啦板納入監測體系，
+解決 Tavily 額度有限、且兩大台灣主流論壇覆蓋不足的問題。
+
+#### 技術挑戰與解決方案
+
+| 平台 | 挑戰 | 解決方案 |
+|------|------|---------|
+| Dcard | 官方 API 受 Cloudflare 保護（全部 403） | 改走 **DuckDuckGo HTML 搜尋** `site:dcard.tw/f/aov {keyword}` |
+| 巴哈姆特 | HTML 選取器誤判（href 無前綴 `/`，標題在 `<p>` 非 `<a>`） | 重寫解析邏輯：`p.b-list__main__title` + `td.b-list__main > a[href]` |
+
+#### scrapers/dcard_scraper.py
+```python
+class DcardScraper:
+    # POST https://html.duckduckgo.com/html/
+    # query: "site:dcard.tw/f/aov {keyword}"
+    # 解析 .result__a 標題連結，過濾 dcard.tw/f/aov/p/ 路徑
+    async def search(self, keywords, max_results=10, region="TW") -> List[SearchResult]
+    async def _search_keyword(self, client, keyword, max_results, region)
+    def _parse_ddg_results(self, soup, keyword, max_results, region)
+```
+
+#### scrapers/bahamut_scraper.py（修正版）
+```python
+class BahamutScraper:
+    # GET https://forum.gamer.com.tw/B.php?bsn=30518&qt=1&q={keyword}
+    # 選取器：p.b-list__main__title（標題），td.b-list__main > a（連結）
+    # 互動數：.b-list__count__number span[title]
+    async def search(self, keywords, max_results=10, region="TW") -> List[SearchResult]
+    def _parse_row(self, item, keyword, region)  # 重寫版，修正所有選取器
+```
+
+#### main.py 整合（Step 1 補充爬蟲）
+```python
+# Tavily 搜尋完畢後，追加 Dcard + 巴哈 結果
+dcard = DcardScraper()
+dcard_results = await dcard.search(tw_keywords, max_results=8)
+# ... 去重複後 append 至 all_results
+
+bahamut = BahamutScraper()
+baha_results = await bahamut.search(tw_keywords, max_results=8)
+# ... 去重複後 append 至 all_results
+```
+
+#### tavily_searcher.py 補充網域
+- `include_domains` 新增 `"forum.gamer.com.tw"`（巴哈姆特 AOV 哈啦板）
+
+#### 測試結果
+```
+[Dcard]   芽芽出裝推薦、希望我可以懸芽勒馬、#發問解惑 芽芽怎麼玩...  5 篇 ✅
+[巴哈姆特] 【問題】芽芽為什麼不能被檢舉、【情報】芽芽應援甜心...     5 篇 ✅
+```
+
+- **狀態**：✅ 雙平台爬蟲整合完成，main.py Step 1 已納入三層搜集（Tavily → Dcard → 巴哈）
