@@ -626,3 +626,79 @@ C:\Users\sammy\.gemini\antigravity\skills\
 ├── ai-news-radar\                                         ← Phase 43
 └── instagram-facebook-dcard-platform-copywriter\          ← Phase 44（本次）
 ```
+
+---
+
+### 🛡️ Phase 45：網頁淨化蒸餾器 Skill 建立與全域部署 (HTML to Markdown Distiller / Scheme A)
+
+- **目標**：為了遏止「芽芽戰情室」每天因分析帶有大量雜訊（廣告、Nav、Footer）的網頁 HTML 而耗損劇烈 Token，我們實作了「網頁淨化蒸餾器」(Scheme A) 作為前置降噪引擎。它可以純程式化地剔除雜訊並壓縮成高密度 Markdown 文本。
+- **觸發背景**：主公指示需要「省 Token 的 AI Skill」，我們先後提出了三版方案（包含 A. DOM 淨化、B. 語意快取、C. 提示詞壓縮），最終主公決定以「方案 A（淨化蒸餾）」當作第一波打底戰略。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 降噪邏輯層次 | 依賴 LLM 過濾 / 程式自動化過濾 | **程式自動化過濾 (BeautifulSoup)** | 既然目標是省 Token，就不該浪費 AI 在切版面雜訊上。 |
+| 黑名單配置 | 寫死在 Python 內 / 分離為 JSON | **分離為 JSON (`ignore_tags.json`)** | 未來若遇到難纏的新廣告板塊，主公可以直接修改 JSON，不需介入 Python。 |
+| Markdown 引擎 | 正則表達式 / `markdownify` 套件 | **`markdownify` 套件** | 能完美保留 Markdown 結構（如 Heading、List），確保送到 LLM 時語義結構無損。 |
+
+#### Skill 目錄結構（`.agent/skills/html-markdown-distiller/`）
+```
+html-markdown-distiller/
+├── SKILL.md                 ← 技能指令核心與說明
+├── scripts/
+│   └── html_to_md.py        ← 淨化與轉換引擎核心（DOMTrimmer + Markdownizer）
+├── examples/
+│   ├── sample_input.html    ← 測試用輸入源（充滿各類廣告與留言板）
+│   └── sample_output.md     ← 經過極致蒸餾後的 Markdown 真相
+└── resources/
+    └── ignore_tags.json     ← 自定義排除字典檔
+```
+
+#### 核心類別設計 (`html_to_md.py`)
+```python
+class DOMTrimmer:
+    # 根據 ignore_tags.json，精準切除特定 tags, classes, 與 ids
+    def trim(self, html_content: str) -> str
+
+class Markdownizer:
+    # 呼叫 markdownify 進行轉換，並進行換行符號後處理（拔除多餘空白段落）
+    @staticmethod
+    def to_markdown(html_content: str) -> str
+
+class HTMLDistiller:
+    # 結合上述兩者，提供對外最終呼叫介面
+    def process(self, html_content: str) -> str
+```
+
+#### 排除標籤字典（`ignore_tags.json` 物理真相）
+```json
+{
+  "tags": ["nav", "footer", "header", "aside", "script", "style", "noscript", "iframe", "form", "button", "svg"],
+  "classes": ["ad", "ads", "advertisement", "ad-container", "cookie-banner", "related-posts", "social-share", "comments-section", "comment-list", "sidebar", "menu", "popup", "modal"],
+  "ids": ["cookie-consent", "newsletter-signup", "site-footer", "site-header", "sidebar", "reply-form", "comments"]
+}
+```
+
+#### 自動化檢驗與 Token 節約數據
+執行 `test_skill.py` 進行了實際情境的渲染測試：
+- **Original HTML size**: 2088 characters
+- **Distilled MD size**: 289 characters
+- **Calculated Savings**: **86.16%**
+- **狀態**：✅ 測試全數通過。一次蒸餾便成功縮小了將近足足 9 成的傳輸體積。
+
+#### 全域部署清單
+
+```
+D:\Coding Project\Arena of Valor\.agent\skills\
+html-markdown-distiller\
+├── SKILL.md
+├── examples\
+│   ├── sample_input.html
+│   └── sample_output.md
+├── scripts\
+│   └── html_to_md.py
+└── resources\
+    └── ignore_tags.json
+```
+- **狀態**：✅ 本地專案端的 Skill 已落實完備。

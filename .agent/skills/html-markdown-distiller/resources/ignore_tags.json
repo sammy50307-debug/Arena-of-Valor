@@ -1,0 +1,39 @@
+{
+  "tags": [
+    "nav",
+    "footer",
+    "header",
+    "aside",
+    "script",
+    "style",
+    "noscript",
+    "iframe",
+    "form",
+    "button",
+    "svg"
+  ],
+  "classes": [
+    "ad",
+    "ads",
+    "advertisement",
+    "ad-container",
+    "cookie-banner",
+    "related-posts",
+    "social-share",
+    "comments-section",
+    "comment-list",
+    "sidebar",
+    "menu",
+    "popup",
+    "modal"
+  ],
+  "ids": [
+    "cookie-consent",
+    "newsletter-signup",
+    "site-footer",
+    "site-header",
+    "sidebar",
+    "reply-form",
+    "comments"
+  ]
+}
