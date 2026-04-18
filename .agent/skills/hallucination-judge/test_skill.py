@@ -66,7 +66,7 @@ def run_tests():
 
     # 測試五：合法英雄 + 合法數值（應 PASS）
     total += 1
-    valid_text = '英雄【飛燕】與英雄【超人】的對決備受關注。{"sentiment_score": -0.3} 負面比例 45%'
+    valid_text = '英雄【悟空】與英雄【超人】的對決備受關注。{"sentiment_score": -0.3} 負面比例 45%'
     result = judge.judge(valid_text)
     if result["verdict"] == "PASS":
         print(f"【測試五】合法英雄+數值 (預期 PASS)\n  裁決: {result['verdict']} | 信心分: {result['confidence_score']}\n  ✅ 通過\n")

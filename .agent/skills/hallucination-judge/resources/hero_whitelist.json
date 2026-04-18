@@ -1,64 +1,50 @@
 {
-  "version": "1.0.0",
-  "description": "傳說對決 (Arena of Valor) 官方英雄白名單，用於 AI 幻覺裁判校驗",
+  "version": "2.0.0",
+  "description": "傳說對決 (Arena of Valor) 台服官方英雄白名單（來源：moba.garena.tw/game/heroes/，2026-04-19 重建）",
+  "source": "https://moba.garena.tw/game/heroes/",
+  "last_updated": "2026-04-19",
   "heroes": {
-    "warriors": [
-      "亞瑟", "Arthur", "泰坦", "Thane", "卡爾", "Karl", "光明女神", "Mina",
-      "潮汐", "Taara", "修羅", "Xeniel", "大龍", "Rourke", "閃電俠", "Flash",
-      "超人", "Superman", "蝙蝠俠", "Batman", "水行俠", "Aquaman",
-      "鋼鐵俠", "Iron Man", "雷神", "Thor", "蜘蛛人", "Spider-Man",
-      "光之勇士", "Maloch", "暗魔", "Skud", "騎士", "Ormarr",
-      "巨人", "Baldum", "石人", "Grakk", "鐵拳", "Roxie"
+    "all": [
+      "牛魔王", "瑟斐斯", "薇菈", "堇", "勇", "歐米茄", "刀鋒寶貝", "美娜",
+      "阿茲卡", "呂布", "趙雲", "凡恩", "薩尼", "盧蜜亞", "蘿兒", "納克羅斯",
+      "貂蟬", "阿萊斯特", "悟空", "克里希", "哥德爾", "卡莉", "查戈納爾",
+      "渥馬爾", "愛麗絲", "穆加爵", "馬洛斯", "塔拉", "普雷塔", "克萊斯",
+      "菲尼克", "夸克", "娜塔亞", "朗博", "金納", "海倫", "莫托斯",
+      "科里納卡", "愛里", "蝙蝠俠", "史蘭茲", "司科德", "拉茲", "祖卡",
+      "莫拉", "特爾安娜絲", "齊爾", "伊耿士", "小丑", "超人", "凱格路士",
+      "贊尼爾", "阿杜恩", "龍馬", "艾翠絲", "摩恩", "麥克思", "神力女超人",
+      "夜叉", "圖倫", "琳蒂", "提米", "莉莉安", "靈靈", "艾瑞", "洛克",
+      "伯頓", "諾可西", "古木", "安奈特", "維羅", "艾蜜莉", "蘇", "瑞克",
+      "緋淚", "弗洛倫", "奎倫", "瀾", "達爾西", "亥犽", "卡芬妮", "埃羅",
+      "筱清", "銀晝", "皮皮", "依夏", "希露卡", "蘭鐸", "卡瑞茲", "綺蘿",
+      "狄拉克", "阿塔", "潘因", "颯枷", "拉維爾", "若伊", "蘇離", "亞連",
+      "索文", "青硯", "霧己", "夜姬", "星葵", "布萊特", "伊格", "洛里昂",
+      "令月", "緹莉", "芽芽"
     ],
-    "assassins": [
-      "飛燕", "Butterfly", "蒙奇", "Murad", "赤鱗", "Zephys",
-      "黑旋風", "Raz", "影武者", "Nakroth", "毒伶", "Quillen",
-      "影魂", "Keera", "幽靈刺客", "Kriknak", "血刃", "Wukong",
-      "暗影劍客", "Zill", "劍姬", "Xoulder", "紅蓮", "Ryoma"
-    ],
-    "mages": [
-      "芽芽", "Yena", "露西亞", "Lucia", "皮皮", "Pepe",
-      "泰麗莎", "Azzen'Ka", "永恆", "Ignis", "千里眼", "Liliana",
-      "神奇女俠", "Wonder Woman", "維蘭茲", "Valir", "魔法師", "Tulen",
-      "星光", "Raz", "冰雪", "Ilumia", "暗影法師", "Veres",
-      "鏡中人", "Ishar", "命運", "Lorion", "時間使者", "Krixi",
-      "沙暴", "Dirak", "海浪", "Natalya", "火焰", "Kahlii"
-    ],
-    "marksmen": [
-      "蒙泰爾", "Yorn", "雷霆", "Hayate", "流星", "Slimz",
-      "鳳蝶", "Laville", "鐵甲", "Valhein", "阿扣", "Tel'Annas",
-      "彩虹", "Elsu", "驚雷", "Violet", "燕尾", "Wiro",
-      "寒冰射手", "Lindis", "星際", "Capheny", "蠍子", "Arum"
-    ],
-    "supports": [
-      "小鷺", "Alice", "聖光", "Lumburr", "迷霧", "Zip",
-      "小精靈", "Flicker", "心醫", "Krizzix", "羽翼", "Ata",
-      "神鹿", "Gildur", "天使", "Annette", "守護", "Chaugnar"
+    "english_aliases": [
+      "Batman", "Superman", "Wonder Woman", "Wukong", "Yena",
+      "Murad", "Nakroth", "Natalya", "Tulen", "Taara", "Valhein",
+      "Lauriel", "Krixi", "Liliana", "Arthur", "Mina"
     ]
   },
   "all_names": [
-    "亞瑟", "Arthur", "泰坦", "Thane", "卡爾", "Karl", "光明女神", "Mina",
-    "潮汐", "Taara", "修羅", "Xeniel", "大龍", "Rourke", "閃電俠", "Flash",
-    "超人", "Superman", "蝙蝠俠", "Batman", "水行俠", "Aquaman",
-    "鋼鐵俠", "Iron Man", "雷神", "Thor", "蜘蛛人", "Spider-Man",
-    "光之勇士", "Maloch", "暗魔", "Skud", "騎士", "Ormarr",
-    "巨人", "Baldum", "石人", "Grakk", "鐵拳", "Roxie",
-    "飛燕", "Butterfly", "蒙奇", "Murad", "赤鱗", "Zephys",
-    "黑旋風", "Raz", "影武者", "Nakroth", "毒伶", "Quillen",
-    "影魂", "Keera", "幽靈刺客", "Kriknak", "血刃", "Wukong",
-    "暗影劍客", "Zill", "劍姬", "Xoulder", "紅蓮", "Ryoma",
-    "芽芽", "Yena", "露西亞", "Lucia", "皮皮", "Pepe",
-    "泰麗莎", "Azzen'Ka", "永恆", "Ignis", "千里眼", "Liliana",
-    "神奇女俠", "Wonder Woman", "維蘭茲", "Valir", "魔法師", "Tulen",
-    "冰雪", "Ilumia", "暗影法師", "Veres", "鏡中人", "Ishar",
-    "命運", "Lorion", "時間使者", "Krixi", "沙暴", "Dirak",
-    "海浪", "Natalya", "火焰", "Kahlii",
-    "蒙泰爾", "Yorn", "雷霆", "Hayate", "流星", "Slimz",
-    "鳳蝶", "Laville", "鐵甲", "Valhein", "阿扣", "Tel'Annas",
-    "彩虹", "Elsu", "驚雷", "Violet", "燕尾", "Wiro",
-    "寒冰射手", "Lindis", "星際", "Capheny", "蠍子", "Arum",
-    "小鷺", "Alice", "聖光", "Lumburr", "迷霧", "Zip",
-    "小精靈", "Flicker", "心醫", "Krizzix", "羽翼", "Ata",
-    "神鹿", "Gildur", "天使", "Annette", "守護", "Chaugnar"
+    "牛魔王", "瑟斐斯", "薇菈", "堇", "勇", "歐米茄", "刀鋒寶貝", "美娜",
+    "阿茲卡", "呂布", "趙雲", "凡恩", "薩尼", "盧蜜亞", "蘿兒", "納克羅斯",
+    "貂蟬", "阿萊斯特", "悟空", "克里希", "哥德爾", "卡莉", "查戈納爾",
+    "渥馬爾", "愛麗絲", "穆加爵", "馬洛斯", "塔拉", "普雷塔", "克萊斯",
+    "菲尼克", "夸克", "娜塔亞", "朗博", "金納", "海倫", "莫托斯",
+    "科里納卡", "愛里", "蝙蝠俠", "史蘭茲", "司科德", "拉茲", "祖卡",
+    "莫拉", "特爾安娜絲", "齊爾", "伊耿士", "小丑", "超人", "凱格路士",
+    "贊尼爾", "阿杜恩", "龍馬", "艾翠絲", "摩恩", "麥克思", "神力女超人",
+    "夜叉", "圖倫", "琳蒂", "提米", "莉莉安", "靈靈", "艾瑞", "洛克",
+    "伯頓", "諾可西", "古木", "安奈特", "維羅", "艾蜜莉", "蘇", "瑞克",
+    "緋淚", "弗洛倫", "奎倫", "瀾", "達爾西", "亥犽", "卡芬妮", "埃羅",
+    "筱清", "銀晝", "皮皮", "依夏", "希露卡", "蘭鐸", "卡瑞茲", "綺蘿",
+    "狄拉克", "阿塔", "潘因", "颯枷", "拉維爾", "若伊", "蘇離", "亞連",
+    "索文", "青硯", "霧己", "夜姬", "星葵", "布萊特", "伊格", "洛里昂",
+    "令月", "緹莉", "芽芽",
+    "Batman", "Superman", "Wonder Woman", "Wukong", "Yena",
+    "Murad", "Nakroth", "Natalya", "Tulen", "Taara", "Valhein",
+    "Lauriel", "Krixi", "Liliana", "Arthur", "Mina"
   ]
 }

@@ -1466,3 +1466,32 @@ report = radar.radar(today_date="2026-04-19") # 指定今日
 ```
 
 - **狀態**：✅ Phase 58 完成，Milestone 4 第三個特種兵上線。
+
+---
+
+### Phase 58.5：Hero Whitelist Authoritative Rebuild (2026-04-19)
+**類型**：品質修正 — 修正 Phase 52 Hallucination Judge 白名單資料錯誤
+
+#### 緣起
+使用者發現 SKILL.md 範例中的「雅典娜」「飛燕」皆非傳說對決台服實際英雄，
+進一步追查發現 Phase 52 建置的 `hero_whitelist.json` 充斥不存在或錯譯的英雄名稱
+（如 飛燕=Butterfly、蒙奇、赤鱗、毒伶、血刃=Wukong 等均與官方不符），
+導致幻覺裁判校驗反而「放行真幻覺、誤判真英雄」。
+
+#### 修正內容
+- **資料源**：moba.garena.tw/game/heroes/（台服官方英雄一覽）
+- **重建檔**：`.agent/skills/hallucination-judge/resources/hero_whitelist.json`
+  - 版本：1.0.0 → 2.0.0
+  - 109 個官方中文英雄名 + 16 個常用英文別名
+  - 新增 `source` 與 `last_updated` 欄位，便於日後追溯
+- **測試修正**：`test_skill.py` Test 5 的 `飛燕` → `悟空`（真實英雄）
+- **SKILL.md 範例**：dropped_heroes 由 `飛燕` → `悟空`（已於 commit 51c25bf 修正）
+
+#### 驗證
+```
+py .agent/skills/hallucination-judge/test_skill.py
+[✓] 5/5 測試通過
+[✓] ALL TESTS PASSED - AI 幻覺裁判已就位，戰報品質守門員上線！
+```
+
+- **狀態**：✅ Phase 58.5 完成，Hallucination Judge 從「裝飾品」升級為真正的戰報品管員。
