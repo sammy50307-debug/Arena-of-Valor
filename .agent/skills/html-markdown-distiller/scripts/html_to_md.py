@@ -1,6 +1,12 @@
 import json
 import os
+import sys
 import argparse
+
+# 強制指定標準輸出支援 utf-8，避免 Windows cmd / PowerShell 預設為 Big5 導致亂碼
+if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from typing import Optional
 from bs4 import BeautifulSoup
 import markdownify

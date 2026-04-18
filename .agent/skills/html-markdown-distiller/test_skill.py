@@ -1,6 +1,9 @@
 import os
 import sys
 
+# 強制指定標準輸出支援 utf-8，避免 Windows cmd / PowerShell 預設為 Big5 導致亂碼
+if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
 # Add scripts dir to path to import html_to_md
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(script_dir, 'scripts'))
