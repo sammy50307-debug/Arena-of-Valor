@@ -1495,3 +1495,49 @@ py .agent/skills/hallucination-judge/test_skill.py
 ```
 
 - **狀態**：✅ Phase 58.5 完成，Hallucination Judge 從「裝飾品」升級為真正的戰報品管員。
+
+---
+
+### Phase 59：Rich Push Formatter — 戰報推播格式化儀 (2026-04-19)
+**類型**：Milestone 4 第四支特種兵
+
+#### 動機
+Daily Diff Radar 輸出的 JSON 對工程師可用、對人類不可口。
+本 skill 將 diff / analysis JSON 轉成含 emoji 警戒燈號、Δ 箭頭、英雄變動與
+平台聲量表格的 Markdown 日報，可直接貼進 Discord / Obsidian / Line。
+
+#### 能力矩陣
+| 輸入 | 輸出 |
+|------|------|
+| daily-diff-radar diff dict | 昨→今對比 Markdown |
+| analysis_YYYYMMDD.json | 單日快照 Markdown |
+
+警戒燈號：🔴 HIGH / 🟡 MEDIUM / 🟢 LOW
+Δ 箭頭：⬆️ 正向 / ⬇️ 負向 / ➡️ 持平
+
+#### 檔案結構
+```
+.agent/skills/rich-push-formatter/
+├── SKILL.md
+├── scripts/formatter.py    # RichPushFormatter
+└── test_skill.py           # 9 項自動化測試
+```
+
+#### 介面
+```python
+f = RichPushFormatter()
+md = f.format_diff(diff_dict)        # 昨→今對比日報
+md = f.format_analysis(analysis)     # 單日快照
+```
+
+#### 註冊
+- `skill_registry.json` 新增 `rich-push-formatter` (task_type: format)
+- 新增 task_type 分類：format（格式轉換類）
+- Smart Task Router 測試六：13 → 14 skills，仍 6/6 通過
+
+#### 測試結果
+```
+✅ 9/9 全部通過（箭頭方向 × 3 / format_diff × 5 / format_analysis × 1）
+```
+
+- **狀態**：✅ Phase 59 完成，Milestone 4 第四個特種兵上線。

@@ -111,6 +111,15 @@
       "description": "持久化追蹤 Tavily 月用量，80%/95% 門檻警示並驅動瀑布鏈主動切換"
     },
     {
+      "id": "rich-push-formatter",
+      "name": "戰報推播格式化儀",
+      "milestone": 4,
+      "phase": 59,
+      "task_type": "format",
+      "keywords": ["推播", "格式", "markdown", "format", "briefing", "日報", "可讀", "視覺化", "emoji"],
+      "description": "將 diff/analysis JSON 轉成人類可讀的 Markdown 日報，含警戒 emoji 與 Δ 箭頭"
+    },
+    {
       "id": "daily-diff-radar",
       "name": "每日差異雷達",
       "milestone": 4,
@@ -128,6 +137,7 @@
     "validate": "品管驗證類 — 確認輸出品質",
     "route": "任務調度類 — 分配工作流程",
     "deploy": "部署發布類 — 輸出成果至外部系統",
-    "monitor": "監測守衛類 — 觀察系統健康與資源用量"
+    "monitor": "監測守衛類 — 觀察系統健康與資源用量",
+    "format": "格式轉換類 — 把原始資料轉成人類可讀格式"
   }
 }
