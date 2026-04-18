@@ -1300,3 +1300,66 @@ baha_results = await bahamut.search(tw_keywords, max_results=8)
 ```
 
 - **狀態**：✅ 雙平台爬蟲整合完成，main.py Step 1 已納入三層搜集（Tavily → Dcard → 巴哈）
+
+---
+
+## 🗺️ Milestone 4：韌性擴張 (Resilience Expansion)
+
+目標：讓系統在 Tavily 月額度耗盡時仍能正常產出日報，並具備配額守衛、差異雷達、豐富推播、歷史查詢四大能力。
+
+### 🛠️ Phase 56：瀑布式輪用搜尋鏈 (Waterfall Search Chain)
+
+**核心痛點解決**：Tavily 付費 API 月配額耗盡後，整條日報流程會停擺。
+
+#### 三層輪用架構
+```
+① Tavily（付費，最高品質）
+    ↓ 失敗 / 429 / 402 / 403 / quota 訊息
+② DDGSearcher（DuckDuckGo HTML，免費無限額）
+    ↓ 失敗
+③ 回傳空列表（pipeline 提前結束）
+```
+
+#### 額度耗盡偵測 `_is_quota_error()`
+| HTTP Status | 判定 |
+|-------------|------|
+| 429 Too Many Requests | ✅ 額度耗盡 |
+| 402 Payment Required  | ✅ 額度耗盡 |
+| 403 Forbidden         | ✅ 額度耗盡 |
+| 回應含 quota/exceeded/limit | ✅ 額度耗盡 |
+| 500 / 其他             | ❌ 非額度錯誤（不切換） |
+
+#### 新增檔案
+```
+scrapers/
+├── ddg_searcher.py         # 通用 DDG HTML 搜尋，介面與 TavilySearcher 相容
+└── waterfall_searcher.py   # WaterfallSearcher 主類別
+
+.agent/skills/waterfall-search-chain/
+├── SKILL.md
+├── scripts/
+│   └── waterfall.py
+└── test_skill.py           # 5 項自動化測試
+```
+
+#### main.py 整合
+`TavilySearcher` 替換為 `WaterfallSearcher`，搜集層對呼叫端完全透明。
+
+#### 測試結果
+```
+✅ PASS  額度偵測：429 → is_quota_error=True
+✅ PASS  額度偵測：402 → is_quota_error=True
+✅ PASS  非額度錯誤：500 → is_quota_error=False
+✅ PASS  Tavily 成功 → 直接回傳，DDG 未被呼叫
+✅ PASS  Tavily 429 → 自動切換 DDG 並取得結果
+5/5 通過
+```
+
+#### Live 驗證
+```
+[Waterfall] 嘗試搜尋源：Tavily
+[Waterfall] ✅ Tavily 成功取得 3 筆，後續源跳過。
+已載入搜尋源: ['Tavily', 'DDG']
+```
+
+- **狀態**：✅ Phase 56 完成，Milestone 4 第一個特種兵上線。

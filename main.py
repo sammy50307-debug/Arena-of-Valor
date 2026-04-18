@@ -44,7 +44,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 
 import config
-from scrapers.tavily_searcher import TavilySearcher
+from scrapers.waterfall_searcher import WaterfallSearcher
 from scrapers.dcard_scraper import DcardScraper
 from scrapers.bahamut_scraper import BahamutScraper
 from scrapers.apify_scraper import ApifyInstagramScraper
@@ -188,12 +188,12 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
             SearchResult(title="[速報] 傳說對決台服下載量突破新高", content="受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。", url="https://example.com/download-record", region="TW", platform="Website", score=0.70)
         ]
     else:
-        logger.info(" Step 1/4: 開始搜集全球區域情報（Tavily + Dcard + 巴哈）...")
-        searcher = TavilySearcher()
+        logger.info(" Step 1/4: 開始搜集全球區域情報（瀑布鏈：Tavily → DDG，補充 Dcard + 巴哈）...")
+        searcher = WaterfallSearcher()
         try:
             all_results = await searcher.search(max_results_per_region=5)
         except Exception as e:
-            logger.error(f"  [FAIL] Tavily 情報搜集失敗: {e}")
+            logger.error(f"  [FAIL] 瀑布搜尋鏈全部失敗: {e}")
             return
 
         # ── 補充 Dcard + 巴哈姆特 爬蟲 ────────────────────

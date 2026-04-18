@@ -91,6 +91,15 @@
       "task_type": "deploy",
       "keywords": ["部署", "deploy", "發布", "推送", "github", "git", "報表", "看板", "自動"],
       "description": "自動生成報表並即時部署至戰情看板"
+    },
+    {
+      "id": "waterfall-search-chain",
+      "name": "瀑布式輪用搜尋鏈",
+      "milestone": 4,
+      "phase": 56,
+      "task_type": "scrape",
+      "keywords": ["搜尋", "search", "備援", "fallback", "輪用", "額度", "quota", "tavily", "ddg", "瀑布"],
+      "description": "Tavily 額度耗盡時自動切換至 DDG 免費搜尋，確保日報不中斷"
     }
   ],
   "task_type_map": {
