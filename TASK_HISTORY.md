@@ -874,33 +874,34 @@ firecrawl-dynamic-breacher/
 
 ---
 
-### 🛡️ Phase 50：輿情核爆異常觀測儀 Skill 實作與全域部署 (Trend Anomaly Detector / Milestone 2)
+### 📡 Phase 50：輿情核爆異常觀測儀 Skill 實作與全域部署 (Trend Anomaly Detector)
 
-- **目標**：日報產出速度跟不上社群炎上速度，因為缺乏即時監控機制。此觀測儀將純粹依賴數學模型，不經過耗時的 LLM，瞬間捕捉突發的「流量暴增」與「情緒負偏」，並能吐出 1~3 級別的警戒信號。
-- **觸發背景**：完成 Milestone 2 第一目標後，接續推進。
+- **目標**：以往分析師要等到「日報」出爐才知道論壇今天是否炸鍋。Phase 50 讓系統在每次批量數據回傳時，直接用純 Python 數學演算法 (Z-Score) 判定是否發生了聲量爆衝或情緒崩盤，不需仰賴 LLM，實現即時「核爆警報」推送。
+- **觸發背景**：Milestone 2 第二波作戰任務。
 
 #### 技術決策紀錄
 
 | 決策點 | 選項 | 最終決定 | 原因 |
 |-------|------|---------|------|
-| 核心演算法 | 移動平均 (Moving Avg) / **標準分 (Z-Score)** | **標準分 (Z-Score)** | 移動平均只能看出趨勢，但無法嚴格定義「多嚴重才叫炎上」。Z-Score 透過衡量距離平均值多少個標準差 (Sigma)，若 >= 3.0 代表統計學上的極端離群值發生，是最適合炎上告警的模型。 |
-| 套件依賴 | `numpy` / 原生 Python | **原生 Python `math`** | 防禦模組應保持輕量。幾百筆數字的陣列計算，原生的 List 運算與 `math.sqrt` 已是毫秒級別，不需安裝肥大的 DataFrame 套件。 |
+| 數學演算法 | Isolation Forest (scikit) / Z-Score 純計算 | **Z-Score + 絕對值判定** | 不引入 scikit-learn 以維持輕量化。Z-Score 在 14 天數據量下已足夠精準；採用 `abs(z_score)` 可同時偵測「正向暴增」與「負向情緒崩盤」兩種危機。 |
+| 警報等級 | 單一閾值 / 雙層閾值 | **黃 (2σ) + 紅 (3σ) 雙層警戒** | 黃色為「早期預警」，給團隊留有反應空間；紅色為「立即應戰」，觸發緊急推播。 |
 
-#### Skill 目錄結構（`.agent/skills/trend-anomaly-detector/`）
-```
-trend-anomaly-detector/
-├── SKILL.md                 ← 技能攻堅說明與閾值設計
-├── scripts/
-│   └── anomaly_detector.py  ← `TrendAnomalyDetector` 類別封裝，提供 `detect` 診斷功能
-└── test_skill.py            ← 模擬平穩的過去 7 天數據與突發的暴漲流量點測試
+#### 核心公式 (`anomaly_detector.py`)
+```python
+Z = (今日數值 - 過去均值) / 過去標準差
+
+abs(Z) >= 3.0  →  RED_ALERT (輿情核爆)
+abs(Z) >= 2.0  →  YELLOW_ALERT (異常增溫)
+其餘           →  NORMAL
 ```
 
-#### 自動化檢驗結果
-執行 `test_skill.py` 驗證：
-- 模擬過去 7 天極度平穩的討論聲量（平均約 50，標準差 2.16）。
-- **測試一**：當天湧入 55 篇文。判定 Z-Score = 2.31，觸發 `YELLOW_ALERT (異常增溫)`。
-- **測試二**：當天湧入 200 篇文 (模擬官方亂改版)。判定 Z-Score = 69.44，觸發極端 `RED_ALERT (輿情核爆)`。
-- 防呆設計驗證：分母 (標準差) 為 0 時，能自動攔截並賦予 `999.0` 極大值，避免系統崩潰。
+#### 自動化檢驗結果 (4/4 通過)
+| 測試情境 | 輸入值 | Z-Score | 預期判定 | 結果 |
+|---------|--------|---------|---------|------|
+| 正常聲量波動 | 47 篇 | Z=1.05 | NORMAL | ✅ |
+| 輕微異常增溫 | 51 篇 | Z=2.18 | YELLOW_ALERT | ✅ |
+| 論壇暴動 | 300 篇 | Z=72.53 | RED_ALERT | ✅ |
+| 情緒崩盤 | -0.2 分 | Z=-33.27 | RED_ALERT | ✅ |
 
 #### 全域部署清單
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\trend-anomaly-detector`

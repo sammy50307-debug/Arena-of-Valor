@@ -48,8 +48,10 @@ class TrendAnomalyDetector:
         else:
             z_score = (current_value - mean) / std_dev
 
-        is_red_alert = z_score >= self.red_alert_threshold
-        is_yellow_alert = not is_red_alert and (z_score >= self.yellow_alert_threshold)
+        # 使用絕對值比較閾值：無論是聲量暴增(+) 或情緒崩盤(-N) 都屬於異常
+        abs_z = abs(z_score)
+        is_red_alert = abs_z >= self.red_alert_threshold
+        is_yellow_alert = not is_red_alert and (abs_z >= self.yellow_alert_threshold)
 
         severity = "NORMAL"
         if is_red_alert:
