@@ -702,3 +702,55 @@ html-markdown-distiller\
     └── ignore_tags.json
 ```
 - **狀態**：✅ 本地專案端的 Skill 已落實完備。
+
+---
+
+### 🛡️ Phase 46：語意快取神盾 Skill 實作與全域部署 (Semantic Cache Shield / Milestone 1)
+
+- **目標**：為了阻止同質性極高的「農場文/洗版文」消耗大量 API Token，我們為芽芽戰情室打造了名為 `semantic-cache-shield` 的快取濾波層，將特種兵 Milestone 1 計畫往前推進。
+- **觸發背景**：主公審批了「霸業擴張總藍圖（共計 9 大 Skill）」，並已自動核准 Milestone 1（地基固化與資源控制），我們以此為信號，第一時間完成了首隻特種兵的配置。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 底層儲存庫 | JSON 檔案 / SQLite | **SQLite (`yaya_cache.db`)** | 支援高效的 `Hit Count` 更新與索引搜索，當快取量大時 JSON 效能太差。 |
+| 文本相似度比對 | 深度學習 Embedding / 雜湊比對 (Hash) | **字元正規化 + SHA-256 Hash** | 因為只要省下「文字近乎完全一致的反覆貼文」即可省下海量 Token。將文字消除空白、特殊符號後，轉為小寫求 SHA-256，輕量極速且無依賴。 |
+
+#### Skill 目錄結構（`.agent/skills/semantic-cache-shield/`）
+```
+semantic-cache-shield/
+├── SKILL.md                 ← 技能指令核心與守備範圍說明
+├── scripts/
+│   └── cache_engine.py      ← 封裝了 SQLite 寫入、查詢、打統編的邏輯核心
+├── test_skill.py            ← 自動化測試：驗證「文本A」與「洗版文本B」是否能命中快取
+└── resources/
+    └── yaya_cache.db        ← 隨系統運作自動生成的實體 SQLite 記憶體
+```
+
+#### 核心類別設計 (`cache_engine.py`)
+```python
+class SemanticCacheShield:
+    def _init_db(self):
+        # 建立擁有 text_hash, original_text, analysis_result, hit_count 等欄位的表單
+
+    def _normalize_and_hash(self, text: str) -> str:
+        # 正規化：消除全半形空白/特殊符號 -> 全小寫 -> SHA-256
+
+    def check_cache(self, text: str):
+        # 攔截機制，若命中則 UPDATE hit_count + 1 並回傳 json
+
+    def store_cache(self, text: str, analysis_result: dict):
+        # INSERT OR REPLACE 儲存 LLM 對新文章的判斷結果
+```
+
+#### 自動化檢驗與攔截測試
+執行 `test_skill.py` 進行了實際論壇洗版攔截測試：
+- 給定 `text_a`（正常文）與 `text_b`（夾帶多餘空白與驚嘆號的洗版文，但主旨相同）。
+- **第一回合**：Cache Miss，成功寫入 LLM 模擬結果。
+- **第二回合**：`text_b` 進入系統，經過字元壓縮 Hash 後，**Cache Hit!** 成功攔截。
+- **狀態**：✅ 測試全數通過，攔截率 100%。
+
+#### 全域部署清單
+- **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\semantic-cache-shield`
+- **狀態**：✅ 本地專案端與全域端的神盾系統已就位。
