@@ -906,3 +906,38 @@ abs(Z) >= 2.0  →  YELLOW_ALERT (異常增溫)
 #### 全域部署清單
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\trend-anomaly-detector`
 - **狀態**：✅ 本地落實完備。
+
+---
+
+### 🧵 Phase 51：跨維度多線程聚合兵 Skill 實作與全域部署 (Multi-Thread Synthesizer)
+
+- **目標**：當系統需要同步巡視 12 個不同的社群論壇（PTT、Dcard、巴哈、FB、Threads、IG 等），若全部排隊等候，理論需時 ~6.25 秒。本特種兵透過 `asyncio.gather` 的非同步魔法，將所有請求「同時發出」，結合 `asyncio.Semaphore` 管制最大並發數，既快速又不會壓垮目標伺服器。
+- **觸發背景**：Milestone 2 壓軸特種兵，Milestone 2 **全面竣工**。
+
+#### 技術決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|-------|------|---------|------|
+| 並發模型 | `threading.ThreadPoolExecutor` / `asyncio.gather` | **`asyncio.gather` + `Semaphore`** | `asyncio` 是 Python I/O 密集型任務的最優解，`Semaphore` 則確保最大並發不超過 10，防止 IP 被封鎖。 |
+| 結果整合 | 回傳原始列表 / 追加標記後回傳 | **自動標記 `fetched_at` 與 `task` 名稱** | 大量並行抓取的結果在不加標記的情況下難以溯源，自動貼上來源與時間戳是監測系統最不可缺少的根基。 |
+
+#### 核心設計 (`synthesizer.py`)
+```python
+class AsyncSynthesizer:
+    def __init__(self, max_concurrency=10):
+        self._semaphore = asyncio.Semaphore(max_concurrency)
+
+    async def gather(self, tasks: Dict[str, Awaitable]) -> List[Dict]:
+        wrapped = [self._run_with_semaphore(name, coro) for name, coro in tasks.items()]
+        return list(await asyncio.gather(*wrapped))
+```
+
+#### 自動化效能驗證結果 (12/12 任務通過)
+- **理論序列等候時間**：~6.25 秒
+- **實際並行完成時間**：**0.969 秒**
+- **加速效益**：✅ 節省了 **84.5%** 的等待時間
+- 每個任務都被自動標記了 `fetched_at` 時間戳與 `platform` 來源標識
+
+#### 全域部署清單
+- **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\multi-thread-synthesizer`
+- **狀態**：✅ 本地落實完備。Milestone 2 已全面竣工！
