@@ -1407,3 +1407,62 @@ scrapers/
 ```
 
 - **狀態**：✅ Phase 57 完成，Milestone 4 第二個特種兵上線。瀑布鏈具備「事前主動切換」能力。
+
+---
+
+### 🛠️ Phase 58：每日差異雷達 (Daily Diff Radar)
+
+**核心痛點解決**：使用者每日要從頭讀完整戰報。雷達只告訴你「和昨天比什麼不一樣」，一眼掌握變化。
+
+#### 八項差異指標
+| 指標 | 計算 |
+|------|------|
+| `sentiment_delta` | 今日 `overall.sentiment_score` − 昨日 |
+| `volume_delta` / `volume_delta_pct` | 今日 `total_posts` − 昨日（含 %）|
+| `trend_change` | 昨日 trend → 今日 trend |
+| `new_heroes` / `dropped_heroes` | hero_stats 集合差 |
+| `hero_sentiment_shifts` | 共同英雄 avg_sentiment 變化（僅保留 ≥ 0.05）|
+| `platform_changes` | 各平台 post_count 差值 |
+| `alert_level` | HIGH / MEDIUM / LOW |
+
+#### Alert 分級
+| 等級 | 觸發 |
+|------|------|
+| HIGH | `|Δsent| ≥ 0.30` 或 `|Δvol%| ≥ 50%` |
+| MEDIUM | `|Δsent| ≥ 0.15` 或 `|Δvol%| ≥ 25%` |
+| LOW | 其餘 |
+
+#### 檔案結構
+```
+.agent/skills/daily-diff-radar/
+├── SKILL.md
+├── scripts/radar.py     # DailyDiffRadar 主類別
+└── test_skill.py        # 6 項自動化測試
+```
+
+#### 介面
+```python
+radar = DailyDiffRadar()
+report = radar.radar()                        # 自動找最新兩天
+report = radar.radar(today_date="2026-04-19") # 指定今日
+```
+
+#### 測試結果
+```
+✅ PASS  空目錄：回傳 error 欄位
+✅ PASS  僅一份檔：回傳 error（需至少 2）
+✅ PASS  基本差異：sentiment/volume/hero/trend 皆正確
+✅ PASS  Alert HIGH：聲量 +100% → HIGH
+✅ PASS  Alert HIGH：情緒 Δ=-0.4 → HIGH
+✅ PASS  Alert LOW：微小變化
+6/6 通過
+```
+
+#### Live 驗證（真實 analysis 檔）
+```
+今日: 2026-04-05 / 昨日: 2026-03-30
+Δsentiment: 0.0, Δvolume: 0, alert_level: LOW
+（兩日資料極為相似，確認雷達正常運作）
+```
+
+- **狀態**：✅ Phase 58 完成，Milestone 4 第三個特種兵上線。

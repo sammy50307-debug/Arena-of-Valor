@@ -109,6 +109,15 @@
       "task_type": "monitor",
       "keywords": ["額度", "quota", "守衛", "guardian", "配額", "限額", "預警", "monitor", "tavily", "用量"],
       "description": "持久化追蹤 Tavily 月用量，80%/95% 門檻警示並驅動瀑布鏈主動切換"
+    },
+    {
+      "id": "daily-diff-radar",
+      "name": "每日差異雷達",
+      "milestone": 4,
+      "phase": 58,
+      "task_type": "analyze",
+      "keywords": ["差異", "diff", "雷達", "radar", "比對", "昨日", "今日", "變化", "delta", "情緒變化"],
+      "description": "比對今日與昨日 analysis，輸出英雄/情緒/聲量/平台變化摘要與 alert 等級"
     }
   ],
   "task_type_map": {

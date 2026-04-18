@@ -58,11 +58,11 @@ def run_tests():
     else:
         print(f"【測試五】❌ 預期 hallucination-judge，實際得到: {result['routing_decision']}\n")
 
-    # 測試六：列出所有技能 → 應回傳 12 個（M1~M4 累計）
+    # 測試六：列出所有技能 → 應回傳 13 個（M1~M4 累計）
     total += 1
     all_skills = router.list_all_skills()
-    if len(all_skills) == 12:
-        print(f"【測試六】技能冊完整性 (預期 12 個，含 Milestone 4 新增)\n  實際: {len(all_skills)} 個 ✅\n")
+    if len(all_skills) == 13:
+        print(f"【測試六】技能冊完整性 (預期 13 個，含 Milestone 4 新增)\n  實際: {len(all_skills)} 個 ✅\n")
         passed += 1
     else:
         print(f"【測試六】❌ 技能數量不符，實際: {len(all_skills)}\n")
