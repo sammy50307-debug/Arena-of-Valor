@@ -30,3 +30,6 @@ logs/*.log
 # OS
 Thumbs.db
 .DS_Store
+
+# Screenshots (本機與 Claude 討論用，不進版控)
+screenshots/
