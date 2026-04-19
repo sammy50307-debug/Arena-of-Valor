@@ -58,7 +58,7 @@ report = radar.radar(today_date="2026-04-19")  # 指定今日
   "volume_delta_pct": 25.0,
   "trend_change": "Upward → Stable",
   "new_heroes": ["克里希"],
-  "dropped_heroes": ["飛燕"],
+  "dropped_heroes": ["悟空"],
   "hero_sentiment_shifts": {"芽芽": -0.2},
   "platform_changes": {"dcard": {"today": 5, "yesterday": 3, "delta": 2}},
   "alert_level": "MEDIUM"
