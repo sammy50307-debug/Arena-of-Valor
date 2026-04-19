@@ -399,6 +399,7 @@
 #### 核心技術實作
 
 **Skill 目錄結構（`.agent/skills/ai-news-radar/`）**
+
 ```
 ai-news-radar/
 ├── SKILL.md                     ← 主要指令文件（metadata + 工作流程 + CLI 速查）
@@ -413,6 +414,7 @@ ai-news-radar/
 ```
 
 **核心類別設計 (`fetch_news.py`)**
+
 ```python
 @dataclass
 class NewsArticle:
@@ -436,6 +438,7 @@ class ReportFormatter:
 ```
 
 **Keywords 分類系統（`keywords.csv`）**
+
 ```csv
 category,keyword_en,keyword_zh,keyword_ja,priority
 LLM模型,Claude,Claude / 大型語言模型,基盤モデル,HIGH
@@ -449,16 +452,16 @@ AI安全,AI Safety / AI Alignment,AI安全 / 可控AI,AIの安全性,HIGH
 
 #### 自動化測試結果（15/15 全通過）
 
-| # | 測試項目 | 結果 |
-|---|---------|------|
-| 1 | sources.json 結構驗證（9 個來源） | ✅ PASS |
-| 2 | keywords.csv 結構驗證（29 條目，9 分類） | ✅ PASS |
-| 3 | apify_client、httpx、python-dotenv 匯入 | ✅ PASS（全3項） |
-| 4 | APIFY_TOKEN 環境變數讀取 | ✅ PASS（已設定） |
-| 5 | fetch_news.py 語法及類別存在驗證 | ✅ PASS |
-| 6 | AINewsRadar 初始化 + 語系過濾 + 主題偵測 | ✅ PASS（全3項） |
-| 7 | Markdown / JSON / 推播摘要格式輸出 | ✅ PASS（全3項） |
-| 8 | SKILL.md + sample_output.md 存在性 | ✅ PASS（全2項） |
+| # | 測試項目                                 | 結果              |
+| - | ---------------------------------------- | ----------------- |
+| 1 | sources.json 結構驗證（9 個來源）        | ✅ PASS           |
+| 2 | keywords.csv 結構驗證（29 條目，9 分類） | ✅ PASS           |
+| 3 | apify_client、httpx、python-dotenv 匯入  | ✅ PASS（全3項）  |
+| 4 | APIFY_TOKEN 環境變數讀取                 | ✅ PASS（已設定） |
+| 5 | fetch_news.py 語法及類別存在驗證         | ✅ PASS           |
+| 6 | AINewsRadar 初始化 + 語系過濾 + 主題偵測 | ✅ PASS（全3項）  |
+| 7 | Markdown / JSON / 推播摘要格式輸出       | ✅ PASS（全3項）  |
+| 8 | SKILL.md + sample_output.md 存在性       | ✅ PASS（全2項）  |
 
 - **Python 執行環境**：`C:\Users\sammy\AppData\Local\Programs\Python\Python38-32\python.exe` (Python 3.8.5)
 - **PYTHONIOENCODING=utf-8**：需設定以正常顯示繁中 + Emoji
@@ -480,6 +483,7 @@ C:\Users\sammy\.gemini\antigravity\skills\ai-news-radar\
 - **狀態**：✅ 全域 Skill 已就緒，可被任何對話視窗讀取調用
 
 #### CLI 常用速查
+
 ```bash
 $py = "C:\Users\sammy\AppData\Local\Programs\Python\Python38-32\python.exe"
 $env:PYTHONIOENCODING = "utf-8"
@@ -506,15 +510,16 @@ $env:PYTHONIOENCODING = "utf-8"
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 三平台選擇 | 各種平台組合 | **Instagram / Facebook / Dcard** | 主公指定，台灣市場主力 |
-| 品牌調性 | A親切生活感 / B年輕有梗 / C質感精緻 / D故事敘事 | **選項A：親切生活感 × 溫暖日常** | 萬用性最高，適合電商/科技/個人品牌 |
-| 觸發方式 | Python 腳本 / AI 對話觸發 | **AI 對話直接生成（方式B）** | 主公指定「自然語言觸發」，無需開終端機 |
-| JSON 格式 | 基本欄位 / 加入 CTA 欄位 | **加入 `cta` 欄位** | 讓輸出更完整，直接複製貼上可發文 |
-| 平台規則來源 | 自行定義 / 查閱官方規範 | **查閱官方規範 + 網路研究** | 依 Meta Community Standards、Instagram Shadowban 研究（2025）、Dcard 站規（2024/10更新）制定 |
+| 決策點       | 選項                                            | 最終決定                                | 原因                                                                                         |
+| ------------ | ----------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 三平台選擇   | 各種平台組合                                    | **Instagram / Facebook / Dcard**  | 主公指定，台灣市場主力                                                                       |
+| 品牌調性     | A親切生活感 / B年輕有梗 / C質感精緻 / D故事敘事 | **選項A：親切生活感 × 溫暖日常** | 萬用性最高，適合電商/科技/個人品牌                                                           |
+| 觸發方式     | Python 腳本 / AI 對話觸發                       | **AI 對話直接生成（方式B）**      | 主公指定「自然語言觸發」，無需開終端機                                                       |
+| JSON 格式    | 基本欄位 / 加入 CTA 欄位                        | **加入 `cta` 欄位**             | 讓輸出更完整，直接複製貼上可發文                                                             |
+| 平台規則來源 | 自行定義 / 查閱官方規範                         | **查閱官方規範 + 網路研究**       | 依 Meta Community Standards、Instagram Shadowban 研究（2025）、Dcard 站規（2024/10更新）制定 |
 
 #### Skill 目錄結構（`.agent/skills/instagram-facebook-dcard-platform-copywriter/`）
+
 ```
 instagram-facebook-dcard-platform-copywriter/
 ├── SKILL.md                              ← 主指令文件（調性 + 流程 + 合規規則 + JSON格式）
@@ -526,6 +531,7 @@ instagram-facebook-dcard-platform-copywriter/
 ```
 
 #### SKILL.md 核心生成流程
+
 ```
 Step 1：理解素材（提取核心賣點 + 情境 + 目標讀者）
 Step 2：三平台分頭生成（語氣完全不同）
@@ -537,6 +543,7 @@ Step 4：輸出完整 JSON（meta / copies / compliance_check）
 ```
 
 #### JSON 輸出格式（含 CTA 欄位，物理真相）
+
 ```json
 {
   "meta": {
@@ -577,25 +584,25 @@ Step 4：輸出完整 JSON（meta / copies / compliance_check）
 
 #### 三平台禁忌規則（`platform_rules.json`，基於官方規範）
 
-| 平台 | 關鍵禁忌 | 來源 |
-|------|---------|------|
-| Instagram | Shadowban Hashtag（#single #dating #dm #teen 等）、PG-13新政、性暗示 | tameladamico.com 2025 / Meta Community Standards |
-| Facebook | 政治立場、誇大醫療保證、仇恨歧視、誘導互刷 | Meta Community Standards（transparency.meta.com）|
-| Dcard | 直接銷售話術、未標示業配（永久停權）、外部商業連結、全正面業配語氣 | Dcard 廣告商業內容規範公告（2024/10）|
-| 三平台共通 | 絕對保證語、誇大緊迫感、自傷暴力歧視 | 各平台通用規範 |
+| 平台       | 關鍵禁忌                                                             | 來源                                              |
+| ---------- | -------------------------------------------------------------------- | ------------------------------------------------- |
+| Instagram  | Shadowban Hashtag（#single #dating #dm #teen 等）、PG-13新政、性暗示 | tameladamico.com 2025 / Meta Community Standards  |
+| Facebook   | 政治立場、誇大醫療保證、仇恨歧視、誘導互刷                           | Meta Community Standards（transparency.meta.com） |
+| Dcard      | 直接銷售話術、未標示業配（永久停權）、外部商業連結、全正面業配語氣   | Dcard 廣告商業內容規範公告（2024/10）             |
+| 三平台共通 | 絕對保證語、誇大緊迫感、自傷暴力歧視                                 | 各平台通用規範                                    |
 
 #### 自動化測試結果（11/11 全通過）
 
-| # | 測試項目 | 結果 |
-|---|---------|------|
-| 1 | SKILL.md 存在且包含所有關鍵字 | ✅ PASS (6,206 bytes) |
-| 2 | brand_voice.md 存在 | ✅ PASS (1,968 bytes) |
-| 3 | platform_rules.json 三平台結構正確 | ✅ PASS |
-| 4 | platform_rules.json 含 hard_limits + cta_style | ✅ PASS |
-| 5 | platform_rules.json 含 5 條 universal_limits | ✅ PASS |
-| 6 | sample_output.json compliance_check 結構正確 | ✅ PASS |
-| 7 | sample_output.json 所有欄位格式正確（含CTA）| ✅ PASS |
-| 8-11 | 目錄結構完整性（4檔全存在）| ✅ PASS（全4項）|
+| #    | 測試項目                                       | 結果                  |
+| ---- | ---------------------------------------------- | --------------------- |
+| 1    | SKILL.md 存在且包含所有關鍵字                  | ✅ PASS (6,206 bytes) |
+| 2    | brand_voice.md 存在                            | ✅ PASS (1,968 bytes) |
+| 3    | platform_rules.json 三平台結構正確             | ✅ PASS               |
+| 4    | platform_rules.json 含 hard_limits + cta_style | ✅ PASS               |
+| 5    | platform_rules.json 含 5 條 universal_limits   | ✅ PASS               |
+| 6    | sample_output.json compliance_check 結構正確   | ✅ PASS               |
+| 7    | sample_output.json 所有欄位格式正確（含CTA）   | ✅ PASS               |
+| 8-11 | 目錄結構完整性（4檔全存在）                    | ✅ PASS（全4項）      |
 
 #### 全域部署清單
 
@@ -636,13 +643,14 @@ C:\Users\sammy\.gemini\antigravity\skills\
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 降噪邏輯層次 | 依賴 LLM 過濾 / 程式自動化過濾 | **程式自動化過濾 (BeautifulSoup)** | 既然目標是省 Token，就不該浪費 AI 在切版面雜訊上。 |
-| 黑名單配置 | 寫死在 Python 內 / 分離為 JSON | **分離為 JSON (`ignore_tags.json`)** | 未來若遇到難纏的新廣告板塊，主公可以直接修改 JSON，不需介入 Python。 |
-| Markdown 引擎 | 正則表達式 / `markdownify` 套件 | **`markdownify` 套件** | 能完美保留 Markdown 結構（如 Heading、List），確保送到 LLM 時語義結構無損。 |
+| 決策點        | 選項                             | 最終決定                                     | 原因                                                                        |
+| ------------- | -------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------- |
+| 降噪邏輯層次  | 依賴 LLM 過濾 / 程式自動化過濾   | **程式自動化過濾 (BeautifulSoup)**     | 既然目標是省 Token，就不該浪費 AI 在切版面雜訊上。                          |
+| 黑名單配置    | 寫死在 Python 內 / 分離為 JSON   | **分離為 JSON (`ignore_tags.json`)** | 未來若遇到難纏的新廣告板塊，主公可以直接修改 JSON，不需介入 Python。        |
+| Markdown 引擎 | 正則表達式 /`markdownify` 套件 | **`markdownify` 套件**               | 能完美保留 Markdown 結構（如 Heading、List），確保送到 LLM 時語義結構無損。 |
 
 #### Skill 目錄結構（`.agent/skills/html-markdown-distiller/`）
+
 ```
 html-markdown-distiller/
 ├── SKILL.md                 ← 技能指令核心與說明
@@ -656,6 +664,7 @@ html-markdown-distiller/
 ```
 
 #### 核心類別設計 (`html_to_md.py`)
+
 ```python
 class DOMTrimmer:
     # 根據 ignore_tags.json，精準切除特定 tags, classes, 與 ids
@@ -672,6 +681,7 @@ class HTMLDistiller:
 ```
 
 #### 排除標籤字典（`ignore_tags.json` 物理真相）
+
 ```json
 {
   "tags": ["nav", "footer", "header", "aside", "script", "style", "noscript", "iframe", "form", "button", "svg"],
@@ -681,7 +691,9 @@ class HTMLDistiller:
 ```
 
 #### 自動化檢驗與 Token 節約數據
+
 執行 `test_skill.py` 進行了實際情境的渲染測試：
+
 - **Original HTML size**: 2088 characters
 - **Distilled MD size**: 289 characters
 - **Calculated Savings**: **86.16%**
@@ -701,6 +713,7 @@ html-markdown-distiller\
 └── resources\
     └── ignore_tags.json
 ```
+
 - **狀態**：✅ 本地專案端的 Skill 已落實完備。
 
 ---
@@ -712,12 +725,13 @@ html-markdown-distiller\
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 底層儲存庫 | JSON 檔案 / SQLite | **SQLite (`yaya_cache.db`)** | 支援高效的 `Hit Count` 更新與索引搜索，當快取量大時 JSON 效能太差。 |
-| 文本相似度比對 | 深度學習 Embedding / 雜湊比對 (Hash) | **字元正規化 + SHA-256 Hash** | 因為只要省下「文字近乎完全一致的反覆貼文」即可省下海量 Token。將文字消除空白、特殊符號後，轉為小寫求 SHA-256，輕量極速且無依賴。 |
+| 決策點         | 選項                                 | 最終決定                             | 原因                                                                                                                             |
+| -------------- | ------------------------------------ | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| 底層儲存庫     | JSON 檔案 / SQLite                   | **SQLite (`yaya_cache.db`)** | 支援高效的 `Hit Count` 更新與索引搜索，當快取量大時 JSON 效能太差。                                                            |
+| 文本相似度比對 | 深度學習 Embedding / 雜湊比對 (Hash) | **字元正規化 + SHA-256 Hash**  | 因為只要省下「文字近乎完全一致的反覆貼文」即可省下海量 Token。將文字消除空白、特殊符號後，轉為小寫求 SHA-256，輕量極速且無依賴。 |
 
 #### Skill 目錄結構（`.agent/skills/semantic-cache-shield/`）
+
 ```
 semantic-cache-shield/
 ├── SKILL.md                 ← 技能指令核心與守備範圍說明
@@ -729,6 +743,7 @@ semantic-cache-shield/
 ```
 
 #### 核心類別設計 (`cache_engine.py`)
+
 ```python
 class SemanticCacheShield:
     def _init_db(self):
@@ -745,13 +760,16 @@ class SemanticCacheShield:
 ```
 
 #### 自動化檢驗與攔截測試
+
 執行 `test_skill.py` 進行了實際論壇洗版攔截測試：
+
 - 給定 `text_a`（正常文）與 `text_b`（夾帶多餘空白與驚嘆號的洗版文，但主旨相同）。
 - **第一回合**：Cache Miss，成功寫入 LLM 模擬結果。
 - **第二回合**：`text_b` 進入系統，經過字元壓縮 Hash 後，**Cache Hit!** 成功攔截。
 - **狀態**：✅ 測試全數通過，攔截率 100%。
 
 #### 全域部署清單
+
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\semantic-cache-shield`
 - **狀態**：✅ 本地專案端與全域端的神盾系統已就位。
 
@@ -764,12 +782,13 @@ class SemanticCacheShield:
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 結構化套件 | Python `typing` / `marshmallow` / `pydantic` | **`pydantic`** | 現今各大 LLM (含 Gemini / OpenAI) 最完美支援的 Schema 產生器，能直接轉為 `response_schema`。 |
-| Prompt 改造 | 保留範例 / 徹底刪除格式設定 | **徹底刪除格式設定** | 將「你必須以 JSON 回覆...」等冗長字眼全數刪除，只留下最純粹的「情境教學 (Few-shot)」與「分析職責」。 |
+| 決策點      | 選項                                               | 最終決定                   | 原因                                                                                                 |
+| ----------- | -------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 結構化套件  | Python `typing` / `marshmallow` / `pydantic` | **`pydantic`**     | 現今各大 LLM (含 Gemini / OpenAI) 最完美支援的 Schema 產生器，能直接轉為 `response_schema`。       |
+| Prompt 改造 | 保留範例 / 徹底刪除格式設定                        | **徹底刪除格式設定** | 將「你必須以 JSON 回覆...」等冗長字眼全數刪除，只留下最純粹的「情境教學 (Few-shot)」與「分析職責」。 |
 
 #### Skill 目錄結構（`.agent/skills/cot-prompt-compactor/`）
+
 ```
 cot-prompt-compactor/
 ├── SKILL.md                 ← 技能指令說明
@@ -780,6 +799,7 @@ cot-prompt-compactor/
 ```
 
 #### 核心類別設計 (`prompts_schema.py`)
+
 ```python
 class SinglePostAnalysisSchema(BaseModel):
     reasoning: str = Field(description="簡短推論，先在此判斷真實意圖與潛台詞（尤其是反諷）。")
@@ -792,13 +812,16 @@ class DailySummarySchema(BaseModel):
 ```
 
 #### 自動化檢驗與 Token 壓縮數據
+
 執行 `test_skill.py`：
+
 - ✅ **Pydantic Validation**：成功通過嚴格的 Type Checking 與強制轉型檢查。
 - **舊版 System Prompt 長度**: 1435 chars
 - **瘦身版 System Prompt 長度**: 539 chars
-- **純文字 Token 節省**: **62.44%** 
+- **純文字 Token 節省**: **62.44%**
 
 #### 全域部署清單
+
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\cot-prompt-compactor`
 - **狀態**：✅ 本地落實完備。
 
@@ -811,13 +834,14 @@ class DailySummarySchema(BaseModel):
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 隨機偽裝池 | 使用 `fake_useragent` 套件 / 自行硬編碼 | **自行硬編碼 (Hardcode 菁英集萃)** | 最輕量、無外部破壞性依賴。精選 6 組最真理的 Desktop/Mobile UA 即可騙過 95% 防火牆。 |
-| 重試機制 | 立即重試 / 指數退避 (Exponential Backoff) | **指數退避 + 擾動 (Jitter)** | 若被 429 阻擋還立即重試，只會招致永久 Ban IP。等待時間設定為 `(基數 * 2^n) + 隨機亂數`，完美偽裝成網速不穩的人類。 |
-| 套件依賴 | 原生 `requests` | **原生 `requests`** | 相容度最高，後續爬蟲開發者仍舊能使用 `.get(url)` 呼叫，無需重新學習非同步框架。 |
+| 決策點     | 選項                                      | 最終決定                                 | 原因                                                                                                                 |
+| ---------- | ----------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 隨機偽裝池 | 使用 `fake_useragent` 套件 / 自行硬編碼 | **自行硬編碼 (Hardcode 菁英集萃)** | 最輕量、無外部破壞性依賴。精選 6 組最真理的 Desktop/Mobile UA 即可騙過 95% 防火牆。                                  |
+| 重試機制   | 立即重試 / 指數退避 (Exponential Backoff) | **指數退避 + 擾動 (Jitter)**       | 若被 429 阻擋還立即重試，只會招致永久 Ban IP。等待時間設定為 `(基數 * 2^n) + 隨機亂數`，完美偽裝成網速不穩的人類。 |
+| 套件依賴   | 原生 `requests`                         | **原生 `requests`**              | 相容度最高，後續爬蟲開發者仍舊能使用 `.get(url)` 呼叫，無需重新學習非同步框架。                                    |
 
 #### Skill 目錄結構（`.agent/skills/auto-proxy-evader/`）
+
 ```
 auto-proxy-evader/
 ├── SKILL.md                 ← 技能防禦說明
@@ -827,19 +851,22 @@ auto-proxy-evader/
 ```
 
 #### 自動化檢驗與抗封鎖能力驗證
+
 執行 `test_skill.py` 進行了實際情境的渲染測試：
+
 - **測試一 (正常呼叫)**：使用預設 `EvaderClient` 訪問，成功取得狀態碼 200，且印出證明系統已自動替我們套上了隨機偽裝的 User-Agent (例如 Safari / Firefox)。
 - **測試二 (壓力對抗)**：我們刻意請求 `https://httpbin.org/status/429`，誘發封鎖。系統立刻攔截例外，並沒有當下崩潰，而是：
+
   - 印出 `[!] 遭遇封鎖 (Status 429)。正在準備指數退避重試...`
   - 第 1 次嘗試失敗，睡眠 0.79 秒...
   - 第 2 次嘗試失敗，睡眠 1.35 秒...
   - 最終回報達最大次數才安全放棄，保護外殼完美運作。
 - **狀態**：✅ 測試全數通過，Milestone 1 三大防護機制全面竣工。
-
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\auto-proxy-evader`
 - **狀態**：✅ 本地落實完備。
 
 ---
+
 ## 👑 【霸業擴張期間 Milestone 2 深度滲透】
 
 ### 🛡️ Phase 49：動態網頁渲染刺客 Skill 實作與全域部署 (Firecrawl Dynamic Breacher)
@@ -849,12 +876,13 @@ auto-proxy-evader/
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
+| 決策點       | 選項                                                       | 最終決定                               | 原因                                                                                                                              |
+| ------------ | ---------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | 渲染解決方案 | 自行安裝 `Playwright` + Chromium / Firecrawl (REST) 計畫 | **方案 A（Firecrawl API 路由）** | 開源專案需顧及可攜性，若本機硬裝幾百 MB 的內核與相關依賴容易使得布署崩潰。改接雲端算力對抗反爬盾並抽取純 Markdwon，既乾淨且穩定。 |
-| 備援機制 | 不作為 | **原生靜態備援** | 若缺乏 API Key，智能退階改用原生的 Request 直打，以免系統停擺。 |
+| 備援機制     | 不作為                                                     | **原生靜態備援**                 | 若缺乏 API Key，智能退階改用原生的 Request 直打，以免系統停擺。                                                                   |
 
 #### Skill 目錄結構（`.agent/skills/firecrawl-dynamic-breacher/`）
+
 ```
 firecrawl-dynamic-breacher/
 ├── SKILL.md                 ← 技能攻堅說明
@@ -864,11 +892,14 @@ firecrawl-dynamic-breacher/
 ```
 
 #### 自動化檢驗結果
+
 執行 `test_skill.py` 驗證：
+
 - 在未設置 API_KEY 環境變數時，系統精準抓出了例外，並成功切換至靜態備援模式，直通目標網站取得 DOM。
 - 日後若佈署 `FIRECRAWL_API_KEY`，系統會自動在 payload 指定 `formats=markdown` 與 `waitFor=3000` 來穿透 JS 陣列，達成完美渲染刺殺。
 
 #### 全域部署清單
+
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\firecrawl-dynamic-breacher`
 - **狀態**：✅ 本地落實完備。
 
@@ -881,12 +912,13 @@ firecrawl-dynamic-breacher/
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 數學演算法 | Isolation Forest (scikit) / Z-Score 純計算 | **Z-Score + 絕對值判定** | 不引入 scikit-learn 以維持輕量化。Z-Score 在 14 天數據量下已足夠精準；採用 `abs(z_score)` 可同時偵測「正向暴增」與「負向情緒崩盤」兩種危機。 |
-| 警報等級 | 單一閾值 / 雙層閾值 | **黃 (2σ) + 紅 (3σ) 雙層警戒** | 黃色為「早期預警」，給團隊留有反應空間；紅色為「立即應戰」，觸發緊急推播。 |
+| 決策點     | 選項                                       | 最終決定                               | 原因                                                                                                                                           |
+| ---------- | ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| 數學演算法 | Isolation Forest (scikit) / Z-Score 純計算 | **Z-Score + 絕對值判定**         | 不引入 scikit-learn 以維持輕量化。Z-Score 在 14 天數據量下已足夠精準；採用 `abs(z_score)` 可同時偵測「正向暴增」與「負向情緒崩盤」兩種危機。 |
+| 警報等級   | 單一閾值 / 雙層閾值                        | **黃 (2σ) + 紅 (3σ) 雙層警戒** | 黃色為「早期預警」，給團隊留有反應空間；紅色為「立即應戰」，觸發緊急推播。                                                                     |
 
 #### 核心公式 (`anomaly_detector.py`)
+
 ```python
 Z = (今日數值 - 過去均值) / 過去標準差
 
@@ -896,14 +928,16 @@ abs(Z) >= 2.0  →  YELLOW_ALERT (異常增溫)
 ```
 
 #### 自動化檢驗結果 (4/4 通過)
-| 測試情境 | 輸入值 | Z-Score | 預期判定 | 結果 |
-|---------|--------|---------|---------|------|
-| 正常聲量波動 | 47 篇 | Z=1.05 | NORMAL | ✅ |
-| 輕微異常增溫 | 51 篇 | Z=2.18 | YELLOW_ALERT | ✅ |
-| 論壇暴動 | 300 篇 | Z=72.53 | RED_ALERT | ✅ |
-| 情緒崩盤 | -0.2 分 | Z=-33.27 | RED_ALERT | ✅ |
+
+| 測試情境     | 輸入值  | Z-Score  | 預期判定     | 結果 |
+| ------------ | ------- | -------- | ------------ | ---- |
+| 正常聲量波動 | 47 篇   | Z=1.05   | NORMAL       | ✅   |
+| 輕微異常增溫 | 51 篇   | Z=2.18   | YELLOW_ALERT | ✅   |
+| 論壇暴動     | 300 篇  | Z=72.53  | RED_ALERT    | ✅   |
+| 情緒崩盤     | -0.2 分 | Z=-33.27 | RED_ALERT    | ✅   |
 
 #### 全域部署清單
+
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\trend-anomaly-detector`
 - **狀態**：✅ 本地落實完備。
 
@@ -916,12 +950,13 @@ abs(Z) >= 2.0  →  YELLOW_ALERT (異常增溫)
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 並發模型 | `threading.ThreadPoolExecutor` / `asyncio.gather` | **`asyncio.gather` + `Semaphore`** | `asyncio` 是 Python I/O 密集型任務的最優解，`Semaphore` 則確保最大並發不超過 10，防止 IP 被封鎖。 |
-| 結果整合 | 回傳原始列表 / 追加標記後回傳 | **自動標記 `fetched_at` 與 `task` 名稱** | 大量並行抓取的結果在不加標記的情況下難以溯源，自動貼上來源與時間戳是監測系統最不可缺少的根基。 |
+| 決策點   | 選項                                                  | 最終決定                                           | 原因                                                                                                  |
+| -------- | ----------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 並發模型 | `threading.ThreadPoolExecutor` / `asyncio.gather` | **`asyncio.gather` + `Semaphore`**       | `asyncio` 是 Python I/O 密集型任務的最優解，`Semaphore` 則確保最大並發不超過 10，防止 IP 被封鎖。 |
+| 結果整合 | 回傳原始列表 / 追加標記後回傳                         | **自動標記 `fetched_at` 與 `task` 名稱** | 大量並行抓取的結果在不加標記的情況下難以溯源，自動貼上來源與時間戳是監測系統最不可缺少的根基。        |
 
 #### 核心設計 (`synthesizer.py`)
+
 ```python
 class AsyncSynthesizer:
     def __init__(self, max_concurrency=10):
@@ -933,12 +968,14 @@ class AsyncSynthesizer:
 ```
 
 #### 自動化效能驗證結果 (12/12 任務通過)
+
 - **理論序列等候時間**：~6.25 秒
 - **實際並行完成時間**：**0.969 秒**
 - **加速效益**：✅ 節省了 **84.5%** 的等待時間
 - 每個任務都被自動標記了 `fetched_at` 時間戳與 `platform` 來源標識
 
 #### 全域部署清單
+
 - **部署方式**：`Copy-Item` 遞迴複製至全域 `C:\Users\sammy\.gemini\antigravity\skills\multi-thread-synthesizer`
 - **狀態**：✅ 本地落實完備。Milestone 2 已全面竣工！
 
@@ -953,13 +990,14 @@ class AsyncSynthesizer:
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 英雄名稱比對 | LLM 語意判斷 / 白名單比對 | **官方白名單 JSON 比對** | 不浪費 LLM Token 在名稱校驗上；白名單可隨官方更新直接擴充，維護成本最低。 |
-| 數值校驗 | 人工設定邊界 / 正規表達式自動擷取 | **正規表達式擷取 + 邊界比對** | 能自動從文本中擷取多種格式的數值，不依賴固定 JSON 結構，泛用性更高。 |
-| 幻覺模式 | 無 / 預設模式庫 | **正則模式庫 (`HALLUCINATION_PATTERNS`)** | 能捕捉 LLM 常見的誇大敘述（三位數勝率、分數超過 1）等固定語言特徵。 |
+| 決策點       | 選項                              | 最終決定                                          | 原因                                                                      |
+| ------------ | --------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------- |
+| 英雄名稱比對 | LLM 語意判斷 / 白名單比對         | **官方白名單 JSON 比對**                    | 不浪費 LLM Token 在名稱校驗上；白名單可隨官方更新直接擴充，維護成本最低。 |
+| 數值校驗     | 人工設定邊界 / 正規表達式自動擷取 | **正規表達式擷取 + 邊界比對**               | 能自動從文本中擷取多種格式的數值，不依賴固定 JSON 結構，泛用性更高。      |
+| 幻覺模式     | 無 / 預設模式庫                   | **正則模式庫 (`HALLUCINATION_PATTERNS`)** | 能捕捉 LLM 常見的誇大敘述（三位數勝率、分數超過 1）等固定語言特徵。       |
 
 #### Skill 目錄結構（`.agent/skills/hallucination-judge/`）
+
 ```
 hallucination-judge/
 ├── SKILL.md                        ← 技能說明文件
@@ -971,6 +1009,7 @@ hallucination-judge/
 ```
 
 #### 核心類別設計 (`judge.py`)
+
 ```python
 class HallucinationJudge:
     def check_hero_names(self, text: str) -> Dict:
@@ -987,6 +1026,7 @@ class HallucinationJudge:
 ```
 
 #### 英雄白名單（`hero_whitelist.json` 物理真相）
+
 ```json
 {
   "version": "1.0.0",
@@ -1002,6 +1042,7 @@ class HallucinationJudge:
 ```
 
 #### 輸出格式（物理真相）
+
 ```json
 {
   "verdict": "PASS | WARN | FAIL",
@@ -1016,6 +1057,7 @@ class HallucinationJudge:
 ```
 
 #### 扣分邏輯（物理真相）
+
 - **未知英雄**：每發現一個，`confidence_score -= 20`
 - **數值越界**：每發現一個，`confidence_score -= 25`
 - **幻覺模式觸發**：每發現一個，`confidence_score -= 15`
@@ -1023,18 +1065,19 @@ class HallucinationJudge:
 
 #### 自動化測試結果（5/5 全通過）
 
-| # | 測試情境 | 輸入 | 預期判定 | 結果 |
-|---|---------|------|---------|------|
-| 1 | 乾淨正常戰報 | 合法英雄 + 合法數值 | PASS / 100分 | ✅ |
-| 2 | 假英雄名稱 | 「滅世龍帝」「暗黑審判者」 | 偵測未知英雄 | ✅ WARN / 60分 |
-| 3 | 情緒分數越界 | `sentiment_score: 1.95` | 數值違規 | ✅ WARN / 75分 |
-| 4 | 勝率幻覺 | 「勝率高達 150%」 | 幻覺模式觸發 | ✅ WARN / 75分 |
-| 5 | 合法英雄+數值 | 飛燕/超人 + -0.3 + 45% | PASS / 100分 | ✅ |
+| # | 測試情境      | 輸入                       | 預期判定     | 結果           |
+| - | ------------- | -------------------------- | ------------ | -------------- |
+| 1 | 乾淨正常戰報  | 合法英雄 + 合法數值        | PASS / 100分 | ✅             |
+| 2 | 假英雄名稱    | 「滅世龍帝」「暗黑審判者」 | 偵測未知英雄 | ✅ WARN / 60分 |
+| 3 | 情緒分數越界  | `sentiment_score: 1.95`  | 數值違規     | ✅ WARN / 75分 |
+| 4 | 勝率幻覺      | 「勝率高達 150%」          | 幻覺模式觸發 | ✅ WARN / 75分 |
+| 5 | 合法英雄+數值 | 飛燕/超人 + -0.3 + 45%     | PASS / 100分 | ✅             |
 
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`re`, `json`），零外部依賴
 
 #### 本地部署清單
+
 ```
 D:\Coding Project\Arena of Valor\.agent\skills\
 hallucination-judge\
@@ -1045,6 +1088,7 @@ hallucination-judge\
 │   └── hero_whitelist.json
 └── test_skill.py
 ```
+
 - **狀態**：✅ 本地落實完備，Milestone 3 第一支特種兵上線！
 
 ---
@@ -1056,13 +1100,14 @@ hallucination-judge\
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 路由演算法 | LLM 語意分類 / 關鍵字評分 | **關鍵字評分 (Keyword Scoring)** | 10 支技能的邊界清晰，關鍵字比對已足夠精準，且無需消耗 LLM Token，速度極快。 |
-| 技能冊格式 | 寫死在 Python / 分離 JSON | **分離為 `skill_registry.json`** | 新增 Milestone 4+ 的技能時，只需更新 JSON 檔，無需修改 Python 邏輯。 |
-| 推薦數量 | 只回傳第一名 / TOP-N | **TOP-3 候選 + 信心等級** | 面對模糊任務描述，提供候選清單讓使用者自行選擇，比強行給答案更實用。 |
+| 決策點     | 選項                      | 最終決定                                 | 原因                                                                        |
+| ---------- | ------------------------- | ---------------------------------------- | --------------------------------------------------------------------------- |
+| 路由演算法 | LLM 語意分類 / 關鍵字評分 | **關鍵字評分 (Keyword Scoring)**   | 10 支技能的邊界清晰，關鍵字比對已足夠精準，且無需消耗 LLM Token，速度極快。 |
+| 技能冊格式 | 寫死在 Python / 分離 JSON | **分離為 `skill_registry.json`** | 新增 Milestone 4+ 的技能時，只需更新 JSON 檔，無需修改 Python 邏輯。        |
+| 推薦數量   | 只回傳第一名 / TOP-N      | **TOP-3 候選 + 信心等級**          | 面對模糊任務描述，提供候選清單讓使用者自行選擇，比強行給答案更實用。        |
 
 #### Skill 目錄結構（`.agent/skills/smart-task-router/`）
+
 ```
 smart-task-router/
 ├── SKILL.md
@@ -1074,6 +1119,7 @@ smart-task-router/
 ```
 
 #### 核心類別設計 (`router.py`)
+
 ```python
 class SmartTaskRouter:
     def _score_skill(self, skill: Dict, query: str) -> int:
@@ -1087,6 +1133,7 @@ class SmartTaskRouter:
 ```
 
 #### 技能冊（`skill_registry.json` 物理真相，共 10 支）
+
 ```json
 {
   "skills": [
@@ -1121,18 +1168,19 @@ class SmartTaskRouter:
 
 #### 自動化測試結果（6/6 全通過）
 
-| # | 輸入任務描述 | 預期路由 | 信心 | 結果 |
-|---|------------|---------|------|------|
-| 1 | 「IG/FB SPA 動態渲染爬取」 | firecrawl-dynamic-breacher | HIGH | ✅ |
-| 2 | 「攔截重複洗版貼文節省費用」 | semantic-cache-shield | HIGH | ✅ |
-| 3 | 「論壇炎上聲量爆衝即時警報」 | trend-anomaly-detector | HIGH | ✅ |
-| 4 | 「報表推送 GitHub 部署看板」 | hot-deployer | HIGH | ✅ |
-| 5 | 「AI 生成戰報英雄名稱驗證」 | hallucination-judge | HIGH | ✅ |
-| 6 | 技能冊完整性（10 個） | 10 個 skill | — | ✅ |
+| # | 輸入任務描述                 | 預期路由                   | 信心 | 結果 |
+| - | ---------------------------- | -------------------------- | ---- | ---- |
+| 1 | 「IG/FB SPA 動態渲染爬取」   | firecrawl-dynamic-breacher | HIGH | ✅   |
+| 2 | 「攔截重複洗版貼文節省費用」 | semantic-cache-shield      | HIGH | ✅   |
+| 3 | 「論壇炎上聲量爆衝即時警報」 | trend-anomaly-detector     | HIGH | ✅   |
+| 4 | 「報表推送 GitHub 部署看板」 | hot-deployer               | HIGH | ✅   |
+| 5 | 「AI 生成戰報英雄名稱驗證」  | hallucination-judge        | HIGH | ✅   |
+| 6 | 技能冊完整性（10 個）        | 10 個 skill                | —   | ✅   |
 
 - **相依套件**：純標準庫（`json`, `pathlib`），零外部依賴
 
 #### 本地部署清單
+
 ```
 D:\Coding Project\Arena of Valor\.agent\skills\
 smart-task-router\
@@ -1143,6 +1191,7 @@ smart-task-router\
 │   └── skill_registry.json
 └── test_skill.py
 ```
+
 - **狀態**：✅ 本地落實完備，Milestone 3 第二支特種兵上線！
 
 ---
@@ -1154,13 +1203,14 @@ smart-task-router\
 
 #### 技術決策紀錄
 
-| 決策點 | 選項 | 最終決定 | 原因 |
-|-------|------|---------|------|
-| 報表偵測方式 | 監聽檔案系統事件 / 按修改時間排序 | **`stat().st_mtime` 排序取最新** | 輕量無依賴；`watchdog` 套件需常駐程式，過於重量，不符合「單次觸發」的使用場景。 |
-| Git 操作 | `gitpython` 套件 / `subprocess` 呼叫 | **`subprocess` 呼叫原生 git** | 不引入第三方依賴，且 `subprocess` 可完整捕捉 stdout/stderr 用於狀態判斷。 |
-| dry_run 設計 | 無 / 必要參數 | **`dry_run=True` 為測試預設值** | 確保測試環境不會意外推送假報表至 GitHub；正式使用時明確傳入 `False`。 |
+| 決策點       | 選項                                     | 最終決定                                 | 原因                                                                              |
+| ------------ | ---------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------- |
+| 報表偵測方式 | 監聽檔案系統事件 / 按修改時間排序        | **`stat().st_mtime` 排序取最新** | 輕量無依賴；`watchdog` 套件需常駐程式，過於重量，不符合「單次觸發」的使用場景。 |
+| Git 操作     | `gitpython` 套件 / `subprocess` 呼叫 | **`subprocess` 呼叫原生 git**    | 不引入第三方依賴，且 `subprocess` 可完整捕捉 stdout/stderr 用於狀態判斷。       |
+| dry_run 設計 | 無 / 必要參數                            | **`dry_run=True` 為測試預設值**  | 確保測試環境不會意外推送假報表至 GitHub；正式使用時明確傳入 `False`。           |
 
 #### Skill 目錄結構（`.agent/skills/hot-deployer/`）
+
 ```
 hot-deployer/
 ├── SKILL.md
@@ -1170,6 +1220,7 @@ hot-deployer/
 ```
 
 #### 核心類別設計 (`deployer.py`)
+
 ```python
 class HotDeployer:
     def find_latest_report(self) -> Optional[Path]:
@@ -1189,6 +1240,7 @@ class HotDeployer:
 ```
 
 #### 完整部署輸出（物理真相）
+
 ```json
 {
   "status": "success",
@@ -1206,16 +1258,17 @@ class HotDeployer:
 
 #### 自動化測試結果（4/4 全通過）
 
-| # | 測試項目 | 驗證重點 | 結果 |
-|---|---------|---------|------|
-| 1 | 偵測最新報表 | 找到 `aov_report_2026-04-05.html` | ✅ |
-| 2 | 同步至 ui_previews | `shutil.copy2` 正確複製至臨時目標 | ✅ |
-| 3 | dry_run Git 攔截 | `git_push` 回傳 `skipped` + dry_run 原因 | ✅ |
-| 4 | 完整部署流程 (dry_run) | `deploy()` 完整執行，git 狀態為 `skipped` | ✅ |
+| # | 測試項目               | 驗證重點                                      | 結果 |
+| - | ---------------------- | --------------------------------------------- | ---- |
+| 1 | 偵測最新報表           | 找到 `aov_report_2026-04-05.html`           | ✅   |
+| 2 | 同步至 ui_previews     | `shutil.copy2` 正確複製至臨時目標           | ✅   |
+| 3 | dry_run Git 攔截       | `git_push` 回傳 `skipped` + dry_run 原因  | ✅   |
+| 4 | 完整部署流程 (dry_run) | `deploy()` 完整執行，git 狀態為 `skipped` | ✅   |
 
 - **相依套件**：純標準庫（`shutil`, `subprocess`, `pathlib`），零外部依賴
 
 #### 本地部署清單
+
 ```
 D:\Coding Project\Arena of Valor\.agent\skills\
 hot-deployer\
@@ -1224,24 +1277,25 @@ hot-deployer\
 │   └── deployer.py
 └── test_skill.py
 ```
+
 - **狀態**：✅ 本地落實完備。**Milestone 3 已全面竣工！霸業擴張 9 大特種兵完整部署完成！**
 
 ---
 
 ### 🏆 霸業擴張總藍圖最終完成紀錄
 
-| Milestone | 任務 | Phase | 特種兵 | 狀態 |
-|----------|------|-------|-------|------|
-| M1 地基固化 | HTML 淨化 | 45 | html-markdown-distiller | ✅ |
-| M1 地基固化 | 語意快取 | 46 | semantic-cache-shield | ✅ |
-| M1 地基固化 | 提示詞壓縮 | 47 | cot-prompt-compactor | ✅ |
-| M1 地基固化 | 抗封鎖偽裝 | 48 | auto-proxy-evader | ✅ |
-| M2 深度滲透 | 動態渲染 | 49 | firecrawl-dynamic-breacher | ✅ |
-| M2 深度滲透 | 異常觀測 | 50 | trend-anomaly-detector | ✅ |
-| M2 深度滲透 | 跨維度聚合 | 51 | multi-thread-synthesizer | ✅ |
-| M3 指揮所 | 幻覺裁判 | 52 | hallucination-judge | ✅ |
-| M3 指揮所 | 任務路由 | 53 | smart-task-router | ✅ |
-| M3 指揮所 | 熱部署儀 | 54 | hot-deployer | ✅ |
+| Milestone   | 任務       | Phase | 特種兵                     | 狀態 |
+| ----------- | ---------- | ----- | -------------------------- | ---- |
+| M1 地基固化 | HTML 淨化  | 45    | html-markdown-distiller    | ✅   |
+| M1 地基固化 | 語意快取   | 46    | semantic-cache-shield      | ✅   |
+| M1 地基固化 | 提示詞壓縮 | 47    | cot-prompt-compactor       | ✅   |
+| M1 地基固化 | 抗封鎖偽裝 | 48    | auto-proxy-evader          | ✅   |
+| M2 深度滲透 | 動態渲染   | 49    | firecrawl-dynamic-breacher | ✅   |
+| M2 深度滲透 | 異常觀測   | 50    | trend-anomaly-detector     | ✅   |
+| M2 深度滲透 | 跨維度聚合 | 51    | multi-thread-synthesizer   | ✅   |
+| M3 指揮所   | 幻覺裁判   | 52    | hallucination-judge        | ✅   |
+| M3 指揮所   | 任務路由   | 53    | smart-task-router          | ✅   |
+| M3 指揮所   | 熱部署儀   | 54    | hot-deployer               | ✅   |
 
 ---
 
@@ -1252,12 +1306,13 @@ hot-deployer\
 
 #### 技術挑戰與解決方案
 
-| 平台 | 挑戰 | 解決方案 |
-|------|------|---------|
-| Dcard | 官方 API 受 Cloudflare 保護（全部 403） | 改走 **DuckDuckGo HTML 搜尋** `site:dcard.tw/f/aov {keyword}` |
+| 平台     | 挑戰                                                            | 解決方案                                                                |
+| -------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Dcard    | 官方 API 受 Cloudflare 保護（全部 403）                         | 改走**DuckDuckGo HTML 搜尋** `site:dcard.tw/f/aov {keyword}`    |
 | 巴哈姆特 | HTML 選取器誤判（href 無前綴 `/`，標題在 `<p>` 非 `<a>`） | 重寫解析邏輯：`p.b-list__main__title` + `td.b-list__main > a[href]` |
 
 #### scrapers/dcard_scraper.py
+
 ```python
 class DcardScraper:
     # POST https://html.duckduckgo.com/html/
@@ -1269,6 +1324,7 @@ class DcardScraper:
 ```
 
 #### scrapers/bahamut_scraper.py（修正版）
+
 ```python
 class BahamutScraper:
     # GET https://forum.gamer.com.tw/B.php?bsn=30518&qt=1&q={keyword}
@@ -1279,6 +1335,7 @@ class BahamutScraper:
 ```
 
 #### main.py 整合（Step 1 補充爬蟲）
+
 ```python
 # Tavily 搜尋完畢後，追加 Dcard + 巴哈 結果
 dcard = DcardScraper()
@@ -1291,9 +1348,11 @@ baha_results = await bahamut.search(tw_keywords, max_results=8)
 ```
 
 #### tavily_searcher.py 補充網域
+
 - `include_domains` 新增 `"forum.gamer.com.tw"`（巴哈姆特 AOV 哈啦板）
 
 #### 測試結果
+
 ```
 [Dcard]   芽芽出裝推薦、希望我可以懸芽勒馬、#發問解惑 芽芽怎麼玩...  5 篇 ✅
 [巴哈姆特] 【問題】芽芽為什麼不能被檢舉、【情報】芽芽應援甜心...     5 篇 ✅
@@ -1312,6 +1371,7 @@ baha_results = await bahamut.search(tw_keywords, max_results=8)
 **核心痛點解決**：Tavily 付費 API 月配額耗盡後，整條日報流程會停擺。
 
 #### 三層輪用架構
+
 ```
 ① Tavily（付費，最高品質）
     ↓ 失敗 / 429 / 402 / 403 / quota 訊息
@@ -1321,15 +1381,17 @@ baha_results = await bahamut.search(tw_keywords, max_results=8)
 ```
 
 #### 額度耗盡偵測 `_is_quota_error()`
-| HTTP Status | 判定 |
-|-------------|------|
-| 429 Too Many Requests | ✅ 額度耗盡 |
-| 402 Payment Required  | ✅ 額度耗盡 |
-| 403 Forbidden         | ✅ 額度耗盡 |
-| 回應含 quota/exceeded/limit | ✅ 額度耗盡 |
-| 500 / 其他             | ❌ 非額度錯誤（不切換） |
+
+| HTTP Status                 | 判定                    |
+| --------------------------- | ----------------------- |
+| 429 Too Many Requests       | ✅ 額度耗盡             |
+| 402 Payment Required        | ✅ 額度耗盡             |
+| 403 Forbidden               | ✅ 額度耗盡             |
+| 回應含 quota/exceeded/limit | ✅ 額度耗盡             |
+| 500 / 其他                  | ❌ 非額度錯誤（不切換） |
 
 #### 新增檔案
+
 ```
 scrapers/
 ├── ddg_searcher.py         # 通用 DDG HTML 搜尋，介面與 TavilySearcher 相容
@@ -1343,9 +1405,11 @@ scrapers/
 ```
 
 #### main.py 整合
+
 `TavilySearcher` 替換為 `WaterfallSearcher`，搜集層對呼叫端完全透明。
 
 #### 測試結果
+
 ```
 ✅ PASS  額度偵測：429 → is_quota_error=True
 ✅ PASS  額度偵測：402 → is_quota_error=True
@@ -1356,6 +1420,7 @@ scrapers/
 ```
 
 #### Live 驗證
+
 ```
 [Waterfall] 嘗試搜尋源：Tavily
 [Waterfall] ✅ Tavily 成功取得 3 筆，後續源跳過。
@@ -1371,31 +1436,37 @@ scrapers/
 **核心痛點解決**：原本只能等 Tavily 回傳 429 才發現額度耗盡（被動），現在事前主動追蹤用量並在達門檻時讓瀑布鏈預先切換。
 
 #### 三層門檻
-| 區間 | verdict | 行為 |
-|------|---------|------|
-| 0% ~ 79% | OK | 正常呼叫 |
-| 80% ~ 94% | WARN | 日誌警告 |
+
+| 區間       | verdict  | 行為                                              |
+| ---------- | -------- | ------------------------------------------------- |
+| 0% ~ 79%   | OK       | 正常呼叫                                          |
+| 80% ~ 94%  | WARN     | 日誌警告                                          |
 | 95% ~ 100% | CRITICAL | `should_fallback()=True`，瀑布鏈主動跳過 Tavily |
 
 #### 狀態持久化 `data/quota_state.json`
+
 ```json
 {
   "tavily": { "month": "2026-04", "used": 42, "limit": 1000 }
 }
 ```
+
 每月第一次呼叫時自動 rollover（`month` 不同 → used 歸零）。
 
 #### 整合點
-| 檔案 | 變更 |
-|------|------|
-| `scrapers/tavily_searcher.py` | `__init__` 載入 Guardian；每次 `_search_keyword` 成功後 `record(1)` |
-| `scrapers/waterfall_searcher.py` | 呼叫源前檢查 `guardian.should_fallback()`，True 則 `continue` 跳過 |
+
+| 檔案                               | 變更                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| `scrapers/tavily_searcher.py`    | `__init__` 載入 Guardian；每次 `_search_keyword` 成功後 `record(1)` |
+| `scrapers/waterfall_searcher.py` | 呼叫源前檢查 `guardian.should_fallback()`，True 則 `continue` 跳過    |
 
 #### 月額度參數
+
 - 預設 `1000`（Tavily 免費方案）
 - 可透過 `.env` 的 `TAVILY_MONTHLY_LIMIT` 覆寫
 
 #### 測試結果
+
 ```
 ✅ PASS  初始狀態：used=0 / verdict=OK
 ✅ PASS  record 累加：3+2=5
@@ -1415,24 +1486,27 @@ scrapers/
 **核心痛點解決**：使用者每日要從頭讀完整戰報。雷達只告訴你「和昨天比什麼不一樣」，一眼掌握變化。
 
 #### 八項差異指標
-| 指標 | 計算 |
-|------|------|
-| `sentiment_delta` | 今日 `overall.sentiment_score` − 昨日 |
-| `volume_delta` / `volume_delta_pct` | 今日 `total_posts` − 昨日（含 %）|
-| `trend_change` | 昨日 trend → 今日 trend |
-| `new_heroes` / `dropped_heroes` | hero_stats 集合差 |
-| `hero_sentiment_shifts` | 共同英雄 avg_sentiment 變化（僅保留 ≥ 0.05）|
-| `platform_changes` | 各平台 post_count 差值 |
-| `alert_level` | HIGH / MEDIUM / LOW |
+
+| 指標                                    | 計算                                          |
+| --------------------------------------- | --------------------------------------------- |
+| `sentiment_delta`                     | 今日 `overall.sentiment_score` − 昨日      |
+| `volume_delta` / `volume_delta_pct` | 今日 `total_posts` − 昨日（含 %）          |
+| `trend_change`                        | 昨日 trend → 今日 trend                      |
+| `new_heroes` / `dropped_heroes`     | hero_stats 集合差                             |
+| `hero_sentiment_shifts`               | 共同英雄 avg_sentiment 變化（僅保留 ≥ 0.05） |
+| `platform_changes`                    | 各平台 post_count 差值                        |
+| `alert_level`                         | HIGH / MEDIUM / LOW                           |
 
 #### Alert 分級
-| 等級 | 觸發 |
-|------|------|
-| HIGH | `|Δsent| ≥ 0.30` 或 `|Δvol%| ≥ 50%` |
-| MEDIUM | `|Δsent| ≥ 0.15` 或 `|Δvol%| ≥ 25%` |
-| LOW | 其餘 |
+
+| 等級   | 觸發 |
+| ------ | ---- |
+| HIGH   | `    |
+| MEDIUM | `    |
+| LOW    | 其餘 |
 
 #### 檔案結構
+
 ```
 .agent/skills/daily-diff-radar/
 ├── SKILL.md
@@ -1441,6 +1515,7 @@ scrapers/
 ```
 
 #### 介面
+
 ```python
 radar = DailyDiffRadar()
 report = radar.radar()                        # 自動找最新兩天
@@ -1448,6 +1523,7 @@ report = radar.radar(today_date="2026-04-19") # 指定今日
 ```
 
 #### 測試結果
+
 ```
 ✅ PASS  空目錄：回傳 error 欄位
 ✅ PASS  僅一份檔：回傳 error（需至少 2）
@@ -1459,6 +1535,7 @@ report = radar.radar(today_date="2026-04-19") # 指定今日
 ```
 
 #### Live 驗證（真實 analysis 檔）
+
 ```
 今日: 2026-04-05 / 昨日: 2026-03-30
 Δsentiment: 0.0, Δvolume: 0, alert_level: LOW
@@ -1470,15 +1547,18 @@ report = radar.radar(today_date="2026-04-19") # 指定今日
 ---
 
 ### Phase 58.5：Hero Whitelist Authoritative Rebuild (2026-04-19)
+
 **類型**：品質修正 — 修正 Phase 52 Hallucination Judge 白名單資料錯誤
 
 #### 緣起
+
 使用者發現 SKILL.md 範例中的「雅典娜」「飛燕」皆非傳說對決台服實際英雄，
 進一步追查發現 Phase 52 建置的 `hero_whitelist.json` 充斥不存在或錯譯的英雄名稱
 （如 飛燕=Butterfly、蒙奇、赤鱗、毒伶、血刃=Wukong 等均與官方不符），
 導致幻覺裁判校驗反而「放行真幻覺、誤判真英雄」。
 
 #### 修正內容
+
 - **資料源**：moba.garena.tw/game/heroes/（台服官方英雄一覽）
 - **重建檔**：`.agent/skills/hallucination-judge/resources/hero_whitelist.json`
   - 版本：1.0.0 → 2.0.0
@@ -1488,6 +1568,7 @@ report = radar.radar(today_date="2026-04-19") # 指定今日
 - **SKILL.md 範例**：dropped_heroes 由 `飛燕` → `悟空`（已於 commit 51c25bf 修正）
 
 #### 驗證
+
 ```
 py .agent/skills/hallucination-judge/test_skill.py
 [✓] 5/5 測試通過
@@ -1499,23 +1580,27 @@ py .agent/skills/hallucination-judge/test_skill.py
 ---
 
 ### Phase 59：Rich Push Formatter — 戰報推播格式化儀 (2026-04-19)
+
 **類型**：Milestone 4 第四支特種兵
 
 #### 動機
+
 Daily Diff Radar 輸出的 JSON 對工程師可用、對人類不可口。
 本 skill 將 diff / analysis JSON 轉成含 emoji 警戒燈號、Δ 箭頭、英雄變動與
 平台聲量表格的 Markdown 日報，可直接貼進 Discord / Obsidian / Line。
 
 #### 能力矩陣
-| 輸入 | 輸出 |
-|------|------|
+
+| 輸入                       | 輸出                |
+| -------------------------- | ------------------- |
 | daily-diff-radar diff dict | 昨→今對比 Markdown |
-| analysis_YYYYMMDD.json | 單日快照 Markdown |
+| analysis_YYYYMMDD.json     | 單日快照 Markdown   |
 
 警戒燈號：🔴 HIGH / 🟡 MEDIUM / 🟢 LOW
 Δ 箭頭：⬆️ 正向 / ⬇️ 負向 / ➡️ 持平
 
 #### 檔案結構
+
 ```
 .agent/skills/rich-push-formatter/
 ├── SKILL.md
@@ -1524,6 +1609,7 @@ Daily Diff Radar 輸出的 JSON 對工程師可用、對人類不可口。
 ```
 
 #### 介面
+
 ```python
 f = RichPushFormatter()
 md = f.format_diff(diff_dict)        # 昨→今對比日報
@@ -1531,11 +1617,13 @@ md = f.format_analysis(analysis)     # 單日快照
 ```
 
 #### 註冊
+
 - `skill_registry.json` 新增 `rich-push-formatter` (task_type: format)
 - 新增 task_type 分類：format（格式轉換類）
 - Smart Task Router 測試六：13 → 14 skills，仍 6/6 通過
 
 #### 測試結果
+
 ```
 ✅ 9/9 全部通過（箭頭方向 × 3 / format_diff × 5 / format_analysis × 1）
 ```
