@@ -1,3 +1,5 @@
+1. col1col2col3
+
 # Arena of Valor 輿情監測系統：技術開發史詩 (Task Heritage Archive)
 
 ## 📌 旗艦特務演進史 (Full Granular Phases 1-36)
@@ -1658,11 +1660,11 @@ md = f.format_analysis(analysis)     # 單日快照
 
 #### 方案比較與決策
 
-| 方案 | 作法 | 風險 | 是否採用 |
-|---|---|---|---|
-| **Plan A** | `git fsck --lost-found` + 手動重建 | 130 個 object 手動拼回，極高工時，且拼錯即毀真相 | ❌ 棄 |
-| **Plan B** | 從 GitHub 重 clone 乾淨版，搬運本地未推送工作 | 乾淨快速，但需逐一比對未推送內容避免漏失 | ✅ **採用** |
-| **Plan C** | 整個 repo 砍掉重練 | 會遺失所有本地未推送改動 | ❌ 棄 |
+| 方案             | 作法                                          | 風險                                             | 是否採用         |
+| ---------------- | --------------------------------------------- | ------------------------------------------------ | ---------------- |
+| **Plan A** | `git fsck --lost-found` + 手動重建          | 130 個 object 手動拼回，極高工時，且拼錯即毀真相 | ❌ 棄            |
+| **Plan B** | 從 GitHub 重 clone 乾淨版，搬運本地未推送工作 | 乾淨快速，但需逐一比對未推送內容避免漏失         | ✅**採用** |
+| **Plan C** | 整個 repo 砍掉重練                            | 會遺失所有本地未推送改動                         | ❌ 棄            |
 
 **決策依據**：主公明確核准走 **Plan B**，回答選項 1A / 2A / 3A / 4A（走完全照原稿、重 clone、保留本地未推送 commit、由主公主導資料夾改名）。
 
@@ -1724,25 +1726,25 @@ md = f.format_analysis(analysis)     # 單日快照
 
 #### 搬運檔案清冊（從毀損 repo → CLEAN repo）
 
-| 檔案 | 大小 | 類別 |
-|---|---|---|
-| `.env` | 1084 B | 🔴 極重要（API key） |
-| `.claude/settings.json` | 74 B | Claude Code 設定 |
-| `.claude/settings.local.json` | ~1190 B | Claude Code 本地設定 |
-| `.vscode/settings.json` | 609 B | 編輯器設定 |
-| `ui_previews/aov_report_2026-04-05.html` | 94304 B | 與 V16_GOLDEN_BUILD 位元完全相同 |
-| `logs/app.log` | 2099492 B | 執行日誌 |
-| `data/*.json` | 12 檔 | analysis / raw / llm_cache / quota |
-| `screenshots/` | 空 | 已建立空資料夾 |
+| 檔案                                       | 大小      | 類別                               |
+| ------------------------------------------ | --------- | ---------------------------------- |
+| `.env`                                   | 1084 B    | 🔴 極重要（API key）               |
+| `.claude/settings.json`                  | 74 B      | Claude Code 設定                   |
+| `.claude/settings.local.json`            | ~1190 B   | Claude Code 本地設定               |
+| `.vscode/settings.json`                  | 609 B     | 編輯器設定                         |
+| `ui_previews/aov_report_2026-04-05.html` | 94304 B   | 與 V16_GOLDEN_BUILD 位元完全相同   |
+| `logs/app.log`                           | 2099492 B | 執行日誌                           |
+| `data/*.json`                            | 12 檔     | analysis / raw / llm_cache / quota |
+| `screenshots/`                           | 空        | 已建立空資料夾                     |
 
 #### SHA 替身對照
 
-| 原版（毀損 repo） | 替身（CLEAN repo / 已 push） |
-|---|---|
-| SHA: `287b96e` | SHA: `5130c82` |
-| 內容：`.gitignore` 追加 3 行 `screenshots/` | 內容：**完全相同** |
-| message：`chore: 忽略 screenshots 資料夾` | message：**完全相同** |
-| Co-Authored-By：Claude Opus 4.7 | **完全相同** |
+| 原版（毀損 repo）                               | 替身（CLEAN repo / 已 push） |
+| ----------------------------------------------- | ---------------------------- |
+| SHA:`287b96e`                                 | SHA:`5130c82`              |
+| 內容：`.gitignore` 追加 3 行 `screenshots/` | 內容：**完全相同**     |
+| message：`chore: 忽略 screenshots 資料夾`     | message：**完全相同**  |
+| Co-Authored-By：Claude Opus 4.7                 | **完全相同**           |
 
 > SHA 差異僅因 commit timestamp 不同，這是 Git 的預期行為。檔案內容 100% 一致。
 
@@ -1764,7 +1766,6 @@ md = f.format_analysis(analysis)     # 單日快照
 - ✅ 替身 commit `5130c82` 已推上 `origin/main`
 - ✅ 本地與遠端 100% 同步
 - ✅ 完整事件編年納入 TASK_HISTORY.md，無損存檔協議達成
-
 - **狀態**：✅ Phase 59.5 完成，Git 物件庫復原戰告捷，專案遺產安全入袋。
 
 ---
@@ -1774,17 +1775,20 @@ md = f.format_analysis(analysis)     # 單日快照
 **類型**：Phase 59.5 殘留物續行處理紀錄（非正式 Phase，屬 59.5 的補遺子章節）
 
 #### 續行背景
+
 - Phase 59.5 除 `D:\Coding Project\Arena of Valor_OLD_corrupt\` 外全數收官
 - 上一視窗留下交接檔 `D:\Coding Project\HANDOFF_old_corrupt_cleanup_2026-04-20.md`，列出四選項 A/B/C/D
 - 主公 2026-04-20 新視窗裁定：執行**選項 A**（robocopy `/MIR` 鏡像法 + PowerShell `Remove-Item`）
 
 #### 前置狀態驗證
+
 - `D:\Coding Project\_empty_tmp\`：空資料夾仍在（上輪視窗遺留的 robocopy 中繼資料夾）
 - `D:\Coding Project\Arena of Valor_OLD_corrupt\`：頂層仍有 `.agents\` 子目錄
 
 #### 執行過程
 
 ##### Step 1：robocopy 鏡像清空
+
 - 指令（PowerShell）：
   ```powershell
   robocopy "D:\Coding Project\_empty_tmp" "D:\Coding Project\Arena of Valor_OLD_corrupt" `
@@ -1808,6 +1812,7 @@ md = f.format_analysis(analysis)     # 單日快照
   7. `.claude\skills\slides\SKILL.md`（檔案層級同步毀）
 
 ##### Step 2：PowerShell Remove-Item 追殺
+
 - 指令：
   ```powershell
   Remove-Item -LiteralPath "D:\Coding Project\Arena of Valor_OLD_corrupt" `
@@ -1822,6 +1827,7 @@ md = f.format_analysis(analysis)     # 單日快照
 - `Test-Path` 驗證：資料夾仍存在 → `STILL_EXISTS=YES`
 
 ##### Step 3：殘留物盤點
+
 - `Arena of Valor_OLD_corrupt\`：21 個項目殘留（對應 robocopy 跳過的 7 個無法 traverse 子目錄及其子項）
 - `_empty_tmp\`：空資料夾保留（robocopy 中繼、下輪續行可續用）
 
@@ -1845,7 +1851,6 @@ md = f.format_analysis(analysis)     # 單日快照
 - **選項 B**：關閉所有 D 槽使用程式 → `chkdsk D: /f /r`（1-4 小時、治本）
 - **選項 C**：接受共存，`Arena of Valor_OLD_corrupt\` 加入 Windows Defender 排除清單
 - **選項 D**：重開機進安全模式手刪（對 NTFS 實體毀損成功率偏低、不推薦）
-
 - **狀態**：⏸️ Phase 59.5.1 暫停中，`_OLD_corrupt` 資料夾續行清理已由主公裁示擱置；不影響主 repo 運作。
 
 #### 閉幕備份驗證（2026-04-20 本輪視窗收官）
@@ -1863,3 +1868,54 @@ md = f.format_analysis(analysis)     # 單日快照
 - **memory 快照**（`~/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/project_status.md`）：
   - 已追加「2026-04-20 續行：選項 A 嘗試失敗、主公裁示擱置」段落
 - **本輪視窗告一段落**。`_OLD_corrupt` 殘留續行須待主公日後裁決選項 B/C/D。
+
+---
+
+### 📋 Phase 規劃變更紀錄：P60–P62 順序重排 (2026-04-20)
+
+**類型**：Milestone 5 開工前的草案順序調整（非技術 Phase，屬規劃層變更紀錄）
+
+#### 背景
+
+Milestone 4（Phase 56–59）已於 2026-04-19 收官，`future_skills.md` 已為下一波三支 skill 定版草案。原草案編號依定稿時間軸排列：
+
+| 原編號 | Skill | 草案定版 |
+|---|---|---|
+| P60 | history-trend-query（被動時序查詢器） | 2026-04-19 |
+| P61 | nl-to-prompt-structurer（NL→Prompt 結構化） | 2026-04-19 |
+| P62 | session-handoff-packager（跨視窗/跨模型打包器） | 2026-04-19 |
+
+#### 主公裁示
+
+2026-04-20 本視窗，主公提出「想把 P62 擺到最前」，理由為跨視窗 / 跨模型銜接痛點優先於時序查詢與 Prompt 結構化。
+
+#### 編號決策（兩選項比較）
+
+| 選項 | 做法 | 優缺 | 裁決 |
+|---|---|---|---|
+| **A** 保留原編號 | 開工順序 P62→P60→P61，但編年史章節仍用原號 | memory 草案不動；編年史出現時間倒錯 | ❌ |
+| **B** 重新編號 | 原 P62→新 P60、原 P60→新 P61、原 P61→新 P62 | 編年史乾淨符合「Phase 編號即時間軸」慣例；需改 3 份 memory 草案標題 | ✅ **採用** |
+
+主公裁示：**選項 B**。
+
+#### 新順序與依賴校驗
+
+| 新編號 | Skill（原編號） | 依賴狀態 |
+|---|---|---|
+| **P60** | session-handoff-packager（原 P62） | 獨立、可立即開工 |
+| **P61** | history-trend-query（原 P60） | 獨立、可立即開工；為新 P62 附加 scope 的前置依賴 |
+| **P62** | nl-to-prompt-structurer（原 P61） | 主體獨立；附加 scope（為新 P61 接 NL 查詢介面）需待新 P61 Python API 穩定後回補 |
+
+**依賴滿足性**：新順序 P60→P61→P62 線性推進即可滿足新 P62 附加 scope 對新 P61 的依賴，無額外工時增加。
+
+#### memory 同步範圍（2026-04-20 本視窗已執行）
+
+- `memory/future_skills.md`：三節標題翻新為 P60 handoff / P61 trend-query / P62 nl-prompt，交叉引用（「新 P62 附加 scope」「新 P61 先於新 P62」）全數對齊；檔頭 description 與 `> **2026-04-20 順序重排**` 提示段落已加
+- `memory/project_status.md`：「候選下一步」清單按新編號重寫，每項末尾以 `【原 PXX】` 標註備查
+- `memory/MEMORY.md`：第 4 行（project_status 索引）與第 8 行（future_skills 索引）同步更新新順序摘要
+
+#### 狀態
+
+- ✅ Phase 規劃變更紀錄歸檔完成
+- ⏳ 新 P60（session-handoff-packager）等主公日後擇日啟動開工草案
+- **本輪視窗**：主公裁示「今天就先這樣」、即將收官。
