@@ -1847,3 +1847,19 @@ md = f.format_analysis(analysis)     # 單日快照
 - **選項 D**：重開機進安全模式手刪（對 NTFS 實體毀損成功率偏低、不推薦）
 
 - **狀態**：⏸️ Phase 59.5.1 暫停中，`_OLD_corrupt` 資料夾續行清理已由主公裁示擱置；不影響主 repo 運作。
+
+#### 閉幕備份驗證（2026-04-20 本輪視窗收官）
+
+- **本地 git repo**（`D:\Coding Project\Arena of Valor\.git\`）：
+  - HEAD commit：`b5da5da`（Phase 59.5.1 章節 81 行已入庫）
+  - `git fsck --full` 空輸出 → 零毀損
+  - 工作區 clean（僅 `.claude/` 與 `ui_previews/aov_report_2026-04-05.html` 維持慣例未追蹤）
+- **GitHub 遠端**（`origin/main`）：
+  - push 結果：`5128d8d..b5da5da  main -> main`（fast-forward 成功）
+  - `rev-list origin/main..HEAD = 0` 且 `HEAD..origin/main = 0` → 雙向完全同步
+- **Obsidian 鏡像**（`D:\Obsidian_vault\Arena of Valor\TASK_HISTORY.md`）：
+  - 內容位元與 repo 端一致（`diff -q` → 無差異）
+  - 1849 行（含本閉幕段）
+- **memory 快照**（`~/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/project_status.md`）：
+  - 已追加「2026-04-20 續行：選項 A 嘗試失敗、主公裁示擱置」段落
+- **本輪視窗告一段落**。`_OLD_corrupt` 殘留續行須待主公日後裁決選項 B/C/D。
