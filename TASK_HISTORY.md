@@ -1766,3 +1766,84 @@ md = f.format_analysis(analysis)     # 單日快照
 - ✅ 完整事件編年納入 TASK_HISTORY.md，無損存檔協議達成
 
 - **狀態**：✅ Phase 59.5 完成，Git 物件庫復原戰告捷，專案遺產安全入袋。
+
+---
+
+### 🔧 Phase 59.5.1：`_OLD_corrupt` 殘留清理嘗試 — 選項 A (robocopy) 失敗紀錄 (2026-04-20)
+
+**類型**：Phase 59.5 殘留物續行處理紀錄（非正式 Phase，屬 59.5 的補遺子章節）
+
+#### 續行背景
+- Phase 59.5 除 `D:\Coding Project\Arena of Valor_OLD_corrupt\` 外全數收官
+- 上一視窗留下交接檔 `D:\Coding Project\HANDOFF_old_corrupt_cleanup_2026-04-20.md`，列出四選項 A/B/C/D
+- 主公 2026-04-20 新視窗裁定：執行**選項 A**（robocopy `/MIR` 鏡像法 + PowerShell `Remove-Item`）
+
+#### 前置狀態驗證
+- `D:\Coding Project\_empty_tmp\`：空資料夾仍在（上輪視窗遺留的 robocopy 中繼資料夾）
+- `D:\Coding Project\Arena of Valor_OLD_corrupt\`：頂層仍有 `.agents\` 子目錄
+
+#### 執行過程
+
+##### Step 1：robocopy 鏡像清空
+- 指令（PowerShell）：
+  ```powershell
+  robocopy "D:\Coding Project\_empty_tmp" "D:\Coding Project\Arena of Valor_OLD_corrupt" `
+           /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS /NC /NS /NP
+  ```
+- 退出碼：`$LASTEXITCODE = 2`（有 extra file 無法清除，非災難級錯誤）
+- 執行期間反覆噴出以下錯誤：
+  ```
+  2026/04/20 10:27:XX 錯誤 1392 (0x00000570) 正在掃描目錄 <path>
+  檔案或目錄損毀且無法讀取。
+  等候 1 秒... 正在重試...
+  錯誤: 超過重試限制。
+  ```
+- 無法 traverse 的子目錄清冊（7 處，全數集中於 `.agents\skills\ui-ux-pro-max-skill\` 底下）：
+  1. `.claude\skills\brand\references\`
+  2. `.claude\skills\design-system\references\`
+  3. `.claude\skills\slides\references\`
+  4. `.claude\skills\ui-styling\references\`
+  5. `cli\assets\templates\platforms\`
+  6. `src\ui-ux-pro-max\templates\platforms\`
+  7. `.claude\skills\slides\SKILL.md`（檔案層級同步毀）
+
+##### Step 2：PowerShell Remove-Item 追殺
+- 指令：
+  ```powershell
+  Remove-Item -LiteralPath "D:\Coding Project\Arena of Valor_OLD_corrupt" `
+              -Force -Recurse -ErrorAction Continue
+  ```
+- 錯誤輸出：
+  ```
+  Remove-Item : 檔案或目錄損毀且無法讀取。
+  CategoryInfo          : WriteError: (...) [Remove-Item], IOException
+  FullyQualifiedErrorId : RemoveItemIOError,Microsoft.PowerShell.Commands.RemoveItemCommand
+  ```
+- `Test-Path` 驗證：資料夾仍存在 → `STILL_EXISTS=YES`
+
+##### Step 3：殘留物盤點
+- `Arena of Valor_OLD_corrupt\`：21 個項目殘留（對應 robocopy 跳過的 7 個無法 traverse 子目錄及其子項）
+- `_empty_tmp\`：空資料夾保留（robocopy 中繼、下輪續行可續用）
+
+#### 結論分析
+
+- **根因複檢**：殘留 21 項正對應 robocopy 無法 traverse 的 7 個目錄，此即 D 槽 NTFS 的**物理毀損核心區塊**
+- **錯誤層級認定**：Windows Error Code `1392 (ERROR_FILE_CORRUPT)` 屬**檔案系統層**錯誤，非應用層工具（`robocopy` / `Remove-Item` / `rm -rf` / `rd /s /q`）可解
+- **選項 A 可行性判定**：與交接檔列出的方法 #4（PowerShell `Remove-Item`）失敗型態完全一致。選項 A 對此類物理毀損實質上**不可行**，與預期落差歸因於交接檔低估了 error 1392 的嚴重性
+- **仍然有效的路徑**：僅餘選項 B（`chkdsk D: /f /r` 治本）或選項 C（擺爛共存）
+
+#### 決策
+
+- 主公 2026-04-20 裁示：**「到目前為止先這樣吧」** — 暫停清理、不再嘗試其他選項
+- 當前留存物（三件、日後續行用）：
+  - `D:\Coding Project\Arena of Valor_OLD_corrupt\`（無法清除、就地保留）
+  - `D:\Coding Project\_empty_tmp\`（robocopy 中繼空資料夾、保留備用）
+  - `D:\Coding Project\HANDOFF_old_corrupt_cleanup_2026-04-20.md`（交接檔、保留供日後續行）
+
+#### 後續選項（擱置待主公日後裁決）
+
+- **選項 B**：關閉所有 D 槽使用程式 → `chkdsk D: /f /r`（1-4 小時、治本）
+- **選項 C**：接受共存，`Arena of Valor_OLD_corrupt\` 加入 Windows Defender 排除清單
+- **選項 D**：重開機進安全模式手刪（對 NTFS 實體毀損成功率偏低、不推薦）
+
+- **狀態**：⏸️ Phase 59.5.1 暫停中，`_OLD_corrupt` 資料夾續行清理已由主公裁示擱置；不影響主 repo 運作。
