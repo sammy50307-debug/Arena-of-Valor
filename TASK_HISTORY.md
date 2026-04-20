@@ -1629,3 +1629,140 @@ md = f.format_analysis(analysis)     # 單日快照
 ```
 
 - **狀態**：✅ Phase 59 完成，Milestone 4 第四個特種兵上線。
+
+---
+
+### 🚨 Phase 59.5：Git Repo 毀損修復事件 — 130 Objects 救援戰 (2026-04-19)
+
+**類型**：災難復原 — Git 物件庫毀損的無損搶救
+
+#### 事件緣起（2026-04-19 當日時間軸）
+
+- **觸發點**：主公欲在 Phase 59（Rich Push Formatter）完成後執行例行 `git push`，推送前跑 `git fsck --full` 健檢，噴出海量錯誤訊息：
+  ```
+  error: object file .git/objects/XX/YYYY... is empty
+  fatal: loose object ... is corrupt
+  error: inflate: data stream error
+  (... 共 130 筆 ...)
+  ```
+- **規模盤點**：`.git/objects/` 目錄內共 **130 個 object 毀損**（empty blob 與 inflate 失敗混合），覆蓋多個 commit depth，fsck 本身無法自動修復。
+- **重大風險**：本地 repo 的完整性已破損，若直接 push，遠端 GitHub 可能拒絕或收下半殘歷史；若放任不管，下一次 commit 就可能踩到毀損 object 無法讀取。
+
+#### 根因推測（非 100% 可證，列為預防參考）
+
+- **排除 OneDrive 同步**：專案在 `D:\Coding Project\`，非 OneDrive 監控路徑
+- **最可能成因**：
+  1. D 槽 SSD/HDD 寫入曾發生錯誤（斷電、壞軌、SSD 韌體 bug）
+  2. 防毒軟體隔離/修改過 `.git/objects/` 下的 loose object 檔
+- **證據側寫**：毀損分佈並非集中在同一 commit，呈「隨機 blob 散點毀損」形態，與硬體/外部掃毒干擾的特徵吻合，不像人為刪除或 Git 自身 bug
+
+#### 方案比較與決策
+
+| 方案 | 作法 | 風險 | 是否採用 |
+|---|---|---|---|
+| **Plan A** | `git fsck --lost-found` + 手動重建 | 130 個 object 手動拼回，極高工時，且拼錯即毀真相 | ❌ 棄 |
+| **Plan B** | 從 GitHub 重 clone 乾淨版，搬運本地未推送工作 | 乾淨快速，但需逐一比對未推送內容避免漏失 | ✅ **採用** |
+| **Plan C** | 整個 repo 砍掉重練 | 會遺失所有本地未推送改動 | ❌ 棄 |
+
+**決策依據**：主公明確核准走 **Plan B**，回答選項 1A / 2A / 3A / 4A（走完全照原稿、重 clone、保留本地未推送 commit、由主公主導資料夾改名）。
+
+#### 執行過程（跨三視窗接力）
+
+##### 視窗 #1（規劃與搬運）
+
+- 從 `https://github.com/sammy50307-debug/Arena-of-Valor.git` 重 clone 至 `D:\Coding Project\Arena of Valor_CLEAN`
+- 比對兩 repo 差異，鎖定「本地多出未推送的 commit」：
+  - 原版 SHA：`287b96e chore: 忽略 screenshots 資料夾`
+  - 內容：`.gitignore` 追加 3 行 `screenshots/`
+- 在 CLEAN 端以相同 message 重打此 commit，產出替身 SHA `5130c82`（因 timestamp 不同故 SHA 必不同，內容位元相同）
+- 將原版此 commit 的 diff 另存為 `D:\Coding Project\unpushed_287b96e_backup.patch` 作安全網
+- 搬運本地未追蹤但重要的檔案（**清單見下方〈搬運檔案清冊〉**）
+- 寫入交接檔 `D:\Coding Project\HANDOFF_git_repair_2026-04-19.md`，標註已完成 Step 1-7
+
+##### 視窗 #2（雙 repo 驗證）
+
+- **舊 repo（毀損端）**：
+  ```
+  top commit  = 287b96e chore: 忽略 screenshots 資料夾
+  git fsck    → 仍一大堆 "object corrupt or missing"（毀損未解）
+  git status  → .claude/ + ui_previews/aov_report_2026-04-05.html 未追蹤
+  ```
+- **CLEAN repo（乾淨端）**：
+  ```
+  top commit  = 5130c82 chore: 忽略 screenshots 資料夾
+  git fsck    → 空輸出（零毀損）✅
+  git status  → .claude/ + ui_previews/aov_report_2026-04-05.html 未追蹤
+  rev-list origin/main..HEAD = 1（尚未 push，此即 5130c82）
+  remote      → https://github.com/sammy50307-debug/Arena-of-Valor.git
+  ```
+- 視窗 #2 因 token 將達 92% 額度，在斷點處暫停，把完整續行指引寫入交接檔，請主公關視窗、改名、重開新視窗續做
+
+##### 主公親手執行（Step 8）
+
+- 資料夾改名：
+  - `Arena of Valor` → `Arena of Valor_OLD_corrupt`
+  - `Arena of Valor_CLEAN` → `Arena of Valor`
+- 重開 Claude Code（本視窗 #3）
+
+##### 視窗 #3（push 收官與本章節撰寫）
+
+- 依開局儀式讀完 8 份必讀檔 + 交接檔
+- push 前再次驗證：
+  ```
+  git fsck --full            → 空輸出 ✅
+  git log --oneline -3       → 5130c82 頂層
+  git rev-list origin/main..HEAD = 1（fetch 後）
+  git rev-list HEAD..origin/main = 0（無分歧）
+  ```
+- 徵得主公授權後執行 `git push origin main`
+- push 結果：
+  ```
+  To https://github.com/sammy50307-debug/Arena-of-Valor.git
+     dc1aef2..5130c82  main -> main
+  ```
+- fast-forward 成功，分支保護未擋，`origin/main..HEAD = 0`（本地與遠端同步）
+
+#### 搬運檔案清冊（從毀損 repo → CLEAN repo）
+
+| 檔案 | 大小 | 類別 |
+|---|---|---|
+| `.env` | 1084 B | 🔴 極重要（API key） |
+| `.claude/settings.json` | 74 B | Claude Code 設定 |
+| `.claude/settings.local.json` | ~1190 B | Claude Code 本地設定 |
+| `.vscode/settings.json` | 609 B | 編輯器設定 |
+| `ui_previews/aov_report_2026-04-05.html` | 94304 B | 與 V16_GOLDEN_BUILD 位元完全相同 |
+| `logs/app.log` | 2099492 B | 執行日誌 |
+| `data/*.json` | 12 檔 | analysis / raw / llm_cache / quota |
+| `screenshots/` | 空 | 已建立空資料夾 |
+
+#### SHA 替身對照
+
+| 原版（毀損 repo） | 替身（CLEAN repo / 已 push） |
+|---|---|
+| SHA: `287b96e` | SHA: `5130c82` |
+| 內容：`.gitignore` 追加 3 行 `screenshots/` | 內容：**完全相同** |
+| message：`chore: 忽略 screenshots 資料夾` | message：**完全相同** |
+| Co-Authored-By：Claude Opus 4.7 | **完全相同** |
+
+> SHA 差異僅因 commit timestamp 不同，這是 Git 的預期行為。檔案內容 100% 一致。
+
+#### 預防建議（避免重蹈覆轍）
+
+1. **Windows Defender 排除清單**：將 `D:\Coding Project\` 整個資料夾加入 Defender 排除，避免掃毒動到 `.git/objects/`
+2. **提高 push 頻率**：每完成一個 Phase 即 push 上 GitHub，遠端副本即為最佳備份（本次能救回全憑 GitHub 上尚存原版歷史）
+3. **定期健檢**：每週跑一次 `git fsck --full` 做早期警示
+
+#### 殘留物清理（Step 11）
+
+- ✅ `D:\Coding Project\HANDOFF_git_repair_2026-04-19.md` — 內容已融入本章節，由 Claude 刪除
+- ✅ `D:\Coding Project\unpushed_287b96e_backup.patch` — 替身 commit 已 push 上 GitHub，使命達成，由 Claude 刪除
+- ⏳ `D:\Coding Project\Arena of Valor_OLD_corrupt\` — 保留作最終保險，待主公親手刪除
+
+#### 最終狀態
+
+- ✅ 130 objects 毀損事件歸零，CLEAN repo 即現行工作目錄
+- ✅ 替身 commit `5130c82` 已推上 `origin/main`
+- ✅ 本地與遠端 100% 同步
+- ✅ 完整事件編年納入 TASK_HISTORY.md，無損存檔協議達成
+
+- **狀態**：✅ Phase 59.5 完成，Git 物件庫復原戰告捷，專案遺產安全入袋。
