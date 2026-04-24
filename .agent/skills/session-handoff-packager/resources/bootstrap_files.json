@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "description": "L-1 Bootstrap 開局必讀清單 — 接手 AI 必須在讀 handoff 正文前先消化這些檔案",
+  "files": [
+    {
+      "order": 1,
+      "name": "projectrules.md",
+      "relative_path": ".agents/rules/projectrules.md",
+      "purpose": "Antigravity Project Rules — 專案五大核心模組與開發原則",
+      "embed_in_full": true
+    },
+    {
+      "order": 2,
+      "name": ".cursorrules",
+      "relative_path": ".cursorrules",
+      "purpose": "專案全域指令 — 無損存檔協議、草案共核制、品質至上",
+      "embed_in_full": true
+    },
+    {
+      "order": 3,
+      "name": "PROJECT_RULES.md",
+      "relative_path": "PROJECT_RULES.md",
+      "purpose": "專案開發律法 — 紀錄準則六條鐵律",
+      "embed_in_full": false
+    },
+    {
+      "order": 4,
+      "name": "COMMAND_GUIDE.md",
+      "relative_path": "COMMAND_GUIDE.md",
+      "purpose": "演示操作指南 — py main.py --showcase 等核心指令",
+      "embed_in_full": false
+    },
+    {
+      "order": 5,
+      "name": "Phase40_Flagship_Bible.md",
+      "relative_path": "Phase40_Flagship_Bible.md",
+      "purpose": "旗艦版本聖經 — 視覺參數定案 (opacity 0.8 / Glassmorphism 2.0)",
+      "embed_in_full": false
+    },
+    {
+      "order": 6,
+      "name": "TASK_HISTORY.md",
+      "relative_path": "TASK_HISTORY.md",
+      "purpose": "編年史 — 只需讀末尾 1~2 個 Phase 章節即可",
+      "embed_in_full": false
+    },
+    {
+      "order": 7,
+      "name": "README.md",
+      "relative_path": "README.md",
+      "purpose": "專案總覽 — 系統架構、API 額度、快速開始",
+      "embed_in_full": false
+    },
+    {
+      "order": 8,
+      "name": "rules.md",
+      "relative_path": ".agent/rules.md",
+      "purpose": "Agent 層律法 — 與 PROJECT_RULES.md 同源但用於 .agent 體系",
+      "embed_in_full": false
+    }
+  ]
+}

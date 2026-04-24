@@ -127,6 +127,15 @@
       "task_type": "analyze",
       "keywords": ["差異", "diff", "雷達", "radar", "比對", "昨日", "今日", "變化", "delta", "情緒變化"],
       "description": "比對今日與昨日 analysis，輸出英雄/情緒/聲量/平台變化摘要與 alert 等級"
+    },
+    {
+      "id": "session-handoff-packager",
+      "name": "跨視窗銜接打包器",
+      "milestone": 5,
+      "phase": 60,
+      "task_type": "handoff",
+      "keywords": ["打包", "交接", "handoff", "跨視窗", "銜接", "快照", "snapshot", "接手", "切換"],
+      "description": "打包當前任務快照為 lite/full 兩版 Markdown，三路寫入讓下個視窗零摩擦接手"
     }
   ],
   "task_type_map": {
@@ -138,6 +147,7 @@
     "route": "任務調度類 — 分配工作流程",
     "deploy": "部署發布類 — 輸出成果至外部系統",
     "monitor": "監測守衛類 — 觀察系統健康與資源用量",
-    "format": "格式轉換類 — 把原始資料轉成人類可讀格式"
+    "format": "格式轉換類 — 把原始資料轉成人類可讀格式",
+    "handoff": "跨視窗銜接類 — 打包任務脈絡供下個視窗接手"
   }
 }
