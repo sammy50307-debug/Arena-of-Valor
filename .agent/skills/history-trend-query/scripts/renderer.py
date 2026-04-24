@@ -16,6 +16,7 @@ TrendRenderer — Phase 61 Stage 3 渲染統一
 
 from __future__ import annotations
 
+import html
 from typing import Any, Dict, List, Optional
 
 # Unicode block chars — 8 levels (低→高)
@@ -156,11 +157,16 @@ class TrendRenderer:
         self,
         trend: Dict[str, Any],
         width: int = 600,
-        height: int = 140,
+        height: int = 160,
         pad: int = 20,
+        x_axis: bool = True,
     ) -> str:
         points = trend.get("points", [])
-        hero = trend.get("hero", "—")
+        hero_raw = trend.get("hero", "—")
+        hero = html.escape(str(hero_raw), quote=True)   # R15：防 XSS
+        range_info = trend.get("range", {}) or {}
+        range_start = html.escape(str(range_info.get("start", "")), quote=True)
+        range_end = html.escape(str(range_info.get("end", "")), quote=True)
         n = len(points)
 
         if n == 0:
@@ -171,8 +177,10 @@ class TrendRenderer:
                 f'no data</text></svg>'
             )
 
+        # R12：x 軸保留底部額外空間放刻度 label
+        bottom_pad = pad + 18 if x_axis else pad
         inner_w = width - 2 * pad
-        inner_h = height - 2 * pad
+        inner_h = height - pad - bottom_pad
         step = inner_w / (n - 1) if n > 1 else 0
 
         # 正規化 ok 值
@@ -200,8 +208,7 @@ class TrendRenderer:
             f'<rect x="0.5" y="0.5" width="{width-1}" height="{height-1}" '
             f'fill="white" stroke="{_COLOR_GRID}"/>',
             f'<text x="{pad}" y="{pad - 6}" fill="{_COLOR_TEXT}" font-size="12">'
-            f'{hero} — {trend.get("range", {}).get("start", "")} ~ '
-            f'{trend.get("range", {}).get("end", "")}</text>',
+            f'{hero} — {range_start} ~ {range_end}</text>',
         ]
 
         # 折線：相鄰兩點若皆為 ok 畫實線、一端為 absent 畫灰虛線、含 missing/invalid 跳過
@@ -225,7 +232,7 @@ class TrendRenderer:
         for i, p in enumerate(points):
             st = p.get("status")
             v = self._extract_value(p, self.metric)
-            title = f'{p.get("date")} {st}'
+            title = html.escape(f'{p.get("date")} {st}', quote=True)   # R15
             if st == "ok" and v is not None:
                 parts.append(
                     f'<circle cx="{_x(i):.2f}" cy="{_y(v):.2f}" r="4" '
@@ -239,6 +246,36 @@ class TrendRenderer:
             else:
                 # missing / invalid：不畫點
                 pass
+
+        # R12：x 軸刻度（自適應間距：n<=7 每點一標、n<=31 每週、n<=90 每兩週、>90 每月）
+        if x_axis and n >= 1:
+            if n <= 7:
+                tick_every = 1
+            elif n <= 31:
+                tick_every = 7
+            elif n <= 90:
+                tick_every = 14
+            else:
+                tick_every = 30
+
+            tick_indices = list(range(0, n, tick_every))
+            if (n - 1) not in tick_indices:
+                tick_indices.append(n - 1)   # 最末點一律標
+
+            tick_y_line = pad + inner_h
+            tick_y_text = tick_y_line + 12
+            for i in tick_indices:
+                date_str = str(points[i].get("date", ""))
+                short = html.escape(date_str[5:] if len(date_str) >= 10 else date_str, quote=True)
+                parts.append(
+                    f'<line x1="{_x(i):.2f}" y1="{tick_y_line:.2f}" '
+                    f'x2="{_x(i):.2f}" y2="{tick_y_line + 3:.2f}" '
+                    f'stroke="{_COLOR_GRID}" stroke-width="1"/>'
+                )
+                parts.append(
+                    f'<text x="{_x(i):.2f}" y="{tick_y_text:.2f}" '
+                    f'text-anchor="middle" fill="#666666" font-size="9">{short}</text>'
+                )
 
         parts.append("</svg>")
         return "".join(parts)

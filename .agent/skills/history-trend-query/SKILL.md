@@ -1,7 +1,7 @@
 ---
 name: history-trend-query
 description: 過去 N 天英雄/情緒/平台走勢的被動查詢器。補 Phase 50 trend-anomaly-detector（主動告警）的缺口，提供 pull 式時序檢視與多格式渲染（sparkline/Markdown/HTML/JSON）。Phase 61 分五階段開工，本檔隨階段推進逐步擴寫。
-version: 0.3.0-S3
+version: 0.3.1-S3
 ---
 
 # 歷史走勢查詢器 (History Trend Query)
@@ -178,9 +178,14 @@ svg = r.html_svg(trend, width=600, height=140)       # inline SVG
 | `missing` | `?` | `?` | 不畫、虛線斷開 |
 | `invalid` | `?` | `?` | 不畫 |
 
-### 驗收結果（S3 測試 11/11 全綠）
+### 驗收結果（S3 測試 16/16 全綠）
 
-T1 Unicode palette 最低/最高對應、T2 ASCII 純 ASCII、T3 灰點字元、T4 missing/invalid `?`、T5 Markdown 四欄+mode、T6 SVG 色值+circle 數、T7 空 points、T8 單點不除零、T9 同值中層、T10 metric 切換、T11 bogus metric ValueError。
+T1-T11 同前；**S3.5 補強**：T12 每日一標、T13 30 天自適應、T14 `x_axis=False` 停用、T15 `<script>` escape、T16 date 屬性注入防禦。
+
+### S3.5 補強（R12 + R15）
+
+- **R12** `html_svg(x_axis=True)` 自適應刻度：n≤7 每日、n≤31 每 7 天、n≤90 每 14 天、>90 每 30 天；末點一律標記
+- **R15** `html.escape(quote=True)` 三處入口：hero name / range 日期 / title 屬性
 
 ### CLI Debug
 

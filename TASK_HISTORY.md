@@ -2486,3 +2486,74 @@ py .agent/skills/history-trend-query/scripts/renderer.py \
 | **S5 效能+介面+外掛** | LRU cache + 90 天上限 + `/trend` slash + `anomaly_marker.py` | ⏳ |
 
 - **狀態**：✅ Phase 61 Stage 3 完成，四格式渲染上線；R8 加權 / R9 灰點 兩項風險落地、R7 待收官提醒。
+
+---
+
+### 🛡️ Phase 61 — Stage 3.5 補強：R12 x 軸刻度 + R15 HTML escape (History Trend Query / Milestone 5)
+
+- **目標**：把 S3 斷點報告新浮現的兩項風險（R12 SVG 無 x 軸刻度、R15 未 HTML escape）在 S4 開工前收掉，減少 S5 累積技術債。
+- **觸發背景**：主公 2026-04-25 裁示「push 能處理的處理一下」——R12/R15 屬可現在處理的孤立強化；R13/R14 屬假想需求跳過；R16 多軌渲染屬 S4 核心 scope 不搶工。
+- **原則遵循**：不搶 S4 scope、不處理假想需求、所有新行為皆加測試不裸上。
+
+#### 處置範圍決策紀錄
+
+| # | 風險 | 處置 | 理由 |
+|---|---|---|---|
+| R12 SVG 無 x 軸刻度 | ✅ 處理 | 純添加、不動核心架構、對 S4/S5 零影響 |
+| R15 未 HTML escape | ✅ 處理 | 防禦性小修、保險起見應加 |
+| R13 SVG 高度自適應 | ❌ 跳過 | 假想需求，`height` 已可由調用端傳參 |
+| R14 Markdown pipe 注入 | ❌ 跳過 | 白名單 137 項皆無 pipe，假想需求 |
+| R16 多軌渲染 | ❌ 不搶 | **S4 核心 scope**，現在做違反 Scope 自律 |
+
+#### R12 實作：自適應 x 軸刻度
+
+`html_svg()` 新增 `x_axis: bool = True` 參數，預設開啟。刻度策略：
+
+| 資料長度 n | 刻度間距 |
+|---|---|
+| n ≤ 7 | 每日一標 |
+| n ≤ 31 | 每 7 天一標 |
+| n ≤ 90 | 每 14 天一標 |
+| n > 90 | 每 30 天一標 |
+
+**末點強制標記**（不論間距）：確保主公目光「看到最新一天在哪」。
+
+**視覺配置**：
+- tick line：`y = pad + inner_h ~ +3`，`stroke="#e5e5e5"`
+- tick text：`y = tick_y_line + 12`，`font-size="9"`，`fill="#666"`
+- SVG 預設高度由 140 → 160（底部留 18px 給 x 軸 label）
+
+#### R15 實作：HTML escape 防 XSS
+
+使用標準庫 `html.escape(s, quote=True)` 於三個入口：
+
+| 位置 | 原始來源 | 風險情境 |
+|---|---|---|
+| `<text>` 內 hero name | `trend["hero"]` | 若 S5 slash 讓使用者自由輸入，可能注入 `<script>` |
+| `<text>` 內 range 日期 | `trend["range"]["start/end"]` | 造假/壞資料注入屬性突破 |
+| `<title>` 內點標示 | `f'{date} {status}'` | date 字段若含引號可能破壞 attribute |
+
+**邊界**：quote=True 也轉 `"` `'` 為 `&quot;` `&#x27;`，避免 attr 突破。
+
+#### 測試追加（R12 3 項 + R15 2 項）
+
+| # | 驗證項 | 結果 |
+|---|---|---|
+| T12 | 7 天圖：每日一標共 7 條 tick line、01-01~01-07 皆現身 | ✅ |
+| T13 | 30 天圖自適應：每 7 天 + 末點 = 6 條 tick | ✅ |
+| T14 | `x_axis=False` → 0 條 tick（完全停用） | ✅ |
+| T15 | hero `<script>alert(...)</script>` → 裸 `<script>` 不進 SVG、轉為 `&lt;script&gt;` | ✅ |
+| T16 | date `2026"><bad` → `"><bad` 不進 SVG（attr 注入防禦） | ✅ |
+
+#### 三階段累計測試數更新
+
+**33/33 全綠**（S1:7 + S2:10 + S3:16）。較上一版（28/28）新增 5 項測試，零回歸。
+
+#### 延後項（S4 必解清單）
+
+| 風險 | 留到 | 理由 |
+|---|---|---|
+| R16 多軌渲染 | **S4 必解** | S4 多英雄比對產出 List[Dict]，renderer 需擴 `render_multi()` 新方法 |
+| R7 data/ 髒檔提醒 | **P61 收官時提醒主公** | 上游 P56 問題，非本 skill 責任 |
+
+- **狀態**：✅ Phase 61 Stage 3.5 補強完成，S4 可安心開工。

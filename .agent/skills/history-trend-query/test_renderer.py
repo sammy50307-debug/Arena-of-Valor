@@ -211,6 +211,75 @@ def t11():
     raise AssertionError("應噴 ValueError 但沒有")
 
 
+# ────────────────────────────────────────────────────────────
+# R12：SVG x 軸刻度
+# ────────────────────────────────────────────────────────────
+@test("T12 R12：SVG 7 天圖含 x 軸刻度，每日一標")
+def t12():
+    points = [
+        {"date": f"2026-01-0{i+1}", "status": "ok",
+         "count": 5, "avg_sentiment": 0.5}
+        for i in range(7)
+    ]
+    svg = TrendRenderer().html_svg(_make_trend(points))
+    # 7 天 → 每點一標 → 7 條 tick line
+    tick_lines = re.findall(r'<line[^>]*stroke="#e5e5e5"', svg)
+    assert len(tick_lines) == 7, f"應有 7 條 tick line，got {len(tick_lines)}"
+    # 每個日期末尾 MM-DD 應現身
+    for i in range(1, 8):
+        assert f"01-0{i}" in svg, f"01-0{i} 應出現在 SVG 刻度"
+
+
+@test("T13 R12：SVG 30 天圖刻度自適應（每 7 天一標 + 末點）")
+def t13():
+    points = []
+    for i in range(30):
+        d = 1 + i
+        iso = f"2026-01-{d:02d}" if d <= 31 else f"2026-02-{d-31:02d}"
+        points.append({"date": iso, "status": "ok", "count": 5, "avg_sentiment": 0.5})
+    svg = TrendRenderer().html_svg(_make_trend(points))
+    tick_lines = re.findall(r'<line[^>]*stroke="#e5e5e5"', svg)
+    # 每 7 天：0, 7, 14, 21, 28 → 5 + 末點 29 = 6 條
+    assert len(tick_lines) == 6, f"30 天應有 6 條 tick，got {len(tick_lines)}"
+
+
+@test("T14 R12：x_axis=False 不出刻度")
+def t14():
+    points = [
+        {"date": "2026-01-01", "status": "ok", "count": 5, "avg_sentiment": 0.5},
+        {"date": "2026-01-02", "status": "ok", "count": 8, "avg_sentiment": 0.7},
+    ]
+    svg = TrendRenderer().html_svg(_make_trend(points), x_axis=False)
+    tick_lines = re.findall(r'<line[^>]*stroke="#e5e5e5"', svg)
+    assert len(tick_lines) == 0, f"x_axis=False 不應有 tick，got {len(tick_lines)}"
+
+
+# ────────────────────────────────────────────────────────────
+# R15：HTML escape 防 XSS
+# ────────────────────────────────────────────────────────────
+@test("T15 R15：hero name 含 <script> 被 escape，SVG 不含裸 <script>")
+def t15():
+    points = [
+        {"date": "2026-01-01", "status": "ok", "count": 5, "avg_sentiment": 0.5},
+    ]
+    trend = _make_trend(points, hero='<script>alert("xss")</script>')
+    svg = TrendRenderer().html_svg(trend)
+    assert "<script>" not in svg, "裸 <script> 絕不應進入 SVG"
+    assert "&lt;script&gt;" in svg, "應被轉為 &lt;script&gt;"
+    # quote 版本也要 escape（防 attr 注入）
+    assert '"xss"' not in svg or "&quot;xss&quot;" in svg
+
+
+@test("T16 R15：range 與 title 內容也經 escape")
+def t16():
+    points = [
+        {"date": '2026"><bad', "status": "ok", "count": 5, "avg_sentiment": 0.5},
+    ]
+    trend = _make_trend(points)
+    svg = TrendRenderer().html_svg(trend)
+    assert '"><bad' not in svg, "date 欄位的注入嘗試應被 escape"
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("Phase 61 Stage 3 — TrendRenderer 驗收測試")
