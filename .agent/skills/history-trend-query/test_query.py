@@ -237,6 +237,61 @@ def t8():
     raise AssertionError("應噴 ValueError 但沒有")
 
 
+# ─────────────────────────────────────────────────────────────
+# Test 9：R8 加權 vs 算術平均（造假 fixture）
+# ─────────────────────────────────────────────────────────────
+@test("T9 R8 加權平均：count=100 sent=0.3 與 count=1 sent=0.9 應加權為 ≈0.306")
+def t9():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+
+        def _make(date_str: str, hero_count: int, sentiment: float) -> None:
+            payload = {
+                "date": date_str,
+                "total_posts": hero_count,
+                "overall": {"sentiment_score": sentiment, "trend": "Stable"},
+                "sentiment_distribution": {"positive": 1, "negative": 0, "neutral": 0},
+                "platform_breakdown": {},
+                "hero_stats": {
+                    "小明": {"count": hero_count, "avg_sentiment": sentiment}
+                },
+            }
+            fname = f"analysis_{date_str.replace('-', '')}.json"
+            (tmp_dir / fname).write_text(
+                json.dumps(payload, ensure_ascii=False), encoding="utf-8"
+            )
+
+        _make("2030-06-01", hero_count=100, sentiment=0.3)
+        _make("2030-06-02", hero_count=1, sentiment=0.9)
+
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+
+        r_arith = q.hero_trend("小明", 2, until="2030-06-02", weighted=False)
+        r_wt = q.hero_trend("小明", 2, until="2030-06-02", weighted=True)
+
+    # 算術平均 = (0.3 + 0.9) / 2 = 0.6
+    assert abs(r_arith["summary"]["avg_sentiment_mean"] - 0.6) < 1e-6, \
+        f"arithmetic expected 0.6, got {r_arith['summary']['avg_sentiment_mean']}"
+    assert r_arith["summary"]["avg_sentiment_mode"] == "arithmetic"
+
+    # 加權平均 = (0.3*100 + 0.9*1) / 101 = 30.9/101 ≈ 0.30594
+    expected_w = (0.3 * 100 + 0.9 * 1) / 101
+    got_w = r_wt["summary"]["avg_sentiment_mean"]
+    assert abs(got_w - expected_w) < 1e-6, f"weighted expected {expected_w}, got {got_w}"
+    assert r_wt["summary"]["avg_sentiment_mode"] == "weighted"
+
+
+# ─────────────────────────────────────────────────────────────
+# Test 10：weighted=True 無資料 → None（不除零）
+# ─────────────────────────────────────────────────────────────
+@test("T10 weighted=True 全缺日 → avg_sentiment_mean=None，不觸發除零")
+def t10():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+    r = q.hero_trend("不存在XYZ", 3, until="2026-03-31", weighted=True)
+    assert r["summary"]["avg_sentiment_mean"] is None
+    assert r["summary"]["avg_sentiment_mode"] == "weighted"
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("Phase 61 Stage 2 — HistoryTrendQuery.hero_trend 驗收測試")

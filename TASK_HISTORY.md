@@ -2338,3 +2338,151 @@ py .agent/skills/history-trend-query/scripts/query.py \
 | **S5 效能+介面+外掛** | LRU cache + `/trend` slash + `anomaly_marker.py` | ⏳ |
 
 - **狀態**：✅ Phase 61 Stage 2 完成，hero_trend API 穩定；R5 合約守住，R3 時區明文化。
+
+---
+
+### 🎨 Phase 61 — Stage 3 渲染統一 + R8 加權擴充：TrendRenderer (History Trend Query / Milestone 5)
+
+- **目標**：把 S2 純 JSON 時序輸出昇華為四種人類可讀格式（sparkline Unicode / sparkline ASCII / Markdown 表格 / HTML SVG），同時落實 R9「hero_absent 灰點」主公裁示、R8「sentiment 加權平均」參數擴充。
+- **觸發背景**：主公 2026-04-25 核准 S3 小計畫書，裁示「照計畫動工、R7 留到 Phase 收官時提醒」。
+- **原則遵循**：灰點策略嚴格區分 `hero_absent` 與 `missing`（兩者絕不混同）；Scope 守紀律——R10 fuzzy/R11 上限留 S5、R7 data/ 髒檔留給主公上游處理。
+
+#### 設計決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|---|---|---|---|
+| 灰點字元（Unicode） | `·` (U+00B7) / `∙` (U+2219) / `•` (U+2022) | **`·` U+00B7** | 最細、與 block char 視覺對比最強、跨字型穩定 |
+| 灰點字元（ASCII） | `.` / `o` / `_` | **`.`** | 跟 ASCII block `._-~^` 中最低一階 `_` 有別、不會混淆 |
+| missing 字元 | `?` / `-` / 空白 | **`?`** | 主動提示「這裡不知道」；空白會被終端吃掉 |
+| SVG ok 點色 | 主色桃紅 `#db2777` / 深藍 | **桃紅 `#db2777`** | Phase 40 視覺真經主色，與戰情室報表一致 |
+| SVG 灰點半徑 | 2 / 3 / 4 | **r=2** | 比 ok 點 r=4 小、視覺自動退居次要 |
+| 連線策略 | 全連 / 只連 ok | **相鄰兩點皆 ok → 實線實色；一端 absent → 虛線灰色；含 missing/invalid → 跳過** | 視覺語意清楚：實線=可信、虛線灰=弱證據、斷線=無資料 |
+| metric 切換 | hardcode count / 建構式參數 | **建構式 `metric='count'\|'avg_sentiment'`** | 同一 TrendRenderer 實例綁定一種 metric，避免呼叫端混用 |
+| 加權計算（R8） | 全面改加權 / 保留算術為預設 | **預設算術、weighted=True 才加權** | 向後相容既有測試；summary 多一欄 `avg_sentiment_mode` 明示目前模式 |
+| 空值/除零處理 | 噴錯 / 回合理預設 | **合理預設**（空 points→`(no data)`、全同值→中層字元、單點→不除零直接放中層） | 渲染器不該因資料邊界崩潰 |
+
+#### 檔案變動
+
+```
+history-trend-query/
+├── scripts/
+│   ├── query.py                ← 修改：加 weighted 參數 + avg_sentiment_mode
+│   └── renderer.py             ← 新增：TrendRenderer 類別（~220 行）
+├── test_query.py               ← 修改：追加 T9 加權正確性 + T10 全缺日不除零
+└── test_renderer.py            ← 新增：11 項 S3 驗收測試
+```
+
+#### query.py R8 加權擴充
+
+```python
+def hero_trend(self, hero_name, days, until=None, weighted: bool = False):
+    # 新參數 weighted=False（算術平均）/ True（以 count 加權）
+    ...
+    if weighted:
+        avg_mean = weighted_sum / weighted_denom if weighted_denom > 0 else None
+    else:
+        avg_mean = sentiment_sum / sentiment_n if sentiment_n > 0 else None
+    ...
+    summary["avg_sentiment_mode"] = "weighted" if weighted else "arithmetic"
+```
+
+**加權公式**：`sum(sent_i * count_i) / sum(count_i)`，僅對 `status=ok` 且 count>0 的日子納入分母。
+
+**驗證**（S2 T9 新測試）：
+- 日 A: count=100, sent=0.3；日 B: count=1, sent=0.9
+- 算術平均 = (0.3+0.9)/2 = 0.600
+- 加權平均 = (30+0.9)/101 ≈ 0.306
+
+兩者差距 0.294，呼應 R8 提出的「觀感落差」問題，有加權選項後主公可按場景切換。
+
+#### renderer.py 核心類別設計
+
+```python
+class TrendRenderer:
+    def __init__(self, metric: str = "count"):
+        # metric ∈ {"count", "avg_sentiment"}
+
+    def sparkline(self, trend, ascii_fallback: bool = False) -> str:
+        # 正規化基準：僅 ok 點的 metric 值參與 min-max
+        # absent 獨立字元、不影響正規化尺度
+
+    def markdown_table(self, trend) -> str:
+        # 4 欄：日期 / 狀態 / 聲量 / 情緒；末尾附 summary 含 avg_sentiment_mode
+
+    def html_svg(self, trend, width=600, height=140, pad=20) -> str:
+        # inline SVG：點 + 折線；ok=桃紅實線、absent=灰虛線、missing=斷線
+```
+
+#### 灰點策略四格式對照表（R9 主公裁示落實）
+
+| status | sparkline Unicode | sparkline ASCII | Markdown 表格列 | SVG 點 |
+|---|---|---|---|---|
+| `ok` | `▁▂▃▄▅▆▇█` 8 級 | `_.-~^` 5 級 | 實數 | r=4 桃紅 `#db2777` |
+| `hero_absent` | `·` | `.` | `· (absent)` + count 0 | r=2 灰 `#aaaaaa` |
+| `missing` | `?` | `?` | `— (no data)` | 不畫 |
+| `invalid` | `?` | `?` | `⚠ (invalid)` | 不畫 |
+
+連線規則：相鄰兩點皆 ok → 實線桃紅；一端 absent → 虛線灰；含 missing/invalid → 跳過該段。
+
+#### 自動化測試結果
+
+**S2 新增 2 項**（總計 10/10 全綠）：
+| # | 測試項目 | 結果 |
+|---|---|---|
+| T9 | R8 加權 vs 算術平均（造假 fixture 驗算） | ✅ |
+| T10 | weighted=True 全缺日 → None、不除零 | ✅ |
+
+**S3 新增 11 項**（11/11 全綠）：
+| # | 測試項目 | 結果 |
+|---|---|---|
+| T1 | Unicode sparkline：palette 最低/最高對應 | ✅ |
+| T2 | ASCII fallback：全 ASCII、無 Unicode block | ✅ |
+| T3 | hero_absent → `·` / `.` | ✅ |
+| T4 | missing / invalid → `?` | ✅ |
+| T5 | Markdown 4 欄 header + summary 含 avg_sentiment_mode | ✅ |
+| T6 | HTML SVG：`<svg>` 閉合、灰點 `#aaaaaa`、ok 點 `#db2777`、3 circles | ✅ |
+| T7 | 空 points → `(no data)` / SVG 顯 no data | ✅ |
+| T8 | 單一 ok 點不除零 | ✅ |
+| T9 | 全 ok 同值（span=0）→ 中層字元 | ✅ |
+| T10 | metric 可切換 count / avg_sentiment | ✅ |
+| T11 | 非法 metric → ValueError | ✅ |
+
+**三階段累計**：28/28 全綠（S1:7 + S2:10 + S3:11）
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：仍為純標準庫（`re` 僅測試用）
+
+#### CLI Debug 介面
+
+```bash
+py .agent/skills/history-trend-query/scripts/renderer.py \
+   --hero 芽芽 --days 7 --until 2026-04-05 --format spark
+py .agent/skills/history-trend-query/scripts/renderer.py \
+   --hero 芽芽 --days 7 --until 2026-04-05 --format svg > out.svg
+```
+
+四種 `--format`：`spark` / `spark-ascii` / `md` / `svg`。
+
+#### S3 解掉的風險（對應 S2 斷點報告）
+
+| 風險 | 緩解機制 |
+|---|---|
+| R8 avg_sentiment_mean 未加權 | `weighted=True` 參數 + T9 造假 fixture 驗算 |
+| R9 hero_absent 渲染混淆 | 四格式各自獨立字元/色值、T3/T4 強制驗證 |
+
+#### 未處理項（按主公裁示留 S5 或放棄）
+
+| 風險 | 處置 |
+|---|---|
+| R7 data/ 髒檔（20260327.json 0-byte、20260329.json 缺欄） | **Phase 61 收官時提醒主公**（上游 P56 管線問題，不在本 skill 責任內） |
+| R10 fuzzy match | 留 S5 slash command 階段 |
+| R11 days 上限 | 留 S5 效能階段（配 LRU cache） |
+
+#### S4~S5 待開工項
+
+| Stage | 內容 | 狀態 |
+|---|---|---|
+| **S4 多維度** | 多英雄比對 / 整體情緒 / 平台別走勢 + min-max 正規化 + `raw=True` | ⏳ 等主公下令 |
+| **S5 效能+介面+外掛** | LRU cache + 90 天上限 + `/trend` slash + `anomaly_marker.py` | ⏳ |
+
+- **狀態**：✅ Phase 61 Stage 3 完成，四格式渲染上線；R8 加權 / R9 灰點 兩項風險落地、R7 待收官提醒。

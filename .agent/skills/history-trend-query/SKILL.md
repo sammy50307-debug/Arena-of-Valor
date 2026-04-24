@@ -1,7 +1,7 @@
 ---
 name: history-trend-query
 description: 過去 N 天英雄/情緒/平台走勢的被動查詢器。補 Phase 50 trend-anomaly-detector（主動告警）的缺口，提供 pull 式時序檢視與多格式渲染（sparkline/Markdown/HTML/JSON）。Phase 61 分五階段開工，本檔隨階段推進逐步擴寫。
-version: 0.2.0-S2
+version: 0.3.0-S3
 ---
 
 # 歷史走勢查詢器 (History Trend Query)
@@ -24,13 +24,14 @@ history-trend-query/
 ├── SKILL.md                         ← 本檔（隨階段擴寫）
 ├── scripts/
 │   ├── time_series_loader.py        ✅ S1：時序載入 + 缺日標記 + schema 驗證
-│   ├── query.py                     ✅ S2：HistoryTrendQuery.hero_trend
-│   ├── renderer.py                  ⏳ S3：sparkline / Markdown / HTML 統一渲染
+│   ├── query.py                     ✅ S2+S3：hero_trend（含 weighted）
+│   ├── renderer.py                  ✅ S3：sparkline / Markdown / HTML SVG
 │   └── anomaly_marker.py            ⏳ S5：薄介面（Detector 可呼叫）
 ├── resources/
 │   └── schema_version.json          ✅ S1：欄位契約
-├── test_skill.py                    ✅ S1：七項驗收測試
-└── test_query.py                    ✅ S2：八項查詢核心測試
+├── test_skill.py                    ✅ S1：7 項驗收測試
+├── test_query.py                    ✅ S2：10 項查詢核心測試（含 weighted）
+└── test_renderer.py                 ✅ S3：11 項渲染器測試
 ```
 
 ## 🧱 Stage 1 地基（已完成）
@@ -150,10 +151,47 @@ T1 實資料單日、T2 含缺日區間、T3 hero_absent、T4 R5 合約、T5 參
 py scripts/query.py --hero 芽芽 --days 14 --until 2026-04-05
 ```
 
+## 🎨 Stage 3 渲染統一（已完成）
+
+### TrendRenderer
+
+同一 hero_trend 字典 → 四種輸出格式；灰點策略嚴格區分 absent 與 missing。
+
+```python
+from renderer import TrendRenderer
+
+r = TrendRenderer()                          # metric 預設 count
+r = TrendRenderer(metric="avg_sentiment")    # 或畫情緒走勢
+
+spark_uni = r.sparkline(trend)                       # "▁·?█"
+spark_asc = r.sparkline(trend, ascii_fallback=True)  # "_.?^"
+md = r.markdown_table(trend)                         # Markdown 表格
+svg = r.html_svg(trend, width=600, height=140)       # inline SVG
+```
+
+### 灰點策略對照表（R9 主公裁示）
+
+| status | sparkline | ASCII | SVG |
+|---|---|---|---|
+| `ok` | `▁~█` 8 級正規化 | `_.-~^` 5 級 | 桃紅圓點 r=4 `#db2777` |
+| `hero_absent` | `·` 中點 | `.` | 灰色小圓點 r=2 `#aaaaaa` |
+| `missing` | `?` | `?` | 不畫、虛線斷開 |
+| `invalid` | `?` | `?` | 不畫 |
+
+### 驗收結果（S3 測試 11/11 全綠）
+
+T1 Unicode palette 最低/最高對應、T2 ASCII 純 ASCII、T3 灰點字元、T4 missing/invalid `?`、T5 Markdown 四欄+mode、T6 SVG 色值+circle 數、T7 空 points、T8 單點不除零、T9 同值中層、T10 metric 切換、T11 bogus metric ValueError。
+
+### CLI Debug
+
+```bash
+py scripts/renderer.py --hero 芽芽 --days 7 --until 2026-04-05 --format spark
+py scripts/renderer.py --hero 芽芽 --days 7 --until 2026-04-05 --format svg > out.svg
+```
+
 ## 🚧 後續 Stage（草案待開工）
 
 | Stage | 內容 | 狀態 |
 |---|---|---|
-| S3 渲染統一 | sparkline / Markdown / HTML 三格式同源 | ⏳ |
-| S4 多維度 | 多英雄/情緒/平台別 + min-max 正規化 | ⏳ |
+| S4 多維度 | 多英雄/情緒/平台別 + min-max 正規化 + `raw=True` | ⏳ |
 | S5 效能+介面+外掛 | LRU cache + `/trend` slash + `anomaly_marker.py` | ⏳ |

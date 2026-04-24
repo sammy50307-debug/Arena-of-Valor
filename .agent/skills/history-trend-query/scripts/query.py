@@ -50,9 +50,15 @@ class HistoryTrendQuery:
         hero_name: str,
         days: int,
         until: Any = None,
+        weighted: bool = False,
     ) -> Dict[str, Any]:
         """
         單英雄時序查詢。
+
+        參數：
+            weighted: avg_sentiment_mean 是否用 count 加權。
+                False (預設) = 算術平均（各日權重相同）
+                True         = 加權平均 sum(sent_i * count_i) / sum(count_i)
 
         回傳結構：
         {
@@ -65,13 +71,14 @@ class HistoryTrendQuery:
             ],
             "summary": {
                 "days_requested": 14,
-                "days_ok": 3,           # status=ok 且英雄在 hero_stats
-                "days_missing": 8,      # 檔案缺
-                "days_invalid": 0,      # schema 不合
-                "days_hero_absent": 3,  # 檔在但英雄不在 hero_stats
+                "days_ok": 3,
+                "days_missing": 8,
+                "days_invalid": 0,
+                "days_hero_absent": 3,
                 "total_count": 16,
-                "avg_sentiment_mean": 0.88,  # 僅 days_ok 的平均，無資料則 None
-                "coverage_ratio": 0.214       # days_ok / days_requested
+                "avg_sentiment_mean": 0.88,
+                "avg_sentiment_mode": "weighted"|"arithmetic",
+                "coverage_ratio": 0.214
             }
         }
         """
@@ -90,8 +97,10 @@ class HistoryTrendQuery:
         invalid_count = 0
         absent_count = 0
         total_count = 0
-        sentiment_sum = 0.0
-        sentiment_n = 0
+        sentiment_sum = 0.0       # 算術平均用：sum(sent_i)
+        sentiment_n = 0           # 算術平均用：有 sent 值的日數
+        weighted_sum = 0.0        # 加權平均用：sum(sent_i * count_i)
+        weighted_denom = 0        # 加權平均用：sum(count_i)
 
         for entry in series:
             iso = entry["date"]
@@ -134,8 +143,14 @@ class HistoryTrendQuery:
             if isinstance(sentiment, (int, float)):
                 sentiment_sum += float(sentiment)
                 sentiment_n += 1
+                if isinstance(count, (int, float)) and count > 0:
+                    weighted_sum += float(sentiment) * float(count)
+                    weighted_denom += int(count)
 
-        avg_mean = (sentiment_sum / sentiment_n) if sentiment_n > 0 else None
+        if weighted:
+            avg_mean = (weighted_sum / weighted_denom) if weighted_denom > 0 else None
+        else:
+            avg_mean = (sentiment_sum / sentiment_n) if sentiment_n > 0 else None
 
         return {
             "hero": hero_name,
@@ -150,6 +165,7 @@ class HistoryTrendQuery:
                 "days_hero_absent": absent_count,
                 "total_count": total_count,
                 "avg_sentiment_mean": avg_mean,
+                "avg_sentiment_mode": "weighted" if weighted else "arithmetic",
                 "coverage_ratio": ok_count / days if days > 0 else 0.0,
             },
         }
@@ -164,8 +180,9 @@ if __name__ == "__main__":
     parser.add_argument("--days", type=int, default=14)
     parser.add_argument("--until", default=None, help="YYYY-MM-DD；預設今日")
     parser.add_argument("--data-dir", default=None)
+    parser.add_argument("--weighted", action="store_true", help="sentiment 以 count 加權")
     args = parser.parse_args()
 
     q = HistoryTrendQuery(data_dir=args.data_dir) if args.data_dir else HistoryTrendQuery()
-    result = q.hero_trend(args.hero, args.days, until=args.until)
+    result = q.hero_trend(args.hero, args.days, until=args.until, weighted=args.weighted)
     print(json.dumps(result, ensure_ascii=False, indent=2))
