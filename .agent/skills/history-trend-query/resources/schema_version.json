@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "source_pattern": "analysis_YYYYMMDD.json",
+  "description": "P56+ 每日分析檔的欄位契約。S1 loader 依此檢查必要欄位是否齊備。",
+  "required_fields": {
+    "top_level": [
+      "date",
+      "total_posts",
+      "overall",
+      "sentiment_distribution",
+      "platform_breakdown",
+      "hero_stats"
+    ],
+    "overall": [
+      "sentiment_score",
+      "trend"
+    ],
+    "sentiment_distribution": [
+      "positive",
+      "negative",
+      "neutral"
+    ]
+  },
+  "optional_fields": {
+    "top_level": [
+      "reasoning",
+      "overview",
+      "summary",
+      "detected_events",
+      "wordcloud",
+      "top_links",
+      "hero_focus_posts",
+      "hero_focus",
+      "recommendation",
+      "history_delta",
+      "combat_stats",
+      "report_url"
+    ]
+  },
+  "missing_day_marker": {
+    "status": "missing",
+    "data": null
+  }
+}

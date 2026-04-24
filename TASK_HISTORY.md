@@ -2046,3 +2046,144 @@ class SessionHandoffPackager:
 ```
 
 - **狀態**：✅ Phase 60 完成，Milestone 5 第一支特種兵上線！
+
+---
+
+### 📈 Phase 61 — Stage 1 地基：TimeSeriesLoader 時序載入器 (History Trend Query / Milestone 5)
+
+- **目標**：為 Phase 61 history-trend-query 立下第一道防線——能正確載入 `data/analysis_YYYYMMDD.json` 時序資料、缺日顯式標記 + warning log、schema 欄位契約驗證。這道地基是 S2~S5 所有查詢/渲染/多維度邏輯的唯一資料入口。
+- **觸發背景**：Phase 61 五階段開工路徑第 1 步，主公 2026-04-25 核准計畫書、裁示「一個 S 就當斷點」。
+- **原則遵循**：每階段獨立斷點、測試綠燈才進下一階段；本階段零依賴（純標準庫）、零 LLM 成本。
+
+#### 設計決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|---|---|---|---|
+| 缺日處理策略 | 跳過 / 拋錯 / 顯式標記 | **顯式標 `status='missing'` + warning log** | S2+ 渲染需要知道哪天沒資料才能畫出斷點；完全不回比拋錯更彈性 |
+| Schema 驗證位置 | loader 內 / 獨立 validator | **loader 內置** | contract 與載入綁在一起，單一入口把關；壞資料不中止，標 `status='invalid'` 讓上層決定如何處理 |
+| Schema 定義方式 | 硬編碼 / JSON 分離 | **JSON 分離 (`resources/schema_version.json`)** | 跟 P60 bootstrap_files.json 同策略，schema 升版時改檔不動程式 |
+| 資料夾路徑預設 | 傳入必填 / 自動偵測 | **自動偵測（`__file__` 回推專案根）+ 可覆寫** | 開箱即用，測試時也能塞臨時資料夾 |
+
+#### 檔案結構（`.agent/skills/history-trend-query/`）
+
+```
+history-trend-query/
+├── SKILL.md                         ← 技能說明（隨 S1~S5 擴寫，目前 v0.1.0-S1）
+├── scripts/
+│   └── time_series_loader.py        ← S1 主體：TimeSeriesLoader 類別
+├── resources/
+│   └── schema_version.json          ← S1：欄位契約定義（v1.0）
+└── test_skill.py                    ← S1 驗收測試（7 項）
+```
+
+#### Schema Contract (`schema_version.json` v1.0)
+
+必要欄位定義：
+
+| 層級 | 必要欄位 |
+|---|---|
+| top_level | `date`, `total_posts`, `overall`, `sentiment_distribution`, `platform_breakdown`, `hero_stats` |
+| overall | `sentiment_score`, `trend` |
+| sentiment_distribution | `positive`, `negative`, `neutral` |
+
+缺任一即 `status='invalid'` + `missing_fields` 列出全部缺項（不 fail-fast，一次回齊）。
+
+#### 核心類別設計 (`time_series_loader.py`)
+
+```python
+class TimeSeriesLoader:
+    def __init__(self, data_dir=None, schema_path=None):
+        # data_dir 預設：__file__ 回推 .agent/../data（即專案根的 data/）
+        # schema_path 預設：skill 目錄下 resources/schema_version.json
+
+    def validate(self, record) -> Tuple[bool, List[str]]:
+        # 回 (is_valid, missing_fields)；缺項全列不中止
+
+    def load_day(self, day) -> Dict:
+        # 單日載入。回傳三種 status：
+        #   ok      → {"status": "ok", "data": {...}}
+        #   missing → {"status": "missing", "reason": "file_not_found", "data": None}
+        #   invalid → {"status": "invalid", "reason": "schema_mismatch",
+        #              "missing_fields": [...], "data": payload}
+
+    def load_range(self, start_date, end_date) -> List[Dict]:
+        # [start, end] 閉區間，長度 = end-start+1；缺日皆為 placeholder entry
+
+    def load_last_n_days(self, n, until=None) -> List[Dict]:
+        # 末 N 天便利方法；until=None 取 date.today()
+```
+
+#### 缺日標記結構（S1 核心輸出之一）
+
+```python
+{
+    "date": "2026-04-03",
+    "status": "missing",
+    "reason": "file_not_found",   # 或 "json_decode_error: ..."
+    "data": None
+}
+```
+
+**Schema 不合**的 entry 會**保留原始 payload**（`data` 不為 None），以便上層視情況降級使用：
+
+```python
+{
+    "date": "2030-01-01",
+    "status": "invalid",
+    "reason": "schema_mismatch",
+    "missing_fields": ["overall", "sentiment_distribution", ...],
+    "data": {...}   # 原始 payload 保留
+}
+```
+
+#### Warning Log 範例（stderr 實錄）
+
+```
+[WARNING] time_series_loader: 缺日資料：2026-04-03（預期檔案 analysis_20260403.json 不存在）
+[WARNING] time_series_loader: Schema 不合：2030-01-01 缺欄位 ['overall', ...]
+[WARNING] time_series_loader: 區間載入完成：2026-03-30~2026-04-05 共 7 日，缺日 5、schema 不合 0
+```
+
+load_range 結束會額外彙總一行缺日/schema 不合總數，方便上層一眼判斷區間品質。
+
+#### 自動化測試結果（7/7 全綠）
+
+| # | 測試項目 | 驗證重點 | 結果 |
+|---|---|---|---|
+| T1 | 真實資料載入 | `analysis_20260405.json` 正確 parse，total_posts=12、hero_stats 含芽芽 | ✅ |
+| T2 | 缺日偵測 | 未來日期 `2099-12-31` → status=missing + warning log 含「缺日資料」 | ✅ |
+| T3 | Schema contract | 故意缺 4 項必要欄位的壞資料 → status=invalid + missing_fields 全列 | ✅ |
+| T4 | load_range 含缺日 | 2026-03-30~04-05 七天區間，中間 5 日缺皆標 missing、兩端 ok | ✅ |
+| T5 | validate() 單測 | 好資料回 (True, []) | ✅ |
+| T6 | load_last_n_days | n=3, until=2026-04-05 → 回 04-03~04-05 正確三天 | ✅ |
+| T7 | 區間反序防呆 | start > end → ValueError | ✅ |
+
+- **Python 執行環境**：Python 3.8.5（測試設 `PYTHONIOENCODING=utf-8`）
+- **相依套件**：純標準庫（`json`, `logging`, `datetime`, `pathlib`, `argparse`, `tempfile`），零外部依賴
+
+#### CLI Debug 介面
+
+```bash
+py .agent/skills/history-trend-query/scripts/time_series_loader.py \
+   --start 2026-03-30 --end 2026-04-05
+```
+
+輸出每日 status + has_data 摘要（純 JSON），方便目測區間品質。
+
+#### S1 解掉的風險（對應計畫書風險清單）
+
+| 風險 | 緩解機制 |
+|---|---|
+| ① 資料缺漏誤導 | 缺日顯式標 `status='missing'` + warning log，上層不會誤把「沒資料」當成「零聲量」 |
+| ② Loader 單點故障 | Schema contract + validate() 獨立可呼叫，壞資料標 invalid 不中斷區間掃描 |
+
+#### S2~S5 待開工項
+
+| Stage | 內容 | 狀態 |
+|---|---|---|
+| **S2 查詢核心** | 單英雄時序 + Python API（純 JSON） | ⏳ 等主公下令 |
+| **S3 渲染統一** | sparkline / Markdown / HTML 三格式同源 | ⏳ |
+| **S4 多維度** | 多英雄/情緒/平台別 + min-max 正規化 | ⏳ |
+| **S5 效能+介面+外掛** | LRU cache + `/trend` slash + `anomaly_marker.py` | ⏳ |
+
+- **狀態**：✅ Phase 61 Stage 1 完成，地基穩固；S2~S5 各為獨立斷點，隨時可續行。
