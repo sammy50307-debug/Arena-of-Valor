@@ -2187,3 +2187,154 @@ py .agent/skills/history-trend-query/scripts/time_series_loader.py \
 | **S5 效能+介面+外掛** | LRU cache + `/trend` slash + `anomaly_marker.py` | ⏳ |
 
 - **狀態**：✅ Phase 61 Stage 1 完成，地基穩固；S2~S5 各為獨立斷點，隨時可續行。
+
+---
+
+### 🎯 Phase 61 — Stage 2 查詢核心：HistoryTrendQuery.hero_trend (History Trend Query / Milestone 5)
+
+- **目標**：在 S1 地基之上搭起「單英雄時序」的 Python 查詢 API，純 JSON 輸出（渲染留給 S3）。這是本 Phase 的功能主軸；S4 的多英雄/情緒/平台查詢都會複用同款邏輯。
+- **觸發背景**：主公 2026-04-25 核准 S1 地基後裁示「可以繼續下一階段」，S2 接棒。
+- **原則遵循**：S1 斷點報告提出的 R5（invalid 不得被當 ok）寫進合約測試；R3（時區假設）已明文處理；嚴守「純 JSON、零渲染」以免和 S3 重工。
+
+#### 設計決策紀錄
+
+| 決策點 | 選項 | 最終決定 | 原因 |
+|---|---|---|---|
+| 查詢 status 分類粒度 | 三類 (ok/missing/invalid) / 四類（加 hero_absent） | **四類** | 「檔 ok 但英雄沒出現」與「整日無資料」語意不同，合併會導致 S3 畫圖時無法區分「缺日」vs「冷門英雄」 |
+| invalid 資料處置 | 忽略不計 / 仍進 total 但標記 | **完全忽略（count/sentiment 回 None）** | 呼應 S1 斷點報告 R5；schema 不合的 hero_stats 值不可信，混入會汙染 avg_sentiment_mean |
+| hero_absent 的 count 語意 | None（資料缺席）/ 0（確認零聲量） | **0** | 檔 ok 代表確實做過分析、只是該英雄沒被提；相對 missing 的 None 是「不知道」 |
+| avg_sentiment_mean 分母 | 所有 ok 日 / 只計 avg_sentiment 非 None 的日 | **只計非 None 日** | 某天英雄上榜但沒 sentiment 值（少見），不應壓低平均 |
+| summary 恆等式 | 不強制 / 強制 | **強制** `days_ok + days_missing + days_invalid + days_hero_absent = days_requested` | T6 合約測試確保四類互斥全覆蓋，不會出現漏分類 |
+| loader 注入 vs 建構 | 擇一 / 雙參數互斥 | **互斥、同給即 ValueError** | 避免「給了 loader 又給 data_dir」時 data_dir 被偷偷吃掉造成的靜默 bug |
+
+#### 檔案新增
+
+```
+history-trend-query/
+├── scripts/
+│   └── query.py                ← 新增：HistoryTrendQuery 類別 (~150 行)
+└── test_query.py               ← 新增：S2 驗收 8 測試
+```
+
+#### 核心 API 設計 (`query.py`)
+
+```python
+class HistoryTrendQuery:
+    def __init__(self,
+                 loader: Optional[TimeSeriesLoader] = None,
+                 data_dir: Optional[Any] = None):
+        # loader 與 data_dir 互斥
+
+    @staticmethod
+    def _resolve_until(until):
+        # None → date.today() (R3: 明文 local time 假設)
+
+    def hero_trend(self,
+                   hero_name: str,
+                   days: int,
+                   until: Any = None) -> Dict[str, Any]:
+        # 回傳 {hero, days, range, points[], summary{}}
+```
+
+#### 回傳結構範例（實資料：芽芽 7 天 / 03-30~04-05）
+
+```json
+{
+  "hero": "芽芽",
+  "days": 7,
+  "range": {"start": "2026-03-30", "end": "2026-04-05"},
+  "points": [
+    {"date": "2026-03-30", "status": "hero_absent", "count": 0, "avg_sentiment": null},
+    {"date": "2026-03-31", "status": "missing", "count": null, "avg_sentiment": null},
+    ...
+    {"date": "2026-04-05", "status": "ok", "count": 8, "avg_sentiment": 0.92}
+  ],
+  "summary": {
+    "days_requested": 7,
+    "days_ok": 1,
+    "days_missing": 5,
+    "days_invalid": 0,
+    "days_hero_absent": 1,
+    "total_count": 8,
+    "avg_sentiment_mean": 0.92,
+    "coverage_ratio": 0.143
+  }
+}
+```
+
+#### R5 合約測試（造假壞資料驗證）
+
+測試 T4 造了一份 schema 不合但 hero_stats 含「測試英雄=count:999」的壞 fixture：
+
+```python
+bad = {
+    "date": "2030-01-01",
+    "total_posts": 99,
+    # 缺 overall/sentiment_distribution/platform_breakdown → invalid
+    "hero_stats": {"測試英雄": {"count": 999, "avg_sentiment": 0.99}}
+}
+```
+
+預期 query.hero_trend 回：
+- `points[0].count = None`（**不能**被 999 汙染）
+- `summary.total_count = 0`
+- `summary.avg_sentiment_mean = None`
+
+✅ 實測通過——R5 合約守住。
+
+#### 自動化測試結果（8/8 全綠）
+
+| # | 測試項目 | 驗證重點 | 結果 |
+|---|---|---|---|
+| T1 | 實資料單日 | 芽芽 2026-04-05 → count=8, avg=0.92, coverage=1.0 | ✅ |
+| T2 | 含缺日區間 | 7 天區間中 5 日缺 → 不汙染 summary | ✅ |
+| T3 | hero_absent 語意 | 不存在英雄 → count=0, avg=None, absent=1 | ✅ |
+| T4 | R5 合約 | invalid fixture 的 hero_stats 值絕不入統計 | ✅ |
+| T5 | 參數防呆 | 空 hero / days<1 / days 非 int → ValueError | ✅ |
+| T6 | summary 恆等式 | ok+missing+invalid+absent = days_requested | ✅ |
+| T7 | coverage_ratio | days_ok / days_requested | ✅ |
+| T8 | loader/data_dir 互斥 | 同時指定 → ValueError | ✅ |
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`datetime`, `pathlib`, `typing`, `argparse`, `json`），零外部依賴
+
+#### 副作用發現：data/ 兩份髒檔被 S1 loader 正確攔截
+
+在 S2 測試 T6 執行「芽芽 14 天」時，loader warning log 撈到兩份原本沒注意到的 data/ 品質問題：
+
+| 檔案 | 問題 | Loader 歸類 |
+|---|---|---|
+| `data/analysis_20260327.json` | **0 byte 空檔**（`json.JSONDecodeError: Expecting value: line 1 column 1`） | `status='missing'`, reason='json_decode_error' |
+| `data/analysis_20260329.json` | 1702 bytes、15 個 key 但**缺 `total_posts` 必要欄位** | `status='invalid'`, missing_fields=['total_posts'] |
+
+兩份都不在 S2 測試範圍內但被順帶抓到，證明 S1 loader 的 contract 有效。建議主公擇日重跑 P56 產生這兩日的分析檔或手動補欄位；S2 查詢不受影響（S1 分類機制自動隔離）。
+
+#### CLI Debug 介面
+
+```bash
+py .agent/skills/history-trend-query/scripts/query.py \
+   --hero 芽芽 --days 14 --until 2026-04-05
+```
+
+直接 pretty-print JSON，方便主公人工抽檢。
+
+#### S2 解掉的風險（對應 S1 斷點報告）
+
+| 風險 | 緩解機制 |
+|---|---|
+| R3 時區假設 | `_resolve_until` 明文以 `date.today()` 為預設、docstring 註記 local time |
+| R5 invalid 誤用 | T4 合約測試強制：invalid 的 count/sentiment 絕不出現在 summary |
+
+#### S2 新增風險（交 S3 前要盯的）
+
+詳見本階段斷點評估報告（對話紀錄中 R7~R10 四項新風險）。
+
+#### S3~S5 待開工項
+
+| Stage | 內容 | 狀態 |
+|---|---|---|
+| **S3 渲染統一** | sparkline / Markdown / HTML 三格式同源、ASCII fallback | ⏳ 等主公下令 |
+| **S4 多維度** | 多英雄/情緒/平台別 + min-max 正規化 + `raw=True` | ⏳ |
+| **S5 效能+介面+外掛** | LRU cache + `/trend` slash + `anomaly_marker.py` | ⏳ |
+
+- **狀態**：✅ Phase 61 Stage 2 完成，hero_trend API 穩定；R5 合約守住，R3 時區明文化。

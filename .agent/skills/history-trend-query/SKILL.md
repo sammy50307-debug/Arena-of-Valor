@@ -1,7 +1,7 @@
 ---
 name: history-trend-query
 description: 過去 N 天英雄/情緒/平台走勢的被動查詢器。補 Phase 50 trend-anomaly-detector（主動告警）的缺口，提供 pull 式時序檢視與多格式渲染（sparkline/Markdown/HTML/JSON）。Phase 61 分五階段開工，本檔隨階段推進逐步擴寫。
-version: 0.1.0-S1
+version: 0.2.0-S2
 ---
 
 # 歷史走勢查詢器 (History Trend Query)
@@ -24,12 +24,13 @@ history-trend-query/
 ├── SKILL.md                         ← 本檔（隨階段擴寫）
 ├── scripts/
 │   ├── time_series_loader.py        ✅ S1：時序載入 + 缺日標記 + schema 驗證
-│   ├── query.py                     ⏳ S2：HistoryTrendQuery 主類別
+│   ├── query.py                     ✅ S2：HistoryTrendQuery.hero_trend
 │   ├── renderer.py                  ⏳ S3：sparkline / Markdown / HTML 統一渲染
 │   └── anomaly_marker.py            ⏳ S5：薄介面（Detector 可呼叫）
 ├── resources/
 │   └── schema_version.json          ✅ S1：欄位契約
-└── test_skill.py                    ✅ S1：七項驗收測試
+├── test_skill.py                    ✅ S1：七項驗收測試
+└── test_query.py                    ✅ S2：八項查詢核心測試
 ```
 
 ## 🧱 Stage 1 地基（已完成）
@@ -89,11 +90,70 @@ py scripts/time_series_loader.py --start 2026-03-30 --end 2026-04-05
 
 輸出每日 status + has_data 摘要（JSON）。
 
+## 🧭 Stage 2 查詢核心（已完成）
+
+### HistoryTrendQuery.hero_trend
+
+**API**：
+
+```python
+from query import HistoryTrendQuery
+
+q = HistoryTrendQuery()                              # 預設走 S1 loader
+q = HistoryTrendQuery(data_dir="/custom/path")       # 或自訂資料夾
+q = HistoryTrendQuery(loader=my_loader)              # 或注入現成 loader
+
+r = q.hero_trend("芽芽", days=14, until="2026-04-05")
+```
+
+### 回傳結構
+
+```python
+{
+  "hero": "芽芽",
+  "days": 14,
+  "range": {"start": "2026-03-23", "end": "2026-04-05"},
+  "points": [
+    {"date": "...", "status": "ok|missing|invalid|hero_absent",
+     "count": int|None, "avg_sentiment": float|None},
+    ...
+  ],
+  "summary": {
+    "days_requested": 14,
+    "days_ok": 3,            # status=ok 且英雄在 hero_stats
+    "days_missing": 8,       # 檔案缺
+    "days_invalid": 0,       # schema 不合（R5 合約：絕不進統計）
+    "days_hero_absent": 3,   # 檔在但英雄不在 hero_stats
+    "total_count": 16,
+    "avg_sentiment_mean": 0.88,
+    "coverage_ratio": 0.214
+  }
+}
+```
+
+### 四種 status 語意
+
+| status | 意義 | count | avg_sentiment |
+|---|---|---|---|
+| `ok` | 有效資料、英雄有紀錄 | 實數 | 實數 |
+| `missing` | 檔案不存在或 JSON 壞 | None | None |
+| `invalid` | schema 不合（R5：絕不進統計） | None | None |
+| `hero_absent` | 檔 ok、但該日英雄不在 hero_stats | 0 | None |
+
+### 驗收結果（S2 測試 8/8 全綠）
+
+T1 實資料單日、T2 含缺日區間、T3 hero_absent、T4 R5 合約、T5 參數防呆、T6 summary 恆等式、T7 coverage_ratio、T8 loader/data_dir 互斥。
+
+### CLI Debug
+
+```bash
+py scripts/query.py --hero 芽芽 --days 14 --until 2026-04-05
+```
+
 ## 🚧 後續 Stage（草案待開工）
 
 | Stage | 內容 | 狀態 |
 |---|---|---|
-| S2 查詢核心 | 單英雄時序 + Python API（純 JSON） | ⏳ |
 | S3 渲染統一 | sparkline / Markdown / HTML 三格式同源 | ⏳ |
 | S4 多維度 | 多英雄/情緒/平台別 + min-max 正規化 | ⏳ |
 | S5 效能+介面+外掛 | LRU cache + `/trend` slash + `anomaly_marker.py` | ⏳ |
