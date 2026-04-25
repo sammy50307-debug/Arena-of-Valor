@@ -292,9 +292,198 @@ def t10():
     assert r["summary"]["avg_sentiment_mode"] == "weighted"
 
 
+# ─────────────────────────────────────────────────────────────
+# S4 — T11~T16：多英雄 / 整體 / 平台 / raw / normalized / 上限
+# ─────────────────────────────────────────────────────────────
+def _make_overall_fixture(tmp_dir: Path) -> None:
+    """造 3 日 overall 測試資料：聲量遞增、情緒分布變化。"""
+    for ds, total, pos, neg, neu, plats in [
+        ("2030-07-01", 10, 5, 2, 3, {"facebook": 6, "youtube": 4}),
+        ("2030-07-02", 50, 30, 5, 15, {"facebook": 25, "youtube": 15, "ptt": 10}),
+        ("2030-07-03", 100, 70, 10, 20, {"facebook": 50, "ptt": 30, "dcard": 20}),
+    ]:
+        payload = {
+            "date": ds,
+            "total_posts": total,
+            "overall": {"sentiment_score": 0.7, "trend": "Upward"},
+            "sentiment_distribution": {"positive": pos, "negative": neg, "neutral": neu},
+            "platform_breakdown": {
+                k: {"post_count": v, "sentiment_ratio": 0.5}
+                for k, v in plats.items()
+            },
+            "hero_stats": {
+                "甲": {"count": total // 2, "avg_sentiment": 0.6},
+                "乙": {"count": total // 4, "avg_sentiment": 0.4},
+            },
+        }
+        fname = f"analysis_{ds.replace('-', '')}.json"
+        (tmp_dir / fname).write_text(
+            json.dumps(payload, ensure_ascii=False), encoding="utf-8"
+        )
+
+
+@test("T11 heroes_trend：多英雄回傳 list 長度=names、順序保留、跨軌 normalize")
+def t11():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        _make_overall_fixture(tmp_dir)
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        r = q.heroes_trend(["甲", "乙"], 3, until="2030-07-03")
+
+    assert r["mode"] == "heroes"
+    assert r["hero_names"] == ["甲", "乙"]
+    assert len(r["heroes"]) == 2
+    assert r["heroes"][0]["hero"] == "甲"
+    assert r["heroes"][1]["hero"] == "乙"
+
+    # normalized_count 跨英雄共軸：甲最高（07-03 count=50）→ 1.0；乙最低（07-01 count=2）
+    all_norms = [
+        p.get("normalized_count")
+        for h in r["heroes"]
+        for p in h["points"]
+        if p.get("status") == "ok" and "normalized_count" in p
+    ]
+    assert max(all_norms) == 1.0, f"跨軌最高應為 1.0，got {max(all_norms)}"
+    assert min(all_norms) == 0.0, f"跨軌最低應為 0.0，got {min(all_norms)}"
+
+
+@test("T12 heroes_trend：raw=True 不產 normalized_count 欄")
+def t12():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        _make_overall_fixture(tmp_dir)
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        r = q.heroes_trend(["甲", "乙"], 3, until="2030-07-03", raw=True)
+
+    assert r["raw"] is True
+    for h in r["heroes"]:
+        for p in h["points"]:
+            assert "normalized_count" not in p, \
+                f"raw=True 不應有 normalized_count，但 {h['hero']} 有"
+
+
+@test("T13 heroes_trend：上限 5 軌、空 list / 重複 / 空字串 → ValueError")
+def t13():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+
+    # 6 個 → 噴
+    try:
+        q.heroes_trend(["a", "b", "c", "d", "e", "f"], 1, until="2026-04-05")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("6 軌應噴 ValueError")
+
+    # 空 list → 噴
+    try:
+        q.heroes_trend([], 1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("空 list 應噴 ValueError")
+
+    # 重複 → 噴
+    try:
+        q.heroes_trend(["甲", "甲"], 1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("重複名稱應噴 ValueError")
+
+    # 空字串 → 噴
+    try:
+        q.heroes_trend(["甲", "  "], 1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("空字串名稱應噴 ValueError")
+
+
+@test("T14 overall_trend：三情緒欄齊全、缺日 missing")
+def t14():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        _make_overall_fixture(tmp_dir)
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        # 5 天區間（前後各蓋一天缺）：06-30 ~ 07-04
+        r = q.overall_trend(5, until="2030-07-04")
+
+    assert r["mode"] == "overall"
+    assert len(r["points"]) == 5
+    statuses = [p["status"] for p in r["points"]]
+    # 06-30、07-04 缺；07-01~03 ok
+    assert statuses[0] == "missing", f"06-30 應 missing，got {statuses[0]}"
+    assert statuses[-1] == "missing", f"07-04 應 missing"
+    assert statuses[1:4] == ["ok", "ok", "ok"]
+
+    # 三情緒欄齊全
+    p = r["points"][1]  # 07-01: pos=5, neg=2, neu=3
+    assert p["positive"] == 5 and p["negative"] == 2 and p["neutral"] == 3
+    assert p["total_posts"] == 10
+
+    s = r["summary"]
+    assert s["positive_sum"] == 5 + 30 + 70
+    assert s["negative_sum"] == 2 + 5 + 10
+    assert s["neutral_sum"] == 3 + 15 + 20
+    assert s["total_posts_sum"] == 10 + 50 + 100
+
+    # normalize：07-03 total=100 最高 → 1.0；07-01 total=10 最低 → 0.0
+    assert r["points"][1]["normalized_total"] == 0.0
+    assert r["points"][3]["normalized_total"] == 1.0
+
+
+@test("T15 platform_trend：聯集平台、缺平台 absent、跨平台 normalize")
+def t15():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        _make_overall_fixture(tmp_dir)
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        r = q.platform_trend(3, until="2030-07-03")
+
+    assert r["mode"] == "platform"
+    # 聯集：facebook, youtube, ptt, dcard
+    assert set(r["platforms"]) == {"facebook", "youtube", "ptt", "dcard"}, \
+        f"got {r['platforms']}"
+
+    # 07-03 沒 youtube → absent
+    yt = r["platform_data"]["youtube"]
+    assert yt[2]["status"] == "absent", f"07-03 youtube 應 absent，got {yt[2]['status']}"
+    assert yt[2]["post_count"] == 0
+
+    # 07-01 沒 dcard → absent
+    dc = r["platform_data"]["dcard"]
+    assert dc[0]["status"] == "absent"
+
+    # 跨平台 normalize：facebook 07-03 post_count=50 是全局最大 → 1.0
+    fb = r["platform_data"]["facebook"]
+    assert fb[2]["normalized_count"] == 1.0, \
+        f"facebook 07-03 應為 1.0（全局最大），got {fb[2].get('normalized_count')}"
+
+    # 全局最小是 youtube 07-01 的 4 → 0.0
+    yt2 = r["platform_data"]["youtube"]
+    assert yt2[0]["normalized_count"] == 0.0, \
+        f"youtube 07-01 應為 0.0（全局最小=4），got {yt2[0].get('normalized_count')}"
+
+
+@test("T16 platform_trend / overall_trend：raw=True 不產 normalized_*")
+def t16():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        _make_overall_fixture(tmp_dir)
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        r_p = q.platform_trend(3, until="2030-07-03", raw=True)
+        r_o = q.overall_trend(3, until="2030-07-03", raw=True)
+
+    for pts in r_p["platform_data"].values():
+        for p in pts:
+            assert "normalized_count" not in p
+    for p in r_o["points"]:
+        assert "normalized_total" not in p
+
+
 if __name__ == "__main__":
     print("=" * 60)
-    print("Phase 61 Stage 2 — HistoryTrendQuery.hero_trend 驗收測試")
+    print("Phase 61 Stage 2/4 — HistoryTrendQuery 驗收測試")
     print("=" * 60)
 
     print("-" * 60)

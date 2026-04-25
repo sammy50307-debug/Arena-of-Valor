@@ -32,6 +32,15 @@ _COLOR_ABSENT = "#aaaaaa"    # 灰點（R9 主公裁示）
 _COLOR_GRID = "#e5e5e5"
 _COLOR_TEXT = "#333333"
 
+# S4 多軌 palette（5 色，與 query.py 上限呼應；首色維持桃紅領銜）
+_MULTI_PALETTE = [
+    "#db2777",  # 桃紅（旗艦主色）
+    "#0ea5e9",  # 青
+    "#f59e0b",  # 琥珀
+    "#8b5cf6",  # 紫
+    "#10b981",  # 翠
+]
+
 
 class TrendRenderer:
     """hero_trend 字典 → 多格式渲染。"""
@@ -287,9 +296,251 @@ class TrendRenderer:
         parts.append("</svg>")
         return "".join(parts)
 
+    # ────────────────────────────────────────────────────────────
+    # S4 R16：多軌渲染（heroes_trend / platform_trend）
+    # ────────────────────────────────────────────────────────────
+    @staticmethod
+    def _multi_extract_tracks(multi: Dict[str, Any]):
+        """
+        統一 heroes_trend / platform_trend 為 List[(track_name, points, value_key, normalized_key)]。
+        """
+        mode = multi.get("mode")
+        if mode == "heroes":
+            tracks = []
+            for h in multi.get("heroes", []):
+                tracks.append((h.get("hero", "—"), h.get("points", []),
+                               "count", "normalized_count"))
+            title = "多英雄聲量比對"
+        elif mode == "platform":
+            tracks = []
+            for p_name, pts in (multi.get("platform_data") or {}).items():
+                tracks.append((p_name, pts, "post_count", "normalized_count"))
+            title = "平台別走勢"
+        else:
+            raise ValueError(
+                f"render_multi 不支援 mode={mode!r}（限 'heroes' / 'platform'）"
+            )
+        return tracks, title
+
+    def render_multi_svg(
+        self,
+        multi: Dict[str, Any],
+        width: int = 720,
+        height: int = 220,
+        pad: int = 30,
+    ) -> str:
+        """多軌 SVG（多色 palette + 圖例 + x 軸刻度）。"""
+        tracks, title = self._multi_extract_tracks(multi)
+        rng = multi.get("range", {}) or {}
+        full_title = (
+            f'{title} — '
+            f'{html.escape(str(rng.get("start", "")), quote=True)} ~ '
+            f'{html.escape(str(rng.get("end", "")), quote=True)}'
+        )
+
+        if not tracks:
+            return (
+                f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+                f'viewBox="0 0 {width} {height}"><text x="{width//2}" y="{height//2}" '
+                f'text-anchor="middle" fill="{_COLOR_TEXT}" font-family="sans-serif">'
+                f'no data</text></svg>'
+            )
+
+        # 共用 x 軸：取所有 track points 中第一條的長度當基準（query 層對齊過日期）
+        n = max((len(pts) for _, pts, _, _ in tracks), default=0)
+        if n == 0:
+            return (
+                f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+                f'viewBox="0 0 {width} {height}"><text x="{width//2}" y="{height//2}" '
+                f'text-anchor="middle" fill="{_COLOR_TEXT}" font-family="sans-serif">'
+                f'no data</text></svg>'
+            )
+
+        legend_h = 22
+        x_axis_h = 18
+        inner_w = width - 2 * pad
+        inner_h = height - pad - legend_h - x_axis_h - pad
+        step = inner_w / (n - 1) if n > 1 else 0
+
+        def _x(i: int) -> float:
+            return pad + i * step if n > 1 else width / 2
+
+        def _y(v: float) -> float:
+            # v ∈ [0,1] normalized；y 軸由下往上增高
+            return pad + inner_h - v * inner_h
+
+        # 取 normalized 值（raw=True 模式下會 fallback 到原值，並做 on-the-fly 正規化以求視覺可比）
+        raw_mode = bool(multi.get("raw", False))
+        if raw_mode:
+            # raw 模式：渲染端臨時 cross-normalize 以畫圖（不寫回 query 結果）
+            all_vals = []
+            for _, pts, vk, _ in tracks:
+                for p in pts:
+                    if p.get("status") == "ok" and isinstance(p.get(vk), (int, float)):
+                        all_vals.append(float(p[vk]))
+            if all_vals:
+                lo_, hi_ = min(all_vals), max(all_vals)
+                span_ = (hi_ - lo_) or 1.0
+            else:
+                lo_, span_ = 0.0, 1.0
+
+            def _norm(p: Dict[str, Any], vk: str):
+                v = p.get(vk)
+                if not isinstance(v, (int, float)):
+                    return None
+                return (float(v) - lo_) / span_ if span_ else 0.5
+        else:
+            def _norm(p: Dict[str, Any], vk: str):
+                _ = vk
+                return p.get("normalized_count") if "normalized_count" in p else p.get("normalized_total")
+
+        parts = [
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" font-family="sans-serif">',
+            f'<rect x="0.5" y="0.5" width="{width-1}" height="{height-1}" '
+            f'fill="white" stroke="{_COLOR_GRID}"/>',
+            f'<text x="{pad}" y="{pad - 8}" fill="{_COLOR_TEXT}" font-size="12">'
+            f'{html.escape(full_title, quote=True)}</text>',
+        ]
+
+        # 畫每一軌
+        for ti, (name, pts, vk, _) in enumerate(tracks):
+            color = _MULTI_PALETTE[ti % len(_MULTI_PALETTE)]
+            name_safe = html.escape(str(name), quote=True)
+
+            # 折線：相鄰兩點皆有 normalized 值才連
+            for i in range(len(pts) - 1):
+                a, b = pts[i], pts[i + 1]
+                va, vb = _norm(a, vk), _norm(b, vk)
+                if va is None or vb is None:
+                    continue
+                parts.append(
+                    f'<line x1="{_x(i):.2f}" y1="{_y(va):.2f}" '
+                    f'x2="{_x(i+1):.2f}" y2="{_y(vb):.2f}" '
+                    f'stroke="{color}" stroke-width="1.5"/>'
+                )
+            # 點
+            for i, p in enumerate(pts):
+                v = _norm(p, vk)
+                if v is None:
+                    continue
+                date_safe = html.escape(str(p.get("date", "")), quote=True)
+                raw_v = p.get(vk)
+                parts.append(
+                    f'<circle cx="{_x(i):.2f}" cy="{_y(v):.2f}" r="3.5" '
+                    f'fill="{color}"><title>{name_safe} {date_safe}: {raw_v}</title></circle>'
+                )
+
+        # x 軸刻度（用第一條軌的日期，所有軌 query 層已對齊）
+        ref_pts = tracks[0][1]
+        if n >= 1:
+            if n <= 7:
+                tick_every = 1
+            elif n <= 31:
+                tick_every = 7
+            elif n <= 90:
+                tick_every = 14
+            else:
+                tick_every = 30
+            tick_indices = list(range(0, n, tick_every))
+            if (n - 1) not in tick_indices:
+                tick_indices.append(n - 1)
+            tick_y_line = pad + inner_h
+            tick_y_text = tick_y_line + 12
+            for i in tick_indices:
+                date_str = str(ref_pts[i].get("date", "")) if i < len(ref_pts) else ""
+                short = html.escape(
+                    date_str[5:] if len(date_str) >= 10 else date_str, quote=True
+                )
+                parts.append(
+                    f'<line x1="{_x(i):.2f}" y1="{tick_y_line:.2f}" '
+                    f'x2="{_x(i):.2f}" y2="{tick_y_line + 3:.2f}" '
+                    f'stroke="{_COLOR_GRID}" stroke-width="1"/>'
+                )
+                parts.append(
+                    f'<text x="{_x(i):.2f}" y="{tick_y_text:.2f}" '
+                    f'text-anchor="middle" fill="#666666" font-size="9">{short}</text>'
+                )
+
+        # 圖例（底部一列）
+        legend_y_top = height - legend_h + 4
+        legend_x = pad
+        for ti, (name, _pts, _vk, _) in enumerate(tracks):
+            color = _MULTI_PALETTE[ti % len(_MULTI_PALETTE)]
+            name_safe = html.escape(str(name), quote=True)
+            parts.append(
+                f'<rect x="{legend_x:.2f}" y="{legend_y_top:.2f}" '
+                f'width="10" height="10" fill="{color}"/>'
+            )
+            parts.append(
+                f'<text x="{legend_x + 14:.2f}" y="{legend_y_top + 9:.2f}" '
+                f'font-size="11" fill="{_COLOR_TEXT}">{name_safe}</text>'
+            )
+            legend_x += max(80, len(str(name)) * 12 + 30)
+
+        parts.append("</svg>")
+        return "".join(parts)
+
+    def render_multi_markdown(self, multi: Dict[str, Any]) -> str:
+        """多軌 Markdown 表格：日期為列、各軌為欄。"""
+        e = self._md_escape
+        tracks, title = self._multi_extract_tracks(multi)
+        rng = multi.get("range", {}) or {}
+
+        if not tracks:
+            return f"### {title}\n\n(no data)"
+
+        # 統一日期軸（聯集保序，query 層通常已對齊）
+        date_seen: List[str] = []
+        seen: set = set()
+        for _, pts, _, _ in tracks:
+            for p in pts:
+                d = p.get("date")
+                if d and d not in seen:
+                    seen.add(d)
+                    date_seen.append(d)
+
+        if not date_seen:
+            return f"### {title}\n\n(no data)"
+
+        track_names_e = [e(name) for name, _, _, _ in tracks]
+        header = "| 日期 | " + " | ".join(track_names_e) + " |"
+        sep = "|------|" + "------|" * len(tracks)
+        lines = [
+            f"### {e(title)} — {e(rng.get('start', ''))} ~ {e(rng.get('end', ''))}",
+            "",
+            header,
+            sep,
+        ]
+
+        for d in date_seen:
+            cells: List[str] = [e(d)]
+            for _name, pts, vk, _ in tracks:
+                cell = "—"
+                for p in pts:
+                    if p.get("date") == d:
+                        st = p.get("status")
+                        if st == "ok":
+                            v = p.get(vk)
+                            cell = str(v) if v is not None else "—"
+                        elif st in ("hero_absent", "absent"):
+                            cell = "·"
+                        elif st == "missing":
+                            cell = "—"
+                        elif st == "invalid":
+                            cell = "⚠"
+                        else:
+                            cell = e(str(st))
+                        break
+                cells.append(cell)
+            lines.append("| " + " | ".join(cells) + " |")
+
+        return "\n".join(lines)
+
 
 if __name__ == "__main__":
     import argparse
+    import json
     import sys
     from pathlib import Path
 
@@ -297,22 +548,54 @@ if __name__ == "__main__":
     from query import HistoryTrendQuery  # noqa: E402
 
     parser = argparse.ArgumentParser(description="TrendRenderer CLI")
-    parser.add_argument("--hero", required=True)
+    parser.add_argument("--mode", choices=["hero", "heroes", "overall", "platform"], default="hero")
+    parser.add_argument("--hero", help="mode=hero")
+    parser.add_argument("--heroes", help="mode=heroes，逗號分隔")
     parser.add_argument("--days", type=int, default=7)
     parser.add_argument("--until", default=None)
     parser.add_argument("--data-dir", default=None)
-    parser.add_argument("--format", choices=["spark", "spark-ascii", "md", "svg"], default="spark")
+    parser.add_argument(
+        "--format",
+        choices=["spark", "spark-ascii", "md", "svg", "multi-svg", "multi-md"],
+        default="spark",
+    )
+    parser.add_argument("--raw", action="store_true")
     args = parser.parse_args()
 
     q = HistoryTrendQuery(data_dir=args.data_dir) if args.data_dir else HistoryTrendQuery()
-    trend = q.hero_trend(args.hero, args.days, until=args.until)
     renderer = TrendRenderer()
 
-    if args.format == "spark":
-        print(renderer.sparkline(trend))
-    elif args.format == "spark-ascii":
-        print(renderer.sparkline(trend, ascii_fallback=True))
-    elif args.format == "md":
-        print(renderer.markdown_table(trend))
-    elif args.format == "svg":
-        print(renderer.html_svg(trend))
+    if args.mode == "hero":
+        if not args.hero:
+            parser.error("--mode=hero 需要 --hero")
+        trend = q.hero_trend(args.hero, args.days, until=args.until)
+        if args.format == "spark":
+            print(renderer.sparkline(trend))
+        elif args.format == "spark-ascii":
+            print(renderer.sparkline(trend, ascii_fallback=True))
+        elif args.format == "md":
+            print(renderer.markdown_table(trend))
+        elif args.format == "svg":
+            print(renderer.html_svg(trend))
+        else:
+            parser.error(f"--mode=hero 不支援 format={args.format}")
+    else:
+        if args.mode == "heroes":
+            if not args.heroes:
+                parser.error("--mode=heroes 需要 --heroes")
+            names = [s.strip() for s in args.heroes.split(",") if s.strip()]
+            multi = q.heroes_trend(names, args.days, until=args.until, raw=args.raw)
+        elif args.mode == "overall":
+            multi = q.overall_trend(args.days, until=args.until, raw=args.raw)
+        else:
+            multi = q.platform_trend(args.days, until=args.until, raw=args.raw)
+
+        if args.mode == "overall":
+            # overall_trend 是單軌語意（無多 hero/platform），用 markdown_table 略；這裡 fallback
+            print(json.dumps(multi, ensure_ascii=False, indent=2))
+        elif args.format == "multi-svg":
+            print(renderer.render_multi_svg(multi))
+        elif args.format == "multi-md":
+            print(renderer.render_multi_markdown(multi))
+        else:
+            parser.error(f"--mode={args.mode} 請用 --format multi-svg 或 multi-md")

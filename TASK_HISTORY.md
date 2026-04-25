@@ -2593,3 +2593,252 @@ def _md_escape(s: Any) -> str:
 R13「SVG 高度未自適應」維持跳過。**真正原因**（重新檢視後更新）：`html_svg()` 已做 min-max 正規化 `(v-lo)/span * inner_h`，y 軸自動把最低值擺底、最高值擺頂、整條線縮進框內，不會頂天花板。原寫的「假想需求 + height 可傳參」不夠精準，已收進口頭交代。
 
 - **狀態**：✅ Phase 61 Stage 3.5b 完成；R14 補修、35/35 全綠。本日告一段落，handoff 打包接續。
+
+---
+
+### 🌐 Phase 61 — Stage 4 多維度比對：heroes_trend / overall_trend / platform_trend + R16 多軌渲染 (History Trend Query / Milestone 5)
+
+- **目標**：把 S2/S3 的「單英雄單軌」邏輯擴成「多軌比對」，讓主公能同時看多英雄走勢、整體輿情脈動、平台別熱度；同時收掉 S3.5 留給 S4 的 R16「多軌渲染」必解項。
+- **觸發背景**：主公 2026-04-25 核准 S4 小計畫書的「B 選項全選」設計決策後裁示「先做出來看看」，動工進入 S4 主軸。
+- **原則遵循**：守 Scope 自律——LRU cache / `/trend` slash / anomaly_marker / fuzzy match / days 上限全部留 S5；R7 P56 上游髒檔已主公裁示擱置（不在本 skill scope）。
+
+#### 設計決策紀錄（B 全選 — 主公核准）
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 多英雄上限 | 不限 | 上限 5 軌 | **B：上限 5** | SVG palette / 圖例可讀性硬上限 |
+| 多軌 SVG 色系 | 隨機 | **固定 palette**（桃紅 / 青 / 琥珀 / 紫 / 翠） | **B：固定 5 色** | 桃紅 `#db2777` 領銜呼應 Phase40 視覺真經主色 |
+| `overall_trend` 情緒欄 | 算 ratio | 三欄並陳 pos/neu/neg count | **三欄並陳** | 情緒分布是分類資料，比 ratio 真實 |
+| `platform_trend` 缺平台日 | 視作 0 | 視作 absent（灰點） | **absent** | 跟 S3 hero_absent 語意一致，不誤判為「真的 0 聲量」 |
+| `raw=True` 預設 | 預設 raw | 預設 normalized（raw 要明示） | **預設 normalized** | 比對視覺需要正規化，raw 是 debug / 下游用 |
+
+#### 檔案變動
+
+```
+history-trend-query/
+├── scripts/
+│   ├── query.py        ← +172 行（heroes_trend / overall_trend / platform_trend + _cross_normalize + CLI mode 切換）
+│   └── renderer.py     ← +208 行（render_multi_svg + render_multi_markdown + _MULTI_PALETTE + CLI 擴充）
+├── test_query.py       ← +6 項（T11~T16）
+└── test_renderer.py    ← +6 項（T19~T24）
+```
+
+#### query.py 核心擴充：跨軌正規化 helper（F5）
+
+```python
+@staticmethod
+def _cross_normalize(
+    all_points_lists: List[List[Dict[str, Any]]],
+    value_key: str,
+    normalized_key: str,
+) -> None:
+    """
+    對多條軌道做共用 min-max 正規化，就地寫入 normalized_key 欄。
+    只考慮 status=='ok' 且 value_key 為數值的點。span=0 時統一填 0.5。
+    """
+    all_values = []
+    for pts in all_points_lists:
+        for p in pts:
+            if p.get("status") == "ok":
+                v = p.get(value_key)
+                if isinstance(v, (int, float)):
+                    all_values.append(float(v))
+    if not all_values:
+        return
+    lo, hi = min(all_values), max(all_values)
+    span = hi - lo
+    for pts in all_points_lists:
+        for p in pts:
+            if p.get("status") == "ok":
+                v = p.get(value_key)
+                if isinstance(v, (int, float)):
+                    p[normalized_key] = (
+                        (float(v) - lo) / span if span > 0 else 0.5
+                    )
+```
+
+#### query.py F1：多英雄比對
+
+```python
+def heroes_trend(
+    self,
+    hero_names: List[str],
+    days: int,
+    until: Any = None,
+    weighted: bool = False,
+    raw: bool = False,
+) -> Dict[str, Any]:
+    if len(hero_names) > 5:
+        raise ValueError(f"多英雄比對上限 5 軌，got {len(hero_names)}")
+    # ... 防呆：空 list / 重複 / 空字串皆噴 ValueError
+    heroes = [
+        self.hero_trend(n, days, until=until, weighted=weighted)
+        for n in hero_names
+    ]
+    if not raw:
+        self._cross_normalize(
+            [h["points"] for h in heroes],
+            value_key="count",
+            normalized_key="normalized_count",
+        )
+    return {
+        "mode": "heroes",
+        "hero_names": list(hero_names),
+        "raw": raw,
+        "range": {...},
+        "heroes": heroes,
+    }
+```
+
+#### query.py F2：整體輿情走勢（三情緒欄並陳）
+
+```python
+def overall_trend(self, days, until=None, raw=False):
+    # 每個 ok 點輸出：
+    #   {"date", "status": "ok", "total_posts", "positive", "negative", "neutral"}
+    # summary 額外提供：positive_sum / negative_sum / neutral_sum / total_posts_sum
+    # raw=False 時 _cross_normalize total_posts → normalized_total
+```
+
+#### query.py F3：平台別走勢（聯集 platform key）
+
+```python
+def platform_trend(self, days, until=None, raw=False):
+    # 第一輪：聯集所有 ok 日 platform_breakdown 出現過的平台 key（保序）
+    # 第二輪：對每個平台組軌道
+    #   - 該平台缺於某 ok 日 → status='absent', post_count=0
+    #   - 該日 missing/invalid → status 對應傳遞、post_count=None
+    # 跨平台 normalize → normalized_count
+```
+
+#### renderer.py R16：多軌渲染 _MULTI_PALETTE 與 render_multi_svg
+
+```python
+_MULTI_PALETTE = [
+    "#db2777",  # 桃紅（旗艦主色）
+    "#0ea5e9",  # 青
+    "#f59e0b",  # 琥珀
+    "#8b5cf6",  # 紫
+    "#10b981",  # 翠
+]
+
+def render_multi_svg(self, multi, width=720, height=220, pad=30):
+    tracks, title = self._multi_extract_tracks(multi)
+    # tracks = [(name, points, value_key, normalized_key), ...]
+    # heroes 模式 value_key='count'、platform 模式 value_key='post_count'
+    # raw=True 時渲染端臨時 cross-normalize（不寫回 query 結果）
+    # 每軌 → 折線（相鄰兩點皆有 normalized 值才連）+ 點（r=3.5）+ 圖例方塊+標籤
+    # x 軸刻度：沿用 S3.5 R12 自適應策略（n<=7 每日 / n<=31 每週 / n<=90 每兩週 / >90 每月 + 末點強制標）
+    # 所有用戶輸入字串經 html.escape(quote=True)（沿用 S3.5 R15）
+```
+
+#### 多軌色系對照表
+
+| 軌索引 | 色碼 | 名稱 |
+|---|---|---|
+| 0 | `#db2777` | 旗艦桃紅（與單軌 ok 同色，視覺主軸） |
+| 1 | `#0ea5e9` | 青 |
+| 2 | `#f59e0b` | 琥珀 |
+| 3 | `#8b5cf6` | 紫 |
+| 4 | `#10b981` | 翠 |
+
+#### renderer.py R16：render_multi_markdown
+
+```python
+def render_multi_markdown(self, multi):
+    # 統一日期軸（聯集保序）為列、各軌為欄
+    # cell 規則：
+    #   ok        → 原值（count / post_count）
+    #   hero_absent / absent → "·"
+    #   missing   → "—"
+    #   invalid   → "⚠"
+    # header / 軌道名 / 日期皆過 _md_escape（沿用 S3.5b R14）
+```
+
+#### 自動化測試結果
+
+**S2 + S4 query 新增 6 項**（test_query.py 16/16 全綠）：
+| # | 測試項目 | 結果 |
+|---|---|---|
+| T11 | heroes_trend 多英雄回傳 list 長度=names、順序保留、跨軌 normalize（min=0.0/max=1.0） | ✅ |
+| T12 | heroes_trend raw=True 不產 normalized_count 欄 | ✅ |
+| T13 | heroes_trend 上限 5 軌、空 list / 重複 / 空字串 → ValueError | ✅ |
+| T14 | overall_trend 三情緒欄齊全、缺日 missing、normalize total_posts | ✅ |
+| T15 | platform_trend 聯集平台、缺平台 absent、跨平台 normalize（全局最小=youtube 07-01 post_count=4 → 0.0；全局最大=facebook 07-03 post_count=50 → 1.0） | ✅ |
+| T16 | platform_trend / overall_trend raw=True 不產 normalized_* | ✅ |
+
+**S3 + S4 renderer 新增 6 項**（test_renderer.py 24/24 全綠）：
+| # | 測試項目 | 結果 |
+|---|---|---|
+| T19 | render_multi_svg 多英雄 → palette 至少 2 色（桃紅 + 青）、圖例含所有 hero name | ✅ |
+| T20 | render_multi_markdown 多英雄並列欄位、header 4 個 pipe（3 欄）、absent 顯 `·` | ✅ |
+| T21 | render_multi 單軌 fallback 不崩（svg + md 雙格式皆驗） | ✅ |
+| T22 | raw=True multi → 渲染端臨時 normalize 不噴錯、circle 數正確 | ✅ |
+| T23 | render_multi 平台模式（mode=platform）SVG/MD 雙格式 | ✅ |
+| T24 | render_multi mode 不合法 → ValueError | ✅ |
+
+**累計**：47/47 全綠（S1:7 + S2:10 + S3:18 + S4 query:6 + S4 renderer:6 = 47）。從 35/35 → 47/47，零回歸。
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：仍為純標準庫（`re` 僅測試用）
+
+#### CLI Debug 介面（mode 擴充）
+
+```bash
+# query.py：mode=heroes / overall / platform
+py .agent/skills/history-trend-query/scripts/query.py \
+   --mode heroes --heroes 甲,乙,丙 --days 7 --until 2026-04-05
+
+py .agent/skills/history-trend-query/scripts/query.py \
+   --mode overall --days 14 --until 2026-04-05
+
+py .agent/skills/history-trend-query/scripts/query.py \
+   --mode platform --days 30 --until 2026-04-05 --raw
+
+# renderer.py：format=multi-svg / multi-md
+py .agent/skills/history-trend-query/scripts/renderer.py \
+   --mode heroes --heroes 甲,乙 --days 7 --format multi-svg > out.svg
+
+py .agent/skills/history-trend-query/scripts/renderer.py \
+   --mode platform --days 14 --format multi-md
+```
+
+#### S4 解掉的風險（對應 S3.5 斷點報告）
+
+| 風險 | 緩解機制 |
+|---|---|
+| **R16 多軌渲染** | `render_multi_svg` + `render_multi_markdown` 雙方法；T19~T24 共 6 項驗收 |
+
+#### S4 新浮現風險登錄（六項，主公斷點裁示後納管）
+
+| # | 風險 | 嚴重度 | 處置 / 留到 |
+|---|---|---|---|
+| **R17** | 多英雄/平台共軸 normalize 後，小量級軌道被壓平在 0.0~0.05，看不出形狀 | 🟡 中 | **S5 加 `normalize_axis="cross"\|"per"` 切換** |
+| **R18** | `platform_trend` 把 `platform_breakdown` 內非 dict（如直接是 int）視為 0，可能誤判 | 🟢 低 | **S5 加 schema 嚴格驗證或記 invalid** |
+| **R19** | `render_multi_svg` 圖例水平排版，5 軌名長時可能溢出 width | 🟡 中 | **S5 加自動換行 / 多行 legend** |
+| **R20** | `render_multi_markdown` 用日期聯集當行，若各軌日期不同步會出現空格 cell | 🟢 低 | **renderer 加日期對齊 assertion 或文件警示**（S5） |
+| **R21** | `overall_trend` 假設 sentiment_distribution pos/neg/neu 三 key 齊全；P56 救難模式可能僅輸出部分（R7 延伸） | 🟡 中 | **與 R7 P56 治本一起處理**（已擱置；建議擇日另開 Phase 56.5） |
+| **R22** | `heroes_trend` 5 軌時呼叫 5 次 `hero_trend`，每次都重跑 `loader.load_range`（同區間掃 5 次磁碟） | 🟡 中 | **S5 LRU cache 必解**（R22 給 S5 加了強驅動力） |
+
+#### 未處理項保留說明
+
+| 風險 | 處置 |
+|---|---|
+| **R7** data/ 髒檔（20260327.json 0-byte、20260329.json 缺欄） | 主公 2026-04-25 裁示擱置，繼續 P61 主線；P61 收官時再提醒、或日後另開 Phase 56.5 治本 |
+| **R10** fuzzy match | 留 S5 slash command 階段 |
+| **R11** days 上限 | 留 S5 效能階段（配 LRU cache） |
+
+#### S5 待開工項（最終一棒）
+
+| 項目 | 內容 | 對應消化風險 |
+|---|---|---|
+| LRU cache | `loader.load_range` 結果緩存，避免多軌重複磁碟掃 | R22 |
+| 90 天上限 | `days` 參數 hard cap、配 cache TTL | R11 |
+| `/trend` slash command | 統一進入點，整合四個 mode | （介面層） |
+| Fuzzy hero match | 主公打錯名也能命中 | R10 |
+| anomaly_marker.py | 異常日標記模組 | （加值功能） |
+| `normalize_axis` 切換 | cross / per 兩種模式 | R17 |
+| platform schema 嚴驗 | 非 dict / 缺 post_count 視 invalid | R18 |
+| Multi legend 自動換行 | 5 軌圖例不溢出 | R19 |
+
+- **狀態**：✅ Phase 61 Stage 4 完成，多維度比對 + R16 多軌渲染雙落地；47/47 全綠、零回歸。R17~R22 六項新風險已永久登錄、S5 棒次已綁定其中四項作主修標的。

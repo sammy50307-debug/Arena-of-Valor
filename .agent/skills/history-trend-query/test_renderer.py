@@ -306,9 +306,176 @@ def t18():
     assert "2026\\|01\\|01" in md, "date `|` 應跳脫"
 
 
+# ────────────────────────────────────────────────────────────
+# S4 R16 — T19~T22：多軌渲染
+# ────────────────────────────────────────────────────────────
+def _make_heroes_multi(hero_specs, raw: bool = False):
+    """造 heroes_trend 風格的 multi 結構。
+    hero_specs: List[(hero_name, points)]，points 已含 status/count。
+    自動補 normalized_count（若 raw=False）。
+    """
+    heroes = []
+    for name, pts in hero_specs:
+        heroes.append({
+            "hero": name,
+            "days": len(pts),
+            "range": {"start": pts[0]["date"] if pts else "",
+                      "end": pts[-1]["date"] if pts else ""},
+            "points": [dict(p) for p in pts],  # 深拷貝避免污染
+            "summary": {},
+        })
+    multi = {
+        "mode": "heroes",
+        "hero_names": [n for n, _ in hero_specs],
+        "days": len(hero_specs[0][1]) if hero_specs else 0,
+        "raw": raw,
+        "range": {
+            "start": hero_specs[0][1][0]["date"] if hero_specs and hero_specs[0][1] else "",
+            "end": hero_specs[0][1][-1]["date"] if hero_specs and hero_specs[0][1] else "",
+        },
+        "heroes": heroes,
+    }
+    if not raw:
+        # 跨軌 min-max
+        all_v = [p["count"] for h in multi["heroes"] for p in h["points"]
+                 if p.get("status") == "ok" and isinstance(p.get("count"), (int, float))]
+        if all_v:
+            lo, hi = min(all_v), max(all_v)
+            span = hi - lo
+            for h in multi["heroes"]:
+                for p in h["points"]:
+                    if p.get("status") == "ok" and isinstance(p.get("count"), (int, float)):
+                        p["normalized_count"] = (
+                            (float(p["count"]) - lo) / span if span > 0 else 0.5
+                        )
+    return multi
+
+
+@test("T19 R16：render_multi_svg 多英雄 → palette 至少出現 2 種顏色")
+def t19():
+    multi = _make_heroes_multi([
+        ("甲", [
+            {"date": "2026-01-01", "status": "ok", "count": 5},
+            {"date": "2026-01-02", "status": "ok", "count": 10},
+            {"date": "2026-01-03", "status": "ok", "count": 15},
+        ]),
+        ("乙", [
+            {"date": "2026-01-01", "status": "ok", "count": 50},
+            {"date": "2026-01-02", "status": "ok", "count": 30},
+            {"date": "2026-01-03", "status": "ok", "count": 20},
+        ]),
+    ])
+    svg = TrendRenderer().render_multi_svg(multi)
+    assert svg.startswith("<svg") and svg.endswith("</svg>")
+    # 至少 2 種 palette 顏色（桃紅 #db2777 + 青 #0ea5e9）
+    assert "#db2777" in svg, "首軌應為桃紅"
+    assert "#0ea5e9" in svg, "次軌應為青"
+    # 圖例：兩個 hero name 都應出現
+    assert "甲" in svg and "乙" in svg
+
+
+@test("T20 R16：render_multi_markdown 多英雄並列欄位、header 含所有 hero name")
+def t20():
+    multi = _make_heroes_multi([
+        ("甲", [
+            {"date": "2026-01-01", "status": "ok", "count": 5},
+            {"date": "2026-01-02", "status": "missing", "count": None},
+        ]),
+        ("乙", [
+            {"date": "2026-01-01", "status": "hero_absent", "count": 0},
+            {"date": "2026-01-02", "status": "ok", "count": 30},
+        ]),
+    ])
+    md = TrendRenderer().render_multi_markdown(multi)
+    # header 形如 "| 日期 | 甲 | 乙 |"
+    header_line = next(l for l in md.split("\n") if l.startswith("| 日期"))
+    assert "甲" in header_line and "乙" in header_line
+    assert header_line.count("|") == 4, f"header 應 4 個 pipe（3 欄），got: {header_line}"
+
+    # 01-01 列：甲=5、乙=· (absent)
+    assert "| 5 | · |" in md or "5" in md and "·" in md
+    # 01-02 列：甲=missing(—)、乙=30
+    assert "30" in md
+
+
+@test("T21 R16：render_multi 單軌 fallback 不崩")
+def t21():
+    multi = _make_heroes_multi([
+        ("甲", [
+            {"date": "2026-01-01", "status": "ok", "count": 5},
+            {"date": "2026-01-02", "status": "ok", "count": 10},
+        ]),
+    ])
+    svg = TrendRenderer().render_multi_svg(multi)
+    md = TrendRenderer().render_multi_markdown(multi)
+    assert "<svg" in svg and "</svg>" in svg
+    assert "#db2777" in svg
+    assert "甲" in md and "2026-01-01" in md
+
+
+@test("T22 R16：raw=True multi → 渲染端臨時 normalize 不噴錯")
+def t22():
+    multi = _make_heroes_multi([
+        ("甲", [
+            {"date": "2026-01-01", "status": "ok", "count": 5},
+            {"date": "2026-01-02", "status": "ok", "count": 10},
+        ]),
+        ("乙", [
+            {"date": "2026-01-01", "status": "ok", "count": 100},
+            {"date": "2026-01-02", "status": "ok", "count": 200},
+        ]),
+    ], raw=True)
+    # raw=True 時 points 不應有 normalized_count
+    for h in multi["heroes"]:
+        for p in h["points"]:
+            assert "normalized_count" not in p
+    svg = TrendRenderer().render_multi_svg(multi)
+    # 渲染端應 fallback 自己 normalize，至少有 4 個 circle（2 軌 × 2 點）
+    assert len(re.findall(r"<circle ", svg)) == 4
+    assert "#db2777" in svg and "#0ea5e9" in svg
+
+
+@test("T23 R16：render_multi 平台模式（mode=platform）")
+def t23():
+    multi = {
+        "mode": "platform",
+        "days": 2,
+        "raw": False,
+        "platforms": ["facebook", "youtube"],
+        "range": {"start": "2026-01-01", "end": "2026-01-02"},
+        "platform_data": {
+            "facebook": [
+                {"date": "2026-01-01", "status": "ok", "post_count": 10, "normalized_count": 0.0},
+                {"date": "2026-01-02", "status": "ok", "post_count": 50, "normalized_count": 1.0},
+            ],
+            "youtube": [
+                {"date": "2026-01-01", "status": "ok", "post_count": 20, "normalized_count": 0.25},
+                {"date": "2026-01-02", "status": "absent", "post_count": 0},
+            ],
+        },
+    }
+    svg = TrendRenderer().render_multi_svg(multi)
+    md = TrendRenderer().render_multi_markdown(multi)
+    assert "facebook" in svg and "youtube" in svg
+    assert "facebook" in md and "youtube" in md
+    # 01-02 youtube absent 在 markdown 應顯 ·
+    assert "·" in md
+
+
+@test("T24 R16：mode 不合法 → ValueError")
+def t24():
+    bad = {"mode": "bogus", "heroes": []}
+    try:
+        TrendRenderer().render_multi_svg(bad)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("不合法 mode 應噴 ValueError")
+
+
 if __name__ == "__main__":
     print("=" * 60)
-    print("Phase 61 Stage 3 — TrendRenderer 驗收測試")
+    print("Phase 61 Stage 3/4 — TrendRenderer 驗收測試")
     print("=" * 60)
 
     print("-" * 60)
