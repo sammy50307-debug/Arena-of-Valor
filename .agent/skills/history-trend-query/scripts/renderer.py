@@ -107,8 +107,14 @@ class TrendRenderer:
     # ────────────────────────────────────────────
     # Format 3：markdown_table
     # ────────────────────────────────────────────
+    @staticmethod
+    def _md_escape(s: Any) -> str:
+        """R14：cell 內 `|` 會破表格，跳脫成 `\\|`。"""
+        return str(s).replace("|", "\\|")
+
     def markdown_table(self, trend: Dict[str, Any]) -> str:
-        hero = trend.get("hero", "—")
+        e = self._md_escape
+        hero = e(trend.get("hero", "—"))
         points = trend.get("points", [])
         summary = trend.get("summary", {})
 
@@ -120,21 +126,22 @@ class TrendRenderer:
         ]
         for p in points:
             st = p.get("status", "—")
+            date = e(p.get("date", "—"))
             if st == "ok":
                 cnt = p.get("count")
                 sent = p.get("avg_sentiment")
                 lines.append(
-                    f"| {p['date']} | ok | {cnt if cnt is not None else '—'} | "
+                    f"| {date} | ok | {cnt if cnt is not None else '—'} | "
                     f"{f'{sent:.2f}' if isinstance(sent, (int, float)) else '—'} |"
                 )
             elif st == "hero_absent":
-                lines.append(f"| {p['date']} | · (absent) | 0 | — |")
+                lines.append(f"| {date} | · (absent) | 0 | — |")
             elif st == "missing":
-                lines.append(f"| {p['date']} | — (no data) | — | — |")
+                lines.append(f"| {date} | — (no data) | — | — |")
             elif st == "invalid":
-                lines.append(f"| {p['date']} | ⚠ (invalid) | — | — |")
+                lines.append(f"| {date} | ⚠ (invalid) | — | — |")
             else:
-                lines.append(f"| {p['date']} | {st} | — | — |")
+                lines.append(f"| {date} | {e(st)} | — | — |")
 
         lines.append("")
         lines.append(

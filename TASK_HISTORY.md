@@ -2557,3 +2557,39 @@ py .agent/skills/history-trend-query/scripts/renderer.py \
 | R7 data/ 髒檔提醒 | **P61 收官時提醒主公** | 上游 P56 問題，非本 skill 責任 |
 
 - **狀態**：✅ Phase 61 Stage 3.5 補強完成，S4 可安心開工。
+
+---
+
+### 🩹 Phase 61 — Stage 3.5b 加碼：R14 Markdown pipe 跳脫 (History Trend Query / Milestone 5)
+
+- **目標**：補修 R14（原判跳過、主公追問後重審）—— Markdown 表格 cell 內若含 `|` 會破壞欄位數，雖無安全層風險但屬「成本極低 vs 假想需求」邊界案例。
+- **觸發背景**：主公 2026-04-25 追問 R13/R14 跳過理由；R13 維持跳過（y 軸正規化已內建吸收極端值），R14 改判補修（`.replace` 一行成本低、保險起見順手收）。
+- **誠實補記**：R14 原本評為「假想需求」偏鬆；外部來源（如未來 P62 NL→Prompt 或 S5 slash 使用者輸入）若直通 query，hero_name 可能含意外字元。修補成本只一行，回頭做更穩。
+
+#### 實作
+
+```python
+@staticmethod
+def _md_escape(s: Any) -> str:
+    """R14：cell 內 `|` 會破表格，跳脫成 `\\|`。"""
+    return str(s).replace("|", "\\|")
+```
+
+`markdown_table()` 內 hero name、date 欄、未知 status 欄全數過此 helper。固定 status 標籤（`ok`、`· (absent)` 等）由本檔常數產出無 pipe，不需跳脫。
+
+#### 測試追加
+
+| # | 驗證項 | 結果 |
+|---|---|---|
+| T17 | hero `毒\|招` → 表格出 `毒\\|招`、header 仍 4 欄 | ✅ |
+| T18 | date `2026\|01\|01` → 表格出 `2026\\|01\\|01` | ✅ |
+
+#### 三階段累計測試數
+
+**33/33 → 35/35 全綠**（S1:7 + S2:10 + S3:18）。
+
+#### 跳過項保留說明（R13）
+
+R13「SVG 高度未自適應」維持跳過。**真正原因**（重新檢視後更新）：`html_svg()` 已做 min-max 正規化 `(v-lo)/span * inner_h`，y 軸自動把最低值擺底、最高值擺頂、整條線縮進框內，不會頂天花板。原寫的「假想需求 + height 可傳參」不夠精準，已收進口頭交代。
+
+- **狀態**：✅ Phase 61 Stage 3.5b 完成；R14 補修、35/35 全綠。本日告一段落，handoff 打包接續。

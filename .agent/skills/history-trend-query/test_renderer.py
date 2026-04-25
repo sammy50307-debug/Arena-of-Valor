@@ -280,6 +280,32 @@ def t16():
     assert '"><bad' not in svg, "date 欄位的注入嘗試應被 escape"
 
 
+# ────────────────────────────────────────────────────────────
+# R14：Markdown pipe 跳脫
+# ────────────────────────────────────────────────────────────
+@test("T17 R14：hero name 含 `|` → 跳脫為 `\\|`，表格不破")
+def t17():
+    points = [
+        {"date": "2026-01-01", "status": "ok", "count": 5, "avg_sentiment": 0.5},
+    ]
+    trend = _make_trend(points, hero="毒|招")
+    md = TrendRenderer().markdown_table(trend)
+    assert "毒\\|招" in md, f"hero `|` 應跳脫為 \\|，實際：{md}"
+    # 標題行統計欄位數正確
+    header_line = next(l for l in md.split("\n") if l.startswith("| 日期"))
+    assert header_line.count("|") == 5, "header 應 5 個 pipe（4 欄）"
+
+
+@test("T18 R14：date 含 `|` 也跳脫")
+def t18():
+    points = [
+        {"date": "2026|01|01", "status": "ok", "count": 5, "avg_sentiment": 0.5},
+    ]
+    trend = _make_trend(points)
+    md = TrendRenderer().markdown_table(trend)
+    assert "2026\\|01\\|01" in md, "date `|` 應跳脫"
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("Phase 61 Stage 3 — TrendRenderer 驗收測試")
