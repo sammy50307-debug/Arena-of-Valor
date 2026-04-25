@@ -13,6 +13,8 @@ requires:
   - APIFY_TOKEN 環境變數
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[ai-news-radar 已啟動]`。
+
 # 🛰️ AI 情報雷達 Skill
 
 ## 📋 Skill 簡介

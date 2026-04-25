@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import OrderedDict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -29,6 +30,7 @@ class TimeSeriesLoader:
         self,
         data_dir: Optional[Path] = None,
         schema_path: Optional[Path] = None,
+        cache_size: int = 32,
     ) -> None:
         if data_dir is None:
             data_dir = Path(__file__).resolve().parents[3].parent / "data"
@@ -42,6 +44,13 @@ class TimeSeriesLoader:
             )
         self.schema_path = Path(schema_path)
         self.schema = self._load_schema()
+
+        # S5 F1：load_range 結果 LRU cache（避免多軌重複磁碟掃，R22）
+        # key = (resolved_data_dir, start_iso, end_iso)；value = series list
+        self._cache_size = max(1, int(cache_size))
+        self._range_cache: "OrderedDict[Tuple[str, str, str], List[Dict[str, Any]]]" = OrderedDict()
+        self._cache_hits = 0
+        self._cache_misses = 0
 
     def _load_schema(self) -> Dict[str, Any]:
         with open(self.schema_path, "r", encoding="utf-8") as f:
@@ -142,6 +151,17 @@ class TimeSeriesLoader:
         if start > end:
             raise ValueError(f"start_date {start} 晚於 end_date {end}")
 
+        cache_key = (
+            str(self.data_dir.resolve()),
+            start.isoformat(),
+            end.isoformat(),
+        )
+        if cache_key in self._range_cache:
+            self._range_cache.move_to_end(cache_key)
+            self._cache_hits += 1
+            return self._range_cache[cache_key]
+
+        self._cache_misses += 1
         series: List[Dict[str, Any]] = []
         cursor = start
         while cursor <= end:
@@ -159,7 +179,26 @@ class TimeSeriesLoader:
                 missing_count,
                 invalid_count,
             )
+
+        self._range_cache[cache_key] = series
+        if len(self._range_cache) > self._cache_size:
+            self._range_cache.popitem(last=False)
         return series
+
+    def clear_cache(self) -> None:
+        """清空 load_range 結果 cache（測試或熱重載 data 後使用）。"""
+        self._range_cache.clear()
+        self._cache_hits = 0
+        self._cache_misses = 0
+
+    def cache_stats(self) -> Dict[str, int]:
+        """回傳 cache 命中統計（debug 用）。"""
+        return {
+            "size": len(self._range_cache),
+            "max_size": self._cache_size,
+            "hits": self._cache_hits,
+            "misses": self._cache_misses,
+        }
 
     def load_last_n_days(self, n: int, until: Any = None) -> List[Dict[str, Any]]:
         """載入截至 until（含）往前 n 天的時序。until=None 取今日。"""

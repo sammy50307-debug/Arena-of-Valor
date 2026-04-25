@@ -4,6 +4,8 @@ description: 戰報推播格式化儀。把 daily-diff-radar / analysis JSON 轉
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[rich-push-formatter 已啟動]`。
+
 # 戰報推播格式化儀 (Rich Push Formatter)
 
 「芽芽戰情室」Milestone 4 Phase 59 特種兵。解決使用者需求：JSON 太冷，

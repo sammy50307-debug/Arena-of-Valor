@@ -4,6 +4,8 @@ description: 每日差異雷達。比對今日與前一日的 analysis_*.json，
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[daily-diff-radar 已啟動]`。
+
 # 每日差異雷達 (Daily Diff Radar)
 
 這是「芽芽戰情室」Milestone 4 Phase 58 特種兵。解決使用者每日要從頭讀完整戰報的痛點——雷達只告訴你「和昨天比有什麼不一樣」。

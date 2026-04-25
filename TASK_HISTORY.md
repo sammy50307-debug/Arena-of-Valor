@@ -2842,3 +2842,444 @@ py .agent/skills/history-trend-query/scripts/renderer.py \
 | Multi legend 自動換行 | 5 軌圖例不溢出 | R19 |
 
 - **狀態**：✅ Phase 61 Stage 4 完成，多維度比對 + R16 多軌渲染雙落地；47/47 全綠、零回歸。R17~R22 六項新風險已永久登錄、S5 棒次已綁定其中四項作主修標的。
+
+---
+
+### ⚙️ Phase 61 — Stage 5 段 A 效能與防呆：LRU cache + days 90 上限 + platform 嚴驗 (History Trend Query / Milestone 5)
+
+- **目標**：S5 第一棒——把 S4 留下的三項主修風險（R22 多軌重掃磁碟 / R11 days 失控 / R18 platform 髒資料）一次解掉，奠定後續段 B/C 的效能與型別防線。
+- **觸發背景**：主公 2026-04-25 核准 S5 計畫書（B 全選 + A/B/C 三段切分 + fuzzy cutoff=0.6），「準備開始階段 B」前先吃下段 A 三項硬骨頭。
+- **原則遵循**：守 Scope 自律——normalize_axis 切換 / fuzzy match / legend wrap 全部留段 B；anomaly_marker / `/trend` slash 留段 C。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| LRU cache 實作 | `functools.lru_cache` 裝飾 method | 手刻 `OrderedDict` 跟 instance 綁 | **B：OrderedDict** | `lru_cache` 配 instance method 有記憶體洩漏風險 |
+| Cache key 組成 | `(start, end)` | `(resolved_data_dir, start_iso, end_iso)` | **B** | 不同 data_dir 應獨立 cache、不能用相對路徑混淆 |
+| Cache 命中回傳 | deepcopy 副本 | 同一 list 物件 | **同一物件** | 效能優先，下游契約改為「不得修改 series」 |
+| `days` 硬上限值 | 30 / 60 | **90** | **90** | 配合 cache 容量 + 主公心智預期「最近兩三個月」 |
+| `bool` 視為 int | `True == 1` 通過 | 拒絕 bool 噴 ValueError | **拒絕** | 語義不合（R25 額外防線） |
+| Platform 嚴驗 | 默默當 0 | 標 invalid | **invalid** | R18 必解；對齊 R5 「絕不默默當 0」契約 |
+
+#### 檔案變動
+
+```
+history-trend-query/
+├── scripts/
+│   ├── time_series_loader.py    ← +OrderedDict cache (~50 行) + clear_cache + cache_stats
+│   └── query.py                 ← +DAYS_HARD_CAP=90 + _validate_days helper + platform 嚴驗 (~40 行)
+├── test_skill.py                ← +T8~T10 (cache 命中 / clear / LRU 淘汰)
+└── test_query.py                ← +T17 (days>90 四方法) + T18 (platform invalid 三路徑)
+```
+
+#### time_series_loader.py 核心擴充：OrderedDict LRU
+
+```python
+from collections import OrderedDict
+
+def __init__(self, data_dir=None, schema_path=None, cache_size: int = 32) -> None:
+    ...
+    self._cache_size = max(1, int(cache_size))
+    self._range_cache: "OrderedDict[Tuple[str, str, str], List[Dict]]" = OrderedDict()
+    self._cache_hits = 0
+    self._cache_misses = 0
+
+def load_range(self, start_date, end_date) -> List[Dict[str, Any]]:
+    start = self._parse_date(start_date)
+    end = self._parse_date(end_date)
+    if start > end:
+        raise ValueError(...)
+    cache_key = (str(self.data_dir.resolve()), start.isoformat(), end.isoformat())
+    if cache_key in self._range_cache:
+        self._range_cache.move_to_end(cache_key)
+        self._cache_hits += 1
+        return self._range_cache[cache_key]      # 同一 list 物件
+    self._cache_misses += 1
+    series = []
+    cursor = start
+    while cursor <= end:
+        series.append(self.load_day(cursor))
+        cursor += timedelta(days=1)
+    ...
+    self._range_cache[cache_key] = series
+    if len(self._range_cache) > self._cache_size:
+        self._range_cache.popitem(last=False)    # LRU 驅逐最舊
+    return series
+
+def clear_cache(self) -> None:
+    self._range_cache.clear()
+    self._cache_hits = self._cache_misses = 0
+
+def cache_stats(self) -> Dict[str, int]:
+    return {"size": len(self._range_cache), "max_size": self._cache_size,
+            "hits": self._cache_hits, "misses": self._cache_misses}
+```
+
+#### query.py 核心擴充：days 防呆 helper
+
+```python
+DAYS_HARD_CAP = 90
+
+@staticmethod
+def _validate_days(days: Any) -> None:
+    if not isinstance(days, int) or isinstance(days, bool) or days < 1:
+        raise ValueError(f"days 必須為 >= 1 的整數，got {days!r}")
+    if days > DAYS_HARD_CAP:
+        raise ValueError(f"days 超過硬上限 {DAYS_HARD_CAP} 天，got {days}"
+                         "（如需更長區間請分段查詢或調整 DAYS_HARD_CAP）")
+```
+
+四方法（hero_trend / heroes_trend / overall_trend / platform_trend）開頭都換用此 helper，舊的 `if not isinstance(days, int) or days < 1` 整批移除。
+
+#### query.py R18 嚴驗：platform_trend 替換邏輯
+
+```python
+# 第二輪：對每個平台組軌道（S5 F5 R18 嚴驗）
+for p_name in platforms:
+    pts = []
+    for entry in series:
+        ...
+        pb_raw = (entry["data"] or {}).get("platform_breakdown")
+        if not isinstance(pb_raw, dict):
+            pts.append({"date": iso, "status": "invalid", "post_count": None})
+            continue
+        if p_name not in pb_raw:
+            pts.append({"date": iso, "status": "absent", "post_count": 0})
+            continue
+        pdata = pb_raw[p_name]
+        if not isinstance(pdata, dict):                                # 非 dict → invalid
+            pts.append({"date": iso, "status": "invalid", "post_count": None})
+            continue
+        cnt = pdata.get("post_count")
+        if not isinstance(cnt, (int, float)) or isinstance(cnt, bool): # 非數值 → invalid
+            pts.append({"date": iso, "status": "invalid", "post_count": None})
+            continue
+        pts.append({"date": iso, "status": "ok", "post_count": cnt})
+```
+
+#### 自動化測試結果（段 A 新增 5 項）
+
+| # | 檔 | 測試 | 結果 |
+|---|---|---|---|
+| T8 | test_skill | load_range cache 命中：第二次回同一 list 物件、hits +1 | ✅ |
+| T9 | test_skill | clear_cache 歸零；不同區間獨立 key | ✅ |
+| T10 | test_skill | cache_size=2 第三筆放入 → LRU 淘汰最舊 | ✅ |
+| T17 | test_query | days=91 → 四方法皆噴 ValueError；邊界 90 通過 | ✅ |
+| T18 | test_query | platform：非 dict / 缺 post_count / 字串 三條路徑全 invalid，對照組 ptt 全 ok 不受牽連 | ✅ |
+
+**累計**:47 → 52/52，零回歸。
+
+- **狀態**：✅ Phase 61 Stage 5 段 A 完成；R11/R18/R22 三項主修風險落地；52/52 全綠。
+
+---
+
+### 🔄 Phase 61 — Stage 5 段 B 彈性與好用：normalize_axis + fuzzy hero match + legend wrap (History Trend Query / Milestone 5)
+
+- **目標**：S5 第二棒——讓多軌可比性可切換（cross/per）、英雄名打錯也能救（fuzzy）、5 軌長名圖例不溢出（legend wrap）。解 R10/R17/R19/R25 四項。
+- **觸發背景**：段 A 收官報告主公核准後同令「準備開始階段 B」、額外加碼跨 skill 全域要求「19 份 SKILL.md 開頭加啟動標記」。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| `normalize_axis` 預設值 | `"per"` | **`"cross"`** | **cross** | 維持與 S4 行為相容、降低升級摩擦 |
+| `normalize_axis` 三方法是否一致 | 各方法獨立 | 共用 dispatcher | **共用 `_apply_normalize`** | 未來改演算法只動一處 |
+| Fuzzy 候選來源 | 外部白名單 | **本次 query 區間 ok 日 hero_stats 聯集** | **B** | 跨會話一致、不需維護額外資料 |
+| Fuzzy cutoff | 0.5 寬 / 0.6 / 0.8 嚴 | **0.6** | **0.6** | 主公裁示——平衡誤命中與救援能力 |
+| Fuzzy 不命中行為 | 噴 ValueError | **沿用 hero_absent 多日** | **沿用** | 維持 S2 既有 API 語意、向後相容 |
+| Legend wrap 換行邊界 | 固定 row 數 | **動態量寬 + width-pad** | **動態** | 中英混排可變字寬最務實 |
+
+#### 檔案變動
+
+```
+history-trend-query/
+├── scripts/
+│   ├── query.py            ← +_per_normalize + _apply_normalize dispatcher + fuzzy match + 三方法 normalize_axis 參數 + heroes_trend 透傳 fuzzy
+│   └── renderer.py         ← render_multi_svg 重構 legend：預掃 layout / 動態 height
+├── test_query.py           ← +T19 (per 模式) + T20 (axis 防呆四方法) + T21~T23 (fuzzy 三情境) + T24 (bool days)
+└── test_renderer.py        ← +T25 (legend 換行 → height 擴增；對照組寬度足夠不擴)
+```
+
+跨 skill 副作用：經主公裁示後寫入 19 份 `.agent/skills/*/SKILL.md`，每份 frontmatter 後一行：
+```
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[<skill-name> 已啟動]`。
+```
+
+#### query.py F3：normalize 派發器 + per 模式
+
+```python
+@staticmethod
+def _per_normalize(all_points_lists, value_key, normalized_key):
+    """每軌獨立 min-max（小量級不被全局最大壓平）。"""
+    for pts in all_points_lists:
+        ok_vals = [float(p[value_key]) for p in pts
+                   if p.get("status") == "ok" and isinstance(p.get(value_key), (int, float))]
+        if not ok_vals:
+            continue
+        lo, hi = min(ok_vals), max(ok_vals)
+        span = hi - lo
+        for p in pts:
+            if p.get("status") == "ok":
+                v = p.get(value_key)
+                if isinstance(v, (int, float)):
+                    p[normalized_key] = (float(v) - lo) / span if span > 0 else 0.5
+
+@classmethod
+def _apply_normalize(cls, all_points_lists, value_key, normalized_key, axis):
+    if axis == "cross":
+        cls._cross_normalize(all_points_lists, value_key, normalized_key)
+    elif axis == "per":
+        cls._per_normalize(all_points_lists, value_key, normalized_key)
+    else:
+        raise ValueError(f"normalize_axis 必須為 'cross' 或 'per'，got {axis!r}")
+```
+
+heroes_trend / overall_trend / platform_trend 三方法簽名加 `normalize_axis: str = "cross"`，內部呼叫 `_apply_normalize(...)`；`raw=True` 時也驗值合法（避免日後拿掉 raw 才發現參數錯）。
+
+#### query.py F4：fuzzy hero match
+
+```python
+from difflib import get_close_matches
+
+def hero_trend(self, hero_name, days, until=None, weighted=False, fuzzy=True):
+    ...
+    series = self.loader.load_range(start, end)
+
+    # S5 F4：fuzzy hero name resolution（cutoff=0.6）
+    resolved_from: Optional[str] = None
+    if fuzzy:
+        candidates = set()
+        for entry in series:
+            if entry["status"] == "ok":
+                hs = (entry["data"] or {}).get("hero_stats") or {}
+                if isinstance(hs, dict):
+                    candidates.update(hs.keys())
+        if candidates and hero_name not in candidates:
+            matches = get_close_matches(hero_name, list(candidates), n=1, cutoff=0.6)
+            if matches:
+                logger.info("fuzzy hero match：%r → %r（cutoff=0.6）", hero_name, matches[0])
+                resolved_from = hero_name
+                hero_name = matches[0]
+    ...
+    return {"hero": hero_name, "resolved_from": resolved_from, ...}
+```
+
+heroes_trend 接 `fuzzy: bool = True` 並透傳。
+
+#### renderer.py F6：legend 自動換行（重構）
+
+```python
+# 預掃：算每個 legend item 寬度與 row
+def _legend_width(name): return max(80, len(str(name)) * 12 + 30)
+
+legend_layout = []
+cur_x, cur_row = pad, 0
+right_bound = width - pad
+for ti, (name, _, _, _) in enumerate(tracks):
+    w = _legend_width(name)
+    if cur_x + w > right_bound and cur_x > pad:
+        cur_x, cur_row = pad, cur_row + 1
+    legend_layout.append({"x": cur_x, "row": cur_row, "name": name,
+                          "color": _MULTI_PALETTE[ti % len(_MULTI_PALETTE)]})
+    cur_x += w
+
+extra_h = max(0, cur_row) * 16  # row_step
+final_height = height + extra_h
+
+# emit legend（用 layout 中的 row 換 y）
+for item in legend_layout:
+    y_top = legend_y_base + item["row"] * 16
+    ...
+
+# 動態 height：覆寫 SVG 開頭與背景框
+if final_height != height:
+    parts[0] = f'<svg ... height="{final_height}" viewBox="0 0 {width} {final_height}" ...>'
+    parts[1] = f'<rect x="0.5" y="0.5" width="{width-1}" height="{final_height-1}" ...>'
+```
+
+#### 自動化測試結果（段 B 新增 7 項）
+
+| # | 檔 | 測試 | 結果 |
+|---|---|---|---|
+| T19 | test_query | per 模式：cold 軌在 cross 模式被壓 <0.05、per 模式展開到 [0,1] | ✅ |
+| T20 | test_query | normalize_axis="bad" 四方法 + raw=True 皆噴 ValueError、訊息提到 cross/per | ✅ |
+| T21 | test_query | fuzzy 命中：「芽芽X」→ hero=「芽芽」、resolved_from="芽芽X"、count=8 | ✅ |
+| T22 | test_query | fuzzy 不命中：完全無關名稱 → resolved_from=None、走 hero_absent | ✅ |
+| T23 | test_query | fuzzy=False：打錯字直接 hero_absent、不改寫 hero 欄 | ✅ |
+| T24 | test_query | days=True/False（bool）→ ValueError，不被當 1/0 | ✅ |
+| T25 | test_renderer | width=400 + 5 長名 → SVG height 擴增；width=2000 → height 維持 | ✅ |
+
+**累計**：52 → 59/59，零回歸。
+
+- **狀態**：✅ Phase 61 Stage 5 段 B 完成；R10/R17/R19/R25 四項風險落地；59/59 全綠。19 份 SKILL.md 啟動標記同步完成。
+
+---
+
+### 🎯 Phase 61 — Stage 5 段 C 介面與外掛 + Phase 61 v1.0 收官 (History Trend Query / Milestone 5)
+
+- **目標**：S5 最後一棒——薄介面 anomaly_marker（外掛）、`/trend` slash command（介面層）、SKILL.md v1.0 完整文件。Phase 61 整體收官。
+- **觸發背景**：段 B 收官報告主公核准後直接續行段 C；同時主公追問「skill 都放哪」、確認 19 份啟動標記皆 OK 後綠燈動工。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| anomaly_marker 介面 | class | **純函式** | **純函式** | 解耦最純、Detector / renderer / 第三方都能呼叫 |
+| anomaly 演算法 | EWMA / Hampel | **z-score** | **z-score** | 標準庫即可、與 P50 detector 概念對齊 |
+| anomaly 不合格點 | 噴錯 | **回 False / None** | **回 False/None** | 寬鬆契約、上游髒資料不阻斷渲染 |
+| Renderer overlay 範圍 | 單軌 + 多軌 | **僅單軌 html_svg** | **僅單軌** | 多軌情境需指定哪軌異常、語義過載；段 C 不擴張範圍 |
+| `/trend` slash 位置 | 全域 `~/.claude/commands/` | **專案 `.claude/commands/`** | **專案** | 與 history-trend-query 同生命週期、跨專案借用機率低 |
+
+#### 檔案變動
+
+```
+history-trend-query/
+├── SKILL.md                            ← v0.3.1-S3 → v1.0.0 全面改寫（四模式 + 渲染 + cache + fuzzy + axis + anomaly + slash）
+└── scripts/
+    ├── anomaly_marker.py               ← 新檔 ~110 行 (mark_anomalies + mark_anomalies_with_scores + CLI)
+    └── renderer.py                     ← html_svg +anomaly_flags 參數 + _COLOR_ANOMALY="#dc2626"
+
+.claude/commands/
+└── trend.md                            ← 新檔，slash command 規格 + 啟動標記指引
+
+test_anomaly_marker.py                  ← 新檔 5 項
+test_renderer.py                        ← +T26 (紅圈 #dc2626) + T27 (長度不符 ValueError)
+```
+
+#### anomaly_marker.py 核心：純函式 z-score
+
+```python
+from math import sqrt
+
+def mark_anomalies(points, z_threshold=2.0, value_key="count") -> List[bool]:
+    """非 ok / 非數值 / 樣本不足 / std=0 → 全 False，不噴錯。"""
+    n = len(points); flags = [False] * n
+    if n == 0: return flags
+    indices, values = [], []
+    for i, p in enumerate(points):
+        if p.get("status") != "ok": continue
+        v = p.get(value_key)
+        if not isinstance(v, (int, float)) or isinstance(v, bool): continue
+        indices.append(i); values.append(float(v))
+    if len(values) < 2: return flags
+    mean = sum(values) / len(values)
+    var = sum((v - mean) ** 2 for v in values) / len(values)
+    std = sqrt(var)
+    if std == 0: return flags
+    threshold = abs(float(z_threshold))
+    for idx, v in zip(indices, values):
+        if abs((v - mean) / std) >= threshold:
+            flags[idx] = True
+    return flags
+
+def mark_anomalies_with_scores(points, z_threshold=2.0, value_key="count") -> List[Optional[float]]:
+    """同邏輯但回原 z-score；不合格 → None；std=0 → 全 0.0（與全 False 區分）。"""
+    ...
+```
+
+**為什麼提供兩個 API**：旗標版給 renderer 簡單畫圈、分數版給 Detector 拿原始 z-score 做進階判斷。
+
+#### renderer.py F7：紅圈 overlay
+
+```python
+_COLOR_ANOMALY = "#dc2626"
+
+def html_svg(self, trend, ..., anomaly_flags: Optional[List[bool]] = None) -> str:
+    points = trend.get("points", [])
+    if anomaly_flags is not None and len(anomaly_flags) != len(points):
+        raise ValueError(f"anomaly_flags 長度 {len(anomaly_flags)} 與 points 長度 {len(points)} 不符")
+    ...
+    for i, p in enumerate(points):
+        ...
+        if st == "ok" and v is not None:
+            parts.append(f'<circle cx="..." cy="..." r="4" fill="{_COLOR_OK}">...</circle>')
+            if anomaly_flags is not None and anomaly_flags[i]:
+                parts.append(
+                    f'<circle cx="..." cy="..." r="7" fill="none" '
+                    f'stroke="{_COLOR_ANOMALY}" stroke-width="1.5">'
+                    f'<title>{title}: anomaly</title></circle>'
+                )
+```
+
+#### `/trend` slash command（`.claude/commands/trend.md`）
+
+frontmatter：
+```yaml
+---
+description: 查詢過去 N 天的英雄 / 整體輿情 / 平台別走勢（呼叫 history-trend-query skill）
+allowed-tools: Bash, Read
+argument-hint: <hero|heroes|overall|platform> [hero_name|hero_a,hero_b,...] [days] [--until YYYY-MM-DD] [--axis cross|per] [--raw] [--format json|md|svg|spark]
+---
+```
+
+body 含「執行時必標 `[history-trend-query 已啟動]`」、四模式 CLI 對照、契約限制（90 天上限 / 5 軌上限 / 缺日語意 / fuzzy `resolved_from` / cache 不可修改）、互動範例。
+
+#### SKILL.md v1.0 重點章節
+
+| 章節 | 內容 |
+|---|---|
+| 定位與分工 | Query (被動) vs Detector (主動) vs Formatter vs P62 NL |
+| 檔案結構 v1.0 | 四份 scripts + 四份 test，66/66 全綠 |
+| Stage 1 + S5 | Loader API + cache_stats / clear_cache + ⚠ Cache 契約 (R23) |
+| Stage 2 + S5 | 四模式 API + status 五型語意 + S5 防呆契約 + ⚠ Fuzzy 契約 (R29/R33) |
+| Stage 3 + S5 | 四格式 + 多軌色盤 + F6 legend wrap + F7 anomaly overlay + normalize_axis 視覺差異 (R31) |
+| F7 anomaly_marker | 純函式 + 邊界行為表 + 串接範例 |
+| `/trend` slash | 四模式語法 + 互動範例 |
+| CLI Debug | 四個 script 的 CLI 用法 |
+| v1.0 驗收 66/66 | 全綠 + 零回歸 + 零外部相依 |
+
+#### 自動化測試結果（段 C 新增 7 項：5 + 2）
+
+| # | 檔 | 測試 | 結果 |
+|---|---|---|---|
+| T1 | test_anomaly_marker | z-score 邊界：10 個 5 + 1 個 100 → 100 那點為 True、只 1 個 True | ✅ |
+| T2 | test_anomaly_marker | 空 list / n=1 → 全 False、不噴錯 | ✅ |
+| T3 | test_anomaly_marker | 全相同值（std=0）→ 全 False | ✅ |
+| T4 | test_anomaly_marker | 混合 status / 非數值（含 bool/str/None） → 該位置 False、計算只用 ok 數值 | ✅ |
+| T5 | test_anomaly_marker | mark_anomalies_with_scores：合格回 z、不合格 None；std=0 → 全 0.0；value_key="post_count" 切換正常 | ✅ |
+| T26 | test_renderer | anomaly_flags=True 的 ok 點外圍多畫紅圈 #dc2626；對照組無 flags 不含紅色 | ✅ |
+| T27 | test_renderer | anomaly_flags 長度與 points 不符 → ValueError | ✅ |
+
+**累計**：59 → 66/66，零回歸。
+
+#### Phase 61 整體歸納（S1 → S5）
+
+| Stage | 解掉的風險 | 累計測試 |
+|---|---|---|
+| S1 地基 | R1 缺日誤導 / R2 loader 單點故障 | 7 |
+| S2 查詢核心 | R3 hero_absent 語意 / R5 invalid 合約 / R6 weighted 除零 | 17 |
+| S3 渲染統一 | R8 加權 / R9 灰點 / R12 x 軸 / R14 md pipe / R15 XSS | 35 |
+| S4 多維度 | R16 多軌渲染 | 47 |
+| S5 段 A 效能與防呆 | **R11** days 上限 / **R18** platform 嚴驗 / **R22** LRU cache | 52 |
+| S5 段 B 彈性與好用 | **R10** fuzzy match / **R17** normalize_axis / **R19** legend wrap / **R25** bool 邊界 | 59 |
+| S5 段 C 介面與外掛 | F7 解耦 / F8 介面層 | **66** |
+
+#### 6 項列管未處理（轉交未來 Phase）
+
+| # | 風險 | 處置 |
+|---|---|---|
+| R7 | `data/` 上游髒檔（20260327.json 0-byte / 20260329.json 缺欄） | 建議另開 Phase 56.5 治本 |
+| R20 | `render_multi_markdown` 日期聯集出空 cell | SKILL.md 已加文件警示 |
+| R21 | `overall_trend` sentiment 三 key 缺失 | 與 R7 同根、合併 Phase 56.5 |
+| R23 | LRU cache 回同 list、caller 修改污染 | SKILL.md v1.0 已加契約警告 |
+| R24 | data 熱重載 cache 不自動失效 | SKILL.md 已說明用 `clear_cache()` |
+| R29 | 中文 fuzzy 偶發誤命中 | SKILL.md 已加「看 resolved_from」契約；實裝後觀察 log |
+
+#### 跨 skill 副產品（2026-04-25 同期完成）
+
+| 項目 | 內容 |
+|---|---|
+| 19 份 SKILL.md 啟動標記 | 全 19 份 frontmatter 後加 `> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 \`[<skill-name> 已啟動]\`。` |
+| memory 新增 feedback | `feedback_skill_startup_marker.md` 記錄啟動標記鐵律 |
+| memory 索引更新 | `MEMORY.md` 加新條目 |
+
+#### Milestone 5 進度
+
+- ✅ **Phase 61 history-trend-query** v1.0 完成（5 stages × 8 functions × 66 tests × 0 回歸 × 0 外部相依）
+- ⏳ **Phase 60 session-handoff-packager** 草案已定，待開工（主公曾提「放全域 ~/.claude/skills/」、實際在專案內，待主公裁示遷移）
+- ⏳ **Phase 62 nl-to-prompt-structurer** 草案已定，待開工（含 P61 自然語言查詢介面附加 scope）
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`difflib` / `collections.OrderedDict` / `math` / `html`）
+- **狀態**：✅ Phase 61 history-trend-query v1.0 收官；66/66 全綠、零回歸、零外部相依；8 項風險落地、6 項列管轉交；SKILL.md v1.0 完整文件 + `/trend` slash command 介面層雙落地。

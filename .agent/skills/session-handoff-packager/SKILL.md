@@ -6,6 +6,8 @@ description: >
   讓下個視窗（Claude / GPT / Gemini）零摩擦接手。
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[session-handoff-packager 已啟動]`。
+
 # 📦 Session Handoff Packager
 
 ## 定位

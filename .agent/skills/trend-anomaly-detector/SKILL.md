@@ -4,6 +4,8 @@ description: 輿情核爆級異常觀測儀。利用數學演算法 (如 Z-Score
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[trend-anomaly-detector 已啟動]`。
+
 # 輿情核爆異常觀測儀 (Trend Anomaly Detector)
 
 這支特種兵 (Phase 50) 是「芽芽戰情室」防雷達體系的最高守護者。在沒有這隻兵種以前，營運團隊往往是在「日報總結出爐後」才驚覺論壇已經炸鍋了 12 小時。

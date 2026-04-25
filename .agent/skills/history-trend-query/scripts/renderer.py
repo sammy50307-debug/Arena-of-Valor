@@ -31,6 +31,7 @@ _COLOR_OK = "#db2777"        # 旗艦桃紅（Phase40 視覺真經）
 _COLOR_ABSENT = "#aaaaaa"    # 灰點（R9 主公裁示）
 _COLOR_GRID = "#e5e5e5"
 _COLOR_TEXT = "#333333"
+_COLOR_ANOMALY = "#dc2626"   # S5 F7 anomaly overlay：紅圈外環
 
 # S4 多軌 palette（5 色，與 query.py 上限呼應；首色維持桃紅領銜）
 _MULTI_PALETTE = [
@@ -176,10 +177,24 @@ class TrendRenderer:
         height: int = 160,
         pad: int = 20,
         x_axis: bool = True,
+        anomaly_flags: Optional[List[bool]] = None,
     ) -> str:
+        """
+        參數 anomaly_flags（S5 F7）：
+            可選 list[bool]，長度需等於 trend['points']；True 的位置在 ok 點外
+            畫一圈紅色外環（{_COLOR_ANOMALY}）。長度不符會 raise ValueError。
+            常與 anomaly_marker.mark_anomalies(trend['points']) 搭配使用。
+        """
         points = trend.get("points", [])
         hero_raw = trend.get("hero", "—")
         hero = html.escape(str(hero_raw), quote=True)   # R15：防 XSS
+
+        # S5 F7：anomaly_flags 長度與 points 必須一致（防呆）
+        if anomaly_flags is not None and len(anomaly_flags) != len(points):
+            raise ValueError(
+                f"anomaly_flags 長度 {len(anomaly_flags)} 與 points 長度 "
+                f"{len(points)} 不符"
+            )
         range_info = trend.get("range", {}) or {}
         range_start = html.escape(str(range_info.get("start", "")), quote=True)
         range_end = html.escape(str(range_info.get("end", "")), quote=True)
@@ -254,6 +269,13 @@ class TrendRenderer:
                     f'<circle cx="{_x(i):.2f}" cy="{_y(v):.2f}" r="4" '
                     f'fill="{_COLOR_OK}"><title>{title}: {v}</title></circle>'
                 )
+                # S5 F7：anomaly overlay 紅圈
+                if anomaly_flags is not None and anomaly_flags[i]:
+                    parts.append(
+                        f'<circle cx="{_x(i):.2f}" cy="{_y(v):.2f}" r="7" '
+                        f'fill="none" stroke="{_COLOR_ANOMALY}" '
+                        f'stroke-width="1.5"><title>{title}: anomaly</title></circle>'
+                    )
             elif st == "hero_absent":
                 parts.append(
                     f'<circle cx="{_x(i):.2f}" cy="{_y(0.0):.2f}" r="2" '
@@ -462,23 +484,57 @@ class TrendRenderer:
                     f'text-anchor="middle" fill="#666666" font-size="9">{short}</text>'
                 )
 
-        # 圖例（底部一列）
-        legend_y_top = height - legend_h + 4
-        legend_x = pad
+        # S5 F6 R19：圖例自動換行——超出 width 邊界時折下一列、SVG height 動態擴增
+        def _legend_width(name: Any) -> int:
+            return max(80, len(str(name)) * 12 + 30)
+
+        legend_layout: List[Dict[str, Any]] = []  # [{x, row, name, color}]
+        cur_x = pad
+        cur_row = 0
+        right_bound = width - pad
         for ti, (name, _pts, _vk, _) in enumerate(tracks):
-            color = _MULTI_PALETTE[ti % len(_MULTI_PALETTE)]
-            name_safe = html.escape(str(name), quote=True)
+            w = _legend_width(name)
+            if cur_x + w > right_bound and cur_x > pad:
+                cur_x = pad
+                cur_row += 1
+            legend_layout.append({
+                "x": cur_x,
+                "row": cur_row,
+                "name": name,
+                "color": _MULTI_PALETTE[ti % len(_MULTI_PALETTE)],
+            })
+            cur_x += w
+
+        legend_row_step = 16
+        extra_h = max(0, cur_row) * legend_row_step
+        final_height = height + extra_h
+
+        # legend 起點 y 用「主圖區底部」為基準，避免被 x 軸刻度壓住
+        legend_y_base = height - legend_h + 4
+        for item in legend_layout:
+            y_top = legend_y_base + item["row"] * legend_row_step
+            name_safe = html.escape(str(item["name"]), quote=True)
             parts.append(
-                f'<rect x="{legend_x:.2f}" y="{legend_y_top:.2f}" '
-                f'width="10" height="10" fill="{color}"/>'
+                f'<rect x="{item["x"]:.2f}" y="{y_top:.2f}" '
+                f'width="10" height="10" fill="{item["color"]}"/>'
             )
             parts.append(
-                f'<text x="{legend_x + 14:.2f}" y="{legend_y_top + 9:.2f}" '
+                f'<text x="{item["x"] + 14:.2f}" y="{y_top + 9:.2f}" '
                 f'font-size="11" fill="{_COLOR_TEXT}">{name_safe}</text>'
             )
-            legend_x += max(80, len(str(name)) * 12 + 30)
 
         parts.append("</svg>")
+
+        # 動態 height：覆寫 SVG 開頭與背景框，使其反映 final_height
+        if final_height != height:
+            parts[0] = (
+                f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{final_height}" '
+                f'viewBox="0 0 {width} {final_height}" font-family="sans-serif">'
+            )
+            parts[1] = (
+                f'<rect x="0.5" y="0.5" width="{width-1}" height="{final_height-1}" '
+                f'fill="white" stroke="{_COLOR_GRID}"/>'
+            )
         return "".join(parts)
 
     def render_multi_markdown(self, multi: Dict[str, Any]) -> str:

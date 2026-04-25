@@ -4,6 +4,8 @@ description: API 額度守衛。持久化追蹤 Tavily（或其他付費搜尋 A
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[api-quota-guardian 已啟動]`。
+
 # API 額度守衛 (API Quota Guardian)
 
 這是「芽芽戰情室」Milestone 4 Phase 57 特種兵。解決只能「事後」被動發現 Tavily 額度耗盡的問題，改為「事前」主動預警並切換備援。

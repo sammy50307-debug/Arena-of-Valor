@@ -4,6 +4,8 @@ description: 瀑布式輪用搜尋鏈。依優先順序嘗試多個搜尋源（T
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[waterfall-search-chain 已啟動]`。
+
 # 瀑布式輪用搜尋鏈 (Waterfall Search Chain)
 
 這是「芽芽戰情室」Milestone 4 的 Phase 56 特種兵。解決 Tavily API 月配額耗盡後系統無法搜集資料的問題。

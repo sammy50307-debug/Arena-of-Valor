@@ -4,6 +4,8 @@ description: 抗封鎖自適應偽裝兵，專為爬蟲部隊提供動態 User-A
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[auto-proxy-evader 已啟動]`。
+
 # 抗封鎖自適應偽裝兵 (Auto Proxy Evader)
 
 這是「芽芽戰情室」Milestone 1 的最終防線 (Phase 48)。當爬蟲頻繁訪問各大論壇時，極易觸發對方伺服器的 WAF (Web Application Firewall) 防禦，導致 IP 被 Ban 或遭遇 `403 Forbidden` / `429 Too Many Requests`。

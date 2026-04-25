@@ -4,6 +4,8 @@ description: 跨維度多線程聚合兵，透過 asyncio.gather 將多個論壇
 version: 1.0.0
 ---
 
+> ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[multi-thread-synthesizer 已啟動]`。
+
 # 跨維度多線程聚合兵 (Multi-Thread Synthesizer)
 
 這是「芽芽戰情室」Milestone 2 的壓軸特種兵 (Phase 51)。在過去，當我們需要同時巡視 Dcard、PTT 巴哈姆特、Facebook 粉絲專頁時，因為每一次請求都必須「乖乖排隊等候」，整個監測流程可能得花上數分鐘。

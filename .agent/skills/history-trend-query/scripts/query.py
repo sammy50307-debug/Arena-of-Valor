@@ -17,6 +17,7 @@ from __future__ import annotations
 import logging
 import sys
 from datetime import date, datetime, timedelta
+from difflib import get_close_matches
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -24,6 +25,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from time_series_loader import TimeSeriesLoader  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
+
+DAYS_HARD_CAP = 90  # S5 F2：days 參數硬上限（R11），配 LRU cache 控記憶體與效能
 
 
 class HistoryTrendQuery:
@@ -37,6 +41,17 @@ class HistoryTrendQuery:
         if loader is not None and data_dir is not None:
             raise ValueError("loader 與 data_dir 不能同時指定")
         self.loader = loader or TimeSeriesLoader(data_dir=data_dir)
+
+    @staticmethod
+    def _validate_days(days: Any) -> None:
+        """S5 F2：days 必須為 1~DAYS_HARD_CAP 的 int，超過硬上限即噴錯。"""
+        if not isinstance(days, int) or isinstance(days, bool) or days < 1:
+            raise ValueError(f"days 必須為 >= 1 的整數，got {days!r}")
+        if days > DAYS_HARD_CAP:
+            raise ValueError(
+                f"days 超過硬上限 {DAYS_HARD_CAP} 天，got {days}"
+                "（如需更長區間請分段查詢或調整 DAYS_HARD_CAP）"
+            )
 
     @staticmethod
     def _resolve_until(until: Any) -> date:
@@ -57,6 +72,7 @@ class HistoryTrendQuery:
         days: int,
         until: Any = None,
         weighted: bool = False,
+        fuzzy: bool = True,
     ) -> Dict[str, Any]:
         """
         單英雄時序查詢。
@@ -90,12 +106,34 @@ class HistoryTrendQuery:
         """
         if not isinstance(hero_name, str) or not hero_name.strip():
             raise ValueError("hero_name 不可為空")
-        if not isinstance(days, int) or days < 1:
-            raise ValueError(f"days 必須為 >= 1 的整數，got {days!r}")
+        self._validate_days(days)
 
         end = self._resolve_until(until)
         start = end - timedelta(days=days - 1)
         series = self.loader.load_range(start, end)
+
+        # S5 F4：fuzzy hero name resolution（cutoff=0.6，主公 2026-04-25 核定）
+        # 候選名單 = 區間內所有 ok 日 hero_stats 的聯集
+        # 精確命中或全 missing 時不啟動；命中模糊比對時把 hero_name 重指、附 resolved_from
+        resolved_from: Optional[str] = None
+        if fuzzy:
+            candidates: set = set()
+            for entry in series:
+                if entry["status"] == "ok":
+                    hs = (entry["data"] or {}).get("hero_stats") or {}
+                    if isinstance(hs, dict):
+                        candidates.update(hs.keys())
+            if candidates and hero_name not in candidates:
+                matches = get_close_matches(
+                    hero_name, list(candidates), n=1, cutoff=0.6
+                )
+                if matches:
+                    logger.info(
+                        "fuzzy hero match：%r → %r（cutoff=0.6）",
+                        hero_name, matches[0],
+                    )
+                    resolved_from = hero_name
+                    hero_name = matches[0]
 
         points: List[Dict[str, Any]] = []
         ok_count = 0
@@ -160,6 +198,7 @@ class HistoryTrendQuery:
 
         return {
             "hero": hero_name,
+            "resolved_from": resolved_from,  # S5 F4：fuzzy 命中時為原輸入；精確或無命中為 None
             "days": days,
             "range": {"start": start.isoformat(), "end": end.isoformat()},
             "points": points,
@@ -211,6 +250,54 @@ class HistoryTrendQuery:
                         )
 
     # ────────────────────────────────────────────────────
+    # S5 F3：每軌獨立 min-max 正規化（解 R17 小量級被壓平）
+    # ────────────────────────────────────────────────────
+    @staticmethod
+    def _per_normalize(
+        all_points_lists: List[List[Dict[str, Any]]],
+        value_key: str,
+        normalized_key: str,
+    ) -> None:
+        """
+        對每條軌道**各自**做 min-max 正規化，就地寫入 normalized_key 欄。
+        小量級軌與大量級軌共圖時可看出各自形狀（不被全局最大壓平至 0~0.05）。
+        """
+        for pts in all_points_lists:
+            ok_vals = [
+                float(p[value_key]) for p in pts
+                if p.get("status") == "ok" and isinstance(p.get(value_key), (int, float))
+            ]
+            if not ok_vals:
+                continue
+            lo, hi = min(ok_vals), max(ok_vals)
+            span = hi - lo
+            for p in pts:
+                if p.get("status") == "ok":
+                    v = p.get(value_key)
+                    if isinstance(v, (int, float)):
+                        p[normalized_key] = (
+                            (float(v) - lo) / span if span > 0 else 0.5
+                        )
+
+    @classmethod
+    def _apply_normalize(
+        cls,
+        all_points_lists: List[List[Dict[str, Any]]],
+        value_key: str,
+        normalized_key: str,
+        axis: str,
+    ) -> None:
+        """S5 F3 dispatcher：依 axis 走 cross 或 per。"""
+        if axis == "cross":
+            cls._cross_normalize(all_points_lists, value_key, normalized_key)
+        elif axis == "per":
+            cls._per_normalize(all_points_lists, value_key, normalized_key)
+        else:
+            raise ValueError(
+                f"normalize_axis 必須為 'cross' 或 'per'，got {axis!r}"
+            )
+
+    # ────────────────────────────────────────────────────
     # S4 F1：多英雄比對
     # ────────────────────────────────────────────────────
     def heroes_trend(
@@ -220,6 +307,8 @@ class HistoryTrendQuery:
         until: Any = None,
         weighted: bool = False,
         raw: bool = False,
+        normalize_axis: str = "cross",
+        fuzzy: bool = True,
     ) -> Dict[str, Any]:
         """
         多英雄比對。每個英雄產一份 hero_trend，再跨英雄 min-max 正規化 count。
@@ -228,9 +317,13 @@ class HistoryTrendQuery:
             hero_names: 1~5 個英雄名（重複/空字串噴 ValueError）
             raw: True → 不算 normalized_count（單純多軌原值）
                  False（預設）→ points 加 normalized_count ∈ [0,1]
+            normalize_axis (S5 F3, R17):
+                "cross"（預設）→ 全軌共用 min-max（看相對量級）
+                "per"          → 各軌獨立 min-max（看各自形狀，小量級不被壓平）
         """
         if not isinstance(hero_names, list) or not hero_names:
             raise ValueError("hero_names 必須為非空 list")
+        self._validate_days(days)
         if len(hero_names) > 5:
             raise ValueError(
                 f"多英雄比對上限 5 軌，got {len(hero_names)}"
@@ -244,15 +337,21 @@ class HistoryTrendQuery:
             seen.add(n)
 
         heroes = [
-            self.hero_trend(n, days, until=until, weighted=weighted)
+            self.hero_trend(n, days, until=until, weighted=weighted, fuzzy=fuzzy)
             for n in hero_names
         ]
 
         if not raw:
-            self._cross_normalize(
+            self._apply_normalize(
                 [h["points"] for h in heroes],
                 value_key="count",
                 normalized_key="normalized_count",
+                axis=normalize_axis,
+            )
+        elif normalize_axis not in ("cross", "per"):
+            # raw=True 仍要驗值合法（以免日後拿掉 raw 才發現參數錯）
+            raise ValueError(
+                f"normalize_axis 必須為 'cross' 或 'per'，got {normalize_axis!r}"
             )
 
         end = self._resolve_until(until)
@@ -262,6 +361,7 @@ class HistoryTrendQuery:
             "hero_names": list(hero_names),
             "days": days,
             "raw": raw,
+            "normalize_axis": normalize_axis,
             "range": {"start": start.isoformat(), "end": end.isoformat()},
             "heroes": heroes,
         }
@@ -274,13 +374,13 @@ class HistoryTrendQuery:
         days: int,
         until: Any = None,
         raw: bool = False,
+        normalize_axis: str = "cross",
     ) -> Dict[str, Any]:
         """
         整體輿情每日走勢：total_posts + sentiment_distribution 三欄並陳。
         缺日標 missing；schema 不合標 invalid；不再有 absent（不綁英雄）。
         """
-        if not isinstance(days, int) or days < 1:
-            raise ValueError(f"days 必須為 >= 1 的整數，got {days!r}")
+        self._validate_days(days)
 
         end = self._resolve_until(until)
         start = end - timedelta(days=days - 1)
@@ -333,16 +433,22 @@ class HistoryTrendQuery:
                 neu_sum += int(neu)
 
         if not raw:
-            self._cross_normalize(
+            self._apply_normalize(
                 [points],
                 value_key="total_posts",
                 normalized_key="normalized_total",
+                axis=normalize_axis,
+            )
+        elif normalize_axis not in ("cross", "per"):
+            raise ValueError(
+                f"normalize_axis 必須為 'cross' 或 'per'，got {normalize_axis!r}"
             )
 
         return {
             "mode": "overall",
             "days": days,
             "raw": raw,
+            "normalize_axis": normalize_axis,
             "range": {"start": start.isoformat(), "end": end.isoformat()},
             "points": points,
             "summary": {
@@ -366,31 +472,38 @@ class HistoryTrendQuery:
         days: int,
         until: Any = None,
         raw: bool = False,
+        normalize_axis: str = "cross",
     ) -> Dict[str, Any]:
         """
         平台別走勢。聯集所有 ok 日 platform_breakdown 出現過的 key 為平台清單。
         某日有檔但缺該平台 → status='absent' / post_count=0；缺日 → missing。
+
+        S5 F5 嚴驗（R18）：
+            - platform_breakdown 非 dict → 整日該平台 invalid
+            - 某平台 entry 非 dict → invalid
+            - post_count 非數值 → invalid
         """
-        if not isinstance(days, int) or days < 1:
-            raise ValueError(f"days 必須為 >= 1 的整數，got {days!r}")
+        self._validate_days(days)
 
         end = self._resolve_until(until)
         start = end - timedelta(days=days - 1)
         series = self.loader.load_range(start, end)
 
-        # 第一輪：聯集平台清單（保序）
+        # 第一輪：聯集平台清單（保序）。pb 非 dict 該日略過、不影響其他日。
         platforms: List[str] = []
         seen_p = set()
         for entry in series:
             if entry["status"] != "ok":
                 continue
-            pb = (entry["data"] or {}).get("platform_breakdown", {}) or {}
-            for p_name in pb.keys():
+            pb_raw = (entry["data"] or {}).get("platform_breakdown")
+            if not isinstance(pb_raw, dict):
+                continue
+            for p_name in pb_raw.keys():
                 if p_name not in seen_p:
                     seen_p.add(p_name)
                     platforms.append(p_name)
 
-        # 第二輪：對每個平台組軌道
+        # 第二輪：對每個平台組軌道（S5 F5 R18 嚴驗）
         platform_data: Dict[str, List[Dict[str, Any]]] = {}
         for p_name in platforms:
             pts: List[Dict[str, Any]] = []
@@ -403,26 +516,44 @@ class HistoryTrendQuery:
                 if st == "invalid":
                     pts.append({"date": iso, "status": "invalid", "post_count": None})
                     continue
-                pb = (entry["data"] or {}).get("platform_breakdown", {}) or {}
-                if p_name not in pb:
+                pb_raw = (entry["data"] or {}).get("platform_breakdown")
+                # 整日 platform_breakdown 不是 dict → 該日該平台 invalid
+                if not isinstance(pb_raw, dict):
+                    pts.append({"date": iso, "status": "invalid", "post_count": None})
+                    continue
+                if p_name not in pb_raw:
                     pts.append({"date": iso, "status": "absent", "post_count": 0})
                     continue
-                pdata = pb[p_name] or {}
-                cnt = pdata.get("post_count", 0) if isinstance(pdata, dict) else 0
+                pdata = pb_raw[p_name]
+                # 該平台 entry 非 dict → invalid（不再默默當 0）
+                if not isinstance(pdata, dict):
+                    pts.append({"date": iso, "status": "invalid", "post_count": None})
+                    continue
+                cnt = pdata.get("post_count")
+                # post_count 缺、非數值或 bool → invalid
+                if not isinstance(cnt, (int, float)) or isinstance(cnt, bool):
+                    pts.append({"date": iso, "status": "invalid", "post_count": None})
+                    continue
                 pts.append({"date": iso, "status": "ok", "post_count": cnt})
             platform_data[p_name] = pts
 
         if not raw:
-            self._cross_normalize(
+            self._apply_normalize(
                 list(platform_data.values()),
                 value_key="post_count",
                 normalized_key="normalized_count",
+                axis=normalize_axis,
+            )
+        elif normalize_axis not in ("cross", "per"):
+            raise ValueError(
+                f"normalize_axis 必須為 'cross' 或 'per'，got {normalize_axis!r}"
             )
 
         return {
             "mode": "platform",
             "days": days,
             "raw": raw,
+            "normalize_axis": normalize_axis,
             "platforms": platforms,
             "range": {"start": start.isoformat(), "end": end.isoformat()},
             "platform_data": platform_data,

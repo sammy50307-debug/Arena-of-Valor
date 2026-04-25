@@ -179,9 +179,57 @@ def t7():
     raise AssertionError("應噴 ValueError 但沒有")
 
 
+# ─────────────────────────────────────────────────────────────
+# S5 F1 — T8~T10：LRU cache 行為
+# ─────────────────────────────────────────────────────────────
+@test("T8 load_range cache 命中：同區間第二次呼叫不重掃磁碟")
+def t8():
+    loader = TimeSeriesLoader(data_dir=PROJECT_DATA_DIR, cache_size=8)
+    s1 = loader.load_range("2026-04-03", "2026-04-05")
+    stat1 = loader.cache_stats()
+    assert stat1["misses"] == 1 and stat1["hits"] == 0, f"first call → 1 miss / 0 hit, got {stat1}"
+    assert stat1["size"] == 1
+
+    s2 = loader.load_range("2026-04-03", "2026-04-05")
+    stat2 = loader.cache_stats()
+    assert stat2["hits"] == 1 and stat2["misses"] == 1, f"second call → +1 hit, got {stat2}"
+    # 命中時應回傳同一份物件（identity 相同 → 證明沒重建）
+    assert s1 is s2, "cache 命中應回同一 list 物件"
+
+
+@test("T9 clear_cache 清空 + 不同區間獨立計入")
+def t9():
+    loader = TimeSeriesLoader(data_dir=PROJECT_DATA_DIR, cache_size=8)
+    loader.load_range("2026-04-03", "2026-04-05")
+    loader.load_range("2026-04-04", "2026-04-05")  # 不同 key
+    assert loader.cache_stats()["size"] == 2
+    assert loader.cache_stats()["misses"] == 2
+
+    loader.clear_cache()
+    assert loader.cache_stats() == {"size": 0, "max_size": 8, "hits": 0, "misses": 0}
+
+    # 清空後再呼叫應 miss
+    loader.load_range("2026-04-03", "2026-04-05")
+    assert loader.cache_stats()["misses"] == 1
+
+
+@test("T10 cache_size 上限：超出時 LRU 淘汰最舊")
+def t10():
+    loader = TimeSeriesLoader(data_dir=PROJECT_DATA_DIR, cache_size=2)
+    loader.load_range("2026-04-03", "2026-04-03")  # k1
+    loader.load_range("2026-04-04", "2026-04-04")  # k2
+    loader.load_range("2026-04-05", "2026-04-05")  # k3 → 應淘汰 k1
+    stat = loader.cache_stats()
+    assert stat["size"] == 2, f"size 應卡 2，got {stat}"
+    # k1 已淘汰：再呼叫應 miss（misses 從 3 → 4）
+    misses_before = stat["misses"]
+    loader.load_range("2026-04-03", "2026-04-03")
+    assert loader.cache_stats()["misses"] == misses_before + 1, "k1 應已被淘汰、再次呼叫 miss"
+
+
 if __name__ == "__main__":
     print("=" * 60)
-    print("Phase 61 Stage 1 — TimeSeriesLoader 驗收測試")
+    print("Phase 61 Stage 1 + S5 F1 — TimeSeriesLoader 驗收測試")
     print("=" * 60)
 
     for name, fn in list(globals().items()):

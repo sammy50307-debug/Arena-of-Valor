@@ -473,9 +473,92 @@ def t24():
         raise AssertionError("不合法 mode 應噴 ValueError")
 
 
+# ─────────────────────────────────────────────────────────────
+# S5 F6 — T25：legend 自動換行（R19）
+# ─────────────────────────────────────────────────────────────
+@test("T25 R19：5 軌長名 legend 自動換行 → SVG height 動態擴增")
+def t25():
+    long_names = [
+        "超級長英雄名稱A_AAAAAAAAA",
+        "超級長英雄名稱B_BBBBBBBBB",
+        "超級長英雄名稱C_CCCCCCCCC",
+        "超級長英雄名稱D_DDDDDDDDD",
+        "超級長英雄名稱E_EEEEEEEEE",
+    ]
+    multi = {
+        "mode": "heroes",
+        "raw": False,
+        "range": {"start": "2026-01-01", "end": "2026-01-02"},
+        "heroes": [
+            {
+                "hero": n,
+                "points": [
+                    {"date": "2026-01-01", "status": "ok", "count": i + 1, "normalized_count": 0.5},
+                    {"date": "2026-01-02", "status": "ok", "count": i + 2, "normalized_count": 0.7},
+                ],
+            }
+            for i, n in enumerate(long_names)
+        ],
+    }
+    base_h = 220  # render_multi_svg 預設 height
+    svg = TrendRenderer().render_multi_svg(multi, width=400, height=base_h)
+
+    # 5 軌長名 width=400 必然觸發換行 → SVG height 大於預設
+    m = re.search(r'<svg [^>]*height="(\d+)"', svg)
+    assert m, "SVG 應有 height 屬性"
+    final_h = int(m.group(1))
+    assert final_h > base_h, f"legend 換行後 height 應 > {base_h}，got {final_h}"
+
+    # 對照組：寬度足夠時不換行 → height == 預設
+    svg_wide = TrendRenderer().render_multi_svg(multi, width=2000, height=base_h)
+    m2 = re.search(r'<svg [^>]*height="(\d+)"', svg_wide)
+    assert m2 and int(m2.group(1)) == base_h, f"寬度足夠時 height 應維持 {base_h}"
+
+    # 所有英雄名都應出現在 svg
+    for n in long_names:
+        assert n in svg, f"legend 應含 {n}"
+
+
+# ─────────────────────────────────────────────────────────────
+# S5 F7 — T26~T27：anomaly overlay 紅圈
+# ─────────────────────────────────────────────────────────────
+@test("T26 R7：anomaly_flags=True 的 ok 點外圍多畫紅圈 #dc2626")
+def t26():
+    points = [
+        {"date": "2026-01-01", "status": "ok", "count": 5,   "avg_sentiment": 0.5},
+        {"date": "2026-01-02", "status": "ok", "count": 5,   "avg_sentiment": 0.5},
+        {"date": "2026-01-03", "status": "ok", "count": 100, "avg_sentiment": 0.5},
+    ]
+    trend = _make_trend(points)
+    flags = [False, False, True]
+    svg = TrendRenderer().html_svg(trend, anomaly_flags=flags)
+
+    assert "#dc2626" in svg, "anomaly 點外環應為 #dc2626"
+    # 應有恰好 1 個 r=7 stroke 紅圈（其他點不該被加）
+    red_rings = re.findall(r'stroke="#dc2626"', svg)
+    assert len(red_rings) == 1, f"應只有 1 個紅圈，got {len(red_rings)}"
+
+    # 對照組：不傳 anomaly_flags → SVG 不含紅色
+    svg_clean = TrendRenderer().html_svg(trend)
+    assert "#dc2626" not in svg_clean
+
+
+@test("T27 anomaly_flags 長度與 points 不符 → ValueError")
+def t27():
+    trend = _make_trend([
+        {"date": "2026-01-01", "status": "ok", "count": 5, "avg_sentiment": 0.5},
+    ])
+    try:
+        TrendRenderer().html_svg(trend, anomaly_flags=[True, False])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("長度不符應噴 ValueError")
+
+
 if __name__ == "__main__":
     print("=" * 60)
-    print("Phase 61 Stage 3/4 — TrendRenderer 驗收測試")
+    print("Phase 61 S3/S4 + S5 F6/F7 — TrendRenderer 驗收測試")
     print("=" * 60)
 
     print("-" * 60)

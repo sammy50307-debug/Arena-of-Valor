@@ -481,9 +481,185 @@ def t16():
         assert "normalized_total" not in p
 
 
+# ─────────────────────────────────────────────────────────────
+# S5 F2 — T17：days hard cap 90（四個方法）
+# ─────────────────────────────────────────────────────────────
+@test("T17 days>90 → 四個方法皆 ValueError")
+def t17():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+
+    cases = [
+        ("hero_trend",      lambda: q.hero_trend("芽芽", 91)),
+        ("heroes_trend",    lambda: q.heroes_trend(["芽芽"], 91)),
+        ("overall_trend",   lambda: q.overall_trend(91)),
+        ("platform_trend",  lambda: q.platform_trend(91)),
+    ]
+    for label, fn in cases:
+        try:
+            fn()
+        except ValueError as e:
+            assert "90" in str(e), f"{label} ValueError 訊息應提到 90，got {e}"
+        else:
+            raise AssertionError(f"{label} days=91 應噴 ValueError")
+
+    # 邊界：90 應通過、91 才噴
+    q.hero_trend("芽芽", 90, until="2026-04-05")  # 不應噴
+
+
+# ─────────────────────────────────────────────────────────────
+# S5 F5 — T18：platform_trend 嚴驗（R18）
+# ─────────────────────────────────────────────────────────────
+@test("T18 platform_trend：post_count 非數值 / 平台 entry 非 dict / pb 非 dict → invalid")
+def t18():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+
+        def _write(ds: str, pb: object) -> None:
+            payload = {
+                "date": ds,
+                "total_posts": 10,
+                "overall": {"sentiment_score": 0.5, "trend": "Stable"},
+                "sentiment_distribution": {"positive": 5, "negative": 2, "neutral": 3},
+                "platform_breakdown": pb,
+                "hero_stats": {},
+            }
+            (tmp_dir / f"analysis_{ds.replace('-', '')}.json").write_text(
+                json.dumps(payload, ensure_ascii=False), encoding="utf-8"
+            )
+
+        # 第 1 日：facebook entry 非 dict（直接是 int）
+        _write("2030-08-01", {"facebook": 99, "ptt": {"post_count": 5}})
+        # 第 2 日：facebook 缺 post_count
+        _write("2030-08-02", {"facebook": {"sentiment_ratio": 0.5}, "ptt": {"post_count": 7}})
+        # 第 3 日：facebook post_count 非數值
+        _write("2030-08-03", {"facebook": {"post_count": "abc"}, "ptt": {"post_count": 9}})
+
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        r = q.platform_trend(3, until="2030-08-03", raw=True)
+
+    fb = r["platform_data"]["facebook"]
+    assert fb[0]["status"] == "invalid", f"非 dict entry 應 invalid，got {fb[0]}"
+    assert fb[0]["post_count"] is None
+    assert fb[1]["status"] == "invalid", f"缺 post_count 應 invalid，got {fb[1]}"
+    assert fb[2]["status"] == "invalid", f"post_count 字串應 invalid，got {fb[2]}"
+
+    # ptt 三天皆 ok（對照組未受牽連）
+    ptt = r["platform_data"]["ptt"]
+    assert all(p["status"] == "ok" for p in ptt), f"ptt 應全 ok，got {ptt}"
+
+
+# ─────────────────────────────────────────────────────────────
+# S5 F3 — T19~T20：normalize_axis cross / per 切換
+# ─────────────────────────────────────────────────────────────
+@test("T19 normalize_axis='per'：每軌獨立 normalize，各自 0~1")
+def t19():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        # 造熱英雄 hot count=[5,50,100]、冷英雄 cold count=[1,2,3]
+        for ds, hot, cold in [
+            ("2030-09-01", 5, 1),
+            ("2030-09-02", 50, 2),
+            ("2030-09-03", 100, 3),
+        ]:
+            payload = {
+                "date": ds, "total_posts": hot + cold,
+                "overall": {"sentiment_score": 0.5, "trend": "Stable"},
+                "sentiment_distribution": {"positive": 1, "negative": 0, "neutral": 0},
+                "platform_breakdown": {},
+                "hero_stats": {
+                    "hot": {"count": hot, "avg_sentiment": 0.5},
+                    "cold": {"count": cold, "avg_sentiment": 0.5},
+                },
+            }
+            (tmp_dir / f"analysis_{ds.replace('-', '')}.json").write_text(
+                json.dumps(payload, ensure_ascii=False), encoding="utf-8"
+            )
+        q = HistoryTrendQuery(data_dir=tmp_dir)
+        r_cross = q.heroes_trend(["hot", "cold"], 3, until="2030-09-03", normalize_axis="cross")
+        r_per = q.heroes_trend(["hot", "cold"], 3, until="2030-09-03", normalize_axis="per")
+
+    # cross 模式：cold 三點被全局壓平（max=100 → cold/100 = 0.01~0.03）
+    cold_cross = [p["normalized_count"] for p in r_cross["heroes"][1]["points"] if p.get("status") == "ok"]
+    assert max(cold_cross) < 0.05, f"cross 模式 cold 應被壓在 0.05 以下，got {cold_cross}"
+
+    # per 模式：cold 各自 normalize（min=1, max=3）→ 三點為 0.0 / 0.5 / 1.0
+    cold_per = [p["normalized_count"] for p in r_per["heroes"][1]["points"] if p.get("status") == "ok"]
+    assert min(cold_per) == 0.0 and max(cold_per) == 1.0, f"per 模式 cold 應展開到 [0,1]，got {cold_per}"
+
+    # hot 兩模式皆達 1.0（自身就是最大）
+    hot_per = [p["normalized_count"] for p in r_per["heroes"][0]["points"] if p.get("status") == "ok"]
+    assert max(hot_per) == 1.0
+    assert r_per["normalize_axis"] == "per"
+    assert r_cross["normalize_axis"] == "cross"
+
+
+@test("T20 normalize_axis 不合法 → ValueError（含 raw=True 也要驗）")
+def t20():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+    for label, fn in [
+        ("heroes_trend",  lambda: q.heroes_trend(["芽芽"], 3, until="2026-04-05", normalize_axis="bad")),
+        ("overall_trend", lambda: q.overall_trend(3, until="2026-04-05", normalize_axis="bad")),
+        ("platform_trend",lambda: q.platform_trend(3, until="2026-04-05", normalize_axis="bad")),
+        ("heroes raw",    lambda: q.heroes_trend(["芽芽"], 3, until="2026-04-05", raw=True, normalize_axis="bad")),
+    ]:
+        try:
+            fn()
+        except ValueError as e:
+            assert "cross" in str(e) or "per" in str(e), f"{label} 訊息不夠具體：{e}"
+        else:
+            raise AssertionError(f"{label} 不合法 axis 應噴 ValueError")
+
+
+# ─────────────────────────────────────────────────────────────
+# S5 F4 — T21~T23：fuzzy hero match
+# ─────────────────────────────────────────────────────────────
+@test("T21 fuzzy 命中：'芽 芽' / '芽芽X' 應對應到「芽芽」、resolved_from 帶原值")
+def t21():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+    r = q.hero_trend("芽芽X", 1, until="2026-04-05")
+    # 命中時 hero 欄被改寫為「芽芽」，resolved_from 保留原輸入
+    assert r["hero"] == "芽芽", f"fuzzy 應命中「芽芽」，got hero={r['hero']!r}"
+    assert r["resolved_from"] == "芽芽X"
+    # 命中後走原邏輯，T1 同樣 count=8
+    assert r["points"][0]["count"] == 8
+
+
+@test("T22 fuzzy 未命中：完全無關名稱 → resolved_from=None、退回 hero_absent")
+def t22():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+    r = q.hero_trend("ZZZZZZZ完全無關", 1, until="2026-04-05")
+    assert r["resolved_from"] is None
+    assert r["hero"] == "ZZZZZZZ完全無關"
+    assert r["points"][0]["status"] == "hero_absent"
+
+
+@test("T23 fuzzy=False：禁用模糊比對，打錯字直接走 hero_absent")
+def t23():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+    r = q.hero_trend("芽芽X", 1, until="2026-04-05", fuzzy=False)
+    assert r["resolved_from"] is None
+    assert r["hero"] == "芽芽X", "fuzzy=False 不應改寫 hero"
+    assert r["points"][0]["status"] == "hero_absent"
+
+
+# ─────────────────────────────────────────────────────────────
+# S5 R25 補測：days=True/False (bool) 應噴 ValueError
+# ─────────────────────────────────────────────────────────────
+@test("T24 R25：days=True/False (bool) 應噴 ValueError，不被當 1/0")
+def t24():
+    q = HistoryTrendQuery(data_dir=PROJECT_DATA_DIR)
+    for bad in [True, False]:
+        try:
+            q.hero_trend("芽芽", bad)  # type: ignore[arg-type]
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"days={bad!r} 應噴 ValueError")
+
+
 if __name__ == "__main__":
     print("=" * 60)
-    print("Phase 61 Stage 2/4 — HistoryTrendQuery 驗收測試")
+    print("Phase 61 S2/S4 + S5 F2/F3/F4/F5 — HistoryTrendQuery 驗收測試")
     print("=" * 60)
 
     print("-" * 60)
