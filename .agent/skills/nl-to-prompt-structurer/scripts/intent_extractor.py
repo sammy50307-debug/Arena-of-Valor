@@ -12,6 +12,8 @@
 from __future__ import annotations
 
 import json
+import re
+import threading
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -19,45 +21,72 @@ from .lang_detector import detect_lang
 
 _DICT_PATH = Path(__file__).resolve().parent.parent / "resources" / "keyword_dict.json"
 _DICT_CACHE: Optional[dict] = None
+_DICT_LOCK = threading.Lock()
 
 
 def _load_dict() -> dict:
     global _DICT_CACHE
     if _DICT_CACHE is None:
-        _DICT_CACHE = json.loads(_DICT_PATH.read_text(encoding="utf-8"))
+        with _DICT_LOCK:
+            if _DICT_CACHE is None:
+                _DICT_CACHE = json.loads(_DICT_PATH.read_text(encoding="utf-8"))
     return _DICT_CACHE
+
+
+def _is_english_word(word: str) -> bool:
+    """判斷候選詞是否全為英文字母組合（用於決定是否加上詞邊界防禦）"""
+    return bool(re.match(r"^[a-zA-Z\s]+$", word))
 
 
 def _find_first(text: str, candidates: List[str]) -> Optional[Tuple[int, str]]:
     """於 text 找最早出現的 candidate；回 (位置, 詞) 或 None。
 
-    候選詞先按長度遞減排序，避免短詞搶先命中（"查" vs "查詢"）。
-    比對採大小寫不敏感（小寫化雙方）。
+    候選詞先按長度遞減排序。
+    若為純英文詞，將加上 word boundary 防禦 (例：避免 plan 命中 plant)。
     """
     sorted_cands = sorted(set(candidates), key=lambda s: -len(s))
-    lo_text = text.lower()
     best: Optional[Tuple[int, str]] = None
+    
     for cand in sorted_cands:
-        idx = lo_text.find(cand.lower())
-        if idx == -1:
-            continue
-        if best is None or idx < best[0]:
-            best = (idx, cand)
+        if _is_english_word(cand):
+            # 英文詞使用 regex word boundary
+            pattern = re.compile(rf"\b{re.escape(cand)}\b", re.IGNORECASE)
+            match = pattern.search(text)
+            if match:
+                idx = match.start()
+                if best is None or idx < best[0]:
+                    best = (idx, cand)
+        else:
+            # 中文或混合詞使用一般的子串比對
+            idx = text.lower().find(cand.lower())
+            if idx != -1:
+                if best is None or idx < best[0]:
+                    best = (idx, cand)
     return best
 
 
 def _find_all(text: str, candidates: List[str]) -> List[str]:
     """於 text 找所有命中 candidate（去重，按出現順序）。"""
     sorted_cands = sorted(set(candidates), key=lambda s: -len(s))
-    lo_text = text.lower()
     hits: List[Tuple[int, str]] = []
     seen = set()
+    
     for cand in sorted_cands:
-        idx = lo_text.find(cand.lower())
-        if idx == -1 or cand in seen:
+        if cand in seen:
             continue
-        hits.append((idx, cand))
-        seen.add(cand)
+            
+        if _is_english_word(cand):
+            pattern = re.compile(rf"\b{re.escape(cand)}\b", re.IGNORECASE)
+            match = pattern.search(text)
+            if match:
+                hits.append((match.start(), cand))
+                seen.add(cand)
+        else:
+            idx = text.lower().find(cand.lower())
+            if idx != -1:
+                hits.append((idx, cand))
+                seen.add(cand)
+                
     hits.sort(key=lambda x: x[0])
     return [w for _, w in hits]
 
@@ -85,16 +114,15 @@ def extract_constraints(text: str, lang: Optional[str] = None) -> List[str]:
     return _find_all(text, cons)
 
 
-def extract_format(text: str, lang: Optional[str] = None) -> Optional[str]:
-    """抽第一個格式詞。沒命中回 None。"""
+def extract_format(text: str, lang: Optional[str] = None) -> List[str]:
+    """抽所有格式詞。改為回傳 list 解決 R9 單選遺漏。沒命中回空 list。"""
     if not text:
-        return None
+        return []
     lang = lang or detect_lang(text)
     if lang not in ("zh", "en"):
         lang = "zh"
     fmts = _load_dict()[lang]["format_hints"]
-    hit = _find_first(text, fmts)
-    return hit[1] if hit else None
+    return _find_all(text, fmts)
 
 
 def extract_all(text: str, lang: Optional[str] = None) -> Dict[str, object]:
@@ -104,7 +132,7 @@ def extract_all(text: str, lang: Optional[str] = None) -> Dict[str, object]:
       "lang": "zh" | "en",
       "task_verb": str | None,
       "constraints": [str, ...],
-      "format_hint": str | None,
+      "format_hint": [str, ...],
     }
     """
     lang = lang or detect_lang(text)

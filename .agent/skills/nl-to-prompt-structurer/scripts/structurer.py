@@ -12,58 +12,56 @@
 
 from __future__ import annotations
 
+import json
 import re
+import threading
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from .intent_extractor import extract_all
 from .lang_detector import detect_lang
 from .templates import render_skeleton
 
-_ROLE_MAP = {
-    "zh": {
-        "翻譯": "譯者",
-        "撰寫": "寫手", "寫": "寫手", "改寫": "寫手", "重寫": "寫手", "潤飾": "寫手", "校對": "寫手",
-        "分析": "分析師", "評估": "分析師", "比較": "分析師", "對比": "分析師",
-        "整理": "資料整理員", "歸納": "資料整理員", "排序": "資料整理員",
-        "查詢": "情報員", "查": "情報員", "找": "情報員", "找出": "情報員", "搜尋": "情報員",
-        "規劃": "策略顧問", "設計": "策略顧問", "預測": "策略顧問",
-        "解釋": "說明員", "說明": "說明員", "回答": "說明員", "回覆": "說明員",
-        "推薦": "推薦顧問", "建議": "推薦顧問",
-        "繪製": "視覺設計師", "畫": "視覺設計師",
-        "計算": "計算員", "統計": "計算員",
-    },
-    "en": {
-        "translate": "Translator",
-        "write": "Writer", "rewrite": "Writer", "polish": "Writer", "proofread": "Writer", "edit": "Writer",
-        "analyze": "Analyst", "analyse": "Analyst", "evaluate": "Analyst", "assess": "Analyst", "compare": "Analyst",
-        "summarize": "Summarizer", "summarise": "Summarizer", "outline": "Summarizer",
-        "query": "Researcher", "find": "Researcher", "search": "Researcher", "extract": "Researcher",
-        "plan": "Strategist", "design": "Strategist", "predict": "Strategist",
-        "explain": "Explainer", "describe": "Explainer", "answer": "Explainer",
-        "recommend": "Advisor", "suggest": "Advisor",
-        "calculate": "Calculator", "compute": "Calculator",
-        "classify": "Classifier", "categorize": "Classifier", "rank": "Classifier",
-    },
-}
+_ROLE_MAP_PATH = Path(__file__).resolve().parent.parent / "resources" / "role_map.json"
+_ROLE_MAP_CACHE: Optional[dict] = None
+_ROLE_MAP_LOCK = threading.Lock()
 
 _DEFAULT_ROLE = {"zh": "通用助理", "en": "Generalist Assistant"}
 
 
+def _load_role_map() -> dict:
+    global _ROLE_MAP_CACHE
+    if _ROLE_MAP_CACHE is None:
+        with _ROLE_MAP_LOCK:
+            if _ROLE_MAP_CACHE is None:
+                if _ROLE_MAP_PATH.exists():
+                    _ROLE_MAP_CACHE = json.loads(_ROLE_MAP_PATH.read_text(encoding="utf-8"))
+                else:
+                    _ROLE_MAP_CACHE = {"zh": {}, "en": {}}
+    return _ROLE_MAP_CACHE
+
+
 def _infer_role(task_verb: Optional[str], lang: str) -> str:
-    if task_verb and task_verb in _ROLE_MAP.get(lang, {}):
-        return _ROLE_MAP[lang][task_verb]
+    role_map = _load_role_map()
+    if task_verb and task_verb in role_map.get(lang, {}):
+        return role_map[lang][task_verb]
     return _DEFAULT_ROLE.get(lang, _DEFAULT_ROLE["zh"])
 
 
 def _escape_slot(value: str) -> str:
-    """跳脫 slot 內會破壞五段式結構的元字元（行首 `#` heading）。
-
-    僅 escape 行首的 `#`（防止被 Markdown 渲染當 heading 取代外層五段式）。
-    其他字元不動，保留 caller 原始輸入彈性。
+    """跳脫 slot 內會破壞五段式結構的元字元（行首 `#` heading、`>` blockquote、```` ` 圍欄）。
+    
+    保留 caller 原始輸入彈性，防止被 Markdown 渲染當作結構破壞。
     """
     if not value:
         return value
-    return re.sub(r"(^|\n)(#+)\s", lambda m: f"{m.group(1)}\\{m.group(2)} ", value)
+    # 防禦 `#`
+    value = re.sub(r"(^|\n)(#+)\s", lambda m: f"{m.group(1)}\\{m.group(2)} ", value)
+    # 防禦 `>` (blockquote)
+    value = re.sub(r"(^|\n)>\s", lambda m: f"{m.group(1)}\\> ", value)
+    # 防禦 ```` ` (code fences)
+    value = re.sub(r"(^|\n)(```+)", lambda m: f"{m.group(1)}\\{m.group(2)}", value)
+    return value
 
 
 def _dedupe_overlap(items: List[str]) -> List[str]:
@@ -72,10 +70,8 @@ def _dedupe_overlap(items: List[str]) -> List[str]:
         return []
     keep: List[str] = []
     for x in items:
-        # 若已有任一保留項是 x 的 superstring → 跳過 x
         if any((x in k) and (x != k) for k in keep):
             continue
-        # 若 x 是任一保留項的 superstring → 移除被涵蓋者
         keep = [k for k in keep if not ((k in x) and (k != x))]
         keep.append(x)
     return keep
@@ -84,6 +80,8 @@ def _dedupe_overlap(items: List[str]) -> List[str]:
 def _format_constraints(items: List[str], lang: str) -> str:
     if not items:
         return "（未指定）" if lang == "zh" else "(unspecified)"
+    if len(items) == 1:
+        return items[0]  # 若只有 1 條，不加 bullet
     bullet = "- "
     return "\n".join(f"{bullet}{it}" for it in items)
 
@@ -116,12 +114,11 @@ class PromptStructurer:
         info: Dict[str, object] = extract_all(text or "", chosen_lang)
         task_verb = info["task_verb"]  # type: ignore[assignment]
         constraints = _dedupe_overlap(info["constraints"])  # type: ignore[arg-type]
-        format_hint = info["format_hint"]  # type: ignore[assignment]
+        format_hint_list = info["format_hint"]  # list returned by updated extractor
+        format_hint = " / ".join(format_hint_list) if format_hint_list else None # type: ignore
 
-        # 角色決議：手動 > 推斷 > 預設
         chosen_role = role or _infer_role(task_verb, chosen_lang)
 
-        # 任務段：原始 text（escape 後）；若空則用偵測到的 verb 或預設
         if text and text.strip():
             task_text = _escape_slot(text.strip())
         elif task_verb:
@@ -141,25 +138,7 @@ class PromptStructurer:
             slots["context"] = _escape_slot(context)
 
         if mode == "lite":
-            # 只保留 task + output_format（其他走預設）
-            lite_slots = {"task": slots["task"]}
-            if "output_format" in slots:
-                lite_slots["output_format"] = slots["output_format"]
-            return _render_lite(chosen_lang, lite_slots)
+            return render_skeleton(chosen_lang, slots, sections=["task", "output_format"])
 
         return render_skeleton(chosen_lang, slots)
 
-
-def _render_lite(lang: str, slots: Dict[str, str]) -> str:
-    """精簡兩段式：任務 + 輸出格式。"""
-    if lang == "en":
-        task_h, fmt_h = "Task", "Output Format"
-        unspec = "(unspecified)"
-    else:
-        task_h, fmt_h = "任務 (Task)", "輸出格式 (Output Format)"
-        unspec = "（未指定）"
-
-    return (
-        f"## {task_h}\n{slots.get('task', unspec)}\n\n"
-        f"## {fmt_h}\n{slots.get('output_format', unspec)}\n"
-    )

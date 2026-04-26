@@ -164,15 +164,15 @@ def t_extract_constraints_none() -> None:
 
 
 def t_extract_format_zh() -> None:
-    _check("T16 extract_format('用表格整理') → '表格'",
-           extract_format("用表格整理今天戰報") == "表格")
+    _check("T16 extract_format('用表格整理') → ['表格']",
+           extract_format("用表格整理今天戰報") == ["表格"])
 
 
 def t_extract_format_en_case_insensitive() -> None:
     # 大小寫不敏感（"JSON" 應命中 "json"）
     result = extract_format("output as JSON")
     _check("T17 extract_format 大小寫不敏感（JSON → json）",
-           result == "json", f"got={result}")
+           result == ["json"], f"got={result}")
 
 
 def t_extract_all_combo() -> None:
@@ -180,7 +180,7 @@ def t_extract_all_combo() -> None:
     cond = (
         out["lang"] == "zh"
         and out["task_verb"] == "整理"
-        and out["format_hint"] == "markdown"
+        and "markdown" in out["format_hint"]
         and "字以內" in out["constraints"]
     )
     _check("T18 extract_all 中文組合句（lang/動詞/格式/限制 全中）", cond, f"got={out}")
@@ -191,7 +191,7 @@ def t_extract_all_en_combo() -> None:
     cond = (
         out["lang"] == "en"
         and out["task_verb"] == "summarize"
-        and out["format_hint"] == "table"
+        and "table" in out["format_hint"]
         and ("within" in out["constraints"] or "words" in out["constraints"])
     )
     _check("T19 extract_all 英文組合句", cond, f"got={out}")
@@ -202,7 +202,7 @@ def t_extract_empty_input() -> None:
     cond = (
         out["task_verb"] is None
         and out["constraints"] == []
-        and out["format_hint"] is None
+        and out["format_hint"] == []
     )
     _check("T20 extract_all 空字串 → 三類皆 None/空", cond)
 

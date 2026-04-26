@@ -29,13 +29,19 @@ from .lang_detector import detect_lang
 _P61_SCRIPTS = Path(__file__).resolve().parents[2] / "history-trend-query" / "scripts"
 
 
+_STATIC_HEROES = [
+    "悟空", "芽芽", "貂蟬", "刀鋒寶貝", "堇", "莫拉", "凡恩", "愛麗絲", "圖倫", "奎倫",
+    "亞連", "納克羅斯", "特爾安娜絲", "弗洛倫", "星葵", "薇菈", "阿萊斯特", "穆加爵", "克里希",
+    "皮皮", "亥犽", "莉莉安", "拉茲", "蘿兒", "伊格", "令月", "綺蘿", "依夏", "緋淚"
+]
+
 def _get_hero_candidates(data_dir: Optional[Path] = None, days: int = 30) -> List[str]:
     """動態掃描 data/ 目錄最近 N 天的 analysis_*.json，聯集所有 hero_stats keys。"""
     if data_dir is None:
         data_dir = Path(__file__).resolve().parents[3] / "data"
     data_dir = Path(data_dir)
     if not data_dir.exists():
-        return []
+        return _STATIC_HEROES.copy()
 
     heroes: List[str] = []
     seen: set = set()
@@ -57,7 +63,8 @@ def _get_hero_candidates(data_dir: Optional[Path] = None, days: int = 30) -> Lis
                         heroes.append(name)
         except Exception:
             continue
-    return heroes
+            
+    return heroes if heroes else _STATIC_HEROES.copy()
 
 
 # ── 天數解析 ──────────────────────────────────────────────

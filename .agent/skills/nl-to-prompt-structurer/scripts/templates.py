@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 SECTIONS = ("role", "context", "task", "constraints", "output_format")
 
@@ -44,21 +44,23 @@ _DEFAULTS = {
 }
 
 
-def render_skeleton(lang: str, slots: Optional[Dict[str, str]] = None) -> str:
+def render_skeleton(lang: str, slots: Optional[Dict[str, str]] = None, sections: Optional[List[str]] = None) -> str:
     """組出五段式 Markdown。
 
     lang：'zh' 或 'en'；其他值依 R1 fallback 至 'zh'。
     slots：欲填入的欄位，key 為 SECTIONS 之一；缺欄位用 _DEFAULTS 補。
+    sections：要渲染的段落，預設為全五段（解 P62-R12）。
     """
     if lang not in ("zh", "en"):
         lang = "zh"
     slots = slots or {}
+    sections = sections or list(SECTIONS)
 
     headers = _HEADERS[lang]
     defaults = _DEFAULTS[lang]
 
     lines = []
-    for sec in SECTIONS:
+    for sec in sections:
         value = slots.get(sec)
         if value is None or (isinstance(value, str) and not value.strip()):
             value = defaults[sec]

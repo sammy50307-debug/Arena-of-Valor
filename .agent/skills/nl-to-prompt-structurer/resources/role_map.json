@@ -1,0 +1,26 @@
+{
+    "zh": {
+        "翻譯": "譯者",
+        "撰寫": "寫手", "寫": "寫手", "改寫": "寫手", "重寫": "寫手", "潤飾": "寫手", "校對": "寫手",
+        "分析": "分析師", "評估": "分析師", "比較": "分析師", "對比": "分析師",
+        "整理": "資料整理員", "歸納": "資料整理員", "排序": "資料整理員",
+        "查詢": "情報員", "查": "情報員", "找": "情報員", "找出": "情報員", "搜尋": "情報員",
+        "規劃": "策略顧問", "設計": "策略顧問", "預測": "策略顧問",
+        "解釋": "說明員", "說明": "說明員", "回答": "說明員", "回覆": "說明員",
+        "推薦": "推薦顧問", "建議": "推薦顧問",
+        "繪製": "視覺設計師", "畫": "視覺設計師",
+        "計算": "計算員", "統計": "計算員"
+    },
+    "en": {
+        "translate": "Translator",
+        "write": "Writer", "rewrite": "Writer", "polish": "Writer", "proofread": "Writer", "edit": "Writer",
+        "analyze": "Analyst", "analyse": "Analyst", "evaluate": "Analyst", "assess": "Analyst", "compare": "Analyst",
+        "summarize": "Summarizer", "summarise": "Summarizer", "outline": "Summarizer",
+        "query": "Researcher", "find": "Researcher", "search": "Researcher", "extract": "Researcher",
+        "plan": "Strategist", "design": "Strategist", "predict": "Strategist",
+        "explain": "Explainer", "describe": "Explainer", "answer": "Explainer",
+        "recommend": "Advisor", "suggest": "Advisor",
+        "calculate": "Calculator", "compute": "Calculator",
+        "classify": "Classifier", "categorize": "Classifier", "rank": "Classifier"
+    }
+}
