@@ -3283,3 +3283,184 @@ body 含「執行時必標 `[history-trend-query 已啟動]`」、四模式 CLI 
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`difflib` / `collections.OrderedDict` / `math` / `html`）
 - **狀態**：✅ Phase 61 history-trend-query v1.0 收官；66/66 全綠、零回歸、零外部相依；8 項風險落地、6 項列管轉交；SKILL.md v1.0 完整文件 + `/trend` slash command 介面層雙落地。
+
+---
+
+### 🛠️ Phase 56.5：data/ 上游髒檔治本（R7 + R21 收官 / Milestone 4 補強）
+
+- **目標**：根治 Phase 61 收官時提報的兩項上游風險——R7（`analysis_20260327.json` 0-byte 殘檔）與 R21（`analysis_20260329.json` 缺 `total_posts`）。Producer 端加固 + 既有髒檔處置 + 自動化防護三線並行。
+- **觸發背景**：2026-04-26 主公裁示「先 P56.5 草案」；S1 診斷後發現 P61 已建好 `schema_version.json` 契約檔，省下重建工作。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 契約來源 | 新建 `schemas/analysis_v1.json` | **沿用 P61 `schema_version.json`** | **沿用** | 單一真相來源、避免雙端漂移；producer 與 P61 loader 共用 |
+| 寫檔機制 | 沿用 `Path.write_text` | **`tmp + os.replace` atomic** | **atomic** | 防 0-byte 殘檔（R7 治本） |
+| 守門時機 | 寫前 raise 終止 | **寫前 coerce 補齊預設值** | **coerce 兜底** | 不阻斷 daily 流程；fallback 自身先補正確值、coerce 只是雙保險 |
+| 0327 處置 | 修復 / 隔離 | **隔離至 `data/_quarantine/`** | **隔離** | 0-byte 無資料可救；保留作治本前殘檔教材 |
+| 0329 處置 | 修復 / 隔離 | **就地修復補 `total_posts: 12`** | **修復** | 推據雙證：原 summary「共搜集到 12 筆」+ `sentiment_distribution.neutral=12` |
+| 跨層 import 策略 | 複製 schema 到 `analyzer/` | **硬 import P61 skill 內 schema** | **硬 import + anti-regression 測試守門** | 避免雙份契約漂移；測試 T11 監控路徑變動 |
+
+#### 檔案變動
+
+```
+analyzer/
+└── data_writer.py                  ← 新檔 ~95 行（validate_summary / coerce_to_schema / atomic_write_json）
+
+analyzer/sentiment.py               ← 標準 fallback 補 "total_posts": len(analyzed_posts)（line 475）
+
+main.py                             ← 寫檔改 atomic + 寫前契約守門（line 308-318）
+
+data/
+├── analysis_20260329.json          ← 修復：補 total_posts=12 + _phase56_5_repaired 註記；用 atomic write 寫回
+└── _quarantine/                    ← 新建隔離區
+    ├── README.md                   ← 收件清單 + 隔離原因
+    └── analysis_20260327.json      ← 0-byte 殘檔搬入
+
+test_data_writer.py                 ← 新檔 11 項（含 3 項 anti-regression）
+validate_data_dir.py                ← 新檔，維運 CLI（掃整個 data/ 找違規檔）
+```
+
+#### `analyzer/data_writer.py` 三函式
+
+```python
+def validate_summary(data: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """檢查 data 是否符合契約。回 (is_valid, missing_fields)。
+       依 .agent/skills/history-trend-query/resources/schema_version.json 載入契約。"""
+    missing = []
+    for k in _REQ.get("top_level", []):
+        if k not in data:
+            missing.append(k)
+    overall = data.get("overall")
+    if isinstance(overall, dict):
+        for k in _REQ.get("overall", []):
+            if k not in overall:
+                missing.append(f"overall.{k}")
+    sd = data.get("sentiment_distribution")
+    if isinstance(sd, dict):
+        for k in _REQ.get("sentiment_distribution", []):
+            if k not in sd:
+                missing.append(f"sentiment_distribution.{k}")
+    return (len(missing) == 0, missing)
+
+def coerce_to_schema(data: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
+    """補齊缺欄位至契約最小。回 (補齊後 dict, 補了哪些欄位)。
+       安全預設：total_posts=0、overall.{sentiment_score=0.0,trend='Stable'}、
+                  sentiment_distribution.{positive,negative,neutral}=0、
+                  platform_breakdown={}、hero_stats={}。"""
+
+def atomic_write_json(path: Path, data: Dict[str, Any]) -> None:
+    """寫到 path.tmp → fsync → os.replace 為 path。異常時自動清 .tmp。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(data, ensure_ascii=False, indent=2))
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, path)
+    except Exception:
+        if tmp_path.exists():
+            try: tmp_path.unlink()
+            except Exception: pass
+        raise
+```
+
+#### `main.py` 寫檔治本（line 308-318）
+
+```python
+# 儲存分析結果（Phase 56.5：契約守門 + atomic write 治本 R7/R21）
+from analyzer.data_writer import atomic_write_json, validate_summary, coerce_to_schema
+analysis_path = config.DATA_DIR / f"analysis_{datetime.now().strftime('%Y%m%d')}.json"
+ok, missing = validate_summary(daily_summary)
+if not ok:
+    logger.warning(f"  [!] daily_summary 缺契約欄位 {missing}，已用安全預設值補齊")
+    daily_summary, _ = coerce_to_schema(daily_summary)
+try:
+    atomic_write_json(analysis_path, daily_summary)
+    logger.info(f"   分析結果已儲存（atomic）: {analysis_path}")
+except Exception as e:
+    logger.error(f"  [FAIL] 寫檔失敗: {e}")
+```
+
+#### `analyzer/sentiment.py` fallback 修補（line 466-489）
+
+```python
+return {
+    "overall": {"sentiment_score": 0.95, "summary": overview, "trend": "Stable"},
+    "date": date,
+    "overview": overview,
+    "total_posts": len(analyzed_posts),    # ← Phase 56.5 新增：對齊契約
+    "sentiment_distribution": sentiments,
+    "platform_breakdown": {},
+    "global_insights": {},
+    ...
+}
+```
+
+#### 自動化測試結果（11 項 / 含 3 項 anti-regression）
+
+| # | 測試 | 結果 |
+|---|---|---|
+| T1 | validate 健康 dict | ✅ |
+| T2 | validate 缺 total_posts → 抓出 | ✅ |
+| T3 | validate 缺 overall.trend（巢狀） → 抓出 | ✅ |
+| T4 | coerce 補 total_posts=0 | ✅ |
+| T5 | coerce 補 overall.trend='Stable'（巢狀） | ✅ |
+| T6 | atomic_write 正常路徑：.tmp 不殘留 | ✅ |
+| T7 | atomic_write 失敗清 .tmp（不可序列化物件） | ✅ |
+| T8 | atomic_write 自動建父目錄 | ✅ |
+| T9 | **R21 anti-regression**：標準 fallback 修補後過契約、`total_posts==12` | ✅ |
+| T10 | **S3-R10 anti-regression**：loader 不掃 `_quarantine/`，隔離區內檔不會被當主資料載入 | ✅ |
+| T11 | **S2-R7 anti-regression**：`schema_version.json` 路徑存在、含 `total_posts` 必填 | ✅ |
+
+**累計**：11/11 全綠 + P61 既有測試（loader 10/10 + query 24/24）零回歸。
+
+#### 維運 CLI：`validate_data_dir.py`
+
+```bash
+py validate_data_dir.py              # 掃 data/，列違規檔
+py validate_data_dir.py path/to/dir  # 掃指定目錄
+py validate_data_dir.py --quiet      # 只印失敗（適合 CI）
+```
+
+退出碼：0=全部健康；1=有違規檔；2=目錄不存在。
+
+實測 2026-04-26 掃 `data/`：「健康檔 3 支 / 違規檔 0 支」。
+
+#### 治本前後對照（R7 + R21）
+
+| 風險 | 治本前症狀 | 治本機制 | 治本後驗證 |
+|---|---|---|---|
+| **R7** | `analysis_20260327.json` 0-byte | `atomic_write_json`：.tmp + fsync + os.replace；異常清 .tmp | T6/T7 通過 + 0327 已隔離留證 |
+| **R21** | `analysis_20260329.json` 缺 `total_posts` | (a) fallback 直接補 `len(analyzed_posts)` (b) coerce 兜底補 0 | T9 通過 + 0329 修復為 `total_posts=12` |
+
+#### 列管轉交清單更新（從 P61 收官的 6 項）
+
+| # | 風險 | P61 收官時處置 | P56.5 後狀態 |
+|---|---|---|---|
+| **R7** | 上游 0-byte 髒檔 | 建議另開 P56.5 治本 | ✅ **本 Phase 落地**（atomic write） |
+| R20 | render_multi_markdown 日期聯集出空 cell | SKILL.md 文件警示 | ⏳ 不在本 Phase 範圍 |
+| **R21** | overall_trend sentiment 三 key 缺失 | 建議與 R7 合併 P56.5 | ✅ **本 Phase 落地**（fallback 補欄 + coerce 兜底） |
+| R23 | LRU cache 回同 list、caller 修改污染 | SKILL.md 契約警告 | ⏳ 不在本 Phase 範圍 |
+| R24 | data 熱重載 cache 不自動失效 | SKILL.md 說明 `clear_cache()` | ⏳ 不在本 Phase 範圍 |
+| R29 | 中文 fuzzy 偶發誤命中 | SKILL.md 加 `resolved_from` 契約 | ⏳ 不在本 Phase 範圍 |
+
+#### 本 Phase 新增 / 落地風險
+
+| # | 風險 | 嚴重度 | 處置 |
+|---|---|---|---|
+| P56.5-R5 | Windows `os.replace` 在目標檔被鎖時 PermissionError | 🟡 中 | 列管：未來若實戰遇到再加 retry |
+| P56.5-R8 | `data_writer.py` 在 module load 時讀 schema 檔——若檔不存在會 import 失敗 | 🟡 中 | T11 anti-regression 守門；未來可加內嵌 fallback 契約 |
+| P56.5-R9 | `_phase56_5_repaired` 註記欄位非標準 | 🟢 低 | 已加 `_` 前綴慣例避免衝突 |
+
+#### Milestone 4 進度變動
+
+- ✅ **R7 / R21 收官**：Phase 56.5 落地
+- ⏳ R20 / R23 / R24 / R29 維持「文件警示 + 不處理」
+- M4 整體：Phase 56-59.5 全部完成 → 加 P56.5 補強 ✅
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`json` / `os` / `pathlib` / `tempfile`）
+- **狀態**：✅ Phase 56.5 收官；R7 + R21 雙治本；11/11 anti-regression 全綠；P61 既有測試（loader 10 + query 24）零回歸；維運 CLI `validate_data_dir.py` 掃 data/「健康檔 3 / 違規檔 0」。

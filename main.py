@@ -304,13 +304,18 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     except Exception as e:
         logger.error(f"  [FAIL] 語音生成失敗: {e}")
 
-    # 儲存分析結果
+    # 儲存分析結果（Phase 56.5：契約守門 + atomic write 治本 R7/R21）
+    from analyzer.data_writer import atomic_write_json, validate_summary, coerce_to_schema
     analysis_path = config.DATA_DIR / f"analysis_{datetime.now().strftime('%Y%m%d')}.json"
-    analysis_path.write_text(
-        json.dumps(daily_summary, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    logger.info(f"   分析結果已儲存: {analysis_path}")
+    ok, missing = validate_summary(daily_summary)
+    if not ok:
+        logger.warning(f"  [!] daily_summary 缺契約欄位 {missing}，已用安全預設值補齊")
+        daily_summary, _ = coerce_to_schema(daily_summary)
+    try:
+        atomic_write_json(analysis_path, daily_summary)
+        logger.info(f"   分析結果已儲存（atomic）: {analysis_path}")
+    except Exception as e:
+        logger.error(f"  [FAIL] 寫檔失敗: {e}")
 
     # ── Step 3：產出報告 ──────────────────────────────
     logger.info(" Step 3/4: 產出視覺化報告...")

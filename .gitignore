@@ -24,6 +24,8 @@ env/
 # Data & Logs
 data/*
 !data/reports/
+!data/_quarantine/
+data/_quarantine/*.json
 data/aov_monitor.db
 logs/*.log
 

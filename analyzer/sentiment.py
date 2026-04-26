@@ -471,6 +471,7 @@ class SentimentAnalyzer:
             },
             "date": date,
             "overview": overview,
+            "total_posts": len(analyzed_posts),
             "sentiment_distribution": sentiments,
             "platform_breakdown": {},
             "global_insights": {},
