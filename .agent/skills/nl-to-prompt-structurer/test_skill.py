@@ -21,6 +21,12 @@ from scripts.intent_extractor import (
     extract_format,
     extract_task,
 )
+from scripts.structurer import (
+    PromptStructurer,
+    _dedupe_overlap,
+    _escape_slot,
+    _infer_role,
+)
 
 
 _RESULTS = []
@@ -209,9 +215,120 @@ def t_dict_size_s2_expanded() -> None:
     _check("T21 keyword_dict S2 擴充至 ≥30 詞/類（解 P62-R2）", cond, f"sizes={sizes}")
 
 
+# ============================================================
+# Phase 62 S3 主類別測試（10 項，T22-T31）
+# ============================================================
+
+
+def t_structurer_zh_full() -> None:
+    s = PromptStructurer()
+    md = s.structure("用 markdown 整理今天戰報，300 字以內")
+    cond = (
+        "## 角色 (Role)" in md
+        and "資料整理員" in md  # role 由 "整理" 推斷
+        and "## 任務 (Task)" in md
+        and "整理今天戰報" in md
+        and "## 限制 (Constraints)" in md
+        and "字以內" in md
+        and "## 輸出格式 (Output Format)" in md
+        and "markdown" in md
+    )
+    _check("T22 PromptStructurer 中文端到端（五段全填、role 自動推斷）", cond, "" if cond else md)
+
+
+def t_structurer_en_full() -> None:
+    s = PromptStructurer()
+    md = s.structure("translate the report into Chinese within 200 words")
+    cond = (
+        "## Role" in md
+        and "Translator" in md
+        and "## Task" in md
+        and "translate" in md.lower()
+        and "## Constraints" in md
+    )
+    _check("T23 PromptStructurer 英文端到端（role=Translator）", cond, "" if cond else md)
+
+
+def t_structurer_lang_override() -> None:
+    s = PromptStructurer()
+    md = s.structure("整理今天戰報", lang="en")
+    cond = "## Role" in md and "## Task" in md  # 強制英文標頭
+    _check("T24 lang 覆寫：中文輸入強制英文模板", cond)
+
+
+def t_structurer_role_override() -> None:
+    s = PromptStructurer()
+    md = s.structure("整理今天戰報", role="戰情室分析師")
+    cond = "戰情室分析師" in md and "資料整理員" not in md
+    _check("T25 role 覆寫優先於推斷", cond)
+
+
+def t_role_inference_translate() -> None:
+    _check("T26 role_inference '翻譯' → '譯者'",
+           _infer_role("翻譯", "zh") == "譯者")
+
+
+def t_structurer_lite_mode() -> None:
+    s = PromptStructurer()
+    md = s.structure("用表格整理戰報", mode="lite")
+    cond = (
+        "## 任務 (Task)" in md
+        and "## 輸出格式 (Output Format)" in md
+        and "## 角色 (Role)" not in md  # lite 不含
+        and "## 背景 (Context)" not in md
+        and "## 限制 (Constraints)" not in md
+        and "表格" in md
+    )
+    _check("T27 mode='lite' 只含 task + output_format 兩段", cond)
+
+
+def t_escape_slot_heading() -> None:
+    """解 S1 P62-R5：slot 含偽 heading 應 escape。"""
+    raw = "段落一\n## 偽 Heading\n段落二"
+    out = _escape_slot(raw)
+    # 行首 ## 應被換成 \## ；用換行 + \## 確認在「行首」位置
+    cond = "\n\\## " in out and "段落一" in out and "段落二" in out
+    _check("T28 _escape_slot 行首 ## 跳脫（解 R5）", cond, f"got={out!r}")
+
+
+def t_dedupe_overlap_constraints() -> None:
+    """解 S2 P62-R7：constraints overlap dedupe。"""
+    items = ["字以內", "個字以內", "必須"]  # "字以內" 是 "個字以內" substring
+    out = _dedupe_overlap(items)
+    cond = "字以內" not in out and "個字以內" in out and "必須" in out
+    _check("T29 _dedupe_overlap 去除被 superstring 涵蓋的短項（解 R7）", cond, f"got={out}")
+
+
+def t_structurer_empty_input() -> None:
+    s = PromptStructurer()
+    md = s.structure("")
+    cond = (
+        "## 角色 (Role)" in md
+        and "通用助理" in md  # 預設角色
+        and "（未指定）" in md  # 任務空白
+    )
+    _check("T30 空輸入端到端 → 五段骨架 + 預設角色 + 未指定", cond)
+
+
+def t_structurer_multiline_safety() -> None:
+    """多行輸入 + 含 markdown 元字元 → 結構不被破壞。"""
+    s = PromptStructurer()
+    text = "整理戰報\n## 注意事項\n- 第一點\n- 第二點"
+    md = s.structure(text)
+    # 五段全在、且使用者輸入中的 ## 已被 escape
+    cond = (
+        md.count("## 角色 (Role)") == 1
+        and md.count("## 任務 (Task)") == 1
+        and md.count("## 限制 (Constraints)") == 1
+        and md.count("## 輸出格式 (Output Format)") == 1
+        and "\\## 注意事項" in md  # escape 生效
+    )
+    _check("T31 多行輸入含 ## → 五段結構不破壞 + escape 生效", cond, "" if cond else md)
+
+
 def main() -> int:
     print("=" * 60)
-    print("Phase 62 S1 地基 + S2 抽取核心測試")
+    print("Phase 62 S1 地基 + S2 抽取核心 + S3 主類別測試")
     print("=" * 60)
 
     for fn in (
@@ -238,6 +355,17 @@ def main() -> int:
         t_extract_all_en_combo,
         t_extract_empty_input,
         t_dict_size_s2_expanded,
+        # S3
+        t_structurer_zh_full,
+        t_structurer_en_full,
+        t_structurer_lang_override,
+        t_structurer_role_override,
+        t_role_inference_translate,
+        t_structurer_lite_mode,
+        t_escape_slot_heading,
+        t_dedupe_overlap_constraints,
+        t_structurer_empty_input,
+        t_structurer_multiline_safety,
     ):
         fn()
 

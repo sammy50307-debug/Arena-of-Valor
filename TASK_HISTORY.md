@@ -3735,3 +3735,171 @@ S2 首跑 19/21，兩失敗實為測試句設計缺陷（非邏輯 bug）：
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`json` / `pathlib`）
 - **狀態**：✅ Phase 62 Stage 2 完成；intent_extractor 三類抽取上線、字典 v0.2 解 R2；21/21 全綠（S1 10 + S2 11）；S3~S4 各為獨立斷點。
+
+---
+
+### 🎯 Phase 62 — Stage 3 主類別 + Slash：PromptStructurer + /prompt + R5/R7 落地 (NL-to-Prompt Structurer / Milestone 5)
+
+- **目標**：把 S1 地基 + S2 抽取核心串成端到端 `PromptStructurer.structure()`，順手落地 S1 R5（escape）+ S2 R7（dedupe overlap）+ S1 R3（role_inference）三項風險；介面層上架 `/prompt` slash command。
+- **觸發背景**：S2 收官時主公授權 push（commit `3a83f95`）並裁示續行 S3。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 任務段填什麼 | 抽出的 verb | **整段原始 text（escape 後）** | **整段原始 text** | verb 太精煉、丟脈絡；原文最忠實 |
+| escape 範圍 | 全 markdown 元字元 | **僅行首 `#` heading** | **僅行首 `#`** | 過度 escape 破壞 caller 故意輸入的格式；只擋會破壞五段式骨架者 |
+| escape 演算法 | str.replace | **regex `(^|\n)(#+)\s` 替換** | **regex** | 正確處理「文中 `##` 不影響、行首 `## ` 才換」 |
+| dedupe 方向 | 保短刪長 | **保長刪短** | **保長刪短** | 「個字以內」資訊量 > 「字以內」；長者通常更精確 |
+| role 推斷時機 | 推 S2 | **S3 結合 task_verb 出口** | **S3** | 推斷邏輯與 prompt 組裝同層；S2 只專注抽取 |
+| role 對照表規模 | 廣全收 | **動詞家族 8 類** | **8 類** | 翻譯/寫/分析/整理/查詢/策略/說明/推薦——覆蓋常見 prompt 指令 |
+| 預設角色 | 留空 | **通用助理 / Generalist Assistant** | **填預設** | 對齊 S1 templates 的 _DEFAULTS |
+| mode='lite' 範圍 | task only | **task + output_format** | **task + output_format** | 計畫書 R5 預備處置；輸出格式對下游接收方很關鍵 |
+| constraints 段渲染 | 串成單行 | **bullet list（每項一行）** | **bullet list** | 多重限制清單呈現更清楚 |
+| Slash 實作 | 包 CLI script | **inline `py -c`** | **inline `py -c`** | 與 P61 `/trend` 同款慣例；零額外 CLI 維護 |
+
+#### 檔案變動
+
+```
+.agent/skills/nl-to-prompt-structurer/
+├── SKILL.md                    ← 升 v0.3-S3：加介面節 + 防護表 + role 對照表
+├── scripts/
+│   └── structurer.py           ← 新檔 ~145 行
+└── test_skill.py               ← 加 T22~T31（10 項）
+
+.claude/commands/
+└── prompt.md                   ← 新檔，/prompt slash 上架
+```
+
+#### `structurer.py` 公開 API
+
+```python
+class PromptStructurer:
+    def __init__(self, lang: Optional[str] = None) -> None: ...
+
+    def structure(
+        self,
+        text: str,
+        lang: Optional[str] = None,
+        role: Optional[str] = None,
+        mode: str = "full",  # 'full' | 'lite'
+        context: Optional[str] = None,
+    ) -> str:
+        """自然語言 → 五段式 Markdown prompt（純規則式，零 LLM）。"""
+```
+
+#### 三項風險落地實作
+
+##### S1 R5 — `_escape_slot`（行首 heading 跳脫）
+
+```python
+import re
+
+def _escape_slot(value: str) -> str:
+    if not value:
+        return value
+    return re.sub(r"(^|\n)(#+)\s", lambda m: f"{m.group(1)}\\{m.group(2)} ", value)
+```
+
+策略：僅 escape **行首** `# ` / `## ` 等 markdown heading 標記，文中（非行首）的 `##` 不動。  
+驗收：T28 多行輸入 `"段落一\n## 偽 Heading\n段落二"` → escape 為 `"段落一\n\\## 偽 Heading\n段落二"`，五段式骨架不被使用者輸入劫持。
+
+##### S2 R7 — `_dedupe_overlap`（substring 涵蓋去重）
+
+```python
+def _dedupe_overlap(items: List[str]) -> List[str]:
+    keep: List[str] = []
+    for x in items:
+        if any((x in k) and (x != k) for k in keep):
+            continue  # x 被既有 keep 中某項涵蓋 → 跳過
+        keep = [k for k in keep if not ((k in x) and (k != x))]  # x 涵蓋既有 → 移除舊
+        keep.append(x)
+    return keep
+```
+
+驗收：T29 輸入 `["字以內", "個字以內", "必須"]` → 輸出 `["個字以內", "必須"]`（保長刪短）。
+
+##### S1 R3 — `_infer_role`（task_verb → 角色映射）
+
+8 類動詞家族對照表，未命中 fallback 預設角色：
+
+| 家族 | zh 觸發詞 | en 觸發詞 | 推為 |
+|---|---|---|---|
+| 譯 | 翻譯 | translate | 譯者 / Translator |
+| 寫 | 撰寫 / 寫 / 改寫 / 重寫 / 潤飾 / 校對 | write / rewrite / polish / proofread / edit | 寫手 / Writer |
+| 析 | 分析 / 評估 / 比較 / 對比 | analyze / analyse / evaluate / assess / compare | 分析師 / Analyst |
+| 整 | 整理 / 歸納 / 排序 | summarize / summarise / outline | 資料整理員 / Summarizer |
+| 查 | 查詢 / 查 / 找 / 找出 / 搜尋 | query / find / search / extract | 情報員 / Researcher |
+| 策 | 規劃 / 設計 / 預測 | plan / design / predict | 策略顧問 / Strategist |
+| 釋 | 解釋 / 說明 / 回答 / 回覆 | explain / describe / answer | 說明員 / Explainer |
+| 薦 | 推薦 / 建議 | recommend / suggest | 推薦顧問 / Advisor |
+
+驗收：T26 `_infer_role("翻譯", "zh") == "譯者"` ✓
+
+#### `/prompt` slash command
+
+`.claude/commands/prompt.md` 上架，沿用 P61 `/trend` 慣例：
+- frontmatter 含 `description` / `allowed-tools` / `argument-hint`
+- 內文示範 inline `py -c` 呼叫法
+- 標明 skill 啟動標記鐵律
+
+驗收：實機 `py -c "from scripts.structurer import PromptStructurer; print(...)"` 端到端輸出五段式 markdown 正常。
+
+#### 自動化測試結果（S3 新增 10 項，T22~T31）
+
+| # | 測試 | 結果 |
+|---|---|---|
+| T22 | PromptStructurer 中文端到端（五段全填、role 自動推「資料整理員」） | ✅ |
+| T23 | PromptStructurer 英文端到端（role=Translator） | ✅ |
+| T24 | `lang` 覆寫：中文輸入強制英文模板 | ✅ |
+| T25 | `role` 覆寫優先於推斷 | ✅ |
+| T26 | `_infer_role("翻譯", "zh") == "譯者"` | ✅ |
+| T27 | `mode='lite'` 只含 task + output_format 兩段 | ✅ |
+| T28 | `_escape_slot` 行首 `##` 跳脫（解 R5） | ✅ |
+| T29 | `_dedupe_overlap` 保長刪短（解 R7） | ✅ |
+| T30 | 空輸入端到端 → 五段骨架 + 預設角色 + 未指定 | ✅ |
+| T31 | 多行輸入含 `##` → 五段結構不破壞 + escape 生效 | ✅ |
+
+**累計**：31/31 全綠（S1 10 + S2 11 + S3 10）。零外部相依、純標準庫。
+
+#### 測試踩雷修補（無損存檔）
+
+T28 首跑失敗：負面斷言 `"## 偽" not in out` 誤判（escape 後字串 `\## 偽` 仍含 `## 偽` 子串）。改為正面斷言 `"\n\\## " in out`（檢查行首位置 escape 形式存在），符合實際語意。
+
+#### 斷點檢驗報告
+
+##### 一、檢驗完整度
+
+| 面向 | 狀態 | 憑據 |
+|---|---|---|
+| 功能正確性 | ✅ | T22-T31 全綠（端到端 + 三項風險落地） |
+| 契約完整性 | ✅ | `structure()` 五個參數全 type-hinted、`_infer_role` 等 helper 公開以利測試 |
+| 錯誤可觀測性 | ✅ | 空輸入 T30 不 raise；無效 lang fallback zh（沿用 S1） |
+| 彈性設計 | ✅ | lang/role/mode/context 四維覆寫；mode='lite' 提供精簡輸出 |
+| 風險落地 | ✅ | S1 R3/R5 + S2 R7 三項落地；剩 S2 R6（單字詞誤命中）走文件警示 |
+| Slash 介面 | ✅ | `/prompt` 已被 Claude Code 偵測（slash 清單含 `prompt`）、實機端到端通過 |
+
+##### 二、潛在風險盤點（S3 收官時）
+
+| # | 風險 | 嚴重度 | 建議處置時機 |
+|---|---|---|---|
+| **P62-R11** | `_infer_role` 對照表為硬編 dict，新增動詞家族需動程式碼 | 🟢 低 | 未來可外移至 `resources/role_map.json`（v0.4 重構候選） |
+| **P62-R12** | `mode='lite'` 走 `_render_lite` 分叉路徑，未走主 `render_skeleton`，未來 templates 變動需雙處同步 | 🟡 中 | 文件警示；或 v0.4 重構 templates 支援 `sections=[...]` 參數 |
+| **P62-R13** | `_escape_slot` 只擋行首 heading，未擋 `> blockquote` / 反引號圍欄 / 表格分隔 `|---|` | 🟢 低 | 實戰若遇再補；當前只有 heading 會搶五段式骨架 |
+| **P62-R14** | constraints 段一律走 bullet list，若只 1 條也是 `- xxx`，視覺多餘 | 🟢 低 | 文件警示即可 |
+| **P62-R15** | `/prompt` slash 內部用 inline `py -c "..."`，若 text 含單引號或換行會破壞命令列 | 🟡 中 | **S4 開工時需處理**；建議建 `cli.py` 接 stdin 或 base64 包裝 |
+
+**綜合結論**：S3 通過斷點驗收。三項預定落地風險全做掉。S4 開工前最需留意：
+1. **R15（S3 新增）**：`/prompt` 含特殊字元的 caller 場景需要 robust 入口（建議 S4 順手抽 `cli.py`）
+2. **R12（S3 新增）**：`mode='lite'` 雙路徑同步問題（不急，列管即可）
+
+#### Milestone 5 進度變動
+
+- ✅ Phase 62 S1 + S2 + S3 完成
+- ⏳ S4 query router（NL → P61 `hero_trend` 等呼叫）→ 等主公拍板續行
+- ✅ 累計風險落地：S1 R2 / S1 R3 / S1 R5 / S2 R7 共 4 項
+- ⏳ 列管：S2 R6/R8/R9/R10 + S3 R11~R15
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`json` / `pathlib` / `re`）
+- **狀態**：✅ Phase 62 Stage 3 完成；PromptStructurer 主類別 + `/prompt` slash 雙落地；31/31 全綠；R3/R5/R7 三項風險落地；S4 為獨立斷點。
