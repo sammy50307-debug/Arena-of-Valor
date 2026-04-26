@@ -45,7 +45,7 @@ jobs:
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GITHUB_PAGES_URL: ${{ secrets.GITHUB_PAGES_URL }}
+          GITHUB_PAGES_URL: ${{ secrets.PAGES_URL }}
         # 執行主程式的 --run-now 模式，這會觸發：搜集 → 分析 → 報告 → 推播 → 備份 Push
         run: |
           python main.py --run-now
