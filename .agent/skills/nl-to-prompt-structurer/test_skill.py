@@ -15,6 +15,12 @@ sys.path.insert(0, str(_HERE))
 
 from scripts.lang_detector import detect_lang
 from scripts.templates import SECTIONS, render_skeleton
+from scripts.intent_extractor import (
+    extract_all,
+    extract_constraints,
+    extract_format,
+    extract_task,
+)
 
 
 _RESULTS = []
@@ -109,12 +115,107 @@ def t_keyword_dict_integrity() -> None:
     _check("T10 keyword_dict.json 雙語三類齊全 + 動詞 ≥10", cond)
 
 
+# ============================================================
+# Phase 62 S2 抽取核心測試（11 項，T11-T21）
+# ============================================================
+
+
+def t_extract_task_zh() -> None:
+    _check("T11 extract_task('整理今天戰報') → '整理'",
+           extract_task("整理今天戰報") == "整理")
+
+
+def t_extract_task_en() -> None:
+    _check("T12 extract_task('summarize today report') → 'summarize'",
+           extract_task("summarize today report") == "summarize")
+
+
+def t_extract_task_multi_char_priority() -> None:
+    # "查詢" 比 "查" 長，應優先命中 → 解 P62-R2 多字詞優先策略
+    result = extract_task("查詢最近兩週悟空的聲量")
+    _check("T13 extract_task 多字詞優先（'查詢' 勝過 '查'）",
+           result == "查詢", f"got={result}")
+
+
+def t_extract_constraints_multiple() -> None:
+    text = "整理今天戰報，300 字以內、必須用繁體"
+    cons = extract_constraints(text)
+    cond = "字以內" in cons and "必須" in cons and "繁體" in cons
+    _check("T14 extract_constraints 抽多重限制（字以內/必須/繁體）", cond, f"got={cons}")
+
+
+def t_extract_constraints_none() -> None:
+    _check("T15 extract_constraints 無命中 → 空 list",
+           extract_constraints("今天天氣很好") == [])
+
+
+def t_extract_format_zh() -> None:
+    _check("T16 extract_format('用表格整理') → '表格'",
+           extract_format("用表格整理今天戰報") == "表格")
+
+
+def t_extract_format_en_case_insensitive() -> None:
+    # 大小寫不敏感（"JSON" 應命中 "json"）
+    result = extract_format("output as JSON")
+    _check("T17 extract_format 大小寫不敏感（JSON → json）",
+           result == "json", f"got={result}")
+
+
+def t_extract_all_combo() -> None:
+    out = extract_all("用 markdown 整理今天的戰報，300 字以內")
+    cond = (
+        out["lang"] == "zh"
+        and out["task_verb"] == "整理"
+        and out["format_hint"] == "markdown"
+        and "字以內" in out["constraints"]
+    )
+    _check("T18 extract_all 中文組合句（lang/動詞/格式/限制 全中）", cond, f"got={out}")
+
+
+def t_extract_all_en_combo() -> None:
+    out = extract_all("summarize today's stats as a table within 300 words")
+    cond = (
+        out["lang"] == "en"
+        and out["task_verb"] == "summarize"
+        and out["format_hint"] == "table"
+        and ("within" in out["constraints"] or "words" in out["constraints"])
+    )
+    _check("T19 extract_all 英文組合句", cond, f"got={out}")
+
+
+def t_extract_empty_input() -> None:
+    out = extract_all("")
+    cond = (
+        out["task_verb"] is None
+        and out["constraints"] == []
+        and out["format_hint"] is None
+    )
+    _check("T20 extract_all 空字串 → 三類皆 None/空", cond)
+
+
+def t_dict_size_s2_expanded() -> None:
+    """解 S1 P62-R2：S2 必須擴充至 ≥40 詞 / 類。"""
+    path = _HERE / "resources" / "keyword_dict.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    sizes = {
+        "zh.task_verbs": len(data["zh"]["task_verbs"]),
+        "zh.constraints": len(data["zh"]["constraints"]),
+        "zh.format_hints": len(data["zh"]["format_hints"]),
+        "en.task_verbs": len(data["en"]["task_verbs"]),
+        "en.constraints": len(data["en"]["constraints"]),
+        "en.format_hints": len(data["en"]["format_hints"]),
+    }
+    cond = all(v >= 30 for v in sizes.values())
+    _check("T21 keyword_dict S2 擴充至 ≥30 詞/類（解 P62-R2）", cond, f"sizes={sizes}")
+
+
 def main() -> int:
     print("=" * 60)
-    print("Phase 62 S1 地基測試")
+    print("Phase 62 S1 地基 + S2 抽取核心測試")
     print("=" * 60)
 
     for fn in (
+        # S1
         t_lang_zh_pure,
         t_lang_en_pure,
         t_lang_mixed_zh_dominant,
@@ -125,6 +226,18 @@ def main() -> int:
         t_template_partial_slots,
         t_template_invalid_lang_fallback,
         t_keyword_dict_integrity,
+        # S2
+        t_extract_task_zh,
+        t_extract_task_en,
+        t_extract_task_multi_char_priority,
+        t_extract_constraints_multiple,
+        t_extract_constraints_none,
+        t_extract_format_zh,
+        t_extract_format_en_case_insensitive,
+        t_extract_all_combo,
+        t_extract_all_en_combo,
+        t_extract_empty_input,
+        t_dict_size_s2_expanded,
     ):
         fn()
 

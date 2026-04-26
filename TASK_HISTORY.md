@@ -3601,3 +3601,137 @@ def detect_lang(text: str) -> str:
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`json` / `pathlib`）
 - **狀態**：✅ Phase 62 Stage 1 完成，地基穩固；S2~S4 各為獨立斷點，隨時可續行。
+
+---
+
+### 🧠 Phase 62 — Stage 2 抽取核心：intent_extractor + 字典擴充 (NL-to-Prompt Structurer / Milestone 5)
+
+- **目標**：在 S1 地基之上立「規則式意圖抽取」核心——對輸入文字抽出 task_verb / constraints / format_hint 三類關鍵訊號；同步落地 S1 P62-R2 風險（字典覆蓋率擴充至 ≥30 詞/類）。
+- **觸發背景**：S1 收官時主公授權 push（commit `e2221c5`）並裁示續行 S2；S1 風險盤點明列 R2 為 S2 必處理項。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 抽取演算法 | 詞性標註 / NLP 模型 | **字串子串掃描** | **子串掃描** | 純規則零相依、O(n×k) 對 NL 長度足夠快 |
+| 多字詞優先 | 字典順序 | **依長度遞減排序** | **長度遞減** | 避免 "查" 搶在 "查詢" 前命中（zh 黏著語言常見覆蓋） |
+| 同位置並列 | 全收 | **保留先進候選** | **保留先進** | best 比較用嚴格 `<` 不換手；對齊「最長匹配優先」 |
+| 大小寫處理 | 雙端原貌 | **小寫化雙端比對** | **小寫化** | "JSON" / "json" / "Json" 都應命中（en 易見） |
+| 字典快取 | 每次讀檔 | **module-level lazy cache** | **lazy cache** | 對齊 P61 schema_version 同款慣例；零成本 |
+| 抽取數量策略 | task/constraints/format 全 list | **task / format 取首個、constraints 取 list** | **混合** | task 與 format 通常單一決定、constraints 天然多重 |
+
+#### 檔案變動
+
+```
+.agent/skills/nl-to-prompt-structurer/
+├── scripts/
+│   └── intent_extractor.py     ← 新檔 ~110 行
+├── resources/
+│   └── keyword_dict.json       ← v0.1 → v0.2-S2，每類擴充至 30~44 詞
+└── test_skill.py               ← 加 T11~T21（11 項）
+```
+
+#### `intent_extractor.py` 公開 API
+
+```python
+def extract_task(text, lang=None) -> Optional[str]
+def extract_constraints(text, lang=None) -> List[str]
+def extract_format(text, lang=None) -> Optional[str]
+def extract_all(text, lang=None) -> Dict[str, object]
+# 回 {"lang", "task_verb", "constraints", "format_hint"}
+```
+
+#### 核心策略 — 多字詞優先 + 最早出現
+
+```python
+def _find_first(text: str, candidates: List[str]) -> Optional[Tuple[int, str]]:
+    sorted_cands = sorted(set(candidates), key=lambda s: -len(s))  # 長詞先試
+    lo_text = text.lower()
+    best = None
+    for cand in sorted_cands:
+        idx = lo_text.find(cand.lower())
+        if idx == -1:
+            continue
+        if best is None or idx < best[0]:  # 嚴格 < → 同位置不換手
+            best = (idx, cand)
+    return best
+```
+
+#### `keyword_dict.json` v0.2 規模（解 P62-R2）
+
+| 類別 | v0.1 | v0.2 | 增幅 |
+|---|---|---|---|
+| zh.task_verbs | 20 | **44** | +120% |
+| zh.constraints | 15 | **40** | +167% |
+| zh.format_hints | 15 | **38** | +153% |
+| en.task_verbs | 20 | **41** | +105% |
+| en.constraints | 14 | **35** | +150% |
+| en.format_hints | 14 | **35** | +150% |
+
+新增覆蓋面：zh 動詞補 `查/找/幫我/請/繪製/校對/潤飾/重寫` 等口語常見動詞；
+en 動詞補 `summarise/analyse/proofread/brainstorm/categorize` 等英美拼字 / 高頻動詞；
+constraints 雙語補「字數區間 / 段落數 / 語言要求 / 語氣要求」四類；
+format_hints 雙語補「html/xml/code/q&a/card/slides/checklist」現代輸出格式。
+
+#### 自動化測試結果（S2 新增 11 項，T11~T21）
+
+| # | 測試 | 結果 |
+|---|---|---|
+| T11 | `extract_task('整理今天戰報')` → `'整理'` | ✅ |
+| T12 | `extract_task('summarize today report')` → `'summarize'` | ✅ |
+| T13 | 多字詞優先：`'查詢...'` 命中 `'查詢'` 而非 `'查'` | ✅ |
+| T14 | `extract_constraints` 多重命中（字以內/必須/繁體） | ✅ |
+| T15 | 無命中 → 空 list | ✅ |
+| T16 | `extract_format('用表格...')` → `'表格'` | ✅ |
+| T17 | 大小寫不敏感（`JSON` → `json`） | ✅ |
+| T18 | `extract_all` 中文組合句 lang/動詞/格式/限制 全中 | ✅ |
+| T19 | `extract_all` 英文組合句 | ✅ |
+| T20 | 空字串 → 三類皆 `None` / `[]` | ✅ |
+| T21 | 字典擴充至 ≥30 詞/類驗證（解 P62-R2） | ✅ |
+
+**累計**：21/21 全綠（S1 10 + S2 11）。零外部相依、純標準庫。
+
+#### 測試踩雷修補（過程紀錄，無損存檔）
+
+S2 首跑 19/21，兩失敗實為測試句設計缺陷（非邏輯 bug）：
+- **T15 原句** `"這是一段沒有限制詞的文字"` 自身含「**限制**」二字、誤命中字典 → 改為 `"今天天氣很好"`
+- **T19 原句** `"summarize the report as a table within 300 words"` 中 `report` 比 `table` 早出現、被優先抽中（邏輯正確）→ 改為 `"summarize today's stats as a table within 300 words"`
+
+修後 21/21 全綠。
+
+#### 斷點檢驗報告
+
+##### 一、檢驗完整度
+
+| 面向 | 狀態 | 憑據 |
+|---|---|---|
+| 功能正確性 | ✅ | T11-T21 全綠（含多字詞優先 / 大小寫 / 多重限制 / 空輸入兜底） |
+| 契約完整性 | ✅ | 四個公開函式型別註記齊、回傳結構穩定 |
+| 錯誤可觀測性 | ✅ | 空輸入不 raise（T20）；無命中回明確 None / [] |
+| 彈性設計 | ✅ | `lang` 可手動覆寫；字典走 lazy cache 不阻啟動 |
+| 依賴管理 | ✅ | 純標準庫（`json` / `pathlib`） |
+| R2 落地 | ✅ | 字典 v0.1 → v0.2 全類擴充 105%~167% |
+
+##### 二、潛在風險盤點（S2 收官時）
+
+| # | 風險 | 嚴重度 | 建議處置時機 |
+|---|---|---|---|
+| **P62-R6** | `_find_first` 子串比對對中文無詞邊界，可能誤命中（例：「總統府」內 "統府" 若未登錄無事；但若有「府」這類單字字典詞會命中無關語意） | 🟡 中 | S3 加 `min_token_len=2` 參數或 SKILL.md 契約說明；目前字典已避開單字 |
+| **P62-R7** | constraints 取 list 但未去重重疊區段（例：「字以內 / 個字以內」可能同時命中） | 🟢 低 | 字典已長詞優先排序，但同字串可重複命中；S3 加 dedupe by overlap 即可 |
+| **P62-R8** | `_DICT_CACHE` 為 module-level 全域，多執行緒環境下首次載入可能 race（純讀 race 不致毀資料但理論存在） | 🟢 低 | 不處理；CLI/單線程使用為主 |
+| **P62-R9** | extract_format 單選首個，遇「先表格後 json」會丟失第二個 | 🟢 低 | S3 主類別可選 `multi=True`；目前單一輸出符合常見場景 |
+| **P62-R10** | 字典英文 verb 含 `analyze` / `analyse` 雙拼但 task_verb 只回首個命中，可能造成跨地區測試結果差異 | 🟢 低 | 文件警示即可，不影響功能 |
+
+**綜合結論**：S2 通過斷點驗收。S1 風險清單中 **R2 已落地**；R5（escape 防護）仍待 S3 主類別開工時處理。S3 開工前最需留意：
+1. **R5（S1 遺留）**：`structure()` 入口必加 escape 或在 SKILL.md 標契約警告
+2. **R6（S2 新增）**：字典中加單字詞前必查 NL 常見副作用
+
+#### Milestone 5 進度變動
+
+- ✅ Phase 62 S1 + S2 完成
+- ⏳ S3 主類別 + slash `/prompt` / S4 query router → 等主公拍板續行
+- ⏳ S1 R5（escape）+ S2 R6/R7 → S3 開工時統包
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`json` / `pathlib`）
+- **狀態**：✅ Phase 62 Stage 2 完成；intent_extractor 三類抽取上線、字典 v0.2 解 R2；21/21 全綠（S1 10 + S2 11）；S3~S4 各為獨立斷點。

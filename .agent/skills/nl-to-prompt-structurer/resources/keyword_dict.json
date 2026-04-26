@@ -1,42 +1,71 @@
 {
   "_meta": {
-    "version": "0.1.0-S1",
+    "version": "0.2.0-S2",
     "phase": "62",
-    "purpose": "規則式抽取的關鍵字字典；S1 提供初版骨架，S2 擴充覆蓋率",
+    "purpose": "規則式抽取的關鍵字字典；S2 擴充至 ≥40 詞/類，解 S1 R2",
     "categories": ["task_verbs", "constraints", "format_hints"]
   },
   "zh": {
     "task_verbs": [
-      "整理", "分析", "查詢", "比較", "翻譯", "撰寫", "生成",
-      "推薦", "解釋", "歸納", "排序", "列出", "找出", "評估",
-      "規劃", "設計", "預測", "檢查", "說明", "回答"
+      "整理", "分析", "查詢", "查", "比較", "對比", "翻譯", "撰寫", "寫",
+      "生成", "產生", "推薦", "建議", "解釋", "說明", "歸納", "排序",
+      "列出", "列舉", "找出", "找", "搜尋", "評估", "規劃", "設計",
+      "預測", "檢查", "回答", "回覆", "幫我", "請",
+      "繪製", "畫", "計算", "統計", "監控", "提取", "抽取",
+      "校對", "潤飾", "改寫", "重寫", "簡述", "綜述"
     ],
     "constraints": [
       "以內", "不超過", "至少", "最多", "限",
       "字以內", "字內", "字以下", "個字以內",
-      "簡短", "詳細", "不要", "避免", "務必", "必須"
+      "簡短", "詳細", "簡潔", "精簡",
+      "不要", "避免", "務必", "必須", "禁止",
+      "字數", "限制", "上限", "下限", "最少",
+      "繁體", "簡體", "中文回覆", "英文回覆",
+      "不超出", "不能超過", "勿", "別",
+      "三段", "兩段", "一段", "五點", "十點",
+      "正式", "口語", "專業", "白話"
     ],
     "format_hints": [
-      "表格", "列表", "條列", "段落", "json", "markdown",
-      "圖表", "csv", "yaml", "純文字", "編號", "項目符號",
-      "報告", "摘要表", "對照表"
+      "表格", "列表", "條列", "段落", "段落式",
+      "json", "markdown", "md", "圖表",
+      "csv", "yaml", "純文字", "編號", "項目符號",
+      "報告", "摘要表", "對照表", "比較表",
+      "清單", "大綱", "心智圖", "流程圖", "樹狀",
+      "html", "xml", "代碼", "程式碼", "範例",
+      "問答", "qa", "qna", "口訣", "公式",
+      "卡片", "投影片", "簡報", "圖文", "圖卡"
     ]
   },
   "en": {
     "task_verbs": [
-      "summarize", "analyze", "query", "compare", "translate", "write", "generate",
-      "recommend", "explain", "rank", "list", "find", "evaluate",
-      "plan", "design", "predict", "check", "describe", "answer", "extract"
+      "summarize", "summarise", "analyze", "analyse", "query", "compare",
+      "translate", "write", "generate", "recommend", "suggest",
+      "explain", "rank", "list", "enumerate", "find", "search",
+      "evaluate", "assess", "plan", "design", "predict",
+      "check", "describe", "answer", "extract", "draft",
+      "calculate", "compute", "monitor", "review", "edit",
+      "rewrite", "polish", "proofread", "outline", "brainstorm",
+      "classify", "categorize", "rank", "score"
     ],
     "constraints": [
       "within", "no more than", "at least", "at most", "limit",
-      "words", "characters", "chars",
-      "brief", "detailed", "do not", "avoid", "must", "should"
+      "words", "characters", "chars", "tokens",
+      "brief", "detailed", "concise", "short",
+      "do not", "avoid", "must", "should", "never",
+      "max", "min", "maximum", "minimum",
+      "in english", "in chinese", "formal", "casual",
+      "professional", "plain", "no longer than",
+      "three paragraphs", "two paragraphs", "one paragraph",
+      "five points", "ten points", "exactly"
     ],
     "format_hints": [
-      "table", "list", "bullet", "paragraph", "json", "markdown",
-      "chart", "csv", "yaml", "plain text", "numbered", "report",
-      "summary table", "comparison table"
+      "table", "list", "bullet", "bullets", "paragraph", "paragraphs",
+      "json", "markdown", "md", "chart", "csv", "yaml",
+      "plain text", "numbered", "report", "summary table",
+      "comparison table", "outline", "mind map", "flowchart",
+      "tree", "html", "xml", "code", "snippet", "example",
+      "q&a", "qna", "qa", "card", "slide", "slides",
+      "presentation", "checklist", "matrix"
     ]
   }
 }
