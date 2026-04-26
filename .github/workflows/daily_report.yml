@@ -9,7 +9,7 @@ on:
 
 jobs:
   run-pipeline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     # 賦予 GitHub Actions 推送 Commit 的權限 (讓 hot-deployer 生效)
     permissions:
