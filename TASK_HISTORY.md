@@ -3464,3 +3464,140 @@ py validate_data_dir.py --quiet      # 只印失敗（適合 CI）
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`json` / `os` / `pathlib` / `tempfile`）
 - **狀態**：✅ Phase 56.5 收官；R7 + R21 雙治本；11/11 anti-regression 全綠；P61 既有測試（loader 10 + query 24）零回歸；維運 CLI `validate_data_dir.py` 掃 data/「健康檔 3 / 違規檔 0」。
+
+---
+
+### 🌱 Phase 62 — Stage 1 地基：lang_detector + templates + keyword_dict (NL-to-Prompt Structurer / Milestone 5)
+
+- **目標**：為 Phase 62 nl-to-prompt-structurer 立下第一道地基——中英語言偵測、五段式雙語模板骨架、關鍵字字典三件套，作為 S2~S4（抽取 / 主類別 / query router）共用的最底層元件。
+- **觸發背景**：2026-04-26 主公核准計畫書，裁示四階段拆法、S4 query router 一起做、slash command 命名拍板 `/prompt`。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 語言偵測法 | 字典比對 | **CJK Unicode range ratio** | **CJK ratio** | 零相依、覆蓋未登錄詞、O(n) 線性掃 |
+| CJK 判定門檻 | 0.5（嚴） | **0.3（寬）** | **0.3** | 中英混雜時偏向中文（主公主要語言） |
+| 短句 / 空字串 | raise / None | **預設 zh** | **預設 zh** | 對齊 R1 風險預備處置；主公主要語言 |
+| 未填欄位呈現 | 留空 | **顯式 placeholder**（「（未指定）」/ `(unspecified)`） | **顯式** | 對齊 R2 規則式抽取覆蓋率有限的兜底；避免 caller 誤判 |
+| 預設角色 | 留空 | **「通用助理」/ `Generalist Assistant`** | **填預設** | 五段式中「角色」是 prompt 啟動句，留空語意斷裂 |
+| 字典格式 | py 字面量 | **JSON** | **JSON** | 跨語言 / 跨 skill 可讀；S2 擴充無需動 .py |
+
+#### 檔案結構
+
+```
+.agent/skills/nl-to-prompt-structurer/
+├── SKILL.md                    ← 含啟動標記行 + S1 進度標
+├── scripts/
+│   ├── __init__.py
+│   ├── lang_detector.py        ← detect_lang(text) → "zh" | "en"
+│   └── templates.py            ← render_skeleton(lang, slots) → Markdown
+├── resources/
+│   └── keyword_dict.json       ← 雙語 × 三類（task_verbs / constraints / format_hints）
+└── test_skill.py               ← S1 10 項
+```
+
+#### `lang_detector.py` 核心邏輯
+
+```python
+_CJK_THRESHOLD = 0.3
+_SHORT_INPUT_LEN = 5
+
+def _is_cjk(ch: str) -> bool:
+    code = ord(ch)
+    return (0x4E00 <= code <= 0x9FFF
+            or 0x3400 <= code <= 0x4DBF
+            or 0xF900 <= code <= 0xFAFF)
+
+def detect_lang(text: str) -> str:
+    if not text:
+        return "zh"
+    cjk = sum(1 for ch in text if _is_cjk(ch))
+    en = sum(1 for ch in text if ch.isascii() and ch.isalpha())
+    total = cjk + en
+    if total < _SHORT_INPUT_LEN:
+        return "zh" if cjk > 0 else ("en" if en >= total and en > 0 else "zh")
+    if total == 0:
+        return "zh"
+    return "zh" if (cjk / total) >= _CJK_THRESHOLD else "en"
+```
+
+#### `templates.py` 五段式骨架
+
+中文標頭：`角色 (Role)` / `背景 (Context)` / `任務 (Task)` / `限制 (Constraints)` / `輸出格式 (Output Format)`
+英文標頭：`Role` / `Context` / `Task` / `Constraints` / `Output Format`
+
+未填欄位 placeholder：
+- 角色 zh：「通用助理」、en：`Generalist Assistant`
+- 其餘 zh：「（未指定）」、en：`(unspecified)`
+
+無效 `lang` 值（例 `ja`）→ fallback 至 `zh`（對齊 R1）。
+
+#### `keyword_dict.json` 結構（v0.1 S1 初版）
+
+```json
+{
+  "_meta": {"version": "0.1.0-S1", "phase": "62", "categories": ["task_verbs", "constraints", "format_hints"]},
+  "zh": {
+    "task_verbs": ["整理", "分析", "查詢", "比較", "翻譯", "撰寫", "生成", "推薦", "解釋", "歸納", "排序", "列出", "找出", "評估", "規劃", "設計", "預測", "檢查", "說明", "回答"],
+    "constraints": ["以內", "不超過", "至少", "最多", "限", "字以內", "字內", "字以下", "個字以內", "簡短", "詳細", "不要", "避免", "務必", "必須"],
+    "format_hints": ["表格", "列表", "條列", "段落", "json", "markdown", "圖表", "csv", "yaml", "純文字", "編號", "項目符號", "報告", "摘要表", "對照表"]
+  },
+  "en": {
+    "task_verbs": ["summarize", "analyze", "query", "compare", "translate", "write", "generate", "recommend", "explain", "rank", "list", "find", "evaluate", "plan", "design", "predict", "check", "describe", "answer", "extract"],
+    "constraints": ["within", "no more than", "at least", "at most", "limit", "words", "characters", "chars", "brief", "detailed", "do not", "avoid", "must", "should"],
+    "format_hints": ["table", "list", "bullet", "paragraph", "json", "markdown", "chart", "csv", "yaml", "plain text", "numbered", "report", "summary table", "comparison table"]
+  }
+}
+```
+
+#### 自動化測試結果（10 項）
+
+| # | 測試 | 結果 |
+|---|---|---|
+| T1 | `detect_lang` 純中文 → `zh` | ✅ |
+| T2 | `detect_lang` 純英文 → `en` | ✅ |
+| T3 | `detect_lang` 中文為主夾英文（"用 markdown 整理今天的戰報"）→ `zh` | ✅ |
+| T4 | `detect_lang` 空字串 → `zh`（R1 預設） | ✅ |
+| T5 | `detect_lang` 短中文（"查戰報"）→ `zh` | ✅ |
+| T6 | `render_skeleton(zh)` 空 slots → 五段全在 + 「通用助理」+ 「（未指定）」 | ✅ |
+| T7 | `render_skeleton(en)` 空 slots → 五段全在 + `Generalist Assistant` + `(unspecified)` | ✅ |
+| T8 | `render_skeleton(zh, partial)` → 已填顯實值、未填補預設 | ✅ |
+| T9 | `render_skeleton(lang="ja")` → fallback `zh` | ✅ |
+| T10 | `keyword_dict.json` 雙語三類齊全、動詞 ≥10 | ✅ |
+
+**累計**：10/10 全綠。零外部相依（純標準庫）。
+
+#### 斷點檢驗報告
+
+##### 一、檢驗完整度
+
+| 面向 | 狀態 | 憑據 |
+|---|---|---|
+| 功能正確性 | ✅ | T1-T10 全綠 |
+| 契約完整性 | ✅ | `SECTIONS` 公開、`_HEADERS`/`_DEFAULTS` 雙語對稱 |
+| 錯誤可觀測性 | ✅ | T9 無效 lang fallback 不噪訊、空字串 T4 不 raise |
+| 彈性設計 | ✅ | `slots` partial fill / `lang` 可覆寫 / 字典走 JSON |
+| 依賴管理 | ✅ | 純標準庫、無第三方 |
+| 啟動標記 | ✅ | SKILL.md 已含 `[nl-to-prompt-structurer 已啟動]` 鐵律行 |
+
+##### 二、潛在風險盤點（S1 收官時）
+
+| # | 風險 | 嚴重度 | 建議處置時機 |
+|---|---|---|---|
+| **P62-R1** | 短句（< 5 字元）邏輯偏好 zh，遇 "Hi" 等 ASCII 短語會誤判 zh | 🟠 低-中 | S3 主類別開放 `lang` 參數覆寫即可吸收；不獨立修 |
+| **P62-R2** | `keyword_dict.json` v0.1 覆蓋率僅 ~20 詞 / 類，S2 抽取會出現「未偵測」率偏高 | 🟡 中 | **S2 必須擴充**至 ≥40 詞 / 類，並建測試集驗證命中率 |
+| **P62-R3** | `_DEFAULTS["role"]` 寫死「通用助理」，無法依任務類型自適應（例：抽到 "翻譯" 該用「譯者」） | 🟢 低 | S3 加 `role_inference`（規則式映射 task_verb → role）可選裝 |
+| **P62-R4** | 中英混排（如全英文夾 1 個中文標點），CJK 判定可能誤偏 zh | 🟢 低 | 實戰若遇再調，目前僅理論風險 |
+| **P62-R5** | `render_skeleton` 未對 slots 內容做 escape，若 slots 含 Markdown 元字元（`##` `>` `|`）可能破壞輸出 | 🟡 中 | **S3 主類別** structure() 入口加 escape 或於 SKILL.md 契約警告 |
+
+**綜合結論**：S1 通過斷點驗收。下一階段 S2 開工前最需留意：(1) **R2 字典覆蓋率擴充**（影響整體準確率）、(2) **R5 escape 防護**（影響 S3 對外介面安全）。
+
+#### Milestone 5 進度變動
+
+- ✅ Phase 62 S1 完成
+- ⏳ S2 抽取核心 / S3 主類別 + slash / S4 query router → 等主公拍板續行
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`json` / `pathlib`）
+- **狀態**：✅ Phase 62 Stage 1 完成，地基穩固；S2~S4 各為獨立斷點，隨時可續行。
