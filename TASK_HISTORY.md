@@ -3903,3 +3903,160 @@ T28 首跑失敗：負面斷言 `"## 偽" not in out` 誤判（escape 後字串 
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`json` / `pathlib` / `re`）
 - **狀態**：✅ Phase 62 Stage 3 完成；PromptStructurer 主類別 + `/prompt` slash 雙落地；31/31 全綠；R3/R5/R7 三項風險落地；S4 為獨立斷點。
+
+---
+
+### 🚀 Phase 62 — Stage 4 Query Router + CLI 入口 + Phase 62 v1.0 收官 (NL-to-Prompt Structurer / Milestone 5)
+
+- **目標**：S4 最終章——`query_router.py`（自然語言 → P61 HistoryTrendQuery 呼叫規格）+ `cli.py`（安全命令列入口、解 S3 R15）+ SKILL.md 升 v1.0.0、Phase 62 整體收官。
+- **觸發背景**：S3 收官時主公授權 push（commit `78e4f25`）並裁示續行 S4。2026-04-26 計畫書核准後即動工。
+
+#### 設計決策紀錄
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 英雄名候選策略 | 硬編列表 | **動態掃描 data/** | **動態掃描** | 零維護、自適應新英雄上線；候選空 → fallback overall |
+| 天數解析 | 裸數字命中 | **數字+時間單位綁定** | **綁定** | 避免文中無關數字誤命中（解 S4-R2） |
+| 中文數字 | 不支援 | **字典映射（一~三十）** | **字典映射** | 覆蓋口語「三週」「兩天」常見場景 |
+| route_query 回傳 | 直接呼叫 P61 | **只回呼叫規格 dict** | **只回規格** | 解耦：caller 決定何時/如何呼叫；測試不需 loader |
+| CLI 入口 | inline `py -c` | **獨立 `cli.py` + argparse** | **獨立 CLI** | 解 R15（特殊字元破壞 shell）；支援 --stdin 安全模式 |
+| CLI 子命令 | 單命令 | **prompt + route 雙子命令** | **雙子命令** | 一個入口覆蓋兩大功能，caller 統一呼叫 |
+| fallback 策略 | raise / None | **overall_trend + fallback=true 標記** | **標記式 fallback** | 不阻斷 caller 流程；看 `fallback` 旗標即知是否為推測 |
+| `/prompt` slash 改造 | 維持 inline `py -c` | **改用 cli.py prompt** | **改用 cli.py** | 徹底解 R15；stdin 模式免疫任何特殊字元 |
+
+#### 檔案變動
+
+```
+.agent/skills/nl-to-prompt-structurer/
+├── SKILL.md                    ← v0.3-S3 → v1.0.0 全面改寫（含 query router 路由規則表 + CLI 用法）
+├── scripts/
+│   ├── query_router.py         ← 新檔 ~220 行（route_query + 四模式路由 + 天數/日期/旗標解析 + 動態英雄掃描）
+│   └── cli.py                  ← 新檔 ~95 行（prompt + route 雙子命令 + --stdin 安全入口）
+└── test_skill.py               ← +T32~T43（12 項）
+
+.claude/commands/
+└── prompt.md                   ← inline `py -c` → `cli.py prompt`（解 R15）
+```
+
+#### `query_router.py` 核心：四模式路由 + 動態英雄掃描
+
+```python
+def route_query(text, data_dir=None, hero_candidates=None) -> Dict[str, Any]:
+    """自然語言 → P61 呼叫規格 dict。
+
+    回傳 RouteResult：
+    {
+        "api": "hero_trend" | "heroes_trend" | "overall_trend" | "platform_trend",
+        "kwargs": {"hero_name"/"hero_names"/..., "days": 14, "until": ..., "weighted": ...},
+        "fallback": bool,
+        "debug": {"detected_heroes": [...], "detected_days": 14, ...}
+    }
+    """
+```
+
+動態英雄名候選：
+```python
+def _get_hero_candidates(data_dir=None, days=30) -> List[str]:
+    """掃 data/ 最近 30 天 analysis_*.json，聯集所有 hero_stats keys。"""
+    for i in range(days):
+        fp = data_dir / f"analysis_{d.strftime('%Y%m%d')}.json"
+        if fp.exists():
+            hs = json.load(fp).get("hero_stats", {})
+            heroes.update(hs.keys())
+    return heroes
+```
+
+天數解析（中英雙語 + 中文數字）：
+```python
+_ZH_DIGITS = {"一": 1, "二": 2, "兩": 2, "三": 3, ..., "三十": 30}
+_UNIT_MULT_ZH = {"天": 1, "日": 1, "週": 7, "周": 7, "星期": 7, "個月": 30, "月": 30}
+_UNIT_MULT_EN = {"day": 1, "days": 1, "week": 1, "weeks": 7, "month": 30, "months": 30}
+
+def _parse_days(text) -> int:
+    m = re.search(r"(\d+|[一二兩三四五六七八九十]+)\s*(個月|星期|週|周|天|日|月)", text)
+    # or: re.search(r"(\d+)\s*(days?|weeks?|months?)", text, re.IGNORECASE)
+    return max(1, num * mult) if m else 14  # 預設 14 天
+```
+
+#### `cli.py` 核心：雙子命令 + stdin 安全模式
+
+```python
+def cmd_prompt(args):
+    text = _read_text(args)  # positional arg 或 --stdin
+    s = PromptStructurer()
+    print(s.structure(text, lang=args.lang, role=args.role, mode=args.mode, context=args.context))
+
+def cmd_route(args):
+    text = _read_text(args)
+    print(json.dumps(route_query(text), ensure_ascii=False, indent=2))
+```
+
+R15 解法對照：
+| 舊做法 | 新做法 |
+|---|---|
+| `py -c "from scripts.structurer import ...; print(s.structure('含'引號'的字'))"` → shell 斷裂 | `echo "含'引號'的字" \| py cli.py prompt --stdin` → 正常輸出 |
+
+#### 自動化測試結果（S4 新增 12 項，T32~T43）
+
+| # | 測試 | 結果 |
+|---|---|---|
+| T32 | `route_query("芽芽最近兩週聲量")` → `api=hero_trend, hero=芽芽, days=14` | ✅ |
+| T33 | `route_query("compare Yaya and Dievu for 7 days")` → `api=heroes_trend, heroes={Yaya, Dievu}` | ✅ |
+| T34 | `route_query("整體輿情最近一個月")` → `api=overall_trend, days=30` | ✅ |
+| T35 | `route_query("各平台聲量 7 天")` → `api=platform_trend, days=7` | ✅ |
+| T36 | `route_query("Hello world")` → `fallback=True, api=overall_trend` | ✅ |
+| T37 | `_parse_days` 多種單位：三週=21 / 1 month=30 / 無=14 / 5天=5 | ✅ |
+| T38 | `_parse_until` 解析 `2026-04-20` / 無日期=None | ✅ |
+| T39 | `_parse_weighted` 中/英/無 三態偵測 | ✅ |
+| T40 | `cli.py prompt` positional arg → 五段式輸出 | ✅ |
+| T41 | `cli.py prompt --stdin` 含單引號 → 正常輸出（**解 R15**） | ✅ |
+| T42 | `cli.py route` → JSON 含 `overall_trend` | ✅ |
+| T43 | `route_query("")` 空輸入 → fallback + 不 raise | ✅ |
+
+**累計**：43/43 全綠（S1 10 + S2 11 + S3 10 + S4 12）。零外部相依、純標準庫。
+
+#### Phase 62 整體歸納（S1 → S4）
+
+| Stage | 解掉的風險 | 累計測試 |
+|---|---|---|
+| S1 地基 | R1 短句偏好 zh / R4 中英混排理論風險 | 10 |
+| S2 抽取核心 | **R2** 字典覆蓋率 105%~167% 擴充 | 21 |
+| S3 主類別 + Slash | **R3** role 推斷 / **R5** escape / **R7** dedupe / R11~R15 | 31 |
+| S4 Query Router + CLI | **R15** cli.py 解 shell 元字元 / S4-R1 fallback 兜底 / S4-R2 天數綁定單位 | **43** |
+
+#### 風險清單最終盤點（Phase 62 v1.0 收官）
+
+| # | 風險 | 嚴重度 | 狀態 |
+|---|---|---|---|
+| R1 | 短句（< 5 字元）偏好 zh | 🟠 低中 | ⏳ 列管（lang 參數可覆寫） |
+| **R2** | 字典覆蓋率 | 🟡 中 | ✅ S2 已擴充至 35~44 詞/類 |
+| **R3** | 預設角色無法自適應 | 🟢 低 | ✅ S3 `_infer_role` 8 類動詞家族 |
+| R4 | 中英混排 CJK 判定 | 🟢 低 | ⏳ 列管 |
+| **R5** | slot 含 heading 破壞五段式 | 🟡 中 | ✅ S3 `_escape_slot` |
+| R6 | 中文無詞邊界 子串誤命中 | 🟡 中 | ⏳ 字典已避單字 |
+| **R7** | constraints overlap 重複 | 🟢 低 | ✅ S3 `_dedupe_overlap` |
+| R8 | module-level cache race | 🟢 低 | ⏳ 單線程不影響 |
+| R9 | format 單選丟第二個 | 🟢 低 | ⏳ 列管 |
+| R10 | 英文 verb 雙拼跨地區差異 | 🟢 低 | ⏳ 文件警示 |
+| R11 | role_map 硬編 dict | 🟢 低 | ⏳ v1.1 外移 JSON 候選 |
+| R12 | mode='lite' 雙路徑同步 | 🟡 中 | ⏳ 文件警示 |
+| R13 | escape 只擋 heading 未擋 blockquote | 🟢 低 | ⏳ 列管 |
+| R14 | constraints 只 1 條也走 bullet | 🟢 低 | ⏳ 文件警示 |
+| **R15** | `/prompt` inline `py -c` 特殊字元 | 🟡 中 | ✅ **S4 cli.py 解** |
+| S4-R1 | 動態掃描依賴 data/ 有檔 | 🟡 中 | ⏳ fallback overall 兜底 |
+| S4-R2 | 天數 regex 抽無關數字 | 🟡 中 | ✅ 數字+單位綁定 |
+| S4-R3 | 英雄名子串互吃 | 🟢 低 | ✅ 長名優先 + 動態掃描 |
+| S4-R4 | Windows PowerShell pipe 行為差異 | 🟢 低 | ✅ T41 實機驗證通過 |
+
+**落地統計**：R2/R3/R5/R7/R15/S4-R2/S4-R3/S4-R4 共 8 項落地；R1/R4/R6/R8~R14/S4-R1 共 11 項列管。
+
+#### Milestone 5 進度變動
+
+- ✅ **Phase 62 nl-to-prompt-structurer v1.0 收官**（4 stages × 7 scripts × 43 tests × 0 回歸 × 0 外部相依）
+- ✅ Phase 61 history-trend-query v1.0 已完成
+- ✅ Phase 56.5 data/ 上游髒檔治本 已完成
+- ⏳ Phase 60 session-handoff-packager 草案已定，待開工
+
+- **Python 執行環境**：Python 3.8.5
+- **相依套件**：純標準庫（`json` / `pathlib` / `re` / `argparse` / `subprocess`）
+- **狀態**：✅ Phase 62 v1.0 收官；query_router 四模式路由 + cli.py 安全入口雙落地；43/43 全綠；R15 落地；SKILL.md v1.0.0 完整文件。

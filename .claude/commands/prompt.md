@@ -24,16 +24,17 @@ argument-hint: <自然語言內容> [--lang zh|en] [--role <角色>] [--mode ful
 ## 你（AI）應做的事
 
 1. **首段標註** `[nl-to-prompt-structurer 已啟動]`
-2. 解析參數，呼叫 inline Python：
+2. 解析參數，呼叫 `cli.py prompt`（Phase 62 S4 安全入口，免疫特殊字元）：
 
    ```bash
-   py -c "
-   import sys
-   sys.path.insert(0, '.agent/skills/nl-to-prompt-structurer')
-   from scripts.structurer import PromptStructurer
-   s = PromptStructurer()
-   print(s.structure('<text>', lang=<lang or None>, role=<role or None>, mode='<mode>', context=<context or None>))
-   "
+   # 基本用法（positional arg）
+   py .agent/skills/nl-to-prompt-structurer/scripts/cli.py prompt "<text>"
+
+   # 含特殊字元（stdin 安全模式）
+   echo "<text>" | py .agent/skills/nl-to-prompt-structurer/scripts/cli.py prompt --stdin
+
+   # 搭配參數
+   py .agent/skills/nl-to-prompt-structurer/scripts/cli.py prompt --lang en --role Translator "<text>"
    ```
 
 3. **回覆主公**：
@@ -48,6 +49,7 @@ argument-hint: <自然語言內容> [--lang zh|en] [--role <角色>] [--mode ful
 - **預設語言**：空輸入 / 短句（< 5 字元）→ `zh`
 - **預設角色 fallback 鏈**：手動 `--role` > 依 task_verb 推斷（如 "翻譯"→"譯者"）> 通用助理
 - **無 LLM 呼叫**：純 Python 規則式，所有抽取走 `keyword_dict.json`
+- **R15 已解**：S4 改用 `cli.py` 入口，不再依賴 inline `py -c`，單引號/換行等特殊字元不再破壞命令列
 
 ## 範例輸出
 

@@ -27,6 +27,14 @@ from scripts.structurer import (
     _escape_slot,
     _infer_role,
 )
+from scripts.query_router import (
+    _detect_heroes,
+    _detect_mode,
+    _parse_days,
+    _parse_until,
+    _parse_weighted,
+    route_query,
+)
 
 
 _RESULTS = []
@@ -326,9 +334,148 @@ def t_structurer_multiline_safety() -> None:
     _check("T31 多行輸入含 ## → 五段結構不破壞 + escape 生效", cond, "" if cond else md)
 
 
+# ============================================================
+# Phase 62 S4 Query Router + CLI 測試（12 項，T32-T43）
+# ============================================================
+
+
+def t_route_hero_zh() -> None:
+    """中文單英雄路由。"""
+    result = route_query("芽芽最近兩週聲量", hero_candidates=["芽芽", "蝶舞"])
+    cond = (
+        result["api"] == "hero_trend"
+        and result["kwargs"].get("hero_name") == "芽芽"
+        and result["kwargs"]["days"] == 14
+        and result["fallback"] is False
+    )
+    _check("T32 route_query 中文單英雄 → hero_trend", cond, f"got={result}")
+
+
+def t_route_heroes_en() -> None:
+    """英文多英雄路由。"""
+    result = route_query("compare Yaya and Dievu for 7 days", hero_candidates=["Yaya", "Dievu"])
+    cond = (
+        result["api"] == "heroes_trend"
+        and set(result["kwargs"].get("hero_names", [])) == {"Yaya", "Dievu"}
+        and result["kwargs"]["days"] == 7
+    )
+    _check("T33 route_query 英文多英雄 → heroes_trend", cond, f"got={result}")
+
+
+def t_route_overall_zh() -> None:
+    """中文整體輿情路由。"""
+    result = route_query("整體輿情最近一個月", hero_candidates=["芽芽"])
+    cond = (
+        result["api"] == "overall_trend"
+        and result["kwargs"]["days"] == 30
+        and result["fallback"] is False
+    )
+    _check("T34 route_query 整體輿情 → overall_trend, days=30", cond, f"got={result}")
+
+
+def t_route_platform_zh() -> None:
+    """中文平台路由。"""
+    result = route_query("各平台聲量 7 天", hero_candidates=[])
+    cond = (
+        result["api"] == "platform_trend"
+        and result["kwargs"]["days"] == 7
+    )
+    _check("T35 route_query 各平台 → platform_trend, days=7", cond, f"got={result}")
+
+
+def t_route_fallback() -> None:
+    """無法判定 → fallback。"""
+    result = route_query("Hello world", hero_candidates=[])
+    cond = (
+        result["api"] == "overall_trend"
+        and result["fallback"] is True
+    )
+    _check("T36 route_query 無法判定 → fallback=True, overall_trend", cond, f"got={result}")
+
+
+def t_parse_days_units() -> None:
+    """天數解析：多種單位。"""
+    cond = (
+        _parse_days("三週的走勢") == 21
+        and _parse_days("1 month trend") == 30
+        and _parse_days("看一下最近的東西") == 14  # 無數字 → 預設 14
+        and _parse_days("最近 5 天") == 5
+    )
+    _check("T37 _parse_days 多種單位（三週=21 / 1 month=30 / 無=14 / 5天=5）", cond)
+
+
+def t_parse_until_date() -> None:
+    """until 日期解析。"""
+    r1 = _parse_until("到 2026-04-20 為止")
+    r2 = _parse_until("普通句子沒日期")
+    cond = r1 == "2026-04-20" and r2 is None
+    _check("T38 _parse_until 解析 YYYY-MM-DD / 無日期=None", cond, f"got r1={r1}, r2={r2}")
+
+
+def t_parse_weighted() -> None:
+    """weighted 旗標偵測。"""
+    cond = (
+        _parse_weighted("用加權方式看聲量") is True
+        and _parse_weighted("show weighted average") is True
+        and _parse_weighted("普通查詢") is False
+    )
+    _check("T39 _parse_weighted 加權偵測（中/英/無）", cond)
+
+
+def t_cli_prompt_basic() -> None:
+    """CLI prompt 子命令基本呼叫。"""
+    import subprocess
+    cli_path = str(_HERE / "scripts" / "cli.py")
+    proc = subprocess.run(
+        [sys.executable, cli_path, "prompt", "整理今天戰報"],
+        capture_output=True, text=True, cwd=str(_HERE),
+    )
+    cond = proc.returncode == 0 and "## 任務 (Task)" in proc.stdout
+    _check("T40 cli.py prompt positional arg → 五段式輸出", cond,
+           f"rc={proc.returncode}, stderr={proc.stderr[:200]}" if not cond else "")
+
+
+def t_cli_prompt_stdin() -> None:
+    """CLI prompt --stdin 含單引號（解 R15）。"""
+    import subprocess
+    cli_path = str(_HERE / "scripts" / "cli.py")
+    proc = subprocess.run(
+        [sys.executable, cli_path, "prompt", "--stdin"],
+        input="含'單引號'的文字 整理戰報",
+        capture_output=True, text=True, cwd=str(_HERE),
+    )
+    cond = proc.returncode == 0 and "## 任務 (Task)" in proc.stdout and "單引號" in proc.stdout
+    _check("T41 cli.py prompt --stdin 含單引號 → 正常輸出（解 R15）", cond,
+           f"rc={proc.returncode}, stderr={proc.stderr[:200]}" if not cond else "")
+
+
+def t_cli_route() -> None:
+    """CLI route 子命令。"""
+    import subprocess
+    cli_path = str(_HERE / "scripts" / "cli.py")
+    proc = subprocess.run(
+        [sys.executable, cli_path, "route", "整體輿情 7 天"],
+        capture_output=True, text=True, cwd=str(_HERE),
+    )
+    cond = proc.returncode == 0 and "overall_trend" in proc.stdout
+    _check("T42 cli.py route → JSON 含 overall_trend", cond,
+           f"rc={proc.returncode}, stderr={proc.stderr[:200]}" if not cond else "")
+
+
+def t_route_empty_input() -> None:
+    """空輸入 → fallback + 不 raise。"""
+    result = route_query("", hero_candidates=[])
+    cond = (
+        result["api"] == "overall_trend"
+        and result["fallback"] is True
+        and result["kwargs"]["days"] == 14
+    )
+    _check("T43 route_query 空輸入 → fallback + 不 raise", cond, f"got={result}")
+
+
 def main() -> int:
     print("=" * 60)
-    print("Phase 62 S1 地基 + S2 抽取核心 + S3 主類別測試")
+    print("Phase 62 S1 地基 + S2 抽取核心 + S3 主類別 + S4 Query Router 測試")
     print("=" * 60)
 
     for fn in (
@@ -366,6 +513,19 @@ def main() -> int:
         t_dedupe_overlap_constraints,
         t_structurer_empty_input,
         t_structurer_multiline_safety,
+        # S4
+        t_route_hero_zh,
+        t_route_heroes_en,
+        t_route_overall_zh,
+        t_route_platform_zh,
+        t_route_fallback,
+        t_parse_days_units,
+        t_parse_until_date,
+        t_parse_weighted,
+        t_cli_prompt_basic,
+        t_cli_prompt_stdin,
+        t_cli_route,
+        t_route_empty_input,
     ):
         fn()
 
@@ -378,3 +538,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
