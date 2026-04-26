@@ -4060,3 +4060,52 @@ R15 解法對照：
 - **Python 執行環境**：Python 3.8.5
 - **相依套件**：純標準庫（`json` / `pathlib` / `re` / `argparse` / `subprocess`）
 - **狀態**：✅ Phase 62 v1.0 收官；query_router 四模式路由 + cli.py 安全入口雙落地；43/43 全綠；R15 落地；SKILL.md v1.0.0 完整文件。
+
+---
+
+### 🚀 Phase 60 — Session Handoff Packager 測試修復與正式收官 (跨視窗任務打包器)
+
+- **目標**：解決 `session-handoff-packager` 在 Windows 終端機下的靜默崩潰與編碼問題，讓 7 項測試全數通過並正式部署。
+- **觸發背景**：Phase 62 收官後，主公指示繼續 Phase 60 的工作。由於 `packager.py` 核心邏輯（三路寫入、L-1~L3 結構生成）與測試案例已在更早之前建置完畢，但在執行測試時遭遇 `exit code 1` 且無任何輸出的靜默崩潰。
+
+#### 設計決策與錯誤排除紀錄
+
+| 決策點 | 問題現象 | 處置方式 | 原因 / 結果 |
+|---|---|---|---|
+| 靜默崩潰修復 | 執行 `py test_skill.py` 無輸出且回傳代碼 1 | **移除強制的 `sys.stdout.reconfigure(encoding='utf-8')`** | Windows 某些環境下 `reconfigure` 導致底層 stream 錯誤，使得 Python 退出前無法 flush buffer，造成完全靜默。移除後交由執行環境或外部參數控制編碼。 |
+| 模組路徑解析 | `test_skill.py` 中的 `__file__` 在某些執行方式下無法正確解析專案根目錄 | 改用 `py -m test_skill` 作為標準測試執行方式 | 作為 Module 執行可確保 Python 內部路徑解析正確，避免測試內的 `_get_project_root()` 發生誤判。 |
+| 三路寫入策略 | 如何確保打出來的交接快照能在不同 AI 之間順利共享？ | **實作三路寫入 (Triple Write)** | 1. `專案/handoff/` (版控用)<br>2. `~/.gemini/antigravity/handoff/` (Antigravity 專用)<br>3. `~/.claude/handoff/` (Claude 專用)<br>確保零摩擦接手。 |
+
+#### 檔案變動
+
+```
+.agent/skills/session-handoff-packager/
+├── SKILL.md                    ← v1.0 說明文件（已完善 CLI 與 API 用法）
+├── scripts/
+│   └── packager.py             ← ~500 行，實作三路寫入與 L-1 ~ L3 分層生成
+├── resources/
+│   └── bootstrap_files.json    ← L-1 必讀清單設定檔
+└── test_skill.py               ← 移除 stdout/stderr 強制編碼轉換，避免靜默崩潰
+```
+
+#### 自動化測試結果 (7/7 全數通過)
+
+在修正編碼問題並透過 `py -m test_skill` 執行後，7 項測試完美通過：
+
+1. **Test 1: 最小打包** — lite/full 皆有效，正確產出 Markdown。
+2. **Test 2: 全參數打包** — doing / stuck / next / decision / rejected / pending / glossary / quotes 9 項欄位全數正確 mapping。
+3. **Test 3: Git 快照** — 正確擷取 branch (`main`) 與最新 commit。
+4. **Test 4: Bootstrap lite** — 僅列路徑，無內嵌全文，控制 token。
+5. **Test 5: Bootstrap full** — 正確內嵌 `embed_in_full=true` 的檔案全文。
+6. **Test 6: 三路寫入** — 6 個實體檔案 (專案/global/claude × lite/full) 皆建立成功且大小 > 0。
+7. **Test 7: 檔頭自檢** — 雙版本皆確實包含 L-1 Bootstrap 警告提示。
+
+#### Milestone 5 進度變動
+
+- ✅ Phase 62 nl-to-prompt-structurer v1.0 收官
+- ✅ Phase 61 history-trend-query v1.0 已完成
+- ✅ Phase 56.5 data/ 上游髒檔治本 已完成
+- ✅ **Phase 60 session-handoff-packager v1.0 正式收官** (7/7 全綠，跨視窗銜接就位)
+
+- **Python 執行環境**：Python 3.8.5
+- **狀態**：✅ Phase 60 測試修復完成，靜默崩潰問題解除。7 項核心測試全綠。專案正式具備跨視窗/跨模型的無損交接能力。

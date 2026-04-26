@@ -20,11 +20,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-# 修正 Windows Python 3.8 的 stdout/stderr 編碼
-if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
-if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+# 移除強制 reconfigure，改由外部環境變數控制，避免靜默崩潰
 
 # 將 scripts/ 加入路徑
 SKILL_DIR = Path(__file__).resolve().parent
