@@ -4160,3 +4160,83 @@ R15 解法對照：
 - ✅ Phase 60 session-handoff-packager v1.0
 - ✅ Phase 56.5 data/ 髒檔治本
 - **狀態**：✅ Milestone 5 全線破台，系統零待辦、零列管技術債，維持最顛峰狀態。
+
+---
+
+### ⏱️ Phase 63 — 系統心跳：GitHub Actions 每日自動排程 (Milestone 6 起點)
+
+- **目標**：讓情報收割機脫離本機依賴，每天清晨（台北 08:00 / UTC 00:00）在 GitHub Actions 上自動完成全流程（爬蟲 → 分析 → 報告 → 推播 → Git Push 備份）。
+- **觸發背景**：Milestone 5 全線破台（P56.5 / P60 / P61 / P62 / P62.5 皆收官），主公裁示進入排程自動化階段。
+
+#### 架構決策紀錄 (2026-04-26)
+
+| 決策點 | A 選項 | B 選項 | 最終決定 | 原因 |
+|---|---|---|---|---|
+| 排程平台 | 本機 APScheduler / Task Scheduler | **GitHub Actions** | **GitHub Actions** | 不受本機開關機影響；專案每天由 hot-deployer 產生 commit → 60 天休眠倒數器永不歸零 |
+| Python 版本 | 鎖 3.8.5 精確版 | **放寬 '3.8'** | **'3.8'** | 3.8.5 patch 已從 actions/python-versions manifest 下架，放寬至 3.8.x（目前解析為 3.8.20），同 minor 版本零回歸 |
+| Runner OS | ubuntu-latest | **ubuntu-22.04** | **ubuntu-22.04** | ubuntu-latest 已切換 24.04，不再快取 Python 3.8（3.8 已於 2024-10 EOL） |
+| Secret 命名 | `GITHUB_PAGES_URL` | **`PAGES_URL`** | **`PAGES_URL`** | GitHub 禁止以 `GITHUB_` 前綴命名自訂 Secret |
+
+#### Workflow 架構（`.github/workflows/daily_report.yml`）
+
+```yaml
+name: AoV Daily Monitor
+on:
+  schedule:
+    - cron: '0 0 * * *'       # UTC 00:00 = 台北 08:00
+  workflow_dispatch:            # 手動觸發按鈕
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write           # 讓 hot-deployer 的 git push 生效
+    steps:
+      - Checkout (fetch-depth: 0，完整歷史)
+      - Setup Python '3.8' (pip cache)
+      - pip install -r requirements.txt + playwright install chromium
+      - python main.py --run-now
+        env: GEMINI_API_KEY / OPENAI_API_KEY / TAVILY_API_KEY / APIFY_TOKEN
+             LINE_CHANNEL_ACCESS_TOKEN / LINE_USER_ID
+             TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID / PAGES_URL
+      - Fallback Git Push (if: always())：兜底將 data/reports/ 推上 GitHub Pages
+```
+
+#### Commit 演進紀錄（5 筆，皆 2026-04-26）
+
+| # | Commit | 變動 | 問題成因 |
+|---|---|---|---|
+| 1 | `d4bcb6a` | 新增 `daily_report.yml` 61 行 | 初版部署 |
+| 2 | `e4c7db7` | `GITHUB_PAGES_URL` → `PAGES_URL` | GitHub 禁止 `GITHUB_` 前綴自訂 Secret，workflow 啟動即報錯 |
+| 3 | `eedf7e5` | `ubuntu-latest` → `ubuntu-22.04` | ubuntu-latest 已切 24.04，setup-python 找不到 3.8.x |
+| 4 | `4e98968` | `python-version: '3.8.5'` → `'3.8'` | 精確 3.8.5 patch 已從 manifest 下架，setup-python 解析失敗 |
+| 5 | `a777f69` | `requirements.txt` 補 `beautifulsoup4>=4.12.0` | dcard_scraper / bahamut_scraper / ddg_searcher 三隻 scraper 皆 `import bs4` 但漏列 |
+
+#### 檔案變動
+
+```
+.github/workflows/
+└── daily_report.yml            ← 新檔 62 行（含 Fallback Git Push 兜底）
+
+requirements.txt                ← +1 行 beautifulsoup4>=4.12.0
+```
+
+#### 當前狀態（2026-04-27）
+
+- Workflow 已部署並推上 `origin/main`
+- 經過 4 輪 CI 除錯迭代（Secret 命名 → Runner OS → Python 版本 → 缺漏套件）
+- ⏳ **尚未確認 GitHub Actions 是否完整跑通全流程**（需上 GitHub 查看最近一次 run 結果）
+- ⏳ **TASK_HISTORY.md 紀錄尚未 commit**（本次補齊）
+
+#### 已知待處理項目
+
+| # | 項目 | 說明 | 優先級 |
+|---|---|---|---|
+| P63-T1 | **確認 CI 是否跑通** | 上 GitHub Actions 頁面查最近 run status；若仍紅燈需繼續 debug | 🔴 高 |
+| P63-T2 | **Secrets 是否全數設定** | 需確認 9 項 Secret 皆已在 repo Settings → Secrets 填入實際值 | 🔴 高 |
+| P63-T3 | **`main.py --run-now` 在 Linux 環境相容性** | 本機開發皆在 Windows；CI 跑在 ubuntu-22.04，路徑 / 編碼可能有差異 | 🟡 中 |
+| P63-T4 | **Playwright chromium 安裝耗時** | 每次 CI run 都要裝 chromium ~200MB，可考慮 cache 或改用 headless requests | 🟢 低 |
+| P63-T5 | **Python 3.8 EOL 遷移規劃** | 3.8 已於 2024-10 停止支援；ubuntu-22.04 是最後一個能裝 3.8 的 runner | 🟡 中 |
+
+- **Python 執行環境**：GitHub Actions ubuntu-22.04 + Python 3.8.x（本機 Python 3.8.5）
+- **狀態**：⏳ Phase 63 workflow 已部署，CI 除錯迭代中；待確認全流程是否跑通。
