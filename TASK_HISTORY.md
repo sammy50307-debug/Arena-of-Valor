@@ -4444,3 +4444,45 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 
 - **狀態**：✅ **Phase 63.23 竣工**。主公認可之旗艦版面已完成「物理真相」存檔。
 
+---
+
+### 🏛️ Phase 63.3 — Landing Page UI/UX 指揮中心定稿 (Command Center Finalization)
+
+- **目標**：將入口網站（Landing Page）由「櫻花粉嫩」成功轉型為「冷調藍紫/戰略指揮中心」視覺，並徹底解決行動端（LINE 內建瀏覽器）無法捲動與版面跑位的長久頑疾。
+- **觸發背景**：主公裁定採用「策略 C：藍紫指揮中心」，要求在維持原始 DOM 結構與 5 聯排歷史連結的前提下，注入極致專業感的戰略視覺。
+
+#### 🎨 指揮中心視覺物理真相 (Command Center Aesthetics)
+- **核心色系 (Strategic Palette)**:
+  - `--primary`: `#6366f1` (Indigo / 靛藍)
+  - `--accent`: `#7c3aed` (Purple / 戰略紫)
+  - `--cyan`: `#22d3ee` (Cyan / 電光藍)
+  - `--bg-deep`: `#020617` (Deep Space Blue / 深邃藍)
+  - `--glass-border`: `rgba(99, 102, 241, 0.2)`
+- **背景光譜**:
+  - `radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.2) 0%, transparent 50%)` (左上角紫色戰略光暈)
+  - `radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%)` (中心深海藍渲染)
+- **視覺符號**:
+  - `zap-icon`: 旋轉 `-15deg` 展現動感，輔以 `drop-shadow(0 0 15px var(--cyan))` 的電光藍發光。
+  - `sakura` (Particles): 成功轉型為向頂部緩慢升騰的「數據流節點」，呈現系統運算中的理性感。
+
+#### 📐 跨端適配與無障礙捲動架構 (Cross-Platform Architecture)
+- **核心設計原則**: **「手機與電腦排版邏輯完全分離」**。針對不同設備的交互特性，實施了差異化的布局方案：
+  - **桌面端 (Desktop Integrity)**:
+    - **對齊策略**: `justify-content: center` 與 `min-height: 100vh`，確保大螢幕視覺的絕對平衡與置中。
+    - **垂直密度優化**: 為避免內容沉底，將 `subtitle` 底部間距縮減至 `2rem`，`history-grid` 頂部間距縮減至 `2.5rem`，使 5 篇戰報回歸視覺焦點。
+  - **行動端 (Mobile Optimization)**:
+    - **高度解鎖**: `html, body` 設置 `height: auto; min-height: 100%; overflow-y: auto !important;` (解決 100vh 在 LINE 瀏覽器導致的溢出截斷)。
+    - **流動佈局**: `@media 768px` 下切換為 `justify-content: flex-start`，排版由頂部順序向下，避免 flex 壓縮。
+    - **觸控優化**: `history-grid` 轉為 `flex-direction: column` 垂直大按鈕，便於手指操作。
+    - **捲動流暢度**: 啟用 `-webkit-overflow-scrolling: touch`。
+
+#### 🛡️ 歷史連結與相容性 (Historical Integrity)
+- **5 聯排歸位**: 成功連結 `aov_report_2026-04-26` 至 `aov_report_2026-04-30` 共 5 篇實體戰報。
+- **無損生成協議**: 所有 ID 與 Class (如 `.sakura`) 維持不變，確保與 `reporter/generator.py` 的自動化更新邏輯無縫對接。
+
+#### 🚀 部署狀態
+- **GitHub Pages**: ✅ 已同步推送最新版本。
+- **LINE 展演**: ✅ 已發送專屬推播通知主公檢閱。
+
+- **狀態**：✅ **Phase 63.3 竣工**。電腦端穩重置中、行動端順暢捲動，雙端版面達成邏輯分離與美學統一。
+
