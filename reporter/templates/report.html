@@ -3,46 +3,94 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arena of Valor 輿情分析戰報</title>
-    <!-- Phase 63.12: High-Priority Asset Preloading -->
-    <link rel="preload" as="image" href="../../yaya_bg.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena of Valor 輿情分析 — {{ date }}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
         :root {
-            --bg-gradient: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            --glass-bg: rgba(255, 255, 255, 0.5);
-            --glass-border: rgba(217, 119, 6, 0.25);
-            --primary-accent: #d97706;
-            --secondary-accent: #f59e0b;
+            /* ── Phase 34.2: Lush Strategic Fusion (粉嫩戰略融合) ── */
+            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(219, 39, 119, 0.2);
+            --primary-accent: #db2777;
+            /* 旗艦桃紅 */
+            --secondary-accent: #9333ea;
+            /* 紫羅蘭 */
             --accent-mint: #10b981;
             --text-main: #1e293b;
+            /* 保持專業深灰對比 */
             --text-muted: #64748b;
-            --card-shadow: 0 15px 35px rgba(217, 119, 6, 0.1);
-            --hover-shadow: 0 25px 50px rgba(217, 119, 6, 0.2);
-            --tw-color: #d97706;
-            --glow-neon: 0 0 15px rgba(217, 119, 6, 0.4);
-            --glow-pulse: 0 0 25px rgba(217, 119, 6, 0.6);
+            --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
+            --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
+            --tw-color: #db2777;
+            --glow-neon: 0 0 15px rgba(219, 39, 119, 0.4);
+            --glow-pulse: 0 0 25px rgba(219, 39, 119, 0.6);
         }
 
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            -webkit-overflow-scrolling: touch;
-            /* Phase 63.14: Fix mobile height issues */
-            min-height: calc(var(--vh, 1vh) * 100);
+        @keyframes neon-breath {
+            0% {
+                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+            }
+        }
+
+        @keyframes live-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+            background: #000;
         }
 
         body {
-            background-color: #0f172a;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 1px;
+            perspective-origin: 0 0;
+            margin: 0;
+            background: transparent;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Base Reset */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--bg-gradient);
             color: var(--text-main);
+            min-height: 100%;
+            padding-bottom: 3rem;
+            margin: 0;
             scroll-behavior: smooth;
         }
 
@@ -62,27 +110,30 @@
             pointer-events: none;
         }
 
-        /* ── Phase 63.14: Ultimate Stabilized Background (CSS Variable & GPU) ── */
+        /* ── Phase 40.11: 3D Space Anchoring Fortress ── */
         .fixed-background-fortress {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            /* Use dynamic VH variable for absolute stability */
-            height: calc(var(--vh, 1vh) * 100);
+            height: 100%; /* Spans the entire document height in 3D space */
+            min-height: 100vh;
             z-index: -100;
             pointer-events: none;
             
-            background-image: url('../../yaya_bg.png');
+            /* The Magic: Move to Z-depth and scale back to match visual size */
+            transform-origin: 0 0;
+            transform: translateZ(-1px) scale(2);
+            -webkit-transform: translateZ(-1px) scale(2);
+            
+            background-image: url('yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center top;
             opacity: 0.8;
             
-            /* GPU Acceleration Layer */
+            /* Optimization: Pre-warm the GPU */
             will-change: transform;
-            transform: translate3d(0, 0, 0);
-            -webkit-transform: translate3d(0, 0, 0);
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -107,6 +158,9 @@
 
         /* ── Responsive CSS Grid Backbone (Phase 39) ── */
         .layout-container {
+            position: relative;
+            z-index: 10;
+            transform: translateZ(0); /* Ensure content stays in front in 3D space */
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 2rem;
@@ -114,10 +168,6 @@
             margin: 0 auto;
             padding: 0 2rem;
             padding-bottom: 100vh; /* Stay-and-watch background area */
-            
-            /* Phase 63.14: Layer Isolation */
-            position: relative;
-            z-index: 10;
         }
 
         .global-insights-card, .alert-banner {
@@ -152,11 +202,10 @@
             .layout-container {
                 display: flex !important;
                 flex-direction: column !important;
-                padding: 0 1rem !important;
+                padding: 0 1.2rem !important;
                 gap: 1.5rem;
                 width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
+                margin: 0 auto !important;
             }
 
             .global-insights-card, .alert-banner, .left-col, .right-col {
@@ -245,12 +294,12 @@
             }
 
             .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav {
-                /* Phase 63.14: Balanced Glassmorphism (Stable & Beautiful) */
-                backdrop-filter: blur(12px) !important;
-                -webkit-backdrop-filter: blur(12px) !important;
-                background-color: rgba(255, 255, 255, 0.85) !important;
+                /* Disable backdrop-filter on mobile to completely stop scrolling jitter/lag */
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background-color: rgba(255, 255, 255, 0.95) !important;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-                animation: none !important; 
+                animation: none !important; /* Stop animations to prevent jitter */
                 transform: none !important;
                 transition: none !important;
             }
@@ -266,11 +315,13 @@
             }
 
             .fixed-background-fortress {
-                background-image: url('../../yaya_bg.png') !important;
-                background-size: cover !important;
-                background-position: 15% center !important; /* The Holy Grail of Crops */
+                background-position: 15% center !important; /* Restore user-approved crop */
+                height: 200%; /* Extra height for safety on long reports */
             }
-        } /* End of 768px media query - FIXED SYNTAX */
+
+            .header, .region-nav, .date-pill {
+                transform: translateZ(0);
+            }
 
         /* ── Interactive Chart Wrappers ── */
         .chart-wrapper {
@@ -286,7 +337,7 @@
         }
 
         .chart-wrapper:hover {
-            box-shadow: 0 15px 35px rgba(217, 119, 6, 0.15);
+            box-shadow: 0 15px 35px rgba(219, 39, 119, 0.15);
             background: rgba(255, 255, 255, 0.8);
             transform: translateY(-5px);
             border-color: var(--primary-accent);
@@ -402,7 +453,7 @@
         /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
         .hero-focus-card {
             border: 2px solid var(--primary-accent) !important;
-            filter: drop-shadow(0 0 15px rgba(217, 119, 6, 0.4));
+            filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.4));
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(253, 242, 248, 0.9) 100%) !important;
             animation: neon-breath 4s ease-in-out infinite;
         }
@@ -471,7 +522,7 @@
             -webkit-text-fill-color: transparent;
             font-size: 2.2rem !important;
             font-weight: 900 !important;
-            filter: drop-shadow(0 0 15px rgba(217, 119, 6, 0.5));
+            filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.5));
             margin-bottom: 1.5rem;
             display: inline-block;
         }
@@ -482,7 +533,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(217, 119, 6, 0.05) 50.5%);
+            background: linear-gradient(to bottom, transparent 50%, rgba(219, 39, 119, 0.05) 50.5%);
             background-size: 100% 4px;
             pointer-events: none;
             z-index: 2;
@@ -512,7 +563,7 @@
             border-radius: 16px;
             margin-bottom: 1rem;
             line-height: 1.7;
-            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.05);
+            box-shadow: 0 4px 15px rgba(219, 39, 119, 0.05);
             border: 1px solid rgba(251, 207, 232, 0.8);
             position: relative;
             overflow: hidden;
@@ -551,7 +602,7 @@
             padding: 1rem;
             margin-bottom: 1rem;
             border-radius: 0 12px 12px 0;
-            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.05);
+            box-shadow: 0 4px 15px rgba(219, 39, 119, 0.05);
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             color: #831843;
             font-weight: 500;
@@ -559,7 +610,7 @@
 
         .hero-post-item:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(217, 119, 6, 0.15);
+            box-shadow: 0 10px 25px rgba(219, 39, 119, 0.15);
             background: rgba(255, 255, 255, 0.9);
             border-left: 4px solid var(--primary-accent);
         }
@@ -572,13 +623,13 @@
             font-weight: 700;
             font-size: 0.9rem;
             padding: 0.4rem 0.8rem;
-            background: rgba(217, 119, 6, 0.1);
+            background: rgba(219, 39, 119, 0.1);
             border-radius: 6px;
             transition: all 0.3s ease;
         }
 
         .hero-link:hover {
-            background: rgba(217, 119, 6, 0.2);
+            background: rgba(219, 39, 119, 0.2);
             transform: translateX(5px);
         }
 
@@ -1002,9 +1053,9 @@
         }
 
         .translate-btn {
-            background: rgba(217, 119, 6, 0.05);
-            border: 1px solid rgba(217, 119, 6, 0.1);
-            color: #d97706;
+            background: rgba(219, 39, 119, 0.05);
+            border: 1px solid rgba(219, 39, 119, 0.1);
+            color: #db2777;
             font-size: 0.7rem;
             padding: 2px 8px;
             border-radius: 4px;
@@ -1013,7 +1064,7 @@
         }
 
         .translate-btn:hover {
-            background: rgba(217, 119, 6, 0.1);
+            background: rgba(219, 39, 119, 0.1);
         }
 
         .live-pulse {
@@ -1128,12 +1179,12 @@
 
         /* ── Tactical Glow Adjustments ── */
         .card {
-            box-shadow: 0 10px 30px rgba(217, 119, 6, 0.1), 0 0 10px rgba(217, 119, 6, 0.05);
+            box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
             border: 1px solid var(--glass-border);
         }
 
         .card:hover {
-            border: 1px solid rgba(217, 119, 6, 0.4);
+            border: 1px solid rgba(219, 39, 119, 0.4);
         }
 
         /* ── Premium Header Design (Phase 39.6) ── */
@@ -1142,7 +1193,7 @@
             align-items: center;
             gap: 1.5rem;
             padding: 2rem 2rem 1rem 2rem;
-            width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -1150,11 +1201,12 @@
             font-size: 2.8rem;
             font-weight: 900;
             margin: 0;
-            background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+            background: linear-gradient(135deg, var(--primary-accent) 0%, #f472b6 50%, var(--secondary-accent) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 30px rgba(217, 119, 6, 0.2);
+            letter-spacing: -1px;
+            filter: drop-shadow(0 4px 10px rgba(219, 39, 119, 0.2));
             display: flex;
             align-items: center;
             gap: 0.8rem;
@@ -1169,7 +1221,7 @@
 
         .date-pill {
             background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(217, 119, 6, 0.3);
+            border: 1px solid rgba(219, 39, 119, 0.3);
             color: var(--primary-accent);
             padding: 0.5rem 1.2rem;
             border-radius: 50px;
@@ -1208,31 +1260,8 @@
         setInterval(createSakura, 300);
     </script>
     
-    <!-- 🏮 Phase 63.14: Industry Standard --vh Variable Logic 🏮 -->
-    <div class="fixed-background-fortress" id="stable-bg"></div>
-
-    <script>
-        // Phase 63.14: Dynamic VH Calculation to prevent UI jumping
-        (function() {
-            const setVh = () => {
-                let vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-            };
-            
-            // Immediate execution
-            setVh();
-            
-            // Throttled resize listener
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(setVh, 150);
-            });
-            window.addEventListener('orientationchange', () => {
-                setTimeout(setVh, 200);
-            });
-        })();
-    </script>
+    <!-- 🏮 Phase 40.21: 視覺定錨堡壘 (GPU Accelerated) 🏮 -->
+    <div class="fixed-background-fortress"></div>
 
     <div class="region-nav" style="text-align: center; margin-bottom: 2rem; padding: 0 2rem;">
         <span class="region-btn active">
@@ -1247,7 +1276,7 @@
         <div class="global-insights-card">
             <div
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(217, 119, 6, 0.2); line-height: 1.2; text-align: center; width: 100%;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2); line-height: 1.2; text-align: center; width: 100%;">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <span>💬 台服消息</span>
                         <span>資訊中心</span>
@@ -1257,7 +1286,7 @@
                 <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
             <div
-                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(217, 119, 6, 0.15);">
+                style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
                 {{ overview }}
             </div>
         </div>
@@ -1565,7 +1594,7 @@
 
                             <a href="{{ post_data.get('url', '#') }}" target="_blank"
                                 style="text-decoration: none; color: inherit;">
-                                <div class="post-title" style="{% if is_yaya %}color: #d97706;{% endif %}">
+                                <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
                                     {% if post_data.get('content') %}
                                     {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
                                     {% else %}
@@ -1575,7 +1604,7 @@
 
                                 <div class="post-meta">
                                     <span class="post-platform"
-                                        style="{% if is_yaya %}background: #fdf2f8; color: #d97706;{% endif %}">{{
+                                        style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
                                         post_data.get('platform', 'Unknown')|upper }}</span>
                                     <span>{{ post_data.get('published_date') if post_data.get('published_date') else
                                         post_data.get('timestamp', '時間未知') }}</span>
@@ -1661,12 +1690,12 @@
                     tooltip: {
                         cornerRadius: 12,
                         backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                        titleColor: '#d97706',
+                        titleColor: '#db2777',
                         bodyColor: '#1e293b',
-                        borderColor: 'rgba(217, 119, 6, 0.3)',
+                        borderColor: 'rgba(219, 39, 119, 0.3)',
                         borderWidth: 1,
                         padding: 12,
-                        boxShadow: '0 10px 25px rgba(217, 119, 6, 0.2)'
+                        boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
                     }
                 },
                 scales: {
@@ -1682,137 +1711,121 @@
         // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
         {% if heatmap_data %}
         const heatmapDom = document.getElementById('heatmapChart');
-        // ── Phase 63.12: Lazy Rendering for Heatmap ──
-        const heatmapDom = document.getElementById('heatmapChart');
         if (heatmapDom) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const heatmapChart = echarts.init(heatmapDom);
-                        const heatmapOption = {
-                            tooltip: {
-                                position: 'top',
-                                confine: true, // Force tooltip to stay inside chart boundaries
-                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                                borderColor: 'rgba(217, 119, 6, 0.3)',
-                                borderWidth: 1,
-                                padding: 12,
-                                textStyle: { color: '#1e293b', fontFamily: 'Outfit' },
-                                extraCssText: 'box-shadow: 0 10px 25px rgba(217, 119, 6, 0.2); backdrop-filter: blur(10px); border-radius: 12px;',
-                                formatter: function (params) {
-                                    const mood = params.value[3] === 1 ? '😊 正面' : (params.value[3] === -1 ? '😡 負面' : '😐 中性');
-                                    return `<b style="color: #d97706; font-size: 1.1em;">${params.name} - ${params.value[0]}:00</b><br/>
-                                            <span style="margin-top: 4px; display: inline-block;">熱度積分: <strong style="color: #1e293b;">${params.value[2]}</strong></span><br/>
-                                            主流情緒: ${mood}`;
-                                }
-                            },
-                            grid: {
-                                top: '10%',
-                                bottom: '15%',
-                                left: '12%',
-                                right: '5%'
-                            },
-                            xAxis: {
-                                type: 'category',
-                                data: {{ heatmap_data.hours | tojson }},
-                                splitArea: { show: true },
-                                axisLabel: { color: '#64748b' }
-                            },
-                            yAxis: {
-                                type: 'category',
-                                data: {{ heatmap_data.heroes | tojson }},
-                                splitArea: { show: true },
-                                axisLabel: { color: '#64748b', fontWeight: 'bold' }
-                            },
-                            visualMap: {
-                                min: -5,
-                                max: 10,
-                                calculable: true,
-                                orient: 'horizontal',
-                                left: 'center',
-                                bottom: '0',
-                                inRange: {
-                                    color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
-                                },
-                                text: ['火熱', '平靜'],
-                                show: false
-                            },
-                            series: [{
-                                name: '熱度趨勢',
-                                type: 'heatmap',
-                                data: {{ heatmap_data.data | tojson }},
-                                label: { show: false },
-                                emphasis: {
-                                    itemStyle: {
-                                        shadowBlur: 10,
-                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                    }
-                                }
-                            }]
-                        };
-                        heatmapChart.setOption(heatmapOption);
-                        window.addEventListener('resize', () => heatmapChart.resize());
-                        observer.unobserve(heatmapDom);
+            const heatmapChart = echarts.init(heatmapDom);
+            const heatmapOption = {
+                tooltip: {
+                    position: 'top',
+                    confine: true, // Force tooltip to stay inside chart boundaries
+                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                    borderColor: 'rgba(219, 39, 119, 0.3)',
+                    borderWidth: 1,
+                    padding: 12,
+                    textStyle: { color: '#1e293b', fontFamily: 'Outfit' },
+                    extraCssText: 'box-shadow: 0 10px 25px rgba(219, 39, 119, 0.2); backdrop-filter: blur(10px); border-radius: 12px;',
+                    formatter: function (params) {
+                        const mood = params.value[3] === 1 ? '😊 正面' : (params.value[3] === -1 ? '😡 負面' : '😐 中性');
+                        return `<b style="color: #db2777; font-size: 1.1em;">${params.name} - ${params.value[0]}:00</b><br/>
+                                <span style="margin-top: 4px; display: inline-block;">熱度積分: <strong style="color: #1e293b;">${params.value[2]}</strong></span><br/>
+                                主流情緒: ${mood}`;
                     }
-                });
-            }, { threshold: 0.1 });
-            observer.observe(heatmapDom);
+                },
+                grid: {
+                    top: '10%',
+                    bottom: '15%',
+                    left: '12%',
+                    right: '5%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: {{ heatmap_data.hours | tojson
+        }},
+        splitArea: { show: true },
+        axisLabel: { color: '#64748b' }
+                },
+        yAxis: {
+            type: 'category',
+                data: {{ heatmap_data.heroes | tojson }},
+            splitArea: { show: true },
+            axisLabel: { color: '#64748b', fontWeight: 'bold' }
+        },
+        visualMap: {
+            min: -5,
+                max: 10,
+                    calculable: true,
+                        orient: 'horizontal',
+                            left: 'center',
+                                bottom: '0',
+                                    inRange: {
+                color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
+            },
+            text: ['火熱', '平靜'],
+                show: false
+        },
+        series: [{
+            name: '熱度趨勢',
+            type: 'heatmap',
+            data: {{ heatmap_data.data | tojson }},
+            label: { show: false },
+            emphasis: {
+            itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+        }
+                }]
+            };
+        heatmapChart.setOption(heatmapOption);
+        window.addEventListener('resize', () => heatmapChart.resize());
         }
         {% endif %}
 
         // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
         try {
-            const historyData = {{ history_delta | tojson if history_delta else '{}' }};
-            if (historyData && historyData.weekly_vol_pulse) {
-                const pulseDom = document.getElementById('weeklyPulseChart');
-                if (pulseDom) {
-                    const observerPulse = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                const pulseChart = echarts.init(pulseDom);
-                                const pulseOption = {
-                                    grid: { top: 5, bottom: 20, left: 0, right: 0 },
-                                    xAxis: {
-                                        type: 'category',
-                                        data: historyData.weekly_vol_pulse.labels || [],
-                                        show: true,
-                                        axisLine: { show: false },
-                                        axisTick: { show: false },
-                                        axisLabel: { color: '#94a3b8', fontSize: 10 }
-                                    },
-                                    yAxis: { type: 'value', show: false },
-                                    series: [
-                                        {
-                                            data: historyData.weekly_vol_pulse.volumes || [],
-                                            type: 'line',
-                                            smooth: true,
-                                            symbol: 'none',
-                                            lineStyle: { color: '#d97706', width: 3 }, // 旗艦玫瑰主線
-                                            areaStyle: {
-                                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                                    { offset: 0, color: 'rgba(217, 119, 6, 0.4)' },
-                                                    { offset: 1, color: 'rgba(217, 119, 6, 0)' }
-                                                ])
-                                            },
-                                            markLine: {
-                                                silent: true,
-                                                symbol: 'none',
-                                                label: { show: false },
-                                                data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
-                                                lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
-                                            }
-                                        }
-                                    ]
-                                };
-                                pulseChart.setOption(pulseOption);
-                                window.addEventListener('resize', () => pulseChart.resize());
-                                observerPulse.unobserve(pulseDom);
+            const historyData = {{ history_delta | tojson if history_delta else '{}'
+        }};
+        if (historyData && historyData.weekly_vol_pulse) {
+            const pulseDom = document.getElementById('weeklyPulseChart');
+            if (pulseDom) {
+                const pulseChart = echarts.init(pulseDom);
+                const pulseOption = {
+                    grid: { top: 5, bottom: 20, left: 0, right: 0 },
+                    xAxis: {
+                        type: 'category',
+                        data: historyData.weekly_vol_pulse.labels || [],
+                        show: true,
+                        axisLine: { show: false },
+                        axisTick: { show: false },
+                        axisLabel: { color: '#94a3b8', fontSize: 10 }
+                    },
+                    yAxis: { type: 'value', show: false },
+                    series: [
+                        {
+                            data: historyData.weekly_vol_pulse.volumes || [],
+                            type: 'line',
+                            smooth: true,
+                            symbol: 'none',
+                                lineStyle: { color: '#db2777', width: 3 }, // 旗艦玫瑰主線
+                                areaStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: 'rgba(219, 39, 119, 0.4)' },
+                                        { offset: 1, color: 'rgba(219, 39, 119, 0)' }
+                                    ])
+                                },
+                            markLine: {
+                                silent: true,
+                                symbol: 'none',
+                                label: { show: false },
+                                data: [{ yAxis: historyData.weekly_vol_pulse.average || 0 }],
+                                lineStyle: { type: 'dashed', color: '#cbd5e1', width: 1 }
                             }
-                        });
-                    }, { threshold: 0.1 });
-                    observerPulse.observe(pulseDom);
-                }
+                        }
+                    ]
+                };
+                pulseChart.setOption(pulseOption);
+                window.addEventListener('resize', () => pulseChart.resize());
             }
+        }
         } catch (e) {
             console.error('⚠️ Weekly Pulse Chart Error:', e);
         }
