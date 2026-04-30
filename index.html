@@ -6,32 +6,28 @@
     <title>YaYa Tactical Hub | 傳說對決 AI 輿情監測旗艦</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        :root {
-            --bg-deep: #020617;
-            --bg-card: rgba(15, 23, 42, 0.6);
-            --primary: #6366f1;
-            --accent: #7c3aed;
-            --cyan: #22d3ee;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --glass-border: rgba(99, 102, 241, 0.2);
+        html, body {
+            height: auto;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto !important; /* 強制開啟捲動 */
+            -webkit-overflow-scrolling: touch; /* 提升 iOS 捲動流暢度 */
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: #020617;
-            background-image: radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.1) 0%, transparent 40%),
+            background-image: radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.3) 0%, transparent 60%),
                               radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
             color: var(--text-main);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            justify-content: flex-start;
+            padding-top: 4rem;
+            padding-bottom: 6rem;
             position: relative;
         }
 
@@ -60,12 +56,12 @@
             100% { transform: translateY(-10vh) scale(0); opacity: 0; }
         }
 
-        /* 🌌 背景網格 (對應截圖) */
+        /* 🌌 背景網格 */
         .grid-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
             background-size: 40px 40px;
             z-index: 0;
         }
@@ -73,13 +69,14 @@
         .hero-section {
             z-index: 10;
             text-align: center;
-            padding: 2rem;
+            padding: 1rem;
             max-width: 900px;
             animation: fadeIn 1.2s ease-out;
+            width: 100%;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -94,15 +91,15 @@
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 140px; height: 140px;
-            background: var(--primary);
+            background: var(--accent);
             filter: blur(50px);
-            opacity: 0.2;
+            opacity: 0.3;
             animation: pulse 4s infinite alternate;
         }
 
         @keyframes pulse {
-            from { opacity: 0.1; scale: 1; background: var(--primary); }
-            to { opacity: 0.4; scale: 1.2; background: var(--accent); }
+            from { opacity: 0.2; scale: 1; background: var(--primary); }
+            to { opacity: 0.5; scale: 1.3; background: var(--accent); }
         }
 
         .zap-icon {
@@ -111,15 +108,15 @@
             color: var(--cyan); 
             position: relative; 
             z-index: 2;
-            transform: rotate(-15deg); /* 對應截圖傾斜角度 */
+            transform: rotate(-15deg);
             filter: drop-shadow(0 0 15px var(--cyan));
         }
 
         h1 {
-            font-size: 4rem;
+            font-size: 3.5rem; /* 稍微縮小以利排版 */
             font-weight: 700;
-            letter-spacing: -1.5px;
-            background: linear-gradient(to right, #fff 20%, var(--cyan) 50%, var(--primary) 80%);
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff 20%, var(--cyan) 50%, var(--accent) 80%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -127,10 +124,10 @@
         }
 
         p.subtitle {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             color: var(--text-dim);
-            margin-bottom: 3.5rem;
-            line-height: 1.6;
+            margin-bottom: 2.5rem; /* 縮減間距 */
+            line-height: 1.5;
             font-weight: 300;
         }
 
@@ -139,97 +136,106 @@
             flex-direction: column;
             gap: 1.5rem;
             align-items: center;
+            margin-bottom: 3rem;
         }
 
         .main-btn {
-            background: linear-gradient(135deg, #4f46e5 0%, var(--primary) 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
             color: white;
-            padding: 1.2rem 3.5rem;
+            padding: 1rem 3rem;
             border-radius: 99px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 1rem;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+            transition: all 0.3s;
             border: 1px solid var(--glass-border);
             backdrop-filter: blur(10px);
         }
 
-        .main-btn:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(99, 102, 241, 0.5);
-            letter-spacing: 1px;
-            border-color: var(--cyan);
+        .scroll-hint {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            opacity: 0.6;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
         }
 
         .history-grid {
-            margin-top: 5rem;
+            margin-top: 3rem; /* 縮減間距 */
             display: flex;
-            gap: 1.2rem;
+            gap: 1rem;
             flex-wrap: wrap;
             justify-content: center;
+            max-width: 1000px;
+            padding: 0 1rem;
         }
 
         .history-item {
             background: var(--bg-card);
             border: 1px solid var(--glass-border);
-            padding: 0.9rem 1.8rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 12px;
             color: var(--text-dim);
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.5rem;
             backdrop-filter: blur(15px);
         }
 
         .history-item:hover {
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(168, 85, 247, 0.15);
             color: var(--cyan);
             border-color: var(--cyan);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.8rem; }
+            body { padding-top: 2.5rem; }
+            h1 { font-size: 2.6rem; }
+            p.subtitle { font-size: 1rem; margin-bottom: 2rem; }
             .history-grid {
                 flex-direction: column;
                 align-items: stretch;
                 width: 100%;
-                max-width: 340px;
-                margin-left: auto;
-                margin-right: auto;
+                max-width: 320px;
             }
-            .history-item { justify-content: center; min-height: 48px; }
+            .history-item { justify-content: center; min-height: 44px; }
+            .hero-section { padding: 1.5rem; }
         }
 
         .footer {
-            position: absolute;
-            bottom: 2rem;
+            margin-top: 4rem;
             font-size: 0.8rem;
             color: var(--text-dim);
             opacity: 0.4;
+            padding-bottom: 2rem;
         }
 
         .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            background: rgba(34, 211, 238, 0.08);
+            background: rgba(168, 85, 247, 0.1);
             color: var(--cyan);
-            padding: 0.5rem 1.2rem;
+            padding: 0.4rem 1rem;
             border-radius: 99px;
-            font-size: 0.85rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(34, 211, 238, 0.2);
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(168, 85, 247, 0.3);
             backdrop-filter: blur(5px);
-            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -239,7 +245,7 @@
 
     <main class="hero-section">
         <div class="status-badge">
-            <i data-lucide="shield-check" style="width:16px"></i>
+            <i data-lucide="shield-check" style="width:14px"></i>
             系統在線：數據指揮中樞已就緒
         </div>
 
@@ -259,6 +265,10 @@
                 進入最新戰報 (2026-05-01 v26)
                 <i data-lucide="arrow-right"></i>
             </a>
+            <div class="scroll-hint">
+                <i data-lucide="chevron-down" style="width:16px"></i>
+                向下捲動查看歷史情報
+            </div>
         </div>
 
         <div class="history-grid">
@@ -278,9 +288,9 @@
                 <i data-lucide="history" style="width: 14px"></i>
                 04/27 戰報
             </a>
-            <a href="#" class="history-item" style="opacity: 0.5; cursor: default;">
+            <a href="data/reports/aov_report_2026-04-26.html" class="history-item">
                 <i data-lucide="history" style="width: 14px"></i>
-                — 暫無歷史報告
+                04/26 戰報
             </a>
         </div>
     </main>
