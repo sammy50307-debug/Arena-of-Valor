@@ -71,9 +71,8 @@
         }
 
         body {
-            background-color: #0f172a;
+            background: transparent !important;
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background: var(--bg-gradient);
             color: var(--text-main);
             scroll-behavior: smooth;
         }
@@ -101,9 +100,10 @@
             left: 0;
             width: 100%;
             height: calc(var(--vh, 1vh) * 100);
-            z-index: -100;
+            z-index: -2; /* Close to body base */
             pointer-events: none;
             
+            background-color: #0f172a; /* Fallback color moved here */
             background-image: url('../../yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
@@ -295,8 +295,9 @@
             }
 
             .fixed-background-fortress {
-                background-position: 35% 15% !important; /* Perfectly centers Yaya's face as per user's screenshot */
+                background-position: 35% 15% !important; 
                 height: calc(var(--vh, 1vh) * 100) !important;
+                z-index: -2 !important;
             }
 
             .header, .region-nav, .date-pill {
