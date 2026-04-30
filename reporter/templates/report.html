@@ -100,11 +100,11 @@
         /* ── Phase 40: Immersive Character Background ── */
         .fixed-background-fortress {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 120vmax; /* Larger than viewport to cover all resize cases */
-            height: 120vmax;
-            transform: translate(-50%, -50%) translateZ(0);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            height: 100lvh; /* Prevent iOS address bar resize zooming */
             background-image: url('yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
@@ -112,7 +112,8 @@
             opacity: 0.8;
             z-index: -20;
             pointer-events: none;
-            -webkit-transform: translate(-50%, -50%) translateZ(0);
+            -webkit-transform: translateZ(0); /* Hardware acceleration */
+            transform: translateZ(0);
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -291,9 +292,13 @@
             }
 
             .fixed-background-fortress {
-                background-position: 15% center !important; /* Shift to show Yaya's peace sign and face */
-                width: 150vmax !important; /* Even larger on mobile to stay safe */
-                height: 150vmax !important;
+                background-position: 15% center !important; /* Restore user-approved crop */
+            }
+
+            .audio-player-container {
+                position: relative !important;
+                top: 0 !important;
+                animation: none !important;
             }
         }
 
@@ -722,6 +727,7 @@
             top: 20px;
             z-index: 1000;
             animation: playerFloat 4s ease-in-out infinite;
+            will-change: transform;
         }
 
         @keyframes playerFloat {
@@ -1214,8 +1220,9 @@
 
     <div class="sakura-container" id="sakura-box"></div>
     <script>
-        // Sakura Particle Generator
+        // Sakura Particle Generator - Disabled on mobile to prevent overheating
         function createSakura() {
+            if (window.innerWidth < 768) return; 
             const container = document.getElementById('sakura-box');
             if (!container) return;
             const s = document.createElement('div');
@@ -1248,10 +1255,12 @@
         <div class="global-insights-card">
             <div
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2); line-height: 1.2;">
-                    <span style="display: block;">💬 台服消息</span>
-                    <span style="display: block;">資訊中心</span>
-                    <span style="display: block; font-size: 0.8rem; font-weight: 400; color: var(--text-muted); margin-top: 0.3rem;">TAIWAN INFO CENTER</span>
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2); line-height: 1.2; text-align: center; width: 100%;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <span>💬 台服消息</span>
+                        <span>資訊中心</span>
+                        <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); margin-top: 0.3rem;">TAIWAN INFO CENTER</span>
+                    </div>
                 </h2>
                 <div class="live-pulse" style="background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);"></div>
             </div>
