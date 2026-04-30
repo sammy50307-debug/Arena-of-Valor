@@ -1,3 +1,5 @@
+﻿> ⛔ **此檔 4316+ 行勿全讀**。請先 `grep -n "^### " TASK_HISTORY.md` 探錨點，再 Read offset/limit 精讀（≤200 行）。詳見 `memory/history_lookup/lookup_guide.md`。
+
 1. col1col2col3
 
 # Arena of Valor 輿情監測系統：技術開發史詩 (Task Heritage Archive)
@@ -4240,3 +4242,159 @@ requirements.txt                ← +1 行 beautifulsoup4>=4.12.0
 
 - **Python 執行環境**：GitHub Actions ubuntu-22.04 + Python 3.8.x（本機 Python 3.8.5）
 - **狀態**：⏳ Phase 63 workflow 已部署，CI 除錯迭代中；待確認全流程是否跑通。
+
+---
+
+### 📋 Phase 63.1 / 63.2 / 63.3 計畫書凍結紀錄（2026-04-26 深夜定案、待動工）
+
+- **觸發背景**：Phase 63 GitHub Actions 部署當晚（2026-04-26），主公發現 GitHub Pages 戰報停在 `2026-04-05`，且 LINE 點按鈕進去網頁「畫面有在跑只是滑動不了」。連夜在視窗 `486ea5c2-9ab9-41e0-8457-66122dc2d1e6` 凍結了 v1.2 計畫書，但**該計畫書當時未入編 TASK_HISTORY 與 memory**，導致新視窗無從得知。本段為 2026-04-27 補登紀錄。
+- **權威來源**：完整無損計畫書詳見 [docs/PHASE_63_PLAN.md](docs/PHASE_63_PLAN.md)。本段僅錄三大子 Phase 的核心骨架 + 凍結狀態。
+
+#### Phase 63.1 — Landing Page 自動指向最新戰報（手機+桌機完美 RWD）
+
+- **根因**：`index.html` 第 220/227/231/235 行有 4 個 `href` 全部寫死 `aov_report_2026-04-05.html`。`reporter/generator.py` 產出新戰報後**沒回頭更新 landing page**，所以 GitHub Pages 永遠停在 4-5。
+- **子階段拆解**：
+  - **63.1.0**（人工前置）：`index.html` 結構從 3 個 `<a class="history-item">` 擴成 5 個 + 桌機橫排 / 手機直排 RWD CSS
+  - **63.1.1**（自動化）：`reporter/generator.py` 新增 `_update_landing_page()` 函式（~30 行）
+  - **63.1.2**（防呆）：報告不足 5 份時用「— 暫無歷史報告」+ `href="#"` 佔位
+- **6 項風險已評估**：
+  | # | 風險 | 嚴重度 | 處置 |
+  |---|---|---|---|
+  | R1 | `.history-grid` 排版破版 | 🟠 中高 | 寫程式前先 Read 完整 CSS |
+  | R2 | 首次部署需動 HTML 結構（3→5 個 `<a>`）| 🟠 中 | 拆出 63.1.0 人工前置 |
+  | R3 | 手機橫向擠爆（5 個並排每個僅 ~70px） | 🟡 中 | mobile RWD 改 1 欄直排 |
+  | R4 | 報告數不足 5 份時退化 | 🟢 低 | 63.1.2 防呆處理 |
+  | R5 | 早期報告格式不一致 | 🟢 低 | 短期不處理 |
+  | R6 | 重複觸發寫入產生 git 噪音 | 🟢 低 | 內容比對 unchanged 則 skip |
+- **RWD 規格**：
+  - 桌機（≥1024px）：5 個 history-item 一字排開橫向 grid
+  - 平板（768~1023px）：5 個並排或 3+2
+  - **手機（<768px）：5 個直排，觸控目標 ≥44px**（蘋果 HIG 標準）
+- **護欄**：
+  - regex 鎖死 `data/reports/aov_report_\d{4}-\d{2}-\d{2}\.html` 嚴格模式
+  - try/except 包整段，失敗 log warning 不阻斷主流程
+  - 內容比對 unchanged 則 skip 寫入
+
+#### Phase 63.2 — LINE 戰報頁滑動失靈排查
+
+- **主公證詞**：「畫面有在跑只是我滑動不了」→ 觸控事件被攔截，**不是渲染卡頓**。
+- **3 大嫌疑**：
+  | # | 嫌疑 | 機率 | 排查方法 |
+  |---|---|---|---|
+  | A | 戰報頁 `#fixed-background-fortress` z-index 太高吃掉觸控事件 | 🔴 高 | 檢查 `pointer-events` |
+  | B | body / main 的 `overflow` 被 CSS 鎖死 | 🟡 中 | 搜 `overflow:\s*hidden` |
+  | C | LINE in-app browser 對 `backdrop-filter + position:fixed` 有 bug | 🟡 中 | 用主公 Chrome / Safari 直接開同網址測試 |
+- **待主公測試**：用手機**原生 Chrome / Safari 直接貼那個戰報網址**——
+  - **滑得動** → 嫌疑 C（LINE 內建瀏覽器 bug，要改成「按鈕用外部瀏覽器開」）
+  - **滑不動** → 嫌疑 A 或 B（戰報頁 CSS bug）
+- **LINE 連結來源**（已查）：`notifier/line_bot.py:51` 與 `main.py:286`，`report_url = f"{base_url}/data/reports/aov_report_{date_str}.html"`——主公點 LINE 按鈕跳到的是**戰報頁本身**，不是 landing page，所以根因在戰報頁的 CSS。
+
+#### Phase 63.3 — Landing Page UI/UX 風格統一（已選策略 C）
+
+- **核心定調**：「**指揮中心入口**（Landing） vs **戰場前線**（Report）」雙場域對比
+- **配色策略**：
+
+  | 元素 | Report（戰場前線） | Landing（指揮中心入口） |
+  |---|---|---|
+  | 主色相 | 桃紅 `#db2777` / 櫻粉 | **藍紫冷色** — 候選：靛 `#6366f1` / 皇家紫 `#7c3aed` / 深海藍 `#1e3a8a` |
+  | 強調色 | 暖橘 / 玫瑰 | 電光藍 `#22d3ee` / 霓虹紫 `#a855f7` |
+  | 字型 | 同（保留品牌一致性） | 同（保留） |
+  | 玻璃質感 | 同（glassmorphism）| 同（保留） |
+  | 動畫節奏 | 同（櫻花 / 呼吸燈節奏） | 同（節奏一致） |
+  | 粒子 | 櫻花 | **改成「資料流光點」或「星塵」冷調象徵** |
+  | 情緒語感 | 熱血、活躍、戰鬥 | 冷靜、戰略、運籌帷幄 |
+- **未拍板**：具體配色組合、動畫元素細節，等真正進入 63.3 時主公再做最終決定。
+
+#### 凍結狀態（2026-04-27）
+
+| 子 Phase | 狀態 | 阻塞點 |
+|---|---|---|
+| 63.1.0 | ⏸️ 待動工 | 等主公一聲令下 |
+| 63.1.1 | ⏸️ 待 63.1.0 完成 | 依賴前置 |
+| 63.1.2 | ⏸️ 待 63.1.1 完成 | 依賴前置 |
+| 63.2 | ⏸️ 待主公手機對照測試 | 需「原生瀏覽器 vs LINE in-app」測試結果 |
+| 63.3 | ⏸️ 中長期 | 等 63.1 完工後再啟動 |
+
+- **狀態**：📋 三份草案已凍結為 v1.2，全文存於 `docs/PHASE_63_PLAN.md`，待主公裁示啟動順序。
+
+### 🛡️ Phase 64 — Token 優化計畫 v0.4 落地（四層防線 + 13 元件）
+
+**日期**：2026-05-01
+**狀態**：✅ 全落地完成
+
+#### 背景與動機
+TASK_HISTORY.md 累積至 4316+ 行（≈ 135K tokens），每次新視窗開局若全讀將嚴重消耗 token 預算。主公於本視窗裁示推 v0.4 token 優化方案並即刻動工。執行模型：Sonnet 4.6（主執行，成本為 Opus 1/5）。
+
+#### 落地內容（13 元件 + 5 階段）
+
+**Phase 1 — 工具區建立**
+- `memory/history_lookup/` 目錄建立
+- 元件 7：`lookup_guide.md`（查詢三步驟、觸發詞正則、失誤恢復 SOP、子代理禁令）
+- 元件 5：`phase_map.md`（P1-P64 全 Phase 索引，按 Milestone 分組，錨點格式）
+- 元件 6：`WIP_PHASES.md`（進行中 / 凍結待動工 Phase 清單）
+- 元件 13：`memory/feedback_history_lookup_workflow.md`（記憶：工作流要點）
+
+**Phase 2 — 四層防線建立**
+- 元件 2：專案根 `CLAUDE.md`（子代理繼承第一道防線）
+- 元件 1+4：`.claude/settings.json` 加 UserPromptSubmit hook（每 turn 注入鐵律 v0.4-OK 標記）+ PreToolUse hook（呼叫 check_history_budget.sh）
+- 元件 4：`.claude/check_history_budget.sh`（計數器，超 3 次發出警示）
+- 元件 11：TASK_HISTORY.md 檔頭加物理警語（PowerShell 前置，不走 Edit 工具）
+- 元件 12：`memory/MEMORY.md` 加鐵律 4 行 + feedback_history_lookup_workflow 指標
+- `memory/feedback_startup_ritual.md` 第 7 項更新：TASK_HISTORY 讀法改為 history-tail.sh + offset 精讀
+
+**Phase 3 — 工具腳本**
+- 元件 8：`scripts/history-tail.sh`（末尾 Phase 擷取，200 行上限保護）
+- 元件 9：`scripts/finalize-phase.sh`（收官一鍵：phase_map append + WIP 移除 + Obsidian + git diff）
+
+**Phase 4 — 規則登記簿**
+- 元件 10：`docs/RULES_REGISTRY.md`（7 條規則 × 5 同步點矩陣）
+
+**Phase 5 — 驗收**
+- `bash scripts/history-tail.sh` 正常輸出末尾 71 行（P63 計畫書記錄）
+- TASK_HISTORY.md 第 1 行確認有警語
+- v0.4 文件補加「Sonnet 主執行 + Opus 救援」模型切換指引
+
+#### 額外產出（v0.4 文件更新）
+- `docs/CLAUDE_CODE_TOKEN_OPTIMIZATION_v0.4.md` 新增 `🤖 模型選擇建議` 章節：
+  - Sonnet 4.6 主執行（成本 1/5、規格明確的執行任務）
+  - Opus 4.7 救援（架構衝突判斷、模糊邊界決策）
+  - 切換指令：`/model sonnet` / `/model opus`
+
+#### 預期效益（落地後）
+| 維度 | 改造前 | 改造後 |
+|---|---|---|
+| 一般對話 token | ~135K | ~5-10K（省 92-96%） |
+| 查歷史 token | ~135K | ~5-15K（省 89-96%） |
+| 寫新 Phase token | ~135K | ~0（省 100%） |
+
+#### 檔案結構（完整落地）
+```
+D:/Coding Project/Arena of Valor/
+├── CLAUDE.md                              ✅ 元件 2
+├── TASK_HISTORY.md                        ✅ 第 1 行加警語（元件 11）
+├── .claude/
+│   ├── settings.json                      ✅ 加 hooks（元件 1+4）
+│   └── check_history_budget.sh            ✅ 元件 4
+├── scripts/
+│   ├── history-tail.sh                    ✅ 元件 8
+│   └── finalize-phase.sh                  ✅ 元件 9
+└── docs/
+    ├── CLAUDE_CODE_TOKEN_OPTIMIZATION_v0.4.md  ✅ 加模型建議章節
+    └── RULES_REGISTRY.md                  ✅ 元件 10
+
+C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
+├── MEMORY.md                              ✅ 加鐵律 4 行（元件 12）
+├── feedback_history_lookup_workflow.md    ✅ 元件 13
+├── feedback_startup_ritual.md             ✅ 第 7 項更新
+└── history_lookup/                        ✅ 新資料夾
+    ├── phase_map.md                       ✅ 元件 5
+    ├── WIP_PHASES.md                      ✅ 元件 6
+    └── lookup_guide.md                    ✅ 元件 7
+```
+
+#### 風險殘餘（落地後）
+- R9 規則消失：四層防線 → **0%**
+- R10 subagent 不繼承：CLAUDE.md 物理繼承 → **0.5%**
+- R11 遞歸爆量：原子查詢 + Hook 計數 → **1%**
+- 整體災難性失守：**0%**
+
