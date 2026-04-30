@@ -1,24 +1,21 @@
 ﻿
 import json
-from jinja2 import Environment, FileSystemLoader
+import sys
 from pathlib import Path
+
+# Add project root to path
+sys.path.append(str(Path.cwd()))
+from reporter.generator import ReportGenerator
 
 # Load json
 with open('data/analysis_20260501.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
-# Set up jinja
-env = Environment(loader=FileSystemLoader('reporter/templates'))
-template = env.get_template('report.html')
-
-html = template.render(
-    date='2026-05-01',
-    daily_summary=data.get('daily_summary', '無資料'),
-    posts=data.get('posts', [])
+gen = ReportGenerator()
+gen.generate(
+    daily_summary=data.get('daily_summary', data), # Sometimes the whole thing is daily_summary
+    analyzed_posts=data.get('posts', data.get('analyzed_posts', [])),
+    output_dir=Path('data/reports')
 )
-
-for p in ['data/reports/aov_report_2026-05-01.html', 'ui_previews/aov_report_2026-05-01.html']:
-    if Path(p).parent.exists():
-        Path(p).write_text(html, encoding='utf-8')
-print('Successfully regenerated reports with correct encoding!')
+print('Successfully regenerated reports with correct encoding using generator!')
 
