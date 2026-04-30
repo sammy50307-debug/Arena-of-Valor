@@ -206,6 +206,9 @@ class ReportGenerator:
             canonical_path = output_dir / f"{base_filename}.html"
             shutil.copy2(output_path, canonical_path)
             self.logger.info(f"  [⚡] 主線更新：已覆寫推播連結至最新版本 {output_path.name}")
+            
+            # ── 🏮 Phase 63.1：更新 Landing Page 戰報連結 🏮 ──
+            self._update_landing_page(output_dir)
         except Exception as ce:
             self.logger.warning(f"  [!] 主線更新失敗: {ce}")
 
@@ -238,3 +241,71 @@ class ReportGenerator:
 
         self.logger.info(f"報告已生成: {output_path}")
         return output_path
+
+    def _update_landing_page(self, reports_dir: Path):
+        """Phase 63.1: 更新 root index.html 的 5 份戰報連結"""
+        import re
+        try:
+            root_dir = Path(__file__).resolve().parent.parent
+            index_path = root_dir / "index.html"
+            if not index_path.exists():
+                self.logger.warning("  [!] 找不到 index.html，跳過 Landing Page 更新")
+                return
+
+            html_files = []
+            for f in reports_dir.glob("aov_report_*.html"):
+                if re.match(r"^aov_report_\d{4}-\d{2}-\d{2}\.html$", f.name):
+                    html_files.append(f)
+            
+            html_files.sort(key=lambda x: x.name, reverse=True)
+            top_5 = html_files[:5]
+            
+            if not top_5:
+                return
+
+            content = index_path.read_text(encoding="utf-8")
+            new_content = content
+            
+            latest = top_5[0]
+            date_str = latest.name.replace("aov_report_", "").replace(".html", "")
+            
+            new_content = re.sub(
+                r'<a href="[^"]*" class="main-btn">',
+                f'<a href="data/reports/{latest.name}" class="main-btn">',
+                new_content,
+                count=1
+            )
+            new_content = re.sub(
+                r'進入最新戰報 \([^)]+\)',
+                f'進入最新戰報 ({date_str})',
+                new_content,
+                count=1
+            )
+            
+            def replacer(match):
+                idx = replacer.count + 1
+                replacer.count += 1
+                if idx < len(top_5):
+                    file = top_5[idx]
+                    d_str = file.name.replace("aov_report_", "").replace(".html", "")
+                    mm_dd = d_str[5:].replace("-", "/")
+                    return f'<a href="data/reports/{file.name}" class="history-item">\n                <i data-lucide="history" style="width: 14px"></i>\n                {mm_dd} 戰報\n            </a>'
+                else:
+                    return f'<a href="#" class="history-item" style="opacity: 0.5; cursor: default;">\n                <i data-lucide="history" style="width: 14px"></i>\n                — 暫無歷史報告\n            </a>'
+            
+            replacer.count = 0
+            new_content = re.sub(
+                r'<a href="[^"]*" class="history-item">.*?</a>',
+                replacer,
+                new_content,
+                flags=re.DOTALL
+            )
+            
+            if new_content != content:
+                index_path.write_text(new_content, encoding="utf-8")
+                self.logger.info("  [⚡] Landing Page 更新：已同步最新戰報連結至 index.html")
+            else:
+                self.logger.info("  [ℹ] Landing Page 更新：內容無變動")
+                
+        except Exception as e:
+            self.logger.warning(f"  [!] Landing Page 更新失敗: {e}")

@@ -173,6 +173,24 @@
             border-color: var(--cyan);
         }
 
+        @media (max-width: 768px) {
+            .history-grid {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                max-width: 320px;
+                margin-left: auto;
+                margin-right: auto;
+                gap: 12px;
+            }
+            .history-item {
+                justify-content: center;
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 44px; /* 蘋果 HIG 觸控標準 */
+            }
+        }
+
         .footer {
             position: absolute;
             bottom: 2rem;
@@ -235,6 +253,14 @@
             <a href="data/reports/aov_report_2026-04-05.html" class="history-item">
                 <i data-lucide="history" style="width: 14px"></i>
                 03/23 戰報
+            </a>
+            <a href="data/reports/aov_report_2026-04-05.html" class="history-item">
+                <i data-lucide="history" style="width: 14px"></i>
+                — 暫無歷史報告
+            </a>
+            <a href="data/reports/aov_report_2026-04-05.html" class="history-item">
+                <i data-lucide="history" style="width: 14px"></i>
+                — 暫無歷史報告
             </a>
         </div>
     </main>
