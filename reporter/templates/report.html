@@ -108,6 +108,7 @@
             opacity: 0.8;
             z-index: -20;
             pointer-events: none;
+            will-change: auto; /* Remove will-change to prevent mobile jitter */
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -190,19 +191,21 @@
             .header {
                 padding: 1.5rem 1rem 0.5rem 1rem;
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center; /* Center header content */
+                text-align: center;
                 gap: 1rem;
             }
 
             .header h1 {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
                 flex-wrap: wrap;
-                justify-content: flex-start;
+                justify-content: center; /* Center title */
+                text-align: center;
                 line-height: 1.4;
             }
             
             .header h1::before {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
 
             .region-nav {
@@ -234,6 +237,25 @@
 
             .tag-pill {
                 font-size: 14px !important;
+            }
+
+            /* --- Performance Fixes for Mobile Jitter & Lag --- */
+            .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background-color: rgba(255, 255, 255, 0.95) !important;
+                animation: none !important;
+                transform: none !important;
+                will-change: auto !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+            }
+            
+            .sakura-container {
+                display: none !important; /* Disable heavy particles on mobile */
+            }
+
+            .fixed-background-fortress {
+                background-position: 25% center !important; /* Match user phone screenshot */
             }
         }
 
