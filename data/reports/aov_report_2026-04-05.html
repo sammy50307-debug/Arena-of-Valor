@@ -1,27 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arena of Valor 輿情分析 — 2026-04-05</title>
+    <title>Arena of Valor 頛踵??? ??2026-04-05</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
         :root {
-            /* ── Phase 34.2: Lush Strategic Fusion (粉嫩戰略融合) ── */
+            /* ?? Phase 34.2: Lush Strategic Fusion (蝎咿?啁??) ?? */
             --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
             --glass-bg: rgba(255, 255, 255, 0.7);
             --glass-border: rgba(219, 39, 119, 0.2);
             --primary-accent: #db2777;
-            /* 旗艦桃紅 */
+            /* ?獢? */
             --secondary-accent: #9333ea;
-            /* 紫羅蘭 */
+            /* 蝝怎???*/
             --accent-mint: #10b981;
             --text-main: #1e293b;
-            /* 保持專業深灰對比 */
+            /* 靽?撠平瘛梁撠? */
             --text-muted: #64748b;
             --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
             --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
@@ -61,18 +61,19 @@
             }
         }
 
+        html, body { overflow-x: hidden; width: 100%; }
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
             background: var(--bg-gradient);
-            background-attachment: fixed;
+            
             color: var(--text-main);
-            min-height: 100vh;
+            min-height: 100%;
             padding-bottom: 3rem;
             margin: 0;
             scroll-behavior: smooth;
         }
 
-        /* ── Modern Mesh Background ── */
+        /* ?? Modern Mesh Background ?? */
         body::before {
             content: "";
             position: fixed;
@@ -88,29 +89,29 @@
             pointer-events: none;
         }
 
-        /* ── Phase 40: Immersive Character Background ── */
+        /* ?? Phase 40: Immersive Character Background ?? */
         .fixed-background-fortress {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background-image: url('yaya_bg.png');
             background-size: cover !important;
             -webkit-background-size: cover !important;
             background-repeat: no-repeat !important;
             background-attachment: scroll !important;
-            background-position: center center;
+            background-position: center top;
             opacity: 0.8;
             z-index: -20;
             pointer-events: none;
-            /* ⚡ 硬體加速：強制 GPU 渲染，解決行動端跳動與拼接錯誤 ⚡ */
-            -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
+            /* ??蝖祇???撘瑕 GPU 皜脫?嚗圾瘙箄??垢頝喳???仿隤???*/
+            
+            
             will-change: transform;
         }
 
-        /* ── Glassmorphism 2.0 ── */
+        /* ?? Glassmorphism 2.0 ?? */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(24px) saturate(180%);
@@ -130,7 +131,7 @@
             border: 1px solid var(--primary-accent);
         }
 
-        /* ── Responsive CSS Grid Backbone (Phase 39) ── */
+        /* ?? Responsive CSS Grid Backbone (Phase 39) ?? */
         .layout-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -195,7 +196,10 @@
             }
 
             .header h1 {
-                font-size: 1.8rem;
+                font-size: 1.5rem;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                line-height: 1.4;
             }
             
             .header h1::before {
@@ -231,7 +235,7 @@
             }
         }
 
-        /* ── Interactive Chart Wrappers ── */
+        /* ?? Interactive Chart Wrappers ?? */
         .chart-wrapper {
             position: relative;
             background: rgba(255, 255, 255, 0.4);
@@ -251,7 +255,7 @@
             border-color: var(--primary-accent);
         }
 
-        /* ── Double-Layer Isolation (No Jitter) ─ */
+        /* ?? Double-Layer Isolation (No Jitter) ? */
         .feed-container {
             display: flex;
             flex-direction: column;
@@ -260,7 +264,7 @@
 
         .post-container {
             isolation: isolate;
-            /* 物理隔離關鍵 */
+            /* ?拍??? */
             padding: 10px 0;
         }
 
@@ -285,7 +289,7 @@
             contain: layout style;
         }
 
-        /* ── 精準文字排版 (修正相容性) ────────────────── */
+        /* ?? 蝎暹????? (靽格迤?詨捆?? ?????????????????? */
         .post-title {
             font-size: 1.15rem;
             font-weight: 700;
@@ -307,7 +311,7 @@
             line-height: 1.7;
         }
 
-        /* ── Global Hub Shimmer Animation ── */
+        /* ?? Global Hub Shimmer Animation ?? */
         @keyframes shimmer {
             0% {
                 background-position: -200% 0;
@@ -358,7 +362,7 @@
             }
         }
 
-        /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
+        /* ?? Hero Focus Glow (Phase 34.3 Restore) ?? */
         .hero-focus-card {
             border: 2px solid var(--primary-accent) !important;
             filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.4));
@@ -422,7 +426,7 @@
             color: var(--accent-yellow);
         }
 
-        /* ── Hero Focus: YaYa Premium UI ────── */
+        /* ?? Hero Focus: YaYa Premium UI ?????? */
         .hero-focus-title {
             background: linear-gradient(135deg, var(--primary-accent) 0%, #f472b6 100%);
             -webkit-background-clip: text;
@@ -586,7 +590,7 @@
             }
         }
 
-        /* ── Combat Stats Panel ── */
+        /* ?? Combat Stats Panel ?? */
         .combat-stats-panel {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(10px);
@@ -640,7 +644,7 @@
             }
         }
 
-        /* ── Audio Briefing Sticky Bar ── */
+        /* ?? Audio Briefing Sticky Bar ?? */
         .audio-player-container {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(15px);
@@ -738,7 +742,7 @@
             outline: none;
         }
 
-        /* ── Tactical Advice Hub (Phase 39.5 Refinement) ───── */
+        /* ?? Tactical Advice Hub (Phase 39.5 Refinement) ????? */
         .alert-banner {
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
             border: 2px solid #fde68a;
@@ -800,7 +804,8 @@
             gap: 0.5rem;
         }
 
-        .advice-body {
+        .advice-html, body { overflow-x: hidden; width: 100%; }
+        body {
             font-size: 0.9rem;
             color: #78350f;
             line-height: 1.6;
@@ -816,7 +821,7 @@
             }
         }
 
-        /* ── Sentiment WordCloud (Phase 32) ───── */
+        /* ?? Sentiment WordCloud (Phase 32) ????? */
         .tag-cloud-section {
             margin-top: 1.5rem;
             padding-top: 1.2rem;
@@ -872,7 +877,7 @@
             z-index: 10;
         }
 
-        /* ── Global War Room UI (Phase 33) ───── */
+        /* ?? Global War Room UI (Phase 33) ????? */
         .region-nav {
             display: flex;
             gap: 1rem;
@@ -1044,7 +1049,7 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* ── Sakura Particles (Phase 34.2 Restore) ── */
+        /* ?? Sakura Particles (Phase 34.2 Restore) ?? */
         .sakura-container {
             position: fixed;
             top: 0;
@@ -1084,7 +1089,7 @@
             }
         }
 
-        /* ── Tactical Glow Adjustments ── */
+        /* ?? Tactical Glow Adjustments ?? */
         .card {
             box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
             border: 1px solid var(--glass-border);
@@ -1094,7 +1099,7 @@
             border: 1px solid rgba(219, 39, 119, 0.4);
         }
 
-        /* ── Premium Header Design (Phase 39.6) ── */
+        /* ?? Premium Header Design (Phase 39.6) ?? */
         .header {
             display: flex;
             align-items: center;
@@ -1120,7 +1125,7 @@
         }
 
         .header h1::before {
-            content: '✨';
+            content: '??;
             font-size: 2.2rem;
             animation: rotateBeat 3s infinite;
             -webkit-text-fill-color: initial;
@@ -1142,7 +1147,7 @@
 
 <body>
     <header class="header">
-        <h1>Arena of Valor 輿情分析</h1>
+        <h1>Arena of Valor 頛踵???</h1>
         <div class="date-pill">2026-04-05</div>
     </header>
 
@@ -1166,14 +1171,14 @@
         setInterval(createSakura, 300);
     </script>
     
-    <!-- 🏮 Phase 40.21: 視覺定錨堡壘 (GPU Accelerated) 🏮 -->
+    <!-- ? Phase 40.21: 閬死摰?∪? (GPU Accelerated) ? -->
     <div class="fixed-background-fortress"></div>
 
     <nav class="region-nav">
         <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
             <span class="region-indicator"
                 style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span>
-            🌸 傳說對決：台服旗艦監視中心 (TW SINGLE-CORE OPS)
+            ? ?唾牧撠捱嚗???衣閬葉敹?(TW SINGLE-CORE OPS)
         </div>
     </nav>
 
@@ -1184,7 +1189,7 @@
         <div class="global-insights-card">
             <div
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2);">💬 台服消息資訊中心
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2);">? ?唳?瘨鞈?銝剖?
                     <span
                         style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); vertical-align: middle;">TAIWAN
                         INFO CENTER</span></h2>
@@ -1192,25 +1197,25 @@
             </div>
             <div
                 style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
-                戰情摘要：台服社群近期聚焦於職業聯賽戰術下放，以及英雄『芽芽』與特定射手的搭配效益。數據顯示玩家對於環境平衡度滿意度提升。
+                ?唳???嚗?冗蝢方????行?瑟平?航魚?啗?銝嚗誑???賬??孵?撠??????＊蝷箇摰嗅??潛憓像銵∪漲皛踵?摨行???
             </div>
         </div>
 
         <div class="alert-banner">
             <div class="alert-title">
-                <span>📌</span> 今日焦點 (TODAY'S FOCUS)
+                <span>??</span> 隞?阡? (TODAY'S FOCUS)
             </div>
             <div class="alert-container">
                 
                     <!-- Flagship Fallback (Phase 39 Consistency) -->
                     <div class="alert-entry">
-                        <div class="alert-label-text">玩家活躍高峰</div>
+                        <div class="alert-label-text">?拙振瘣餉?擃陸</div>
                         <div class="tactical-box">
                             <div class="advice-header">
-                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
+                                <span>?</span> ?啗?銵??? (OPERATIONAL ADVICE)
                             </div>
                             <div class="advice-body">
-                                今日 AoV 台服熱度持續攀升。玩家正密切關注芽芽新版本變動。
+                                隞 AoV ?唳??勗漲????摰嗆迤撖??釣?質?啁??祈???
                             </div>
                         </div>
                     </div>
@@ -1228,51 +1233,51 @@
             
             <div class="card hero-focus-card">
                 <div class="card-header">
-                    <span class="card-icon">🌸</span>
-                    <h2 class="hero-focus-title">芽芽 觀察室</h2>
+                    <span class="card-icon">?</span>
+                    <h2 class="hero-focus-title">?質 閫撖恕</h2>
                 </div>
 
                 <div class="hero-summary">
-                    芽芽在今日情報中佔據核心位置。玩家普遍認可其在新版本中的護盾加強，認為是目前輔助位的版本答案。
+                    ?質?其??交??曹葉雿??詨?雿蔭?摰嗆???臬?冽?銝剔?霅瑞?撥嚗??箸?桀?頛雿??蝑???
                 </div>
 
                 <div class="hero-grid">
                     <div>
-                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">???拙振?梯降?阡?</h3>
                         
                         <div class="hero-post-item">
-                            <span style="font-size: 0.9rem;">這波加強真的有感，護盾厚到誇張</span>
+                            <span style="font-size: 0.9rem;">?郭?撥????嚗風?曉??啗?撘?/span>
                         </div>
                         
                         <div class="hero-post-item">
-                            <span style="font-size: 0.9rem;">配上射手簡直無敵，台服目前沒幾檔得住</span>
+                            <span style="font-size: 0.9rem;">??撠?蝪∠?⊥嚗???撟暹?敺?</span>
                         </div>
                         
                         <div class="hero-post-item">
-                            <span style="font-size: 0.9rem;">造型什麼時候才出？期待很久了</span>
+                            <span style="font-size: 0.9rem;">??隞暻潭????綽???敺?鈭?/span>
                         </div>
                         
                     </div>
 
                     
                     <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
-                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">?? 撠惇閮????</h3>
                         
                         <div style="margin-bottom: 0.5rem;">
                             <a href="https://example.com/aov-yaya-guide" target="_blank" class="hero-link">
-                                [Website] 該貼文討論了新版芽芽輔助在《傳說對決》中的強度，特別是其護盾增強帶來的影響，並提供相關教學。
+                                [Website] 閰脰票??隢??啁??質頛?具隤芸?瘙箝葉?撥摨佗??孵?臬霅瑞憓撥撣嗡??蔣?選?銝行?靘??摮詻?
                             </a>
                         </div>
                         
                         <div style="margin-bottom: 0.5rem;">
                             <a href="https://example.com/ptt-aov-yaya" target="_blank" class="hero-link">
-                                [Forum] 貼文討論傳說對決英雄芽芽在改版後的最佳裝備選擇，建議玩家採用半坦出裝以兼顧抗性與護盾厚度。
+                                [Forum] 鞎潭?閮??唾牧撠捱?梢??質?冽????雿唾????撱箄降?拙振?∠??箄?隞亙憿扳??扯?霅瑞?漲??
                             </a>
                         </div>
                         
                         <div style="margin-bottom: 0.5rem;">
                             <a href="https://example.com/aov-patch-notes" target="_blank" class="hero-link">
-                                [Website] 官方發布台服平衡調整公告，針對高端局節奏過快問題，削弱了勇、凡恩等多名射手，引發社群兩極反應。
+                                [Website] 摰?澆??唳?撟唾﹛隤踵?砍?嚗?撠?蝡臬?蝭憟?敹怠?憿??摹鈭???拍?憭?撠?嚗??潛冗蝢文璆萄???
                             </a>
                         </div>
                         
@@ -1293,7 +1298,7 @@
                     
                     <div class="stat-card">
                         <div class="stat-value">95.0%</div>
-                        <div class="stat-label">旗艦演示模式</div>
+                        <div class="stat-label">?瞍內璅∪?</div>
                     </div>
                     
                     <div class="stat-card">
@@ -1308,11 +1313,11 @@
             <!-- Total Volume -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-icon">📊</span>
-                    <h2>聲量總覽</h2>
+                    <span class="card-icon">??</span>
+                    <h2>?脤?蝮質汗</h2>
                 </div>
                 <div class="metric-big">12</div>
-                <div class="metric-desc">今日相關新聞與社群提及數</div>
+                <div class="metric-desc">隞?賊??啗??冗蝢斗??</div>
 
                 <div class="sentiment-grid">
                     <div class="sent-box sent-pos">
@@ -1321,19 +1326,19 @@
                             
                             <span
                                 class="delta-pill delta-up">
-                                ▲ 15.5%
+                                ??15.5%
                             </span>
                             
                         </div>
-                        <div class="lbl">正面 👍</div>
+                        <div class="lbl">甇? ??</div>
                     </div>
                     <div class="sent-box sent-neg">
                         <div class="num">1</div>
-                        <div class="lbl">負面 👎</div>
+                        <div class="lbl">鞎 ??</div>
                     </div>
                     <div class="sent-box sent-neu">
                         <div class="num">3</div>
-                        <div class="lbl">中性 😐</div>
+                        <div class="lbl">銝剜???</div>
                     </div>
                 </div>
 
@@ -1344,87 +1349,87 @@
                 <!-- Hero Sentiment Heatmap (Phase 28) -->
                 
                 <div style="margin-top: 2rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1.5rem;">
-                    <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 1rem;">🔥 英雄 24H 聲量熱度圖</h3>
+                    <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 1rem;">? ?梢? 24H ?脤??勗漲??/h3>
                     <div id="heatmapChart" style="width: 100%; height: 300px; border-radius: 12px; overflow: hidden;">
                     </div>
                 </div>
                 
-                <!-- 7 日聲量脈搏 (Phase 29) -->
+                <!-- 7 ?亥????(Phase 29) -->
                 
                 <div style="margin-top: 1.5rem; border-top: 1px dashed rgba(251, 207, 232, 0.5); padding-top: 1rem;">
-                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">📈
-                        7 日聲量脈搏</h3>
+                    <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; text-transform: uppercase;">??
+                        7 ?亥????/h3>
                     <div id="weeklyPulseChart" style="width: 100%; height: 80px;"></div>
                     <div style="font-size: 0.65rem; color: #94a3b8; text-align: right; margin-top: 4px;">
-                        虛線標示: 7 日平均熱度 (65.0)
+                        ??璅內: 7 ?亙像?摨?(65.0)
                     </div>
                 </div>
                 
 
-                <!-- 全域情緒詞雲 (Phase 32) -->
+                <!-- ?典???閰 (Phase 32) -->
                 
                 <div class="tag-cloud-section">
-                    <div class="tag-cloud-title" style="color: #059669;">✨ 今日社群讚點 (Praise)</div>
+                    <div class="tag-cloud-title" style="color: #059669;">??隞蝷曄黎霈? (Praise)</div>
                     <div class="tags-flex">
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 24px; opacity: 1.0;">
-                            加強
+                            ?撥
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 22px; opacity: 0.9666666666666667;">
-                            穩定
+                            蝛拙?
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 20px; opacity: 0.9333333333333333;">
-                            奪冠
+                            憟芸?
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 18px; opacity: 0.9;">
-                            期待
+                            ??
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 16px; opacity: 0.8666666666666667;">
-                            戰術
+                            ?啗?
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 14px; opacity: 0.8333333333333334;">
-                            平衡
+                            撟唾﹛
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 12px; opacity: 0.8;">
-                            芽芽
+                            ?質
                         </span>
                         
                         <span class="tag-pill tag-pos"
                             style="font-size: 10px; opacity: 0.7666666666666666;">
-                            輔助
+                            頛
                         </span>
                         
                     </div>
 
-                    <div class="tag-cloud-title" style="color: #dc2626; margin-top: 1.5rem;">🔥 今日社群痛點 (Pain)</div>
+                    <div class="tag-cloud-title" style="color: #dc2626; margin-top: 1.5rem;">? 隞蝷曄黎?? (Pain)</div>
                     <div class="tags-flex">
                         
                         <span class="tag-pill tag-neg"
                             style="font-size: 24px; opacity: 1.0;">
-                            削弱
+                            ?摹
                         </span>
                         
                         <span class="tag-pill tag-neg"
                             style="font-size: 22px; opacity: 0.9666666666666667;">
-                            抱怨
+                            ?望?
                         </span>
                         
                         <span class="tag-pill tag-neg"
                             style="font-size: 20px; opacity: 0.9333333333333333;">
-                            延遲
+                            撱園
                         </span>
                         
                     </div>
@@ -1435,36 +1440,36 @@
             <!-- AI Overview -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-icon">🧠</span>
-                    <h2>AI 智能解讀 (LLM)</h2>
+                    <span class="card-icon">??</span>
+                    <h2>AI ?箄閫?? (LLM)</h2>
                 </div>
                 <div class="ai-overview">
-                    <div style="margin-bottom: 1rem;">戰情摘要：台服社群近期聚焦於職業聯賽戰術下放，以及英雄『芽芽』與特定射手的搭配效益。數據顯示玩家對於環境平衡度滿意度提升。</div>
+                    <div style="margin-bottom: 1rem;">?唳???嚗?冗蝢方????行?瑟平?航魚?啗?銝嚗誑???賬??孵?撠??????＊蝷箇摰嗅??潛憓像銵∪漲皛踵?摨行???/div>
                     
                     <details style="margin-top: 1rem; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 0.8rem;">
-                        <summary style="font-size: 0.85rem; color: #64748b; cursor: pointer; font-weight: 600;">🧠 邏輯推演過程 (Chain of Thought)</summary>
-                        <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.6; white-space: pre-wrap;">1. 數據分佈顯示：關注焦點主要集中在『輔助定位』的戰術變革，正面情緒佔比 67%。
-2. 邏輯鏈條：輔助裝備調整 -&gt; 芽芽等護盾型英雄收益增加 -&gt; 射手生存環境改善 -&gt; 全體玩家挫折感降低。
-3. 風險預警：雖然目前情緒正向，但須防範因『護盾過厚』導致的對抗性流失。建議持續觀察高階排位的 BAN 掉率變化。</div>
+                        <summary style="font-size: 0.85rem; color: #64748b; cursor: pointer; font-weight: 600;">?? ?摩?冽??? (Chain of Thought)</summary>
+                        <div style="font-size: 0.85rem; color: #475569; margin-top: 0.5rem; line-height: 1.6; white-space: pre-wrap;">1. ?豢???憿舐內嚗?瘜函暺蜓閬?銝剖???拙?雿??啗?霈嚗迤?Ｘ?蝺?瘥?67%??
+2. ?摩??嚗??抵??矽??-&gt; ?質蝑風?曉??梢??嗥?憓? -&gt; 撠????啣??孵? -&gt; ?券??拙振?急???雿?
+3. 憸券?郎嚗??嗥??蝺迤??雿??脩??風?暸????渡?撠??扳?憭晞遣霅唳?蝥?撖???雿? BAN ??霈???/div>
                     </details>
                     
                 </div>
 
                 
                 <div class="recommendation-box">
-                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
-                    偵測到 API 限額，已啟動『旗艦級演示數據』保障顯示效果。目前建議持續關注芽芽的 BAN 率變動。
+                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">? ??銵?撱箄降</strong>
+                    ?菜葫??API ??嚗歇?????衣?瞍內?豢????＊蝷箸???遣霅唳?蝥?瘜刻?賜? BAN ????
                 </div>
                 
 
                 <div class="sentiment-guide">
-                    <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">📊 AI 分析標準說明</div>
+                    <div style="font-weight: 700; margin-bottom: 0.5rem; color: #475569;">?? AI ??璅?隤芣?</div>
                     <div class="guide-item"><span class="dot dot-pos"></span>
-                        <strong>正面</strong>：版本好評、造型支持、對戰獲勝慶祝、裝備強化有感。</div>
-                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>負面</strong>：Bug
-                        回報、斷線抱怨、平衡性批評、官方活動不滿。</div>
+                        <strong>甇?</strong>嚗??砍末閰??舀????啁?蟡??撥????/div>
+                    <div class="guide-item"><span class="dot dot-neg"></span> <strong>鞎</strong>嚗ug
+                        ??蝺?具像銵⊥扳閰??寞暑??皛踴?/div>
                     <div class="guide-item"><span class="dot dot-neu"></span>
-                        <strong>中性</strong>：訊息轉發、無情緒配裝詢問、一般邀請、公告同步。</div>
+                        <strong>銝剜?/strong>嚗??航??潦????閰Ｗ????祇?隢??甇乓?/div>
                 </div>
             </div>
 
@@ -1476,8 +1481,8 @@
         <div class="right-col">
             <div class="card" style="height: 100%; display: flex; flex-direction: column;">
                 <div class="card-header">
-                    <span class="card-icon">📰</span>
-                    <h2>最新動態詳情</h2>
+                    <span class="card-icon">?</span>
+                    <h2>??啣??底??/h2>
                 </div>
 
                 <div class="feed-container">
@@ -1494,10 +1499,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.0s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1506,14 +1511,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    這波芽芽的護盾增強真的太有感了！在排位賽中幾乎是非 Ban 即選的存在。本文詳細解析如何利用被動進行極致換血...
+                                    ?郭?質?風?曉?撘瑞??云??鈭??冽?雿魚銝剖嗾銋??Ban ?喲???具?底蝝啗圾??雿?刻◤?脰?璆菔??...
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1521,7 +1526,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        該貼文討論了新版芽芽輔助在《傳說對決》中的強度，特別是其護盾增強帶來的影響，並提供相關教學。
+                                        閰脰票??隢??啁??質頛?具隤芸?瘙箝葉?撥摨佗??孵?臬霅瑞憓撥撣嗡??蔣?選?銝行?靘??摮詻?
                                         
                                     </div>
                                     
@@ -1530,7 +1535,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="color: #be185d !important;">
-                                    AI 判定: POSITIVE [焦點：芽芽]
+                                    AI ?文?: POSITIVE [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1546,10 +1551,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card "
                             style="animation-delay: 0.1s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1558,14 +1563,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="">
                                     
-                                    台服戰隊在最後一波團戰中展現了驚人的韌性。玩家們紛紛表示這是有史以來最精彩的一場決賽。台服環境明顯回溫。
+                                    ?唳??圈??冽?敺?瘜Ｗ??唬葉撅鈭?鈭箇??扼摰嗅?蝝”蝷粹?隞乩??蝎曉蔗???湔捱鞈賬?憓?憿臬?皞怒?
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="">FACEBOOK</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1573,7 +1578,7 @@
                                     <div class="post-snippet original-content"
                                         style=" ">
                                         
-                                        2026傳說職業聯賽中，台服戰隊奪冠，這場被譽為史上最精彩的決賽引發玩家熱烈迴響，並使台服遊戲環境明顯回溫。
+                                        2026?唾牧?瑟平?航魚銝哨??唳??圈?憟芸?嚗鋡怨亳?箏銝?蝎曉蔗?捱鞈賢??潛摰嗥?艘?選?銝虫蝙?唳???啣??＊?澈??
                                         
                                     </div>
                                     
@@ -1582,7 +1587,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="">
-                                    AI 判定: POSITIVE 
+                                    AI ?文?: POSITIVE 
                                 </div>
                                 
                             </a>
@@ -1598,10 +1603,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.2s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1610,14 +1615,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    自從改版後，全法芽芽的出裝週期太長，推薦大家還是走半坦，不僅能抗裝還能維持護盾厚度。鄉民們討論度極高。
+                                    ?芸??寧?敺??冽??質?鋆望?憭芷嚗?血之摰園??航粥?嚗?????蝬剜?霅瑞?漲??瘞?隢漲璆菟???
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">FORUM</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1625,7 +1630,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        貼文討論傳說對決英雄芽芽在改版後的最佳裝備選擇，建議玩家採用半坦出裝以兼顧抗性與護盾厚度。
+                                        鞎潭?閮??唾牧撠捱?梢??質?冽????雿唾????撱箄降?拙振?∠??箄?隞亙憿扳??扯?霅瑞?漲??
                                         
                                     </div>
                                     
@@ -1634,7 +1639,7 @@
                                 
                                 <div class="post-sentiment text-neu"
                                     style="color: #be185d !important;">
-                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                    AI ?文?: NEUTRAL [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1650,10 +1655,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card "
                             style="animation-delay: 0.30000000000000004s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1662,14 +1667,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="">
                                     
-                                    針對台服高端局節奏過快的問題，官方今日宣布對勇、凡恩等射手進行削弱。社群情緒目前呈現兩極化反應。
+                                    ???唳?擃垢撅蝭憟?敹怎???嚗??嫣??亙恐撣???拍?撠??脰??摹?冗蝢斗?蝺???曉璆萄?????
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="">WEBSITE</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1677,7 +1682,7 @@
                                     <div class="post-snippet original-content"
                                         style=" ">
                                         
-                                        官方發布台服平衡調整公告，針對高端局節奏過快問題，削弱了勇、凡恩等多名射手，引發社群兩極反應。
+                                        摰?澆??唳?撟唾﹛隤踵?砍?嚗?撠?蝡臬?蝭憟?敹怠?憿??摹鈭???拍?憭?撠?嚗??潛冗蝢文璆萄???
                                         
                                     </div>
                                     
@@ -1686,7 +1691,7 @@
                                 
                                 <div class="post-sentiment text-neu"
                                     style="">
-                                    AI 判定: NEUTRAL 
+                                    AI ?文?: NEUTRAL 
                                 </div>
                                 
                             </a>
@@ -1702,10 +1707,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.4s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1714,14 +1719,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    這是我為芽芽畫的新造型想像圖，背景就是櫻花落下的樣子，希望官方能出這套造型！下方社群好評不斷。
+                                    ???質?怎??圈??喳????撠望瑹餉?賭??見摮?撣?摰?賢????嚗??寧冗蝢文末閰??瑯?
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">INSTAGRAM</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1729,7 +1734,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        玩家分享了為英雄芽芽設計的櫻花主題新造型想像圖，並表達希望官方能推出此造型的願望。
+                                        ?拙振?澈鈭?梢??質閮剛??姣?曹蜓憿???喳???銝西”?????寡?典甇日?????
                                         
                                     </div>
                                     
@@ -1738,7 +1743,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="color: #be185d !important;">
-                                    AI 判定: POSITIVE [焦點：芽芽]
+                                    AI ?文?: POSITIVE [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1754,10 +1759,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.5s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1766,14 +1771,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    在最新的 GCS 比賽中，這種配合展現了強大的地圖控制力。分析師認為這將成為本季台服的主流體系。
+                                    ?冽??啁? GCS 瘥魚銝哨??車??撅鈭撥憭抒??啣??批???葦隤????砍迤?唳??蜓瘚?蝟颯?
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1781,7 +1786,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        貼文分析了GCS職業聯賽中芽芽與克里希的配合戰術，並預測其將成為台服主流。
+                                        鞎潭???鈭CS?瑟平?航魚銝剛?質???撣????啗?嚗蒂?葫?嗅???唳?銝餅???
                                         
                                     </div>
                                     
@@ -1790,7 +1795,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="color: #be185d !important;">
-                                    AI 判定: POSITIVE [焦點：芽芽]
+                                    AI ?文?: POSITIVE [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1806,10 +1811,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.6000000000000001s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1818,14 +1823,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    真的很討厭隊友選了芽芽結果整場不放技能。希望官方能加強檢舉系統。此帖引發了大量共鳴。
+                                    ??敺??剝??鈭?賜???港??暹??賬????寡?撥瑼Ｚ?蝟餌絞?迨撣??潔?憭折??梢陷??
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">FORUM</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1833,7 +1838,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        玩家抱怨隊友選芽芽後掛機不放技能，並對遊戲內的檢舉系統表達強烈不滿，認為其機制有問題。
+                                        ?拙振?望券???質敺?璈??暹??踝?銝血???抒?瑼Ｚ?蝟餌絞銵券?撘瑞?銝遛嚗??箏璈??憿?
                                         
                                     </div>
                                     
@@ -1842,7 +1847,7 @@
                                 
                                 <div class="post-sentiment text-neg"
                                     style="color: #be185d !important;">
-                                    AI 判定: NEGATIVE [焦點：芽芽]
+                                    AI ?文?: NEGATIVE [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1858,10 +1863,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.7000000000000001s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1870,14 +1875,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    官方釋出了神秘的剪影，看起來與芽芽的背景故事有關。台服玩家對此充滿期待。
+                                    摰?鈭?蝘??芸蔣嚗?韏瑚???賜????????摰嗅?甇文?皛踵?敺?
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">FACEBOOK</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1885,7 +1890,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        傳說對決台服官方預告了與芽芽背景故事相關的新角色，引起玩家高度期待。
+                                        ?唾牧撠捱?唳?摰??鈭??質????賊??閫嚗?韏瑞摰園?摨行?敺?
                                         
                                     </div>
                                     
@@ -1894,7 +1899,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="color: #be185d !important;">
-                                    AI 判定: POSITIVE [焦點：芽芽]
+                                    AI ?文?: POSITIVE [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1910,10 +1915,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.8s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1922,14 +1927,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    本指南專為那些喜歡輔助位置的新人設計。詳細列出了技能加點與遊走路線。是目前新手圈最熱門的文章。
+                                    ?祆????粹鈭?甇∟??拐?蝵桃??唬犖閮剛??底蝝啣??箔???賢?暺??粥頝舐???桀??唳????梢???蝡?
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">WEBSITE</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1937,7 +1942,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        一篇針對新手玩家，關於輔助英雄芽芽的技能加點與遊走路線的教學指南。
+                                        銝蝭?撠?摰塚??頛?梢??質???賢?暺??粥頝舐???摮豢???
                                         
                                     </div>
                                     
@@ -1946,7 +1951,7 @@
                                 
                                 <div class="post-sentiment text-neu"
                                     style="color: #be185d !important;">
-                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                    AI ?文?: NEUTRAL [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -1962,10 +1967,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 0.9s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -1974,14 +1979,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    經過數據測試，在 40% 冷卻縮減下，芽芽能提供幾乎不間斷的護盾。這在後期是大優勢。
+                                    蝬??豢?皜祈岫嚗 40% ?瑕蝮格?銝??質?賣?靘嗾銋???風?整敺??臬之?芸??
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">YOUTUBE</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -1989,7 +1994,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        貼文透過實測數據，分析芽芽在40%冷卻縮減下，其被動護盾能幾乎不間斷地提供，並在後期會戰中展現巨大優勢。
+                                        鞎潭???撖行葫?豢?嚗???賢40%?瑕蝮格?銝??嗉◤?風?曇撟曆?銝??瑕??嚗蒂?典????唬葉撅撌典之?芸??
                                         
                                     </div>
                                     
@@ -1998,7 +2003,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="color: #be185d !important;">
-                                    AI 判定: POSITIVE [焦點：芽芽]
+                                    AI ?文?: POSITIVE [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -2014,10 +2019,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card yaya-highlight"
                             style="animation-delay: 1.0s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -2026,14 +2031,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="color: #db2777;">
                                     
-                                    為了比賽多樣性，社群盃宣佈暫時禁選芽芽。這引發了輔助玩家的廣泛討論。
+                                    ?箔?瘥魚憭見?改?蝷曄黎?恐雿???貉?賬??潔?頛?拙振?誨瘜?隢?
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="background: #fdf2f8; color: #db2777;">FACEBOOK</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -2041,7 +2046,7 @@
                                     <div class="post-snippet original-content"
                                         style=" color: #831843;">
                                         
-                                        台服社群盃已開放報名，其中芽芽被暫時禁選的規則引發了輔助玩家的廣泛討論。
+                                        ?唳?蝷曄黎?歇??勗?嚗銝剛?質◤?急?蝳?????潔?頛?拙振?誨瘜?隢?
                                         
                                     </div>
                                     
@@ -2050,7 +2055,7 @@
                                 
                                 <div class="post-sentiment text-neu"
                                     style="color: #be185d !important;">
-                                    AI 判定: NEUTRAL [焦點：芽芽]
+                                    AI ?文?: NEUTRAL [?阡?嚗?稽
                                 </div>
                                 
                             </a>
@@ -2066,10 +2071,10 @@
                     <div class="post-container filterable-region" data-region="TW">
                         <div class="post-card "
                             style="animation-delay: 1.1s;">
-                            <!-- 區域標籤 (Phase 33) -->
+                            <!-- ???蝐?(Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-tw">
-                                    🇹🇼 TW
+                                    ?? TW
                                 </span>
                                 
                             </div>
@@ -2078,14 +2083,14 @@
                                 style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="">
                                     
-                                    受惠於近期的大型聯名活動，台服重回應用商店榜首。玩家回流速度驚人。
+                                    ???潸???憭批??臬?瘣餃?嚗?????典?摨?擐摰嗅?瘚漲撽犖??
                                     
                                 </div>
 
                                 <div class="post-meta">
                                     <span class="post-platform"
                                         style="">WEBSITE</span>
-                                    <span>時間未知</span>
+                                    <span>???芰</span>
                                     
                                 </div>
 
@@ -2093,7 +2098,7 @@
                                     <div class="post-snippet original-content"
                                         style=" ">
                                         
-                                        傳說對決台服因近期大型聯名活動，下載量突破新高並重回應用商店榜首，吸引大量玩家回流。
+                                        ?唾牧撠捱?唳????之??暑??銝????湔擃蒂?????璁?嚗撘之?摰嗅?瘚?
                                         
                                     </div>
                                     
@@ -2102,7 +2107,7 @@
                                 
                                 <div class="post-sentiment text-pos"
                                     style="">
-                                    AI 判定: POSITIVE 
+                                    AI ?文?: POSITIVE 
                                 </div>
                                 
                             </a>
@@ -2118,7 +2123,7 @@
     </div>
 
     <script>
-        // ── 各平台貼文數量長條圖 (Phase 37 Final Moe Fix) ──
+        // ?? ?像?啗票??璇? (Phase 37 Final Moe Fix) ??
         try {
             const platformCtx = document.getElementById('platformChart').getContext('2d');
             const platformDataObj = {"dcard": {"avg_sentiment": 0.5, "post_count": 0}, "facebook": {"post_count": 5, "sentiment_ratio": 0.8}, "instagram": {"avg_sentiment": 0.5, "post_count": 0}, "ptt": {"avg_sentiment": 0.5, "post_count": 0}, "threads": {"avg_sentiment": 0.5, "post_count": 0}, "web": {"avg_sentiment": 0.5, "post_count": 0}, "youtube": {"post_count": 3, "sentiment_ratio": 0.9}};
@@ -2130,13 +2135,13 @@
             data: {
                 labels: platformLabels,
                 datasets: [{
-                    label: '貼文數',
+                    label: '鞎潭???,
                     data: platformValues,
                     backgroundColor: platformLabels.map(p => {
                         const plat = p.toLowerCase();
-                        if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
-                        if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
-                        if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃
+                        if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 蝎?
+                        if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 蝎?
+                        if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 鈭桅?
                         return '#94a3b8';
                     }),
                     borderRadius: 8
@@ -2165,10 +2170,10 @@
             }
         });
         } catch (e) {
-            console.error('⚠️ Platform Chart Error:', e);
+            console.error('?? Platform Chart Error:', e);
         }
 
-        // ── 英雄 24H 聲量熱度圖 (Phase 28) ──
+        // ?? ?梢? 24H ?脤??勗漲??(Phase 28) ??
         
         const heatmapDom = document.getElementById('heatmapChart');
         if (heatmapDom) {
@@ -2183,10 +2188,10 @@
                     textStyle: { color: '#1e293b', fontFamily: 'Outfit' },
                     extraCssText: 'box-shadow: 0 10px 25px rgba(219, 39, 119, 0.2); backdrop-filter: blur(10px); border-radius: 12px;',
                     formatter: function (params) {
-                        const mood = params.value[3] === 1 ? '😊 正面' : (params.value[3] === -1 ? '😡 負面' : '😐 中性');
+                        const mood = params.value[3] === 1 ? '?? 甇?' : (params.value[3] === -1 ? '? 鞎' : '?? 銝剜?);
                         return `<b style="color: #db2777; font-size: 1.1em;">${params.name} - ${params.value[0]}:00</b><br/>
-                                <span style="margin-top: 4px; display: inline-block;">熱度積分: <strong style="color: #1e293b;">${params.value[2]}</strong></span><br/>
-                                主流情緒: ${mood}`;
+                                <span style="margin-top: 4px; display: inline-block;">?勗漲蝛?: <strong style="color: #1e293b;">${params.value[2]}</strong></span><br/>
+                                銝餅???: ${mood}`;
                     }
                 },
                 grid: {
@@ -2215,13 +2220,13 @@
                             left: 'center',
                                 bottom: '0',
                                     inRange: {
-                color: ['#f43f5e', '#f1f5f9', '#10b981'] // 負紅、中灰白、正綠
+                color: ['#f43f5e', '#f1f5f9', '#10b981'] // 鞎??葉?啁?迤蝬?
             },
-            text: ['火熱', '平靜'],
+            text: ['?怎', '撟喲?'],
                 show: false
         },
         series: [{
-            name: '熱度趨勢',
+            name: '?勗漲頞典',
             type: 'heatmap',
             data: [[0, 0, 3, 0], [0, 1, 26, 1], [1, 0, 8, 0], [1, 1, 14, 1], [2, 0, 4, 0], [2, 1, 24, 1], [3, 0, 5, 1], [3, 1, 9, 1], [4, 0, 10, 1], [4, 1, 14, 1], [5, 0, 9, 0], [5, 1, 19, 1], [6, 0, 3, 0], [6, 1, 17, 1], [7, 0, 10, 0], [7, 1, 22, 1]],
             label: { show: false },
@@ -2238,7 +2243,7 @@
         }
         
 
-        // ── 7 日聲量脈搏圖 (Phase 35.12 Hardening) ──
+        // ?? 7 ?亥???? (Phase 35.12 Hardening) ??
         try {
             const historyData = {"alerts": [], "heroes": {"\u76ae\u76ae": {"volume_pct": 13.935153024415351}, "\u82bd\u82bd": {"volume_pct": 9.948671867323233}}, "overall": {"avg_baseline": 65.0, "is_red_alert": false, "volume_pct": 15.5}, "weekly_vol_pulse": {"average": 70.71428571428571, "labels": ["03/30", "03/31", "04/01", "04/02", "04/03", "04/04", "04/05"], "volumes": [88, 85, 57, 66, 63, 88, 48]}};
         if (historyData && historyData.weekly_vol_pulse) {
@@ -2262,7 +2267,7 @@
                             type: 'line',
                             smooth: true,
                             symbol: 'none',
-                                lineStyle: { color: '#db2777', width: 3 }, // 旗艦玫瑰主線
+                                lineStyle: { color: '#db2777', width: 3 }, // ??怎銝餌?
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                         { offset: 0, color: 'rgba(219, 39, 119, 0.4)' },
@@ -2284,29 +2289,29 @@
             }
         }
         } catch (e) {
-            console.error('⚠️ Weekly Pulse Chart Error:', e);
+            console.error('?? Weekly Pulse Chart Error:', e);
         }
     </script>
     <script>
-        // Phase 33: 區域切換邏輯
+        // Phase 33: ?????頛?
         function switchRegion(region) {
-            console.log('🌍 切換目標區域:', region);
+            console.log('?? ???格????', region);
 
-            // 1. 更新按鈕樣式
+            // 1. ?湔??璅??
             document.querySelectorAll('.region-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
 
-            // 處理點擊事件中的 DOM
+            // ??暺?鈭辣銝剔? DOM
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
             } else {
-                // 如果是 onload 觸發，需手動查找按鈕
+                // 憒???onload 閫貊嚗????交??
                 const btn = document.querySelector(`.btn-${region.toLowerCase()}`);
                 if (btn) btn.classList.add('active');
             }
 
-            // 2. 核心過濾：隱藏非選定區域的內容
+            // 2. ?詨??蕪嚗???詨?????批捆
             const posts = document.querySelectorAll('.filterable-region');
             let found = 0;
 
@@ -2319,7 +2324,7 @@
                 }
             });
 
-            // 3. 處理「該區無資料」的視覺反饋
+            // 3. ???府??∟???閬死??
             const container = document.querySelector('.feed-container');
             let emptyMsg = document.getElementById('empty-feed-msg');
 
@@ -2329,8 +2334,8 @@
                     emptyMsg.id = 'empty-feed-msg';
                     emptyMsg.innerHTML = `
                         <div style="text-align: center; color: #94a3b8; padding: 4rem 2rem; background: rgba(255,255,255,0.2); border-radius: 20px; border: 2px dashed rgba(0,0,0,0.1);">
-                            🏝️ 該區域尚未收到情報數據<br>
-                            <small style="opacity: 0.6; margin-top: 10px; display: block;">請嘗試切換全球視角或其他分區</small>
+                            ??儭?閰脣????芣?唳??望??br>
+                            <small style="opacity: 0.6; margin-top: 10px; display: block;">隢?閰血????閫??嗡???</small>
                         </div>`;
                     container.appendChild(emptyMsg);
                 }
@@ -2338,11 +2343,11 @@
                 emptyMsg.remove();
             }
 
-            // 平滑回滾頂部，營造更換戰場的儀式感
+            // 撟單??遝?嚗????渡??撘?
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Phase 33: AI 翻譯/原文對覽切換
+        // Phase 33: AI 蝧餉陌/??撠汗??
         function toggleTranslation(btn) {
             const card = btn.closest('.post-card');
             const original = card.querySelector('.original-content');
@@ -2351,15 +2356,15 @@
             if (original.style.display === 'none') {
                 original.style.display = 'block';
                 translated.style.display = 'none';
-                btn.innerHTML = '<span class="icon">🔍</span> 查看譯文';
+                btn.innerHTML = '<span class="icon">??</span> ?亦?霅舀?';
             } else {
                 original.style.display = 'none';
                 translated.style.display = 'block';
-                btn.innerHTML = '<span class="icon">🔍</span> 原文對覽';
+                btn.innerHTML = '<span class="icon">??</span> ??撠汗';
             }
         }
 
-        // 預設鎖定台服視角 (Phase 33 Preference)
+        // ?身???唳?閬? (Phase 33 Preference)
         window.addEventListener('load', () => {
             switchRegion('TW');
         });
