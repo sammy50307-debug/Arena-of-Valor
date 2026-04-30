@@ -64,13 +64,14 @@
         html, body {
             overflow-x: hidden;
             width: 100%;
+            height: 100%;
         }
 
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
             background: var(--bg-gradient);
             color: var(--text-main);
-            min-height: 100vh;
+            min-height: 100%;
             padding-bottom: 3rem;
             margin: 0;
             scroll-behavior: smooth;
@@ -97,10 +98,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            height: 100lvh; /* Prevent iOS address bar resize zooming */
             background-image: url('yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
@@ -108,7 +108,8 @@
             opacity: 0.8;
             z-index: -20;
             pointer-events: none;
-            will-change: auto; /* Remove will-change to prevent mobile jitter */
+            -webkit-transform: translateZ(0); /* Hardware acceleration without 3d glitch */
+            transform: translateZ(0);
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -239,23 +240,26 @@
                 font-size: 14px !important;
             }
 
-            /* --- Performance Fixes for Mobile Jitter & Lag --- */
+            /* --- Mobile UI/UX Adjustments --- */
+            body {
+                padding-bottom: 80vh; /* Allow scrolling down to view background */
+            }
+
             .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav {
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                background-color: rgba(255, 255, 255, 0.95) !important;
-                animation: none !important;
-                transform: none !important;
-                will-change: auto !important;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+                /* Restore glassmorphism but optimize blur radius for mobile GPU */
+                backdrop-filter: blur(8px) saturate(150%) !important;
+                -webkit-backdrop-filter: blur(8px) saturate(150%) !important;
+                background-color: rgba(255, 255, 255, 0.75) !important;
+                box-shadow: 0 8px 32px rgba(219, 39, 119, 0.1) !important;
             }
             
             .sakura-container {
-                display: none !important; /* Disable heavy particles on mobile */
+                display: block !important; /* Restore particles */
+                opacity: 0.5; /* Reduce opacity for performance */
             }
 
             .fixed-background-fortress {
-                background-position: 25% center !important; /* Match user phone screenshot */
+                background-position: 15% center !important; /* Shift to show Yaya's peace sign and face */
             }
         }
 
