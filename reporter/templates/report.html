@@ -85,7 +85,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(var(--vh, 1vh) * 100);
             background:
                 radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
@@ -1240,8 +1240,8 @@
         setInterval(createSakura, 300);
     </script>
     
-    <!-- 🏮 Phase 40.21: 視覺定錨堡壘 (GPU Accelerated) 🏮 -->
-    <div class="fixed-background-fortress"></div>
+    <!-- 🏮 Phase 63.18: 視覺定錨堡壘 (Immovable Fortress) 🏮 -->
+    <div class="fixed-background-fortress" id="stable-bg"></div>
 
     <div class="region-nav" style="text-align: center; margin-bottom: 2rem; padding: 0 2rem;">
         <span class="region-btn active">
@@ -1888,15 +1888,30 @@
         });
     </script>
     <script>
-        // Phase 63.16: The Perfect Fusion - Dynamic VH Calculation
+        // Phase 63.18: The Immovable Fortress - Width-Aware VH Lock
         (function() {
+            let lastWidth = window.innerWidth;
             const setVh = () => {
                 let vh = window.innerHeight * 0.01;
                 document.documentElement.style.setProperty('--vh', `${vh}px`);
+                
+                // Extra safety: Hard-lock the fortress div to pixel height
+                const bg = document.getElementById('stable-bg');
+                if (bg) bg.style.height = window.innerHeight + 'px';
             };
+            
             setVh();
-            window.addEventListener('resize', setVh);
-            window.addEventListener('orientationchange', setVh);
+            
+            window.addEventListener('resize', () => {
+                // Ignore height-only changes (like the URL bar sliding)
+                if (window.innerWidth !== lastWidth) {
+                    lastWidth = window.innerWidth;
+                    setVh();
+                }
+            });
+            window.addEventListener('orientationchange', () => {
+                setTimeout(setVh, 200); // Wait for browser to settle
+            });
         })();
     </script>
 </body>
