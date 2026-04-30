@@ -11,36 +11,33 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
         :root {
-            /* ── Phase 34.2: Lush Strategic Fusion (粉嫩戰略融合) ── */
-            --bg-gradient: linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%);
+            /* ── Phase 40.6: Golden Build (黃金琥珀版) ── */
+            --bg-gradient: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
             --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(219, 39, 119, 0.2);
-            --primary-accent: #db2777;
-            /* 旗艦桃紅 */
-            --secondary-accent: #9333ea;
-            /* 紫羅蘭 */
+            --glass-border: rgba(217, 119, 6, 0.2);
+            --primary-accent: #d97706;
+            --secondary-accent: #f59e0b;
             --accent-mint: #10b981;
             --text-main: #1e293b;
-            /* 保持專業深灰對比 */
             --text-muted: #64748b;
-            --card-shadow: 0 15px 35px rgba(219, 39, 119, 0.1);
-            --hover-shadow: 0 25px 50px rgba(219, 39, 119, 0.2);
-            --tw-color: #db2777;
-            --glow-neon: 0 0 15px rgba(219, 39, 119, 0.4);
-            --glow-pulse: 0 0 25px rgba(219, 39, 119, 0.6);
+            --card-shadow: 0 15px 35px rgba(217, 119, 6, 0.1);
+            --hover-shadow: 0 25px 50px rgba(217, 119, 6, 0.2);
+            --tw-color: #d97706;
+            --glow-neon: 0 0 15px rgba(217, 119, 6, 0.4);
+            --glow-pulse: 0 0 25px rgba(217, 119, 6, 0.6);
         }
 
         @keyframes neon-breath {
             0% {
-                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+                box-shadow: 0 10px 30px rgba(217, 119, 6, 0.1), 0 0 10px rgba(217, 119, 6, 0.1);
             }
 
             50% {
-                box-shadow: 0 15px 45px rgba(219, 39, 119, 0.2), 0 0 25px rgba(219, 39, 119, 0.4);
+                box-shadow: 0 15px 45px rgba(217, 119, 6, 0.2), 0 0 25px rgba(217, 119, 6, 0.4);
             }
 
             100% {
-                box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.1);
+                box-shadow: 0 10px 30px rgba(217, 119, 6, 0.1), 0 0 10px rgba(217, 119, 6, 0.1);
             }
         }
 
@@ -289,7 +286,7 @@
             }
 
             .fixed-background-fortress {
-                background-position: 35% 15% !important; 
+                background-position: 22% 15% !important; /* Inclusion of Hand (YA) and Face */
                 height: 120vh !important;
                 top: -10vh !important;
                 z-index: -2 !important;
@@ -429,7 +426,7 @@
         /* ── Hero Focus Glow (Phase 34.3 Restore) ── */
         .hero-focus-card {
             border: 2px solid var(--primary-accent) !important;
-            filter: drop-shadow(0 0 15px rgba(219, 39, 119, 0.4));
+            filter: drop-shadow(0 0 15px rgba(217, 119, 6, 0.4));
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(253, 242, 248, 0.9) 100%) !important;
             animation: neon-breath 4s ease-in-out infinite;
         }
@@ -599,13 +596,13 @@
             font-weight: 700;
             font-size: 0.9rem;
             padding: 0.4rem 0.8rem;
-            background: rgba(219, 39, 119, 0.1);
+            background: rgba(217, 119, 6, 0.1);
             border-radius: 6px;
             transition: all 0.3s ease;
         }
 
         .hero-link:hover {
-            background: rgba(219, 39, 119, 0.2);
+            background: rgba(217, 119, 6, 0.2);
             transform: translateX(5px);
         }
 
@@ -1030,8 +1027,8 @@
 
         .translate-btn {
             background: rgba(219, 39, 119, 0.05);
-            border: 1px solid rgba(219, 39, 119, 0.1);
-            color: #db2777;
+            border: 1px solid rgba(217, 119, 6, 0.1);
+            color: #d97706;
             font-size: 0.7rem;
             padding: 2px 8px;
             border-radius: 4px;
@@ -1040,7 +1037,7 @@
         }
 
         .translate-btn:hover {
-            background: rgba(219, 39, 119, 0.1);
+            background: rgba(217, 119, 6, 0.1);
         }
 
         .live-pulse {
@@ -1155,12 +1152,12 @@
 
         /* ── Tactical Glow Adjustments ── */
         .card {
-            box-shadow: 0 10px 30px rgba(219, 39, 119, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
+            box-shadow: 0 10px 30px rgba(217, 119, 6, 0.1), 0 0 10px rgba(219, 39, 119, 0.05);
             border: 1px solid var(--glass-border);
         }
 
         .card:hover {
-            border: 1px solid rgba(219, 39, 119, 0.4);
+            border: 1px solid rgba(217, 119, 6, 0.4);
         }
 
         /* ── Premium Header Design (Phase 39.6) ── */
@@ -1182,7 +1179,7 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -1px;
-            filter: drop-shadow(0 4px 10px rgba(219, 39, 119, 0.2));
+            filter: drop-shadow(0 4px 10px rgba(217, 119, 6, 0.2));
             display: flex;
             align-items: center;
             gap: 0.8rem;
@@ -1252,7 +1249,7 @@
         <div class="global-insights-card">
             <div
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-accent); padding-bottom: 0.8rem; position: relative; z-index: 5;">
-                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(219, 39, 119, 0.2); line-height: 1.2; text-align: center; width: 100%;">
+                <h2 style="font-size: 1.5rem; color: var(--primary-accent); margin: 0; font-weight: 800; text-shadow: 0 0 15px rgba(217, 119, 6, 0.2); line-height: 1.2; text-align: center; width: 100%;">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <span>💬 台服消息</span>
                         <span>資訊中心</span>
@@ -1570,7 +1567,7 @@
 
                             <a href="{{ post_data.get('url', '#') }}" target="_blank"
                                 style="text-decoration: none; color: inherit;">
-                                <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
+                                <div class="post-title" style="{% if is_yaya %}color: #d97706;{% endif %}">
                                     {% if post_data.get('content') %}
                                     {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
                                     {% else %}
@@ -1580,7 +1577,7 @@
 
                                 <div class="post-meta">
                                     <span class="post-platform"
-                                        style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
+                                        style="{% if is_yaya %}background: #fdf2f8; color: #d97706;{% endif %}">{{
                                         post_data.get('platform', 'Unknown')|upper }}</span>
                                     <span>{{ post_data.get('published_date') if post_data.get('published_date') else
                                         post_data.get('timestamp', '時間未知') }}</span>
@@ -1666,12 +1663,12 @@
                     tooltip: {
                         cornerRadius: 12,
                         backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                        titleColor: '#db2777',
+                        titleColor: '#d97706',
                         bodyColor: '#1e293b',
                         borderColor: 'rgba(219, 39, 119, 0.3)',
                         borderWidth: 1,
                         padding: 12,
-                        boxShadow: '0 10px 25px rgba(219, 39, 119, 0.2)'
+                        boxShadow: '0 10px 25px rgba(217, 119, 6, 0.2)'
                     }
                 },
                 scales: {
@@ -1698,10 +1695,10 @@
                     borderWidth: 1,
                     padding: 12,
                     textStyle: { color: '#1e293b', fontFamily: 'Outfit' },
-                    extraCssText: 'box-shadow: 0 10px 25px rgba(219, 39, 119, 0.2); backdrop-filter: blur(10px); border-radius: 12px;',
+                    extraCssText: 'box-shadow: 0 10px 25px rgba(217, 119, 6, 0.2); backdrop-filter: blur(10px); border-radius: 12px;',
                     formatter: function (params) {
                         const mood = params.value[3] === 1 ? '😊 正面' : (params.value[3] === -1 ? '😡 負面' : '😐 中性');
-                        return `<b style="color: #db2777; font-size: 1.1em;">${params.name} - ${params.value[0]}:00</b><br/>
+                        return `<b style="color: #d97706; font-size: 1.1em;">${params.name} - ${params.value[0]}:00</b><br/>
                                 <span style="margin-top: 4px; display: inline-block;">熱度積分: <strong style="color: #1e293b;">${params.value[2]}</strong></span><br/>
                                 主流情緒: ${mood}`;
                     }
@@ -1781,10 +1778,10 @@
                             type: 'line',
                             smooth: true,
                             symbol: 'none',
-                                lineStyle: { color: '#db2777', width: 3 }, // 旗艦玫瑰主線
+                                lineStyle: { color: '#d97706', width: 3 }, // 旗艦玫瑰主線
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                        { offset: 0, color: 'rgba(219, 39, 119, 0.4)' },
+                                        { offset: 0, color: 'rgba(217, 119, 6, 0.4)' },
                                         { offset: 1, color: 'rgba(219, 39, 119, 0)' }
                                     ])
                                 },
