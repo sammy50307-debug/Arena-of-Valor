@@ -65,6 +65,7 @@
             overflow-x: hidden;
             width: 100%;
             height: 100%;
+            overscroll-behavior-y: none; /* Prevent iOS rubber-banding scroll tearing */
         }
 
         body {
@@ -96,11 +97,13 @@
         /* ── Phase 40: Immersive Character Background ── */
         .fixed-background-fortress {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            height: 100lvh; /* Prevent iOS address bar resize zooming */
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            width: calc(100% + 40px);
+            height: calc(100vh + 40px);
+            height: calc(100lvh + 40px); /* Prevent iOS address bar resize zooming */
             background-image: url('yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
@@ -174,7 +177,7 @@
         @media (max-width: 992px) {
             .layout-container {
                 grid-template-columns: 1fr !important;
-                padding: 0 1rem;
+                padding: 0 1.5rem; /* Better side margins for breathing room */
                 gap: 1.5rem;
             }
 
@@ -242,7 +245,24 @@
 
             /* --- Mobile UI/UX Adjustments --- */
             body {
-                padding-bottom: 80vh; /* Allow scrolling down to view background */
+                padding-bottom: 100vh !important; /* Full screen scroll space */
+            }
+            
+            .region-nav {
+                padding: 0 1.5rem !important;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .region-btn {
+                display: block !important;
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0 auto;
+                white-space: normal;
+                padding: 1rem 1.2rem !important;
+                font-size: 0.9rem;
+                border-radius: 12px;
             }
 
             .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav {
@@ -1201,13 +1221,11 @@
     <!-- 🏮 Phase 40.21: 視覺定錨堡壘 (GPU Accelerated) 🏮 -->
     <div class="fixed-background-fortress"></div>
 
-    <nav class="region-nav">
-        <div class="region-btn btn-tw active" style="cursor: default; width: 100%; justify-content: center;">
-            <span class="region-indicator"
-                style="background: var(--primary-accent); box-shadow: var(--glow-neon);"></span>
-            🌸 傳說對決：台服旗艦監視中心 (TW SINGLE-CORE OPS)
-        </div>
-    </nav>
+    <div class="region-nav" style="text-align: center; margin-bottom: 2rem; padding: 0 2rem;">
+        <span class="region-btn active">
+            🌸 傳說對決：台服旗艦監芽芽觀察室 (TW SINGLE-CORE OPS)
+        </span>
+    </div>
 
     <!-- Main Content -->
     <div class="layout-container">
