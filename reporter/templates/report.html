@@ -61,10 +61,13 @@
             }
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         html, body {
             overflow-x: hidden;
             width: 100%;
-            height: 100%;
             overscroll-behavior-y: none; /* Prevent iOS rubber-banding scroll tearing */
         }
 
@@ -183,13 +186,13 @@
 
             .global-insights-card, .alert-banner {
                 grid-column: 1 / -1 !important;
-                width: 100% !important;
+                width: auto !important; /* Let it fill grid cell naturally, avoid width 100% padding overflow */
             }
 
             .right-col {
                 position: relative;
                 top: 0;
-                width: 100% !important;
+                width: auto !important;
             }
 
             .header {
