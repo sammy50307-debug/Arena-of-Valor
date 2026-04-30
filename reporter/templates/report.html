@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Arena of Valor 輿情分析戰報</title>
     <!-- Phase 63.12: High-Priority Asset Preloading -->
-    <link rel="preload" as="image" href="yaya_bg.png">
+    <link rel="preload" as="image" href="../../yaya_bg.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -70,7 +70,7 @@
             z-index: -100;
             pointer-events: none;
             
-            background-image: url('yaya_bg.png');
+            background-image: url('../../yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center top;
@@ -258,6 +258,8 @@
             }
 
             .fixed-background-fortress {
+                background-image: url('../../yaya_bg.png') !important;
+                background-size: cover !important;
                 background-position: 15% center !important; /* The Holy Grail of Crops */
             }
 
