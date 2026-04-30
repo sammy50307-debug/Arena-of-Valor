@@ -68,7 +68,7 @@
         html, body {
             overflow-x: hidden;
             width: 100%;
-            overscroll-behavior-y: none; /* Prevent iOS rubber-banding scroll tearing */
+            -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling for iOS */
         }
 
         body {
@@ -186,13 +186,15 @@
 
             .global-insights-card, .alert-banner {
                 grid-column: 1 / -1 !important;
-                width: auto !important; /* Let it fill grid cell naturally, avoid width 100% padding overflow */
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
             }
 
             .right-col {
                 position: relative;
                 top: 0;
-                width: auto !important;
+                width: 100% !important;
             }
 
             .header {
