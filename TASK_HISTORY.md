@@ -1,4 +1,4 @@
-﻿> ⛔ **此檔 4316+ 行勿全讀**。請先 `grep -n "^### " TASK_HISTORY.md` 探錨點，再 Read offset/limit 精讀（≤200 行）。詳見 `memory/history_lookup/lookup_guide.md`。
+> ⛔ **此檔 4316+ 行勿全讀**。請先 `grep -n "^### " TASK_HISTORY.md` 探錨點，再 Read offset/limit 精讀（≤200 行）。詳見 `memory/history_lookup/lookup_guide.md`。
 
 1. col1col2col3
 
@@ -4397,4 +4397,50 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - R10 subagent 不繼承：CLAUDE.md 物理繼承 → **0.5%**
 - R11 遞歸爆量：原子查詢 + Hook 計數 → **1%**
 - 整體災難性失守：**0%**
+
+---
+
+### 🏛️ Phase 63.23：旗艦輿情戰報 — 行動端佈局最終定稿 (Flagship Mobile Finalization)
+
+- **目標**：固化主公最認可的「粉嫩戰略融合」佈局，並整合熱度圖資訊遮擋修復，達成美學與功能的終極平衡。
+- **觸發背景**：經過多次背景穩定性實驗（Jitter/Overscan）後，最終回溯並定稿於 03:12 AM 之穩定版本，作為後續開發之基準。
+
+#### 🎨 視覺與色彩物理真相 (Visual Truth)
+- **主色彩系統 (Lush Strategic Fusion)**:
+  - `--primary-accent`: `#db2777` (旗艦桃紅)
+  - `--secondary-accent`: `#9333ea` (紫羅蘭)
+  - `--bg-gradient`: `linear-gradient(135deg, #fdf2f8 0%, #f0fdf4 100%)`
+  - `--glass-border`: `rgba(219, 39, 119, 0.2)`
+- **動畫邏輯**:
+  - `neon-breath`: 桃紅呼吸感陰影，頻率 4s。
+  - `live-pulse`: 圓點縮放脈動，強化即時感。
+
+#### 📐 版面配置細節 (Layout Architecture)
+- **桌面端 (Desktop)**:
+  - `display: grid`: `2fr 1fr` (黃金比例切割)
+  - `max-width`: `1400px`
+  - `gap`: `2rem`
+- **行動端 (Mobile Optimization)**:
+  - `max-width: 992px`:
+    - `layout-container`: `display: flex !important`, `flex-direction: column !important`
+    - `padding`: `0 1.2rem`
+    - `.header`: `text-align: center`, `flex-direction: column`
+    - `particles`: `display: none` (確保效能流暢，不干擾視線)
+
+#### 🛡️ 功能性補強 (Functional Hardening)
+- **英雄 24H 熱度圖 (ECharts Heatmap)**:
+  - **核心邏輯**: `tooltip.confine: true`
+  - **成因背景**: 解決邊緣英雄（如皮皮、最頂層英雄）點選時，詳細資訊會被卡片邊緣（overflow: hidden）切斷的問題。
+  - **渲染模式**: `position: 'top'`, `backgroundColor: 'rgba(255, 255, 255, 0.85)'`
+
+#### 💾 版本存檔資訊
+- **基準 Commit**: `8f941e4` (03:12 AM) + `735e255` (Heatmap Fix)
+- **當前報表版本**: `v26`
+- **背景圖設定**: `position: fixed`, `background-size: cover`, `background-position: center center` (遵旨：維持原始設定，絕不隨意改動)
+
+#### 🚀 部署狀態
+- **GitHub Pages**: ✅ 已同步推送最新版本。
+- **快取策略**: 連結附加 `?v=26` 標記，強制繞過 LINE 內建瀏覽器快取。
+
+- **狀態**：✅ **Phase 63.23 竣工**。主公認可之旗艦版面已完成「物理真相」存檔。
 
