@@ -120,3 +120,11 @@ class HotDeployer:
             "dry_run": self.dry_run,
             "deployed_at": datetime.now().isoformat()
         }
+
+
+if __name__ == "__main__":
+    import json
+    # Default to False (full deploy) unless specified otherwise
+    deployer = HotDeployer(dry_run=False)
+    result = deployer.deploy()
+    print(json.dumps(result, indent=2, ensure_ascii=False))

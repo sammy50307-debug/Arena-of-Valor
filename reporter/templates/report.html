@@ -96,24 +96,23 @@
         /* ── Phase 63.16: The Perfect Fusion (Locked & Beautiful) ── */
         .fixed-background-fortress {
             position: fixed;
-            top: 0;
+            top: -10vh; /* Overscan to hide URL bar jumps */
             left: 0;
             width: 100%;
-            height: calc(var(--vh, 1vh) * 100);
-            z-index: -2; /* Close to body base */
+            height: 120vh; /* Extra height to prevent gaps */
+            z-index: -2;
             pointer-events: none;
             
-            background-color: #0f172a; /* Fallback color moved here */
+            background-color: #0f172a;
             background-image: url('../../yaya_bg.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center top;
             opacity: 0.8;
             
-            /* GPU Acceleration Layer - No jitter */
-            will-change: transform;
-            transform: translate3d(0,0,0);
-            -webkit-transform: translate3d(0,0,0);
+            /* Pure static layer - No transforms to prevent re-layout jitter */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         /* ── Glassmorphism 2.0 ── */
@@ -289,14 +288,10 @@
                 opacity: 0.5; /* Reduce opacity for performance */
             }
 
-            .combat-stats-panel {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
-            }
-
             .fixed-background-fortress {
                 background-position: 35% 15% !important; 
-                height: calc(var(--vh, 1vh) * 100) !important;
+                height: 120vh !important;
+                top: -10vh !important;
                 z-index: -2 !important;
             }
 
@@ -1889,31 +1884,8 @@
         });
     </script>
     <script>
-        // Phase 63.18: The Immovable Fortress - Width-Aware VH Lock
-        (function() {
-            let lastWidth = window.innerWidth;
-            const setVh = () => {
-                let vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-                
-                // Extra safety: Hard-lock the fortress div to pixel height
-                const bg = document.getElementById('stable-bg');
-                if (bg) bg.style.height = window.innerHeight + 'px';
-            };
-            
-            setVh();
-            
-            window.addEventListener('resize', () => {
-                // Ignore height-only changes (like the URL bar sliding)
-                if (window.innerWidth !== lastWidth) {
-                    lastWidth = window.innerWidth;
-                    setVh();
-                }
-            });
-            window.addEventListener('orientationchange', () => {
-                setTimeout(setVh, 200); // Wait for browser to settle
-            });
-        })();
+        // Phase 63.20: Absolute Static Overscan - No JS needed for height
+        // This prevents the browser from recalculating the background on scroll
     </script>
 </body>
 
