@@ -4486,3 +4486,48 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 
 - **狀態**：✅ **Phase 63.3 竣工**。電腦端穩重置中、行動端順暢捲動，雙端版面達成邏輯分離與美學統一。
 
+
+### 📜 Phase 63.3.1 — 編年史補遺：檔案清單 / Commit 切片 / 戰略決策歷程 (Chronicle Supplement)
+
+- **目標**：對 Phase 63.3 進行「無損技術存檔協議」深度補強，追補前次紀錄缺失的三大要素：實體修改檔案清單、commit 迭代動因、策略 C 選型理由。
+- **觸發背景**：本視窗開局稽核發現 Phase 63.3 主章節雖視覺真相完整，但缺乏「物理檔案路徑」與「決策歷程」兩大維度，違反代碼級真實的廣度要求。經主公核准方案 2，以獨立補遺章節形式追加，不動原章節 (符合編年史主權「不得合併」鐵律)。
+
+#### 📂 修改檔案清單 (Files Touched — Verified by `git diff 4c0c8ae..84f80cb --stat`)
+- `index.html`：**+106 / -70 = 176 行異動**，Landing Page 主檔 CSS 全面重構（櫻花粉 → 藍紫指揮中心）
+- `TASK_HISTORY.md`：**+42 行**（前任 Phase 63.3 主章節寫入）
+- `backups/index_before_p63_3.html`：原櫻花版本快照（未追蹤狀態，作為防火牆備份留存於 working tree）
+- **未動但被觸發驗證**：`reporter/generator.py`（自動同步邏輯經測試無破壞性影響）
+
+#### 🔄 Commit 切片動因 (Iterative Refinement Log — 4 Style Commits + 1 Docs Commit)
+- `d14fc05` style: Landing Page UI/UX Command Center
+  - **動因**：初版藍紫色系灌注，CSS 變數 `--primary: #6366f1` / `--accent: #7c3aed` / `--cyan: #22d3ee` 落地
+  - **問題殘留**：桌面端內容沉底、行動端在 LINE 瀏覽器無法捲動
+- `69c65e4` style: Landing Page UI/UX Command Center
+  - **動因**：修正桌面端垂直密度，`subtitle` 底部間距縮減至 `2rem`、`history-grid` 頂部間距縮減至 `2.5rem`
+  - **意圖**：使 5 篇戰報回歸視覺焦點區
+- `2160adf` style: Landing Page UI/UX Command Center
+  - **動因**：行動端高度解鎖戰役，`html, body` 注入 `height: auto; min-height: 100%; overflow-y: auto !important;`
+  - **關鍵突破**：解決 100vh 在 LINE 內建瀏覽器導致的溢出截斷頑疾
+- `f369d60` style: Landing Page UI/UX Command Center
+  - **動因**：最終版定稿，完成 `aov_report_2026-04-26` 至 `aov_report_2026-04-30` 共 5 篇實體戰報的 5 聯排連結歸位
+  - **狀態**：視覺與功能雙線收斂
+- `84f80cb` docs: sync TASK_HISTORY.md and finalize Phase 63.3
+  - **動因**：編年史寫入 + Obsidian 鏡像同步 + GitHub 推送
+
+#### 🤔 戰略決策歷程 (Strategy C Selection Rationale)
+- **三選項評估**：
+  - **策略 A（櫻花強化動態）**：保留現有粉嫩記憶點，疊加更強動畫
+    - 優：延續品牌印象、開發成本低
+    - 劣：與內頁「戰報指揮中心」的硬核視覺斷層，層級切換突兀
+  - **策略 B（極簡黑白）**：完全去色化，蘋果式 minimal
+    - 優：永不過時、跨端適配最易
+    - 劣：缺乏戰略系統的「資訊密度感」，與 LLM/輿情監測主題違和
+  - **策略 C（藍紫指揮中心）**：靛藍 + 戰略紫 + 電光藍三色系
+    - 優：專業感拉滿、與內頁視覺形成「外部入口 → 指揮室」的層級暗示
+    - 劣：放棄櫻花記憶點、需重訓使用者視覺認知
+- **主公裁定**：採用策略 C
+  - **核心理由**：「專業感 + 與內頁戰報視覺切換的層級暗示」優於品牌延續性
+  - **權衡接受**：以櫻花記憶點換取戰略定位升級
+- **執行原則**：DOM 結構與 ID/Class（如 `.sakura`）保持不變，僅重塗 CSS，確保 `reporter/generator.py` 自動化更新邏輯無縫對接
+
+- **狀態**：✅ **Phase 63.3.1 補遺竣工**。Phase 63.3 紀錄完整度由 A- 提升至 A+，三大缺口（檔案清單 / commit 動因 / 決策歷程）全數封閉，編年史可追溯性達到「物理真相 + 戰略真相」雙金標準。
