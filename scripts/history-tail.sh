@@ -1,11 +1,25 @@
 #!/bin/bash
 # 擷取 TASK_HISTORY.md 末尾最後一個 Phase
 # 用法：bash scripts/history-tail.sh [max_lines=200]
+# fail-loud：HISTORY 不存在或 grep 失敗時 stderr 明確報錯，exit 非零
+
+set -euo pipefail
 
 MAX_LINES="${1:-200}"
 HISTORY="TASK_HISTORY.md"
 
+if [ ! -f "$HISTORY" ]; then
+    echo "❌ [history-tail] 找不到 $HISTORY，請確認執行目錄是否為專案根目錄" >&2
+    exit 1
+fi
+
 START=$(grep -n "^### " "$HISTORY" | tail -1 | cut -d: -f1)
+
+if [ -z "$START" ]; then
+    echo "❌ [history-tail] $HISTORY 中找不到任何 '### ' 開頭的 Phase 錨點" >&2
+    exit 1
+fi
+
 TOTAL=$(wc -l < "$HISTORY")
 PHASE_LEN=$((TOTAL - START + 1))
 

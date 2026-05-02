@@ -4582,3 +4582,81 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - **試金石結論**：v3.0 對 P64 提出 7 項實質優化 + 識別 1 個致命缺口，框架不是吹牛、有實質價值
 
 - **狀態**：✅ **計畫書凍結完成、v3.1 升級完成**。Phase 64.1 與 Phase 65 雙計畫已準備就緒，動工順序為 Phase 64.1 → Phase 65。
+
+### 🛡️ Phase 64.1 — Token 防線回溯補強（7 項追溯優化）
+
+- **目標**：針對 Phase 64 v0.4 四層防線，補入 7 項缺失優化，達成「抗熵 + 可測 + 可觀察 + 可回滾」四大硬指標
+- **觸發背景**：2026-05-03 v3.0 框架回溯診斷 Phase 64 發現 7 項可立即執行優化，識別 1 個致命缺口（G5-1 規則退化警示缺）
+- **凍結日期**：2026-05-03 / **動工日**：2026-05-03 / **收官日**：2026-05-03
+
+#### 📦 5 Stage 執行結果
+
+| Stage | 內容 | 狀態 |
+|---|---|---|
+| S1 | #2 G5-1 規則退化警示（`scripts/rule-decay-check.sh`） | ✅ |
+| S2 | #3 fail-loud 補強 + #6 settings.json.bak | ✅ |
+| S3 | #1 hook 單元測試（4 scripts × 5 cases） | ✅ 22/22 全綠 |
+| S4 | #5 ADR + #7 成功經驗 Postmortem | ✅ |
+| S5 | #4 framework metric 量化驗證 | ✅ |
+
+#### 🔧 物理真相
+
+**新增檔案**：
+- `scripts/rule-decay-check.sh`：G5-1 核心，每日掃描 memory/*.md（git 最後 commit 日 vs 閾值），atomic write → `data/rule_usage_index.json`，append → `logs/rule_decay.log`；RULE_DECAY_ENABLED + RULE_DECAY_DAYS（預設 90，下限 30）環境變數控制；失敗 exit 0 不阻塞（R1+R3 韌性）
+- `.claude/settings.json.before-p64.bak`：Phase 64 前的 settings.json 備份（#6 V2 rollback）
+- `tests/test_hooks/test_check_history_budget.sh`：5 cases（counter 不存在/計數溢位/非 TASK_HISTORY 輸入）
+- `tests/test_hooks/test_history_tail.sh`：7 cases（HISTORY 不存在/短 Phase/超長 Phase 截斷）
+- `tests/test_hooks/test_finalize_phase.sh`：5 cases（無引數/缺 phase_map/正常 append）
+- `tests/test_hooks/test_user_prompt_submit.sh`：5 cases（輸出標記/重置 counter/reset 後不觸發警示）
+- `docs/adr/001-four-layer-defense-rationale.md`：#5 ADR，記錄四層防線設計決策與棄選方案
+- `docs/postmortems/2026-05-01-phase-64-success-design.md`：#7 成功經驗 Postmortem
+- `docs/TECH_DEBT.md`：M1 技術債登記簿，含 Phase 64（13 元件）+ Phase 64.1（7 元件）清單
+
+**修改檔案**：
+- `.claude/check_history_budget.sh`：加入 fail-loud（counter 寫入失敗 → stderr 提示）
+- `scripts/history-tail.sh`：加入 `set -euo pipefail`、HISTORY 不存在明確報錯
+- `scripts/finalize-phase.sh`：加入 `set -euo pipefail`、引數不足用 `$#` 判斷、Obsidian sync 失敗 stderr 警告
+- `.claude/settings.json`：加入 rule-decay UserPromptSubmit hook（`bash scripts/rule-decay-check.sh || true`）
+- `.env.example`：加入 `RULE_DECAY_ENABLED=true`、`RULE_DECAY_DAYS=90`
+
+#### 📊 #4 量化驗證結果（S5 實測，2026-05-03）
+
+| 指標 | 數值 |
+|---|---|
+| TASK_HISTORY 字元數（當前） | 170,160 字元 |
+| 全讀 token 估算 | ~68,064 tokens |
+| 四層防線初始 token 開銷 | ~820 tokens（L1:45 + L2:552 + L3:168 + L4:55） |
+| 實測節省比例 | **98.8%**（原估 92-96%，實際更優） |
+
+#### 🧪 測試總結
+
+- **22/22 全綠**（test_check_history_budget 5 + test_history_tail 7 + test_finalize_phase 5 + test_user_prompt_submit 5）
+- `rule-decay-check.sh` 正常執行：掃到 12 條規則，全部健康（distance < 90 天）
+
+#### 🔍 Exit Criteria 驗收
+
+- [x] #1 hook 單元測試：4 scripts × ≥3 cases 全綠 ✅（實際 22/22）
+- [x] #2 G5-1 規則退化警示：`scripts/rule-decay-check.sh` 跑通，12 條規則健康 ✅
+- [x] #3 R1 fail-loud：3 個 scripts 加入 stderr 錯誤輸出 + exit 非零 ✅
+- [x] #4 G4-1 framework metric：節省比例 98.8% 實測驗證 ✅
+- [x] #5 DOC2 ADR：`docs/adr/001-four-layer-defense-rationale.md` ✅
+- [x] #6 V2 rollback：`.claude/settings.json.before-p64.bak` 已建 ✅
+- [x] #7 G6-1 Postmortem：`docs/postmortems/2026-05-01-phase-64-success-design.md` ✅
+
+#### ⚠️ 風險清單（實際落地）
+
+| 風險 | 發生 | 處置 |
+|---|---|---|
+| RA3 bats-core 引入新依賴 | ❌ 未觸發 | 改用純 shell assert，零依賴 |
+| RA3 `python3` 在 Windows 無效 | ✅ 觸發 | 改用 `py -3`，加入 OS 偵測邏輯 |
+| RA1 memory 路徑錯誤 | ✅ 觸發 | 加入 `CLAUDE_MEMORY_DIR` 環境變數 + auto-memory 路徑預設 |
+| test script OLDPWD 被覆蓋 | ✅ 觸發 | 改為在測試開頭記錄 `PROJECT_DIR="$PWD"` |
+
+#### 📁 影響半徑（STR7）
+
+- 新增：9 個檔案（rule-decay-check.sh / tests/ 4 支 / docs/ 3 支 / TECH_DEBT.md）
+- 修改：5 個檔案（check_history_budget.sh / history-tail.sh / finalize-phase.sh / settings.json / .env.example）
+- 新增 bak：1 個（settings.json.before-p64.bak）
+- 副產物：data/rule_usage_index.json、logs/rule_decay.log（runtime 產生）
+
+- **狀態**：✅ **Phase 64.1 收官完成**。下一步：Phase 65
