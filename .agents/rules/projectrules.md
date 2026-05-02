@@ -61,3 +61,16 @@ trigger: always_on
 - 遇到錯誤先定位根本原因，不直接繞過（不用 --no-verify、不刪 lock file）
 - 修 bug 不順帶重構，範圍對齊任務本身
 - 測試失敗時分析原因，不要只改測試讓它過
+
+## 🏛️ 12 層品質優化框架（Phase 開工必過）
+
+每個 Phase 開工前**必須**逐層稽核下列 12 層：
+代碼層 (Code) / 邏輯層 (Logic) / 架構層 (Architecture) / 測試層 (Testing) / 資料層 (Data) / 可觀察性層 (Observability) / 韌性層 (Resilience) / 效能層 (Performance) / UX/A11y 層 / 安全層 (Security) / 部署層 (DevOps) / 成本層 (Cost)
+
+**核心要求**：
+- Phase 計畫書必含「12 層稽核表」（逐層列「採用優化項 / 該層風險 / 緩解」）
+- 不適用層級明說「N/A 因為 X」，禁止跳過不提
+- 收官前回頭檢驗，缺漏入 TASK_HISTORY 補錄
+- 環境依賴風險（外部資料品質、行動端特性）無法純代碼解，須實測收尾
+
+**完整 41 項 checklist**：見 `docs/OPTIMIZATION_FRAMEWORK.md`（權威來源）。
