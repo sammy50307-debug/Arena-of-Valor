@@ -62,15 +62,21 @@ trigger: always_on
 - 修 bug 不順帶重構，範圍對齊任務本身
 - 測試失敗時分析原因，不要只改測試讓它過
 
-## 🏛️ 12 層品質優化框架（Phase 開工必過）
+## 🏛️ 17 層品質優化框架 v2.0（Phase 開工必過）
 
-每個 Phase 開工前**必須**逐層稽核下列 12 層：
-代碼層 (Code) / 邏輯層 (Logic) / 架構層 (Architecture) / 測試層 (Testing) / 資料層 (Data) / 可觀察性層 (Observability) / 韌性層 (Resilience) / 效能層 (Performance) / UX/A11y 層 / 安全層 (Security) / 部署層 (DevOps) / 成本層 (Cost)
+每個 Phase 開工前**必須**逐層稽核下列 17 層：
+
+**S 級**（必過）：代碼 / 邏輯 / 測試 / 安全
+**A 級**（多數必過）：架構 / 資料 / 可觀察性 / 韌性 / 可維護性 / 文件 / 流程
+**B 級**（特定必過）：效能 / UX/A11y / 部署 / 成本 / 隱私 / i18n
 
 **核心要求**：
-- Phase 計畫書必含「12 層稽核表」（逐層列「採用優化項 / 該層風險 / 緩解」）
-- 不適用層級明說「N/A 因為 X」，禁止跳過不提
+- Phase 計畫書必含「17 層稽核表」（逐層列「採用優化項 / 該層風險 / 緩解」）
+- 不適用層級明說「N/A 因為 X」，禁止跳過不提（META2 強制填表）
+- META3 影響半徑：1-2 檔微 Phase 簡化 / 3-9 檔標準凍結 / 10+ 檔重大全層
+- META5 層級互鎖：動 Logic 必動 Testing、動 Architecture 必動 Documentation
+- STR1-STR8 戰略通則：統一樣板 / 退出條件 / 入口條件 / 風險登記簿 / 復盤
 - 收官前回頭檢驗，缺漏入 TASK_HISTORY 補錄
 - 環境依賴風險（外部資料品質、行動端特性）無法純代碼解，須實測收尾
 
-**完整 41 項 checklist**：見 `docs/OPTIMIZATION_FRAMEWORK.md`（權威來源）。
+**完整 50 項 checklist + META + STR 全文**：見 `docs/OPTIMIZATION_FRAMEWORK.md` v2.0（權威來源）。
