@@ -253,6 +253,17 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
         active_showcase = analysis_res["is_showcase"] or showcase
         daily_summary = await analyzer.generate_daily_summary(analyzed_posts, showcase=active_showcase)
 
+        # 注入 LLM cache 統計 meta，供報告檔頂 metadata comment 使用
+        _llm = analyzer.llm
+        _total = _llm._total_calls
+        _hits = _llm._cache_hits
+        daily_summary["_meta"] = {
+            "mode": "showcase" if active_showcase else "production",
+            "cache_hit": _hits,
+            "llm_calls": _total - _hits,
+            "total_calls": _total,
+        }
+
         # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
         # 必須在 daily_summary 產出之後才能注入
         try:

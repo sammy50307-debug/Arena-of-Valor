@@ -189,6 +189,18 @@ class ReportGenerator:
         template = self.env.get_template("report.html")
         html_content = template.render(**template_vars)
 
+        # 注入頂部 metadata comment，供主公一眼判真假
+        _meta = daily_summary.get("_meta", {})
+        _mode = _meta.get("mode", "unknown")
+        _hits = _meta.get("cache_hit", 0)
+        _total = _meta.get("total_calls", 0)
+        _llm_calls = _meta.get("llm_calls", 0)
+        _pct = int(_hits / _total * 100) if _total > 0 else 0
+        html_content = (
+            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode} -->\n"
+            + html_content
+        )
+
         # 寫入檔案 (支援版本化備份，不覆蓋舊報表)
         base_filename = f"aov_report_{report_date}"
         output_path = output_dir / f"{base_filename}.html"

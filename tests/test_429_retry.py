@@ -32,6 +32,8 @@ async def test_429_waits_60s_then_120s_before_raising():
     client.logger = MagicMock()
     client._cache = {}
     client._cache_lock = asyncio.Lock()
+    client._total_calls = 0
+    client._cache_hits = 0
 
     sleep_calls = []
 
@@ -64,6 +66,8 @@ async def test_429_recovers_if_model_succeeds_after_wait():
     client.logger = MagicMock()
     client._cache = {}
     client._cache_lock = asyncio.Lock()
+    client._total_calls = 0
+    client._cache_hits = 0
 
     call_count = 0
 

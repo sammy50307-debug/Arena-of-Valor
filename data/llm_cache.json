@@ -1,0 +1,304 @@
+{
+  "9e774eb840ad5f1f0fc934839b59430d": {
+    "reasoning": "玩家在討論英雄芽芽在改版後的裝備選擇，並提出半坦出裝的建議，認為其在實戰中比全法出裝更具優勢。內容為客觀分析與建議。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.6,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "芽芽",
+      "裝備",
+      "坦裝",
+      "全法",
+      "半坦",
+      "護盾",
+      "改版"
+    ],
+    "summary": "貼文討論傳說對決英雄芽芽在改版後的最佳裝備選擇，建議玩家採用半坦出裝以兼顧抗性與護盾厚度。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "改版",
+        "type": "版本更新"
+      }
+    ],
+    "translated_content": ""
+  },
+  "4a14922883561ba4166befdb9024af27": {
+    "reasoning": "玩家對新版芽芽輔助的護盾增強表達了高度的滿意和認可，認為其在排位賽中表現極佳，並提供了相關教學，語氣正面且具指導性。",
+    "sentiment": "positive",
+    "sentiment_score": 0.9,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "芽芽",
+      "輔助",
+      "護盾",
+      "增強",
+      "排位賽",
+      "教學",
+      "角色強度"
+    ],
+    "summary": "該貼文討論了新版芽芽輔助在《傳說對決》中的強度，特別是其護盾增強帶來的影響，並提供相關教學。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "芽芽護盾增強",
+        "type": "版本更新"
+      }
+    ],
+    "translated_content": ""
+  },
+  "43f516d3be71977a877ed7477185837d": {
+    "reasoning": "貼文直接描述了台服戰隊在傳說職業聯賽中奪冠的喜訊，並引用玩家的正面評價，如『聲量爆棚』、『最精彩的一場決賽』，以及『台服環境明顯回溫』，語氣積極正面，無反諷。",
+    "sentiment": "positive",
+    "sentiment_score": 0.95,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "電競賽事",
+    "keywords": [
+      "傳說職業聯賽",
+      "台服戰隊",
+      "奪冠",
+      "決賽",
+      "團戰",
+      "玩家聲量",
+      "台服環境"
+    ],
+    "summary": "2026傳說職業聯賽中，台服戰隊奪冠，這場被譽為史上最精彩的決賽引發玩家熱烈迴響，並使台服遊戲環境明顯回溫。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "2026 傳說職業聯賽",
+        "type": "電競賽事"
+      }
+    ],
+    "translated_content": ""
+  },
+  "548c7bc2d10e8b06dd5a0ad973abc17e": {
+    "reasoning": "貼文內容是對職業聯賽中特定英雄組合戰術的分析，語氣客觀且帶有對該戰術潛力的肯定。",
+    "sentiment": "positive",
+    "sentiment_score": 0.8,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "電競賽事",
+    "keywords": [
+      "職業聯賽",
+      "GCS",
+      "芽芽",
+      "克里希",
+      "戰術",
+      "地圖控制",
+      "台服"
+    ],
+    "summary": "貼文分析了GCS職業聯賽中芽芽與克里希的配合戰術，並預測其將成為台服主流。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "GCS 比賽",
+        "type": "電競賽事"
+      }
+    ]
+  },
+  "83e04d0bae0226fc3d84545af29177ad": {
+    "reasoning": "此貼文為官方發布的遊戲更新公告，客觀報導了台服的平衡調整內容以及社群對此的兩極化反應，不帶有發布者個人情感傾向。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "版本更新",
+    "keywords": [
+      "官方更新",
+      "台服",
+      "平衡調整",
+      "削弱",
+      "射手",
+      "勇",
+      "凡恩",
+      "高端局"
+    ],
+    "summary": "官方發布台服平衡調整公告，針對高端局節奏過快問題，削弱了勇、凡恩等多名射手，引發社群兩極反應。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "台服平衡調整公告",
+        "type": "版本更新"
+      }
+    ],
+    "translated_content": ""
+  },
+  "3f63323a8a50ac38a18af96379ce65d6": {
+    "reasoning": "玩家分享了為英雄芽芽設計的全新造型想像圖，並明確表達了希望官方能將其製作成遊戲內造型的願望，同時提及社群對此設計的正面評價，顯示出高度的參與感與期待。",
+    "sentiment": "positive",
+    "sentiment_score": 0.9,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "芽芽",
+      "新造型",
+      "櫻花",
+      "繪畫",
+      "造型想像圖",
+      "守護者"
+    ],
+    "summary": "玩家分享了為英雄芽芽設計的櫻花主題新造型想像圖，並表達希望官方能推出此造型的願望。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [],
+    "translated_content": ""
+  },
+  "7226664b001708109cd528ce6b2409e6": {
+    "reasoning": "玩家明確表達對隊友選芽芽後掛機不放技能的不滿，並認為遊戲內的檢舉機制存在問題，語氣直接且負面。",
+    "sentiment": "negative",
+    "sentiment_score": 0.9,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "遊戲體驗",
+    "keywords": [
+      "芽芽",
+      "掛機",
+      "檢舉",
+      "檢舉系統",
+      "隊友",
+      "不放技能"
+    ],
+    "summary": "玩家抱怨隊友選芽芽後掛機不放技能，並對遊戲內的檢舉系統表達強烈不滿，認為其機制有問題。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [],
+    "translated_content": ""
+  },
+  "d6fbdfc78b0a5aa5412a1a1dbc0f954f": {
+    "reasoning": "貼文內容為官方釋出新角色預告，玩家對此表示期待，情緒為正面。",
+    "sentiment": "positive",
+    "sentiment_score": 0.9,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "新角色",
+      "預告",
+      "迷霧島",
+      "守護靈",
+      "剪影",
+      "芽芽",
+      "台服玩家"
+    ],
+    "summary": "傳說對決台服官方預告了與芽芽背景故事相關的新角色，引起玩家高度期待。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "新角色預告",
+        "type": "版本更新"
+      }
+    ],
+    "translated_content": ""
+  },
+  "db39baabd72f46e68b260fcc837105f6": {
+    "reasoning": "這是一篇針對新手玩家的遊戲指南，內容直接且具教育性，旨在幫助玩家學習如何操作特定輔助英雄芽芽。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.7,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "新手",
+      "入坑指南",
+      "芽芽",
+      "輔助",
+      "技能加點",
+      "遊走路線"
+    ],
+    "summary": "一篇針對新手玩家，關於輔助英雄芽芽的技能加點與遊走路線的教學指南。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [],
+    "translated_content": ""
+  },
+  "6ad706a21e4d7113851a94146260bfb1": {
+    "reasoning": "貼文直接報導傳說對決台服下載量創新高，並明確指出是受惠於大型聯名活動，玩家回流速度驚人，語氣為正面報導。",
+    "sentiment": "positive",
+    "sentiment_score": 0.95,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "活動資訊",
+    "keywords": [
+      "傳說對決",
+      "台服",
+      "下載量",
+      "新高",
+      "聯名活動",
+      "應用商店榜首",
+      "玩家回流"
+    ],
+    "summary": "傳說對決台服因近期大型聯名活動，下載量突破新高並重回應用商店榜首，吸引大量玩家回流。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "大型聯名活動",
+        "type": "合作活動"
+      }
+    ],
+    "translated_content": ""
+  },
+  "9a49190ed93fbfde2ffe53f8d991f583": {
+    "reasoning": "貼文透過數據實測，分析了芽芽在特定條件下（40%冷卻縮減）的被動技能效果，並明確指出其在後期會戰中的優勢。內容為客觀分析並帶有對英雄能力的正面評價。",
+    "sentiment": "positive",
+    "sentiment_score": 0.85,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "芽芽",
+      "被動",
+      "護盾",
+      "冷卻縮減",
+      "會戰",
+      "後期",
+      "優勢",
+      "實測",
+      "數據"
+    ],
+    "summary": "貼文透過實測數據，分析芽芽在40%冷卻縮減下，其被動護盾能幾乎不間斷地提供，並在後期會戰中展現巨大優勢。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [],
+    "translated_content": ""
+  },
+  "e6fa3a518eb8c395b40e54af29b15040": {
+    "reasoning": "貼文客觀報導了台服社群盃的報名資訊以及其中一項規則（芽芽禁選），並指出此規則引發了玩家社群的討論，內容本身不帶有作者的個人情緒或反諷。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "電競賽事",
+    "keywords": [
+      "台服社群盃",
+      "芽芽",
+      "禁選",
+      "輔助玩家",
+      "比賽多樣性",
+      "報名"
+    ],
+    "summary": "台服社群盃已開放報名，其中芽芽被暫時禁選的規則引發了輔助玩家的廣泛討論。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "台服社群盃",
+        "type": "電競賽事"
+      }
+    ],
+    "translated_content": ""
+  }
+}
