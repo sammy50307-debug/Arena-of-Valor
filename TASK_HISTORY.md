@@ -4660,3 +4660,61 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - 副產物：data/rule_usage_index.json、logs/rule_decay.log（runtime 產生）
 
 - **狀態**：✅ **Phase 64.1 收官完成**。下一步：Phase 65
+
+### P63.4-S0 排查報告（2026-05-03）
+
+**觸發**：P63.4 v0.4 Entry Criteria 強制項，三項排查全通過後方可進 S1a。
+
+#### S0-a：cache key 穩定性
+- `gemini_client.py:62-64`：key = `hashlib.md5(system_prompt + user_prompt)` 純內容雜湊，無時間因素
+- **結論**：穩定 ✅，Bug 3 範圍不擴展，修法只改 Fallback git add 範圍
+
+#### S0-b：llm_client.py 是否走 CI path
+- `sentiment.py:131-132`：使用 GeminiClient，非 LLMClient
+- `llm_client.py:99` 的 concurrency=5 為 default param，daily pipeline 完全不呼叫
+- **結論**：不走 CI path ✅，影響半徑不擴展
+
+#### S0-c：main.py push 真根因
+- Workflow 順序：`python main.py --run-now`（line 51）→ `git config user.name/email`（line 57-58）→ Fallback push（line 61）
+- main.py 內 git commit 跑在 git config 之前 → `Author identity unknown` → CalledProcessError → push 未執行
+- 認證（GITHUB_TOKEN credential helper）本身正常，純 commit author identity 缺失
+- **結論**：git config 順序問題 ✅，S2 修法：移 git config 兩行到 python main.py 之前，不改 push 命令
+
+**三項診斷與 v0.4 計畫書預估一致，無需補遺，Entry Criteria S0 完成 ✅**
+
+### P63.4 每日 CI 報告 Showcase 模式根因修復（收官 2026-05-03）
+
+**目標**：讓每日 CI 跑出真實 LLM 分析報告，消除 showcase 假資料；cache 跨日持久化。
+
+**觸發**：P63.3 後發現連續多日報告皆為 showcase 假資料，2026-05-03 根因診斷鎖定 3 Bug。
+
+**稽核表摘要（17 層 v3.1，標準 Phase，S+A 必填）**：
+- S 級：Code/Logic/Testing/Security 全通過
+- A 級：Data（cache 入版控）/ Observability（metadata 注入）/ Maintainability（常數抽出）/ Process（7 Stage 完走）
+- B 級觸發：DevOps（workflow 修）/ Cost（LLM 呼叫降 70%+）
+
+**物理真相（5 commit）**：
+| Commit | Stage | 內容 |
+|---|---|---|
+| `4ffecf2` | S1a | 併發數 3→1（gemini_client.py + sentiment.py） |
+| `eb28cc3` | S1b | 429 wait 60s→120s 重試 2 次；chat() 改 while 解耦 MAX_RETRIES |
+| `b9ac711` | S1c | 抽 CONCURRENCY_LIMIT 常數，三處共用 |
+| `63a44a5` | S2 | git config 移至 python main.py 之前（獨立 step） |
+| `c83ae9b` | S3 | cache 跨日持久化（.gitignore 補例外）+ 報告頂部 metadata + cache_policy.md |
+
+**S0 排查發現（影響半徑確認）**：
+- S0-a：cache key 純內容 hash，無時間因素，範圍不擴展
+- S0-b：llm_client.py 不走 CI path，Bug 1 不擴展
+- S0-c：Bug 2 真根因為 git config 順序，非 token 注入
+- 額外發現：.gitignore 的 data/* 會擋住 llm_cache.json，S3 一併修補
+
+**測試**：tests/test_429_retry.py 2 cases 全綠（wait 60→120 熔斷 / 恢復後成功）
+
+**風險處置**：
+- R1（本機無法重現 GHA 429）：Exit Criteria C-B 要求 workflow_dispatch 真跑 2 次
+- R4（Bug 2 真根因）：S0 確認是 git config 順序，修法正確
+- R5（cache key 含時間）：S0 確認純 hash，不影響
+
+**狀態**：動工完成 ✅，待 workflow_dispatch 驗證（C-B/C-C/C-D Exit Criteria 未達成）
+
+**Postmortem**：`docs/postmortems/2026-05-03-phase-63-4-showcase-rootcause.md`
