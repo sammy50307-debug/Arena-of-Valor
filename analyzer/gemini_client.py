@@ -102,11 +102,16 @@ class GeminiClient:
         if json_mode and response_schema:
             payload["generationConfig"]["responseSchema"] = response_schema
 
-        # 限流重試邏輯 (Exponential Backoff with Model Tiering)
+        # 限流重試邏輯：429 重試與一般錯誤重試分開計數
+        # - 429：模型輪替 → wait 60s→120s → 熔斷（不消耗 MAX_RETRIES）
+        # - 其他 HTTP / JSON 錯誤：exponential backoff，上限 MAX_RETRIES 次
         models_to_try = GEMINI_MODELS.copy()
         current_model = models_to_try.pop(0)
+        _429_waits = [60, 120]  # 模型全耗盡後的等待秒數，最多 2 次
+        _429_wait_idx = 0
+        transient_attempt = 0  # 只有非 429 錯誤才計數
 
-        for attempt in range(1, self.MAX_RETRIES + 1):
+        while True:
             url = f"{GEMINI_API_BASE}/{current_model}:generateContent?key={self.api_key}"
             try:
                 async with httpx.AsyncClient(timeout=60) as client:
@@ -142,31 +147,42 @@ class GeminiClient:
 
             except httpx.HTTPStatusError as e:
                 self.logger.warning(
-                    f"Gemini API HTTP 錯誤 (第 {attempt} 次) [{current_model}]: {e.response.status_code}"
+                    f"Gemini API HTTP 錯誤 [{current_model}]: {e.response.status_code}"
                 )
-                
+
                 if e.response.status_code == 429:
                     if models_to_try:
                         next_model = models_to_try.pop(0)
                         self.logger.warning(f"偵測到 429 額度耗盡！觸發替身防禦網，切換模型至：{next_model}")
                         current_model = next_model
-                        await asyncio.sleep(1) # 短暫冷卻後切換
-                        continue
+                        await asyncio.sleep(1)
+                        continue  # 不計入 transient_attempt
                     else:
-                        self.logger.error("所有備用模型均已遭遇 429 額度耗盡，拋出例外觸發終極斷路器。")
-                        raise
-                        
-                if attempt == self.MAX_RETRIES:
+                        if _429_wait_idx < len(_429_waits):
+                            wait_sec = _429_waits[_429_wait_idx]
+                            _429_wait_idx += 1
+                            self.logger.warning(
+                                f"所有備用模型均 429，等待 {wait_sec}s 後重試（{_429_wait_idx}/{len(_429_waits)}）"
+                            )
+                            await asyncio.sleep(wait_sec)
+                            models_to_try = GEMINI_MODELS.copy()
+                            current_model = models_to_try.pop(0)
+                            continue  # 不計入 transient_attempt
+                        else:
+                            self.logger.error("所有備用模型均已遭遇 429 額度耗盡，拋出例外觸發終極斷路器。")
+                            raise
+
+                transient_attempt += 1
+                if transient_attempt >= self.MAX_RETRIES:
                     raise
-                await asyncio.sleep(2 ** attempt)
+                await asyncio.sleep(2 ** transient_attempt)
 
             except (json.JSONDecodeError, KeyError, IndexError) as e:
-                self.logger.warning(f"回應解析失敗 (第 {attempt} 次): {e}")
-                if attempt == self.MAX_RETRIES:
+                self.logger.warning(f"回應解析失敗 (第 {transient_attempt + 1} 次): {e}")
+                transient_attempt += 1
+                if transient_attempt >= self.MAX_RETRIES:
                     raise
                 await asyncio.sleep(1)
-
-        return {} if json_mode else ""
 
     async def batch_chat(
         self,
