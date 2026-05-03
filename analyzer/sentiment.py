@@ -244,7 +244,7 @@ class SentimentAnalyzer:
                     "analysis": mock_analysis
                 }
                 analyzed.append(entry)
-            return analyzed
+            return {"posts": analyzed, "is_showcase": True}
 
         analyzed = []
         for res, analysis in zip(search_results, results):
