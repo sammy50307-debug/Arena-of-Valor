@@ -300,6 +300,12 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     except Exception as e:
         logger.error(f"  [FAIL] AI 分析發生嚴重錯誤: {e} (啟動旗艦演示備援)")
         daily_summary = analyzer._empty_summary(showcase=showcase)
+        daily_summary["_meta"] = {
+            "mode": "showcase",
+            "cache_hit": getattr(analyzer.llm, "_cache_hits", 0),
+            "llm_calls": 0,
+            "total_calls": getattr(analyzer.llm, "_total_calls", 0),
+        }
         analyzed_posts = []
 
     # ── Step 2.5：生成語音導讀 (Phase 27) ──────────────
