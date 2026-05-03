@@ -1,55 +1,57 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-03（Phase 63.4 v0.4 草案凍結後更新）
-- **狀態**：Phase 64.1 已收官 ✅、**Phase 63.4 v0.4 計畫書已凍結 ✅**，下視窗動工 S0 排查
+- **更新日期**：2026-05-03（P63.4 動工完成 + dry-run 驗證後更新）
+- **狀態**：**P63.4 全部 7 commits 已 push ✅**，待 Exit Criteria C-B/C-C/C-D 驗收
 
 ---
 
 ## 🔥 下個視窗最優先任務
 
-### T1 — Phase 63.4 動工：S0 排查階段（立刻做）
+### T1 — P63.4 Exit Criteria 驗收（優先）
 
-**背景**：Phase 63.4 v0.4 計畫書 2026-05-03 凍結（`docs/PHASE_63_4_PLAN.md`）。**禁止再改本檔**，如需變更走「P63.4.X 補遺」章節。
+P63.4 代碼已全數落地（7 commits pushed，含 dry-run 修補）。
 
-**主公指示**：依 v0.4 計畫書動工，**先完成 S0 排查再進 S1a**，不要跳 stage。
+**剩餘 Exit Criteria**：
 
-#### S0 排查三項（Entry Criteria 強制項）
-
-| # | 排查項 | 為何必排 | 結果影響 |
+| # | 條件 | 方式 | 狀態 |
 |---|---|---|---|
-| **S0-a** | 驗證 `data/llm_cache.json` 的 cache key 計算邏輯（grep `llm_cache` 寫入路徑） | 若 key 含時間因素，commit 後仍 100% miss | Bug 3 範圍可能擴展 |
-| **S0-b** | 確認 `analyzer/llm_client.py:99`（concurrency=5）是否被 daily pipeline 呼叫 | 若是，同樣 burst → 影響檔案 +1 | 影響半徑 / 修法擴展 |
-| **S0-c** | Read `main.py` 內 `git push` 實作，確認 Bug 2 真根因 | 真因可能不是 git config，而是 remote URL 的 token 注入 | Bug 2 修法可能完全不同 |
+| C-B | `workflow_dispatch` 手動觸發 2 次（間隔 ≥10min），第 2 次 cache hit ≥80% | 主公到 GitHub Actions 頁面點「Run workflow」 | ⬜ 待做 |
+| C-C | 下次排程跑完，commit 訊息**不出現** `(Fallback)`，報告頂 `mode: production` | 等 UTC 00:00 自動跑 | ⬜ 待做 |
+| C-D | 主公親點一次排程結果驗收 | 主公確認 | ⬜ 待做 |
+| C-E | 5 commit hash + 3 GHA run URL + metadata 前後對比，全數記入 TASK_HISTORY | Claude 執行（需主公提供 GHA run URL） | ⬜ 待做 |
 
-**S0 排查報告寫入 TASK_HISTORY**，若診斷錯誤須在 P63.4 動工前出「補遺章節」。
+**C-B 操作步驟**：
+1. GitHub repo → Actions → AoV Daily Monitor → 右上「Run workflow」
+2. 等第一次跑完，看 commit 訊息是否有 `(Fallback)`
+3. 間隔 ≥10min 再跑第二次
+4. 打開第二次的報告 HTML 第一行：`<!-- cache_hit: X/Y (≥80%) | mode: production -->`
 
-#### 7 Stage 路徑（依 v0.4）
+#### 7 commit 清單
 
-S0 排查 → S1a 併發 3→1 → S1b 429 wait 60s→120s 重試 2 次 → S1c 抽常數 → S2 workflow 修 → S3 cache+metadata → S4 收官（Postmortem 必寫）
-
-**5 commit + 3 GHA run URL + metadata 對比** 全數留痕。
-
-#### 關鍵指標（v0.4）
-
-- 預估時數：5-6 h
-- Token budget：60-80 K
-- 影響檔案：6-8 檔
-- META4 加權：5.5 分（已請示主公以 S0 排查化解）
+| Commit | Stage | 內容 |
+|---|---|---|
+| `5f5e598` | S1a | 併發數 3→1 |
+| `2d4f4b0` | S1b | 429 wait 60→120s，while 迴圈解耦 MAX_RETRIES |
+| `3a981a1` | S1c | CONCURRENCY_LIMIT 抽常數 |
+| `346e3fe` | S2 | git config 移至 python main.py 之前 |
+| `933566b` | S3 | cache 跨日 + metadata + .gitignore 例外 |
+| `5372ff4` | S4 | TASK_HISTORY + Postmortem |
+| `eb97508` | 補丁 | outer except 路徑補注 _meta，修 mode: unknown |
 
 ---
 
-### T2 — Phase 63.4 修復後第一週監控（G3 紅色警報 SOP）
+### T2 — P63.4 修復後第一週監控（G3 紅色警報 SOP）
 
 修復推上後 7 天觀察期：
 - 每日 09:00（台北時間）主公親檢 commit 訊息無 `(Fallback)`、報告 metadata `mode: production`、cache hit ≥ 50%
-- **連 2 日任一失敗 → 立刻 disable cron**（指令見 v0.4 第 12 章）
+- **連 2 日任一失敗 → 立刻 disable cron**（指令見 `docs/PHASE_63_4_PLAN.md` 第 12 章）
 
 ---
 
 ### T3 — Phase 65（P63.4 全收官後排序）
 
-**計畫書**：`docs/PHASE_65_PLAN.md`（已凍結，重大影響，META4 16 分，需主公再次口頭確認）
+**計畫書**：`docs/PHASE_65_PLAN.md`（已凍結，重大影響，META4 16 分，**需主公再次口頭確認**才能動工）
 
 ---
 
@@ -57,14 +59,16 @@ S0 排查 → S1a 併發 3→1 → S1b 429 wait 60s→120s 重試 2 次 → S1c 
 
 | 檔案 | 用途 |
 |---|---|
-| `docs/PHASE_63_4_PLAN.md` | **v0.4 凍結計畫書**（2026-05-03，過期 2026-07-03） |
-| `docs/PHASE_TEMPLATE.md` | Phase 計畫書範本（v1.0 混合版） |
+| `docs/PHASE_63_4_PLAN.md` | v0.4 凍結計畫書（過期 2026-07-03） |
 | `docs/PHASE_65_PLAN.md` | Phase 65 計畫書（已凍結） |
-| `.github/workflows/daily_report.yml` | CI workflow（Bug 2 + Bug 3 在此） |
-| `analyzer/gemini_client.py` | Gemini client（Bug 1 主體） |
-| `analyzer/sentiment.py` | 分析器（Bug 1 呼叫端） |
-| `analyzer/llm_client.py` | **S0-b 待排查** 是否走 CI path |
-| `main.py` | **S0-c 待排查** push 實作真根因 |
+| `docs/postmortems/2026-05-03-phase-63-4-showcase-rootcause.md` | P63.4 Postmortem（已完成） |
+| `.github/workflows/daily_report.yml` | CI workflow（已修：Git Config step + Fallback + llm_cache） |
+| `analyzer/gemini_client.py` | Gemini client（S1a/b/c 已修，while 迴圈 + 計數器） |
+| `analyzer/sentiment.py` | 分析器（S1a 已修：concurrency=CONCURRENCY_LIMIT） |
+| `main.py` | S3 _meta 注入 + outer except 補丁 |
+| `data/llm_cache.json` | 已入版控（目前 12 筆 key） |
+| `data/.cache_policy.md` | cache 入版控約定（過期 2026-08-03） |
+| `tests/test_429_retry.py` | S1b 單元測試（2 cases 全綠） |
 | `scripts/history-tail.sh` | 拿末尾 Phase，不全讀 |
 
 ---
@@ -80,12 +84,12 @@ Hook 已自動注入鐵律，開局無需手動設定。
 
 ## 📌 給下個視窗 Claude 的提醒
 
-1. **不要直接跳 S1a 動工**，先把 S0-a/b/c 三項排查完
-2. v0.4 計畫書**已凍結**，發現問題不要直接改檔，走「P63.4.X 補遺」
-3. 5 commit 拆法不可合併（S1a/S1b/S1c/S2/S3 分開）
-4. Postmortem 是**必寫**不是條件式
+1. **P63.4 代碼已全部 push**，不要再動 P63.4 相關檔案，除非 C-B/C-C 驗證失敗需要補丁
+2. C-E 需要主公提供 3 個 GHA run URL，才能完成 TASK_HISTORY 最後留痕
+3. dry-run 本機測試遇到 429 全滅→showcase 是正常的（本機配額不足），GHA 真跑才能驗證 production mode
+4. Phase 65 需主公**親口再次確認**（META4 16 分）才能動工，不可自行開工
 5. push 必問
 
 ---
 
-*本交接筆記由 2026-05-03 視窗更新（v0.4 草案凍結後），下視窗直接動工 S0 排查。*
+*本交接筆記由 2026-05-03 視窗更新（P63.4 動工完成 + dry-run 驗證 + 補丁 push 後），下視窗接手 C-B 驗收。*
