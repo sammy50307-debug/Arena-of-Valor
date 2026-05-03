@@ -70,6 +70,13 @@ REPORTS_DIR = DATA_DIR / "reports"
 LOGS_DIR = BASE_DIR / "logs"
 DB_PATH = DATA_DIR / "aov_monitor.db"
 
+# ── 快取設定 (P64) ────────────────────────────────────
+CACHE_FILE = DATA_DIR / "llm_cache.json"
+CACHE_TTL_DAYS = 7
+LOCKFILE_PATH = DATA_DIR / ".last_successful_run"
+LOCKFILE_COOLDOWN_MINUTES = 30
+RESULT_SCHEMA_VERSION = 1
+
 # ── 預警門檻 (Alert Thresholds - Phase 30) ──────────────
 ALERT_VOL_DELTA = 50.0  # 比週均值高出 50% 觸發紅頭警報
 ALERT_NEG_RATIO = 70.0  # 負面論調佔比超過 70% 觸發示警
