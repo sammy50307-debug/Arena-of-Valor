@@ -8,8 +8,10 @@ TimeSeriesLoader — Phase 61 Stage 1 地基
 
 from __future__ import annotations
 
+import copy
 import json
 import logging
+import os
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -46,9 +48,10 @@ class TimeSeriesLoader:
         self.schema = self._load_schema()
 
         # S5 F1：load_range 結果 LRU cache（避免多軌重複磁碟掃，R22）
-        # key = (resolved_data_dir, start_iso, end_iso)；value = series list
+        # key = (resolved_data_dir, start_iso, end_iso, max_mtime)；value = series list
+        # R24：加入 max_mtime 確保資料更新後自動失效
         self._cache_size = max(1, int(cache_size))
-        self._range_cache: "OrderedDict[Tuple[str, str, str], List[Dict[str, Any]]]" = OrderedDict()
+        self._range_cache: "OrderedDict[Tuple[str, str, str, float], List[Dict[str, Any]]]" = OrderedDict()
         self._cache_hits = 0
         self._cache_misses = 0
 
@@ -68,6 +71,21 @@ class TimeSeriesLoader:
 
     def _day_file(self, day: date) -> Path:
         return self.data_dir / f"analysis_{day.strftime('%Y%m%d')}.json"
+
+    def _range_mtime(self, start: date, end: date) -> float:
+        """R24: 取範圍內所有存在檔案的最大 mtime，供 cache key 失效判斷。"""
+        cursor = start
+        max_mt = 0.0
+        while cursor <= end:
+            p = self._day_file(cursor)
+            try:
+                mt = os.path.getmtime(p)
+                if mt > max_mt:
+                    max_mt = mt
+            except OSError:
+                pass
+            cursor += timedelta(days=1)
+        return max_mt
 
     def validate(self, record: Dict[str, Any]) -> Tuple[bool, List[str]]:
         """回傳 (is_valid, missing_fields)。缺任一必要欄位即 invalid。"""
@@ -155,11 +173,12 @@ class TimeSeriesLoader:
             str(self.data_dir.resolve()),
             start.isoformat(),
             end.isoformat(),
+            self._range_mtime(start, end),  # R24: 資料更新後自動失效
         )
         if cache_key in self._range_cache:
             self._range_cache.move_to_end(cache_key)
             self._cache_hits += 1
-            return self._range_cache[cache_key]
+            return copy.deepcopy(self._range_cache[cache_key])  # R23: 防 caller 污染 cache
 
         self._cache_misses += 1
         series: List[Dict[str, Any]] = []
@@ -183,7 +202,7 @@ class TimeSeriesLoader:
         self._range_cache[cache_key] = series
         if len(self._range_cache) > self._cache_size:
             self._range_cache.popitem(last=False)
-        return series
+        return copy.deepcopy(series)  # R23: 首次建立也回 copy，防 caller 污染 cache
 
     def clear_cache(self) -> None:
         """清空 load_range 結果 cache（測試或熱重載 data 後使用）。"""
