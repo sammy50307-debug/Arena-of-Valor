@@ -4814,3 +4814,51 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 
 - 代碼 3 檔修改 / 測試 69/69 全綠 / 零外部相依
 - R20 / R23 / R24 由「文件警示」升格為「代碼根治」
+
+### ✅ Phase 63.1.0 / 63.1.1 / 63.1.2 收官（Landing Page 自動更新，2026-05-03）
+
+**觸發**：主公確認版面 OK、要求擴展至 5 筆並自動更新連結。
+
+---
+
+#### 物理真相
+
+**63.1.0 — 結構前置（已預先完成）**
+- `index.html` 在本視窗開工前已有 5 個 `<a class="history-item">`（第 5 個為佔位 `href="#"`）
+- RWD CSS（手機直排）亦已就位，無須額外動工
+
+**63.1.1 — `_update_landing_page()` bug 修補**
+- 位置：`reporter/generator.py`（已在前版實作，本次修兩項 bug）
+- Bug1：`top_5 = html_files[:5]`，主按鈕佔 [0]，history 僅 [1]-[4] = 4 筆，第 5 筆永遠是佔位
+  → 改為 `history_files = html_files[1:6]`，第 5 筆正確填入
+- Bug2：regex `class="history-item">` 無法匹配佔位元素（有 `style=` 額外屬性）
+  → 改為 `<a\s[^>]*class="history-item"[^>]*>`，5 個全部替換
+- commit `220f6ae`
+
+**63.1.1 — git add 補 `index.html`（關鍵修補）**
+- `main.py:100` 和 `.github/workflows/daily_report.yml:66` 的 `git add` 均缺少 `index.html`
+  → 補上後 `_update_landing_page()` 的修改才會被推上 origin
+- commit `714750b`
+
+**63.1.2 — 防呆（已涵蓋於 63.1.1）**
+- `replacer` 函式的 `else` 分支：報告不足 5 份時自動補「— 暫無歷史報告」+ `href="#"` 佔位
+
+---
+
+#### 影響範圍
+
+| 檔案 | 動作 |
+|---|---|
+| `reporter/generator.py` | regex + top-N 邏輯修正 |
+| `main.py` | git add 補 `index.html` |
+| `.github/workflows/daily_report.yml` | fallback git add 補 `index.html` |
+| `index.html` | 當下同步為 05-03 主按鈕 + 05-02/05-01/04-30/04-29/04-28 歷史 5 筆 |
+
+---
+
+#### 狀態：✅ 全收官
+
+- 63.1.0 ✅（已預先完成）
+- 63.1.1 ✅（bug 修 + git add 補全，commits 220f6ae / 714750b）
+- 63.1.2 ✅（涵蓋於 63.1.1 replacer else 分支）
+- 從下次 GHA 起，每出新報告 index.html 自動 commit 推上 origin，無需手動操作
