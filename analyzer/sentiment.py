@@ -181,7 +181,7 @@ class SentimentAnalyzer:
                 system_prompt=SYSTEM_SINGLE_POST,
                 user_prompts=user_prompts,
                 json_mode=True,
-                concurrency=3,
+                concurrency=1,
                 response_schema=SINGLE_POST_SCHEMA
             )
         except httpx.HTTPStatusError as e:
