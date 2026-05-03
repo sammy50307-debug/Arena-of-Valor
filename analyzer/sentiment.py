@@ -154,11 +154,27 @@ class SentimentAnalyzer:
         compressed = f"{start_chunk} ...\n[核心萃取]: {middle_chunk}\n... {end_chunk}"
         return compressed[:2000]
 
-    async def analyze_posts(self, search_results: List[SearchResult], showcase: bool = False) -> List[dict]:
+    async def analyze_posts(
+        self,
+        search_results: List[SearchResult],
+        showcase: bool = False,
+        hero_name: Optional[str] = None,
+        date_str: Optional[str] = None,
+    ) -> List[dict]:
         """批次分析搜尋結果的情緒與事件。支援斷路器 (Circuit Breaker) 模式。"""
         if not search_results:
             self.logger.warning("沒有搜尋結果可以分析")
             return []
+
+        # L1 快取命中：同英雄同日直接回傳，零 LLM 呼叫
+        cm = self.llm.cache_manager
+        l1_key = cm.hero_key(hero_name, date_str) if hero_name and date_str else None
+        if l1_key:
+            cached = cm.get(l1_key)
+            if cached is not None:
+                cm.increment_stat("total_l1_hits")
+                self.logger.info(f"   [⚡] L1 快取命中 ({l1_key})，零 LLM 呼叫")
+                return cached
 
         self.logger.info(f"開始分析 {len(search_results)} 筆結果...")
 
@@ -275,19 +291,36 @@ class SentimentAnalyzer:
                 })
 
         self.logger.info(f"完成 {len(analyzed)} 筆結果分析 (Final Showcase Status: {showcase})")
-        return {"posts": analyzed, "is_showcase": showcase}
+        result = {"posts": analyzed, "is_showcase": showcase}
+
+        # L1 寫入：showcase 結果不寫，避免污染快取
+        if l1_key and not showcase and analyzed:
+            cm.set(l1_key, result)
+            cm.save()
+            self.logger.info(f"   [💾] L1 快取寫入 ({l1_key})")
+
+        return result
 
     async def generate_daily_summary(
         self,
         analyzed_posts: List[dict],
         date: Optional[str] = None,
-        showcase: bool = False
+        showcase: bool = False,
     ) -> dict:
         """根據分析結果產出每日彙總報告。支援本地備援分析與 Schema 結構鎖定。"""
         if not analyzed_posts:
             return self._empty_summary(date)
 
         report_date = date or datetime.now().strftime("%Y-%m-%d")
+
+        # daily_summary 快取命中
+        cm = self.llm.cache_manager
+        ds_key = cm.daily_summary_key(report_date)
+        if not showcase:
+            cached_summary = cm.get(ds_key)
+            if cached_summary is not None:
+                self.logger.info(f"   [⚡] daily_summary 快取命中 ({ds_key})")
+                return cached_summary
         analysis_text = self._format_analysis_for_summary(analyzed_posts)
 
         regional_summary_data = {}
@@ -355,7 +388,11 @@ class SentimentAnalyzer:
                 content_preview = p["post"]["content"][:20].replace("\n", " ") + "..."
                 top_links.append({"title": content_preview, "url": p["post"]["url"], "platform": p["post"]["platform"]})
             summary["top_links"] = top_links
-            
+
+            # daily_summary 寫入快取
+            cm.set(ds_key, summary)
+            cm.save()
+
             return summary
 
         except Exception as e:

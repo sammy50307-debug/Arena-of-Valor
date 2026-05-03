@@ -11,6 +11,7 @@ from typing import List, Optional
 from apify_client import ApifyClientAsync
 import config
 from scrapers.tavily_searcher import SearchResult
+from analyzer.cache_manager import CacheManager
 
 
 class ApifyInstagramScraper:
@@ -26,13 +27,26 @@ class ApifyInstagramScraper:
         self,
         keywords: List[str],
         max_results_per_keyword: int = 5,
+        hero_name: Optional[str] = None,
+        date_str: Optional[str] = None,
     ) -> List[SearchResult]:
         """
         對每個關鍵字呼叫 Apify Instagram 爬蟲。
+        hero_name + date_str 提供時啟用 Apify 層快取。
         """
         if not self.api_token:
             self.logger.error("APIFY_TOKEN 未設定，無法啟用 Apify 爬蟲")
             return []
+
+        # Apify 快取命中：同英雄同日不重複爬蟲
+        cm = CacheManager()
+        apify_key = cm.apify_key(hero_name, date_str) if hero_name and date_str else None
+        if apify_key:
+            cached = cm.get(apify_key)
+            if cached is not None:
+                cm.increment_stat("total_apify_hits")
+                self.logger.info(f"   [⚡] Apify 快取命中 ({apify_key})，跳過爬蟲")
+                return [SearchResult(**r) for r in cached]
 
         all_results: List[SearchResult] = []
         client = ApifyClientAsync(self.api_token)
@@ -81,4 +95,16 @@ class ApifyInstagramScraper:
 
         # 回傳綜合結果
         self.logger.info(f"Apify 共取得 {len(all_results)} 筆 Instagram 結果。")
+
+        # Apify 快取寫入
+        if apify_key and all_results:
+            serializable = [
+                {"title": r.title, "content": r.content, "url": r.url,
+                 "source": r.source, "platform": r.platform}
+                for r in all_results
+            ]
+            cm.set(apify_key, serializable)
+            cm.save()
+            self.logger.info(f"   [💾] Apify 快取寫入 ({apify_key})")
+
         return all_results
