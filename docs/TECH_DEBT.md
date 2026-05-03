@@ -38,6 +38,14 @@
 
 ---
 
+## P65 候選修項
+
+| # | Bug/項目 | 描述 | 根因 | 優先級 |
+|---|---|---|---|---|
+| B1 | `analyze_posts` showcase 回傳型別不一致 | showcase 路徑回傳 `list`；main.py 預期 `dict{"posts":...}`，TypeError 被 outer except 吃掉，降級成 `_empty_summary`，報告品質損失 | sentiment.py L198 `return analyzed`（list）vs L285 `return result`（dict） | P1 |
+
+---
+
 ## 已知長期技術債
 
 | 項目 | 描述 | 優先級 |
