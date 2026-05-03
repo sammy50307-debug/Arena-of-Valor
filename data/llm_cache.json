@@ -300,5 +300,53 @@
       }
     ],
     "translated_content": ""
+  },
+  "d54150623edbf1a5bca9d48e2d724aa6": {
+    "reasoning": "此貼文為GCS電競賽事直播的標題與資訊，內容直接描述賽事結果與觀看數據，無任何隱含意圖或反諷。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "電競賽事",
+    "keywords": [
+      "GCS",
+      "2026",
+      "春季賽",
+      "準決賽",
+      "冠軍賽",
+      "Relove DCG",
+      "傳說對決",
+      "電競"
+    ],
+    "summary": "該貼文是關於GCS 2026春季準決暨冠軍賽的直播回顧，其中Relove DCG獲得了春季總冠軍。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "GCS 2026 春季準決暨冠軍賽",
+        "type": "電競賽事"
+      }
+    ],
+    "translated_content": ""
+  },
+  "250bf0bed0411201f592feb5fbd69abf": {
+    "reasoning": "貼文內容明確提及『死騎』、『52級』、『外掛』等關鍵字，並討論遊戲官方對外掛的處理態度，這些內容與《傳說對決》的遊戲類型和英雄角色不符，判斷其討論的是其他MMORPG遊戲（如天堂系列）。因此，雖然語氣帶有不滿，但與《傳說對決》無關。",
+    "sentiment": "negative",
+    "sentiment_score": 0.15,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "其他",
+    "keywords": [
+      "外掛",
+      "死騎",
+      "官方",
+      "遊戲管理",
+      "等級"
+    ],
+    "summary": "此貼文討論其他遊戲中首位52級死騎的誕生，並質疑官方對外掛橫行的不作為。",
+    "relevance_score": 0.05,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
   }
 }
