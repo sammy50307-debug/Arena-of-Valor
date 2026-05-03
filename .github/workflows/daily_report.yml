@@ -59,6 +59,6 @@ jobs:
         # 如果 python main.py 裡面的 Git push 失敗，這裡補推一次
         if: always()
         run: |
-          git add data/reports/ || true
+          git add data/reports/ data/llm_cache.json || true
           git commit -m "docs: 戰略報告自動同步 (Fallback) $(date +'%Y-%m-%d')" || true
           git push || true

@@ -41,6 +41,8 @@ class GeminiClient:
         self._cache = self._load_cache()
         self._cache_lock = asyncio.Lock()
         self._semaphore = asyncio.Semaphore(self.CONCURRENCY_LIMIT)
+        self._total_calls = 0
+        self._cache_hits = 0
 
     def _load_cache(self) -> dict:
         if CACHE_FILE.exists():
@@ -73,8 +75,10 @@ class GeminiClient:
     ) -> Union[dict, str]:
         
         # 1. 檢查快取
+        self._total_calls += 1
         cache_key = self._get_cache_key(system_prompt, user_prompt)
         if cache_key in self._cache:
+            self._cache_hits += 1
             self.logger.info("   [⚡] 從本地快取提取結果，零延遲節省額度！")
             return self._cache[cache_key]
 
