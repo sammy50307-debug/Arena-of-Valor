@@ -88,26 +88,36 @@ def setup_logging():
 logger = logging.getLogger("aov_monitor")
 
 
-async def github_backup_job(is_manual: bool = False):
+async def github_backup_job(is_manual: bool = False, meta: dict = None):
     """自動推播報告到 GitHub 的部署任務。"""
     prefix = "🚀 [自動部署]" if not is_manual else "📦 [每日備份]"
     logger.info("=" * 60)
     logger.info(f" {prefix} 啟動 GitHub 雲端同步程序...")
     logger.info("=" * 60)
-    
+
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        # 確保 git 在系統環境變數中
         subprocess.run(["git", "add", "data/reports/", "data/llm_cache.json"], check=True, capture_output=True)
-        
-        # 專業變動探測：diff --cached --quiet (exit 1 代表有變動)
+
         has_changes = subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode != 0
-        
+
         if not has_changes:
             logger.info("  ℹ️ 雲端已是最新同步狀態，無需重複上傳。")
             return
 
-        commit_msg = f"docs: 戰略報告自動同步 {timestamp}"
+        # O2：commit msg 帶 mode + cache hit rate
+        if meta:
+            mode = meta.get("mode", "unknown")
+            l1 = meta.get("l1_hits", 0)
+            l2 = meta.get("l2_hits", 0)
+            total = meta.get("total_calls", 0)
+            hit_rate = f"{(l1+l2)/total*100:.0f}%" if total else "N/A"
+            commit_msg = (
+                f"docs: 戰略報告自動同步 {timestamp} "
+                f"[mode:{mode} l1:{l1} l2:{l2} hit:{hit_rate}]"
+            )
+        else:
+            commit_msg = f"docs: 戰略報告自動同步 {timestamp}"
         subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
         subprocess.run(["git", "push"], check=True, capture_output=True)
         
@@ -155,10 +165,27 @@ async def obsidian_backup_job():
         logger.error(f"  ❌ Obsidian 備份發生例外錯誤: {e}")
 
 # ── 核心流程 ─────────────────────────────────────────
-async def run_pipeline(dry_run: bool = False, showcase: bool = False):
+async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: bool = False):
     """
     執行完整的監測流程：Tavily 搜集 → Gemini 分析 → 報告 → 推播。
     """
+    # Lockfile：30 分鐘內成功跑過就跳過，--force 可強制重跑
+    if not force and not dry_run and not showcase:
+        lf = config.LOCKFILE_PATH
+        if lf.exists():
+            try:
+                from datetime import timezone as _tz
+                last_run = datetime.fromisoformat(lf.read_text().strip())
+                age_min = (datetime.now(_tz.utc) - last_run).total_seconds() / 60
+                if age_min < config.LOCKFILE_COOLDOWN_MINUTES:
+                    logger.info(
+                        f"[SKIP] 距上次成功跑 {age_min:.1f} 分鐘（< {config.LOCKFILE_COOLDOWN_MINUTES} 分），"
+                        "跳過本次執行。使用 --force 強制重跑。"
+                    )
+                    return
+            except Exception:
+                pass  # lockfile 格式異常就忽略，繼續跑
+
     start_time = datetime.now()
     logger.info("=" * 60)
     logger.info(" AoV 輿情監測流程啟動 (Tavily + Gemini)")
@@ -248,20 +275,29 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     stats_scraper = HeroStatsScraper()
 
     try:
-        analysis_res = await analyzer.analyze_posts(all_results, showcase=showcase)
+        _today = datetime.now().strftime("%Y-%m-%d")
+        analysis_res = await analyzer.analyze_posts(
+            all_results, showcase=showcase,
+            hero_name="combined", date_str=_today,
+        )
         analyzed_posts = analysis_res["posts"]
         active_showcase = analysis_res["is_showcase"] or showcase
         daily_summary = await analyzer.generate_daily_summary(analyzed_posts, showcase=active_showcase)
 
         # 注入 LLM cache 統計 meta，供報告檔頂 metadata comment 使用
-        _llm = analyzer.llm
-        _total = _llm._total_calls
-        _hits = _llm._cache_hits
+        _stats = analyzer.llm.cache_manager.get_stats()
+        _l1 = _stats.get("total_l1_hits", 0)
+        _l2 = _stats.get("total_l2_hits", 0)
+        _ap = _stats.get("total_apify_hits", 0)
+        _miss = _stats.get("total_misses", 0)
         daily_summary["_meta"] = {
             "mode": "showcase" if active_showcase else "production",
-            "cache_hit": _hits,
-            "llm_calls": _total - _hits,
-            "total_calls": _total,
+            "cache_hit": _l1 + _l2,
+            "l1_hits": _l1,
+            "l2_hits": _l2,
+            "apify_hits": _ap,
+            "llm_calls": _miss,
+            "total_calls": _l1 + _l2 + _miss,
         }
 
         # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
@@ -300,11 +336,15 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     except Exception as e:
         logger.error(f"  [FAIL] AI 分析發生嚴重錯誤: {e} (啟動旗艦演示備援)")
         daily_summary = analyzer._empty_summary(showcase=showcase)
+        _fb_stats = analyzer.llm.cache_manager.get_stats()
         daily_summary["_meta"] = {
             "mode": "showcase",
-            "cache_hit": getattr(analyzer.llm, "_cache_hits", 0),
-            "llm_calls": 0,
-            "total_calls": getattr(analyzer.llm, "_total_calls", 0),
+            "cache_hit": _fb_stats.get("total_l1_hits", 0) + _fb_stats.get("total_l2_hits", 0),
+            "l1_hits": _fb_stats.get("total_l1_hits", 0),
+            "l2_hits": _fb_stats.get("total_l2_hits", 0),
+            "apify_hits": _fb_stats.get("total_apify_hits", 0),
+            "llm_calls": _fb_stats.get("total_misses", 0),
+            "total_calls": sum(_fb_stats.values()),
         }
         analyzed_posts = []
 
@@ -381,9 +421,20 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False):
     logger.info(f"   搜集: {len(all_results)} 筆 | 分析: {len(analyzed_posts)} 筆")
     logger.info("=" * 60)
 
-    # ────── 雲端即時部署 (New) ──────────────────────────────────
+    # Lockfile 寫入：production 模式成功才記錄
+    _meta = daily_summary.get("_meta", {})
+    if not dry_run and not showcase and _meta.get("mode") == "production":
+        try:
+            from datetime import timezone as _tz2
+            config.LOCKFILE_PATH.write_text(
+                datetime.now(_tz2.utc).isoformat(), encoding="utf-8"
+            )
+        except Exception as _le:
+            logger.warning(f"Lockfile 寫入失敗: {_le}")
+
+    # ────── 雲端即時部署 ──────────────────────────────────────
     if not dry_run:
-        await github_backup_job(is_manual=False)
+        await github_backup_job(is_manual=False, meta=_meta)
 
 
 # ── CLI 與排程 ────────────────────────────────────────
@@ -395,6 +446,7 @@ async def main():
     parser.add_argument("--run-now", action="store_true", help="立即執行")
     parser.add_argument("--dry-run", action="store_true", help="立即執行但不推播")
     parser.add_argument("--showcase", action="store_true", help="演示模式：使用高品質預設數據確保產出完美")
+    parser.add_argument("--force", action="store_true", help="強制執行，忽略 Lockfile 30 分鐘冷卻")
     args = parser.parse_args()
 
     setup_logging()
@@ -408,7 +460,7 @@ async def main():
             f"\n[bold cyan] AoV 輿情監測系統[/bold cyan] — {mode_text}\n"
         )
         # 解除綁定：除非用戶明確下 --dry-run，否則 showcase 也要推播通知以展現全功
-        await run_pipeline(dry_run=args.dry_run, showcase=args.showcase)
+        await run_pipeline(dry_run=args.dry_run, showcase=args.showcase, force=args.force)
     else:
         console.print("\n[bold cyan] AoV 輿情監測系統[/bold cyan] — 排程模式\n")
         
