@@ -270,17 +270,17 @@ class ReportGenerator:
                     html_files.append(f)
             
             html_files.sort(key=lambda x: x.name, reverse=True)
-            top_5 = html_files[:5]
-            
-            if not top_5:
+
+            if not html_files:
                 return
 
             content = index_path.read_text(encoding="utf-8")
             new_content = content
-            
-            latest = top_5[0]
+
+            latest = html_files[0]
             date_str = latest.name.replace("aov_report_", "").replace(".html", "")
-            
+            history_files = html_files[1:6]  # 最新之後取 5 筆給 history-item
+
             new_content = re.sub(
                 r'<a href="[^"]*" class="main-btn">',
                 f'<a href="data/reports/{latest.name}" class="main-btn">',
@@ -293,21 +293,22 @@ class ReportGenerator:
                 new_content,
                 count=1
             )
-            
+
             def replacer(match):
-                idx = replacer.count + 1
+                idx = replacer.count
                 replacer.count += 1
-                if idx < len(top_5):
-                    file = top_5[idx]
+                if idx < len(history_files):
+                    file = history_files[idx]
                     d_str = file.name.replace("aov_report_", "").replace(".html", "")
                     mm_dd = d_str[5:].replace("-", "/")
                     return f'<a href="data/reports/{file.name}" class="history-item">\n                <i data-lucide="history" style="width: 14px"></i>\n                {mm_dd} 戰報\n            </a>'
                 else:
                     return f'<a href="#" class="history-item" style="opacity: 0.5; cursor: default;">\n                <i data-lucide="history" style="width: 14px"></i>\n                — 暫無歷史報告\n            </a>'
-            
+
             replacer.count = 0
+            # 同時匹配有無 style 屬性的 history-item（含佔位元素）
             new_content = re.sub(
-                r'<a href="[^"]*" class="history-item">.*?</a>',
+                r'<a\s[^>]*class="history-item"[^>]*>.*?</a>',
                 replacer,
                 new_content,
                 flags=re.DOTALL
