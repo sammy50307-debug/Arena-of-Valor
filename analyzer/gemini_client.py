@@ -189,7 +189,7 @@ class GeminiClient:
         system_prompt: str,
         user_prompts: List[str],
         json_mode: bool = True,
-        concurrency: int = 1,
+        concurrency: Optional[int] = None,
         response_schema: Optional[dict] = None
     ) -> List[Union[dict, str]]:
         """
@@ -197,6 +197,7 @@ class GeminiClient:
         使用 Semaphore 控制併發，取代原本的循序延遲，提升速度。
         被斷路器捕捉到 429 會向上拋出以啟動 Showcase 模式。
         """
+        concurrency = concurrency if concurrency is not None else self.CONCURRENCY_LIMIT
         sem = asyncio.Semaphore(concurrency)
         total = len(user_prompts)
         self.logger.info(f"開始批次分析 {total} 筆資料 (最大併發: {concurrency})")
