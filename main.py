@@ -98,7 +98,7 @@ async def github_backup_job(is_manual: bool = False):
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # 確保 git 在系統環境變數中
-        subprocess.run(["git", "add", "data/reports/"], check=True, capture_output=True)
+        subprocess.run(["git", "add", "data/reports/", "data/llm_cache.json"], check=True, capture_output=True)
         
         # 專業變動探測：diff --cached --quiet (exit 1 代表有變動)
         has_changes = subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode != 0

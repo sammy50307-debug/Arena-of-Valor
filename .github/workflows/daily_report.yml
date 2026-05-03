@@ -60,5 +60,5 @@ jobs:
         if: always()
         run: |
           git add data/reports/ data/llm_cache.json || true
-          git commit -m "docs: 戰略報告自動同步 (Fallback) $(date +'%Y-%m-%d')" || true
+          git diff --cached --quiet || git commit -m "docs: 戰略報告自動同步 (Fallback) $(date +'%Y-%m-%d')"
           git push || true
