@@ -4718,3 +4718,99 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 **狀態**：動工完成 ✅，待 workflow_dispatch 驗證（C-B/C-C/C-D Exit Criteria 未達成）
 
 **Postmortem**：`docs/postmortems/2026-05-03-phase-63-4-showcase-rootcause.md`
+
+### P64 Cache 高層化重構 + 配額韌性強化（收官 2026-05-03）
+
+**目標**：解決 cache key 設計讓每日例行跑全部 miss 的根本問題，降低 429 觸發機率。
+
+**觸發**：P63.4 C-B 驗收時三個備援模型全部 429，兩輪 retry 後仍失敗，報告降級為 showcase 模式。
+
+**根本原因**：cache key = MD5(system+user_prompt)，user_prompt 包含每天不同貼文內容，導致每日 100% cache miss。
+
+**稽核表（17 層）**：S 級全過，A 級全過，B 級部署/效能/成本適用均已落地。
+
+**物理真相（5 Stage）**：
+- S1 `f0c0096`：新建 `analyzer/cache_manager.py`（CacheManager、schema v2、v1→v2 migration、TTL 清理）+ config 5 參數
+- S2 `53a233a`：`gemini_client.py` 接入 CacheManager、pre-flight check、`_429_waits [60,300,900]`、`_masked_url` B1 secret 遮罩
+- S3 `bdd968e`：`sentiment.py` L1 hero cache 入口/出口（showcase 不寫）、daily_summary cache、`apify_scraper.py` Apify cache
+- S4 `9399aac`：`main.py` Lockfile 30 分鐘冷卻 + `--force`、`_meta` 升級 l1/l2/apify stats、commit msg O2、workflow B2 concurrency group
+- S5 `e6f60f5`：`tests/test_cache_manager.py` 10 項單元測試 10/10 全綠
+
+**風險**：
+- R1 apify_scraper 每次建新 CacheManager 實例，stats 與主流程分離（低）
+- R2 `analyze_posts` showcase 回傳 list（型別不一致 bug），已登記 P65 B1（既有問題，非 P64 引入）
+- R3 E-C/E-D 配額驗收延至明天 UTC 00:00 後執行
+
+**狀態**：S1-S5 動工完成 ✅，push 完成 ✅（`e6f60f5`）；E-C/E-D 待明日配額重置後驗收。
+
+### 🛠️ Phase 61.1 — history-trend-query 三項 Bug 修補：R20 / R23 / R24（2026-05-03）
+
+**目標**：修復 Phase 61 v1.0 收官時列管、僅加文件警示的三個已知 bug，升級為代碼根治。
+
+**觸發**：NEXT_SESSION_HANDOFF.md T1 指令「P61.1 動工」。
+
+---
+
+#### 17 層稽核表（Patch-1：2 檔 → S+A 必填）
+
+| 層 | 評估 |
+|---|---|
+| 1 Code | ✅ 微改動（各 1-3 行），乾淨 |
+| 2 Logic | ✅ 三項演算法均已驗證正確 |
+| 4 Testing | ✅ 原 66 項全綠 + 新增 T11/T12/T13 針對性測試 = 69/69 |
+| 10 Security | N/A |
+| 3 Architecture | N/A（無新模組） |
+| 5 Data | N/A |
+| 6 Observability | N/A |
+| 7 Resilience | ✅ _range_mtime OSError 安全處理 |
+| 13 Maintainability | ✅ 類型標注同步更新（Tuple 4-elem） |
+| 14 Documentation | SKILL.md 警示升級為「已修復」（待補） |
+| 15 Process | ✅ TASK_HISTORY 本節 |
+
+---
+
+#### 物理真相（三項 Fix）
+
+**R20 — render_multi_markdown 日期排序**
+- 位置：`scripts/renderer.py`（`render_multi_markdown`）
+- 問題：`date_seen` 以各軌插入順序做聯集，跨軌日期不同步時輸出行順序錯亂
+- 修法：建完聯集後加 `date_seen.sort()`
+- 測試：T13（多軌日期不同步 → 輸出列確認 sorted）
+
+**R23 — cache 回傳 deepcopy 防污染**
+- 位置：`scripts/time_series_loader.py`（`load_range`）
+- 問題：cache hit 路徑直接回原始 list；cache miss 路徑亦同（caller 持有 cache 內物件）
+- 修法：cache hit 與 cache miss 兩路均改為 `return copy.deepcopy(...)`
+- 測試：T11（caller 修改 s1 → 確認 cache 未污染）；T8 斷言從 `is` 改為 `==` + `is not`
+
+**R24 — cache key 加 mtime 自動失效**
+- 位置：`scripts/time_series_loader.py`（`load_range`、`_range_cache` 型別標注）
+- 問題：cache key 無 mtime，data 檔更新後仍回舊資料
+- 修法：新增 `_range_mtime(start, end)` helper（OSError 安全），cache key 第 4 元素為 `max_mtime`
+- 測試：T12（寫入同名檔觸發 mtime 更新 → 確認 cache miss）
+
+---
+
+#### 影響半徑
+
+| 檔案 | 動作 |
+|---|---|
+| `scripts/renderer.py` | +1 行（sort） |
+| `scripts/time_series_loader.py` | +2 import / +helper / cache key 擴充 / 兩路 deepcopy |
+| `test_skill.py` | T8 斷言更新 + T11/T12/T13 新增（共 +3 項） |
+
+---
+
+#### 風險登記
+
+| 風險 | 評估 |
+|---|---|
+| deepcopy 效能 | `series` 通常 ≤ 30 日、每筆 dict 輕量，可接受 |
+| mtime stat() overhead | 每次 load_range 做 N 次 stat()，N = 日數，為 O(N) 磁碟 stat，可接受 |
+
+---
+
+#### 狀態：✅ 收官
+
+- 代碼 3 檔修改 / 測試 69/69 全綠 / 零外部相依
+- R20 / R23 / R24 由「文件警示」升格為「代碼根治」

@@ -193,8 +193,9 @@ def t8():
     s2 = loader.load_range("2026-04-03", "2026-04-05")
     stat2 = loader.cache_stats()
     assert stat2["hits"] == 1 and stat2["misses"] == 1, f"second call → +1 hit, got {stat2}"
-    # 命中時應回傳同一份物件（identity 相同 → 證明沒重建）
-    assert s1 is s2, "cache 命中應回同一 list 物件"
+    # R23: deepcopy 回傳，s1 is not s2，但資料內容相等
+    assert s1 == s2, "cache 命中應回傳相同內容（deepcopy，非同一物件）"
+    assert s1 is not s2, "R23: 應回新 copy 防止 caller 污染 cache"
 
 
 @test("T9 clear_cache 清空 + 不同區間獨立計入")
@@ -225,6 +226,84 @@ def t10():
     misses_before = stat["misses"]
     loader.load_range("2026-04-03", "2026-04-03")
     assert loader.cache_stats()["misses"] == misses_before + 1, "k1 應已被淘汰、再次呼叫 miss"
+
+
+# ─────────────────────────────────────────────────────────────
+# P61.1 — T11~T13：R20/R23/R24 修補驗收
+# ─────────────────────────────────────────────────────────────
+@test("T11 R23: cache 回傳 deepcopy，caller 修改不污染 cache")
+def t11():
+    loader = TimeSeriesLoader(data_dir=PROJECT_DATA_DIR, cache_size=8)
+    s1 = loader.load_range("2026-04-03", "2026-04-05")
+    # 修改 caller 取得的 list（新增元素、修改 dict field）
+    s1.append({"date": "INJECTED", "status": "ok"})
+    s1[0]["status"] = "CORRUPTED"
+    # 再次取得（cache hit）應還是原始資料
+    s2 = loader.load_range("2026-04-03", "2026-04-05")
+    assert loader.cache_stats()["hits"] == 1
+    assert all(r.get("status") != "CORRUPTED" for r in s2), "cache 被 caller 污染"
+    assert not any(r.get("date") == "INJECTED" for r in s2), "cache 被 caller append 污染"
+
+
+@test("T12 R24: data 檔更新後 cache key 改變（mtime 失效）")
+def t12():
+    import tempfile, json, time
+    with tempfile.TemporaryDirectory() as tmp:
+        p = Path(tmp) / "analysis_20260403.json"
+        payload = {
+            "date": "2026-04-03",
+            "overall": {"avg_sentiment": 0.5, "total_posts": 10},
+            "sentiment_distribution": {"positive": 5, "negative": 3, "neutral": 2},
+            "heroes": [],
+            "platform_stats": {},
+        }
+        p.write_text(json.dumps(payload), encoding="utf-8")
+        schema_path = (
+            Path(__file__).resolve().parent / "resources" / "schema_version.json"
+        )
+        loader = TimeSeriesLoader(data_dir=Path(tmp), schema_path=schema_path, cache_size=8)
+        loader.load_range("2026-04-03", "2026-04-03")
+        assert loader.cache_stats()["misses"] == 1
+        # 修改檔案（改 mtime）
+        time.sleep(0.05)
+        p.write_text(json.dumps(payload), encoding="utf-8")
+        # 再次 load_range：mtime 不同 → cache miss，不命中舊 key
+        loader.load_range("2026-04-03", "2026-04-03")
+        assert loader.cache_stats()["misses"] == 2, "R24: 檔案更新後應 cache miss"
+        assert loader.cache_stats()["hits"] == 0, "R24: 不應命中舊 mtime key"
+
+
+@test("T13 R20: render_multi_markdown 多軌日期不同步 → 輸出列依日期排序")
+def t13():
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "scripts"))
+    from renderer import TrendRenderer
+    renderer = TrendRenderer()
+    multi = {
+        "mode": "heroes",
+        "range": {"start": "2026-04-01", "end": "2026-04-03"},
+        "heroes": [
+            {
+                "hero": "A",
+                "points": [
+                    {"date": "2026-04-01", "status": "ok", "count": 1, "avg_sentiment": 0.5},
+                    {"date": "2026-04-03", "status": "ok", "count": 3, "avg_sentiment": 0.5},
+                ],
+            },
+            {
+                "hero": "B",
+                "points": [
+                    {"date": "2026-04-01", "status": "ok", "count": 10, "avg_sentiment": 0.5},
+                    {"date": "2026-04-02", "status": "ok", "count": 20, "avg_sentiment": 0.5},
+                ],
+            },
+        ],
+    }
+    md = renderer.render_multi_markdown(multi)
+    rows = [ln for ln in md.splitlines() if ln.startswith("| 20")]
+    dates_in_output = [r.split("|")[1].strip() for r in rows]
+    assert dates_in_output == sorted(dates_in_output), f"R20: 日期列未排序 {dates_in_output}"
+    assert len(dates_in_output) == 3, f"應有 3 列，got {len(dates_in_output)}"
 
 
 if __name__ == "__main__":

@@ -559,6 +559,7 @@ class TrendRenderer:
         if not date_seen:
             return f"### {title}\n\n(no data)"
 
+        date_seen.sort()  # R20: 各軌日期不同步時保持時序一致
         track_names_e = [e(name) for name, _, _, _ in tracks]
         header = "| 日期 | " + " | ".join(track_names_e) + " |"
         sep = "|------|" + "------|" * len(tracks)
