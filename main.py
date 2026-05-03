@@ -97,7 +97,7 @@ async def github_backup_job(is_manual: bool = False, meta: dict = None):
 
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        subprocess.run(["git", "add", "data/reports/", "data/llm_cache.json"], check=True, capture_output=True)
+        subprocess.run(["git", "add", "data/reports/", "data/llm_cache.json", "index.html"], check=True, capture_output=True)
 
         has_changes = subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode != 0
 
