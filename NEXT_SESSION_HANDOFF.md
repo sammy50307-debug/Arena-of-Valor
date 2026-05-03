@@ -8,7 +8,18 @@
 
 ## 🔥 下個視窗最優先任務
 
-### T1 — P64 Exit Criteria E-C/E-D 驗收
+### T1 — P61.1 history-trend-query 統包優化（R20/R23/R24）
+
+**目標**：修補 history-trend-query skill 三個已知 bug：
+- **R20**：markdown 空 cell 問題
+- **R23**：cache 回傳應用 deepcopy（防止上層改動污染快取）
+- **R24**：cache mtime 失效（時間戳比對邏輯有誤）
+
+**動工先決**：主公口頭「P61.1 動工」，查 `project_status.md` 確認 R20/R23/R24 細節。
+
+---
+
+### T2 — P64 Exit Criteria E-C/E-D 驗收
 
 P64 代碼全數落地（5 Stage，commits `f0c0096`→`e6f60f5`）。  
 今日（2026-05-03）Gemini 配額已耗盡，E-C/E-D 必須等明日 UTC 00:00 reset 後執行。
