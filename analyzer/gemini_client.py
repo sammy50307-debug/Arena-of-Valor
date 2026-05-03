@@ -33,7 +33,7 @@ class GeminiClient:
     """
 
     MAX_RETRIES = 5
-    CONCURRENCY_LIMIT = 3 # 預設最大併發數，避免瞬間觸發 429
+    CONCURRENCY_LIMIT = 1 # 預設最大併發數，GHA 環境 burst 防 429
 
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or config.GEMINI_API_KEY
@@ -173,7 +173,7 @@ class GeminiClient:
         system_prompt: str,
         user_prompts: List[str],
         json_mode: bool = True,
-        concurrency: int = 3, 
+        concurrency: int = 1,
         response_schema: Optional[dict] = None
     ) -> List[Union[dict, str]]:
         """
