@@ -181,7 +181,7 @@ class SentimentAnalyzer:
                 system_prompt=SYSTEM_SINGLE_POST,
                 user_prompts=user_prompts,
                 json_mode=True,
-                concurrency=1,
+                concurrency=GeminiClient.CONCURRENCY_LIMIT,
                 response_schema=SINGLE_POST_SCHEMA
             )
         except httpx.HTTPStatusError as e:
