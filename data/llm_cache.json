@@ -301,8 +301,8 @@
     ],
     "translated_content": ""
   },
-  "d54150623edbf1a5bca9d48e2d724aa6": {
-    "reasoning": "此貼文為GCS電競賽事直播的標題與資訊，內容直接描述賽事結果與觀看數據，無任何隱含意圖或反諷。",
+  "dbc0f0372e26f79b5c0a44f1ff598f44": {
+    "reasoning": "此貼文為GCS電競賽事的直播回顧與結果公布，內容為客觀資訊。",
     "sentiment": "neutral",
     "sentiment_score": 0.5,
     "region": "TW",
@@ -315,10 +315,9 @@
       "準決賽",
       "冠軍賽",
       "Relove DCG",
-      "傳說對決",
-      "電競"
+      "傳說對決"
     ],
-    "summary": "該貼文是關於GCS 2026春季準決暨冠軍賽的直播回顧，其中Relove DCG獲得了春季總冠軍。",
+    "summary": "此貼文為GCS 2026春季準決暨冠軍賽的直播回顧，並提及Relove DCG獲得春季總冠軍。",
     "relevance_score": 1.0,
     "is_hero_focus": false,
     "events": [
@@ -329,24 +328,361 @@
     ],
     "translated_content": ""
   },
-  "250bf0bed0411201f592feb5fbd69abf": {
-    "reasoning": "貼文內容明確提及『死騎』、『52級』、『外掛』等關鍵字，並討論遊戲官方對外掛的處理態度，這些內容與《傳說對決》的遊戲類型和英雄角色不符，判斷其討論的是其他MMORPG遊戲（如天堂系列）。因此，雖然語氣帶有不滿，但與《傳說對決》無關。",
-    "sentiment": "negative",
-    "sentiment_score": 0.15,
+  "c471856e17e093ed5d131e9a8786b94d": {
+    "reasoning": "該貼文明確指出是關於『天堂：經典版』的討論，內容提及『死騎』、『52級』、『外掛』等關鍵字，這些都與《傳說對決》無關。因此，此貼文與《傳說對決》的相關性極低。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
     "region": "TW",
     "original_language": "zh",
     "category": "其他",
     "keywords": [
-      "外掛",
+      "天堂：經典版",
       "死騎",
-      "官方",
-      "遊戲管理",
-      "等級"
+      "外掛",
+      "等級",
+      "巴哈姆特"
     ],
-    "summary": "此貼文討論其他遊戲中首位52級死騎的誕生，並質疑官方對外掛橫行的不作為。",
+    "summary": "這篇貼文討論了《天堂：經典版》中首位52級死騎的誕生，並質疑官方對外掛的處理態度。",
+    "relevance_score": 0.0,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
+  },
+  "319e61df08ce52658982387c49238a6c": {
+    "reasoning": "貼文內容描述了某款遊戲的最新版本更新，包含地圖、武器、新角色及活動資訊。然而，這些內容（如「零號大壩」、「M82 半自動狙擊步槍」、「偵察探員」）與《傳說對決》的遊戲設定不符，因此判斷此貼文與《傳說對決》無關。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "其他",
+    "keywords": [
+      "地圖更新",
+      "零號大壩",
+      "工業電梯",
+      "蘆葦濕地",
+      "M82 半自動狙擊步槍",
+      "回響",
+      "探員",
+      "埋寶贈禮"
+    ],
+    "summary": "這篇貼文介紹了某款遊戲的最新版本更新內容，包括地圖升級、新武器、新探員「回響」以及「埋寶贈禮」活動，但這些內容與《傳說對決》無關。",
     "relevance_score": 0.05,
     "is_hero_focus": false,
     "events": [],
+    "translated_content": ""
+  },
+  "7ebc3fa36bef55f44b5ca547a088bdf4": {
+    "reasoning": "貼文內容明確指出這是一篇針對《傳說對決》新手玩家的教學文章，沒有反諷或其他隱藏意圖。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "遊戲體驗",
+    "keywords": [
+      "新手教學",
+      "傳說對決",
+      "Dcard"
+    ],
+    "summary": "一篇來自Dcard傳說對決板的新手教學文章。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
+  },
+  "dc551b7a4ae084335df19dec382c1768": {
+    "reasoning": "這篇貼文是一個心得分享，旨在討論新賽季的英雄平衡性調整，並可能基於數據進行分析。內容本身是客觀的分享與討論，不帶有明顯的情緒傾向。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "版本更新",
+    "keywords": [
+      "新賽季",
+      "英雄平衡性調整",
+      "數據分析",
+      "傳說對決",
+      "心得分享"
+    ],
+    "summary": "這篇貼文分享了關於傳說對決新賽季英雄平衡性調整的數據分析心得。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "新賽季",
+        "type": "版本更新"
+      }
+    ],
+    "translated_content": ""
+  },
+  "df796bc0fc755c6e6c369798931bbf5a": {
+    "reasoning": "貼文標題明確指出是『心得分享』和『裝備小知識』，內容為玩家在Dcard傳說對決板上分享遊戲裝備相關的知識，屬於資訊分享性質。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.6,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "遊戲體驗",
+    "keywords": [
+      "傳說對決",
+      "裝備",
+      "小知識",
+      "心得分享",
+      "Dcard"
+    ],
+    "summary": "這篇貼文是Dcard傳說對決板上關於遊戲裝備知識的心得分享。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
+  },
+  "76befbb8d168c291b9d7ee56421d423b": {
+    "reasoning": "這是一篇玩家分享的遊戲攻略，旨在提供圖倫角色的教學，幫助其他玩家快速上手。內容為正向的知識分享。",
+    "sentiment": "positive",
+    "sentiment_score": 0.95,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "圖倫",
+      "攻略",
+      "教學",
+      "心得分享",
+      "傳說對決"
+    ],
+    "summary": "一篇Dcard貼文分享了《傳說對決》中圖倫角色的詳細教學攻略，並於8月16日進行了更新。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [],
+    "translated_content": ""
+  },
+  "a0299a75652acca08ac51e4e1ed7f15c": {
+    "reasoning": "此貼文為Dcard上關於《傳說對決》的討論串標題，內容旨在提供遊戲新手與老手可能不知道的知識與技巧，屬於資訊分享性質，無反諷或隱藏意圖。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.75,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "遊戲體驗",
+    "keywords": [
+      "新手",
+      "老手",
+      "遊戲知識",
+      "技巧",
+      "傳說對決",
+      "Dcard"
+    ],
+    "summary": "一篇Dcard貼文，分享傳說對決新手與老手都可能不知道的遊戲知識與技巧。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
+  },
+  "fa8ec67fd067d5521ee5211831a4ae57": {
+    "reasoning": "這篇貼文是Dcard上關於《傳說對決》改版內容的分享與見解，屬於資訊性內容，無明顯情緒或反諷。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "版本更新",
+    "keywords": [
+      "改版",
+      "懶人包",
+      "見解",
+      "傳說對決",
+      "Dcard"
+    ],
+    "summary": "這篇貼文分享了2025年2月20日傳說對決改版的懶人包與作者的見解。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "20250220 改版",
+        "type": "版本更新"
+      }
+    ],
+    "translated_content": ""
+  },
+  "3d6411814a1787a50e214c459155b25d": {
+    "reasoning": "這篇貼文是玩家分享《傳說對決》中英雄祖卡的打野攻略，旨在幫助其他玩家提升遊戲技巧並輕鬆上分，內容為正向的知識分享。",
+    "sentiment": "positive",
+    "sentiment_score": 0.9,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "角色討論",
+    "keywords": [
+      "傳說對決",
+      "攻略",
+      "祖卡",
+      "打野",
+      "上分",
+      "心得分享"
+    ],
+    "summary": "一篇來自Dcard傳說對決板的貼文，分享了關於打野英雄祖卡的精闢攻略，強調其強勢且易於上手的特性，旨在幫助玩家輕鬆上分。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [],
+    "translated_content": ""
+  },
+  "25323e9ed48bb4be733bf5c7e5e00d3c": {
+    "reasoning": "這是一篇在Dcard傳說對決板上分享的遊戲攻略或教學文章，內容關於遊戲內的裝備基礎概念與物理攻擊裝備。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "遊戲體驗",
+    "keywords": [
+      "傳說對決",
+      "裝備",
+      "小教室",
+      "基礎概念",
+      "物攻",
+      "攻略"
+    ],
+    "summary": "這篇Dcard貼文是關於《傳說對決》裝備的基礎概念與物理攻擊裝備的教學文章。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
+  },
+  "1a43dbf98a694b8e62dbef6437f65148": {
+    "reasoning": "這是一篇官方資訊發布，內容明確指出星展傳說對決聯名卡的活動延長，並提供開卡贈送造型的詳細資訊，無反諷或隱藏意圖。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "活動資訊",
+    "keywords": [
+      "星展傳說對決聯名卡",
+      "卡友專屬活動",
+      "緹莉",
+      "星夢展航造型",
+      "活動延長"
+    ],
+    "summary": "星展傳說對決聯名卡的卡友專屬活動，開卡贈送緹莉-星夢展航造型的活動已延長至2026年6月30日。",
+    "relevance_score": 1.0,
+    "is_hero_focus": true,
+    "events": [
+      {
+        "name": "星展傳說對決聯名卡卡友專屬活動",
+        "type": "限時活動"
+      }
+    ],
+    "translated_content": ""
+  },
+  "57260ae4bbd5a27efa005cc86376d4d3": {
+    "reasoning": "貼文標題明確指出是關於《傳說對決》的『情報』，內容提及『箱子跳跳』，推測是遊戲內某個與箱子相關的活動或玩法資訊。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "活動資訊",
+    "keywords": [
+      "傳說對決",
+      "箱子跳跳",
+      "情報",
+      "活動"
+    ],
+    "summary": "這篇貼文是關於《傳說對決》中一個名為『箱子跳跳』的遊戲活動或玩法的情報討論。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "傳說對決箱子跳跳",
+        "type": "限時活動"
+      }
+    ],
+    "translated_content": ""
+  },
+  "5791d5d6174fb4c3e360dfaa75dc9b7f": {
+    "reasoning": "貼文標題明確指出是關於《傳說對決》配對系統的問題討論，沒有反諷或隱藏意圖。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "遊戲體驗",
+    "keywords": [
+      "傳說對決",
+      "配對",
+      "問題",
+      "巴哈姆特"
+    ],
+    "summary": "一篇來自巴哈姆特論壇的貼文，討論《傳說對決》的配對系統問題。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [],
+    "translated_content": ""
+  },
+  "728ed1ade794b6ebbbaaff9f92af7b91": {
+    "reasoning": "玩家在巴哈姆特論壇發布問題，詢問關於《傳說對決》中「邀好友回歸送造型」活動的相關資訊，內容為直接提問，無反諷。",
+    "sentiment": "neutral",
+    "sentiment_score": 0.5,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "活動資訊",
+    "keywords": [
+      "邀好友回歸",
+      "送造型",
+      "活動",
+      "傳說對決"
+    ],
+    "summary": "這篇貼文是關於《傳說對決》中「邀好友回歸送造型」活動的問題討論。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "邀好友回歸送造型",
+        "type": "限時活動"
+      }
+    ]
+  },
+  "9ab7d826a07a1e060231e93fb957d6d0": {
+    "reasoning": "貼文標題明確指出是關於『回歸互助』的討論，這通常是玩家在遊戲推出回歸活動時，互相分享邀請碼、組隊或提供回歸玩家協助的社群行為。其意圖是促進玩家間的合作與交流。",
+    "sentiment": "positive",
+    "sentiment_score": 0.75,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "社群互動",
+    "keywords": [
+      "回歸",
+      "互助",
+      "傳說對決",
+      "巴哈姆特",
+      "AOV",
+      "社群"
+    ],
+    "summary": "這篇貼文是巴哈姆特傳說對決板上關於回歸玩家互相幫助的討論串。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "回歸活動",
+        "type": "限時活動"
+      }
+    ],
+    "translated_content": ""
+  },
+  "41fd3e6258bb638fd7ad5cc844d1adac": {
+    "reasoning": "這篇貼文是巴哈姆特論壇上的一則招募訊息，旨在邀請玩家加入一個新成立的《傳說對決》交流群。內容明確指出群組將舉辦活動並贈送貝殼幣，語氣積極且具有號召力，沒有反諷意味。",
+    "sentiment": "positive",
+    "sentiment_score": 0.9,
+    "region": "TW",
+    "original_language": "zh",
+    "category": "社群互動",
+    "keywords": [
+      "傳說對決",
+      "交流群",
+      "社群",
+      "活動",
+      "貝殼幣",
+      "加入"
+    ],
+    "summary": "一篇在巴哈姆特傳說對決哈啦板發布的貼文，邀請玩家加入新創的傳說對決交流群，並預告群組將舉辦活動及贈送貝殼幣。",
+    "relevance_score": 1.0,
+    "is_hero_focus": false,
+    "events": [
+      {
+        "name": "交流群活動與貝殼幣贈送",
+        "type": "限時活動"
+      }
+    ],
     "translated_content": ""
   }
 }
