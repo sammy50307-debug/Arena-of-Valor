@@ -1,0 +1,46 @@
+{
+  "env": {
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m ' *)",
+      "Bash(py -c ' *)",
+      "Bash(git log *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[鐵律 v0.4-OK] TASK_HISTORY 禁全讀（除非主公說「這次需要全讀」）。查→grep錨點+Read offset≤200。寫→cat>>heredoc。子代理必傳此禁令。一次對話最多查 3 個 Phase。' && echo 0 > .claude/.history_query_count"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/rule-decay-check.sh || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/check_history_budget.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

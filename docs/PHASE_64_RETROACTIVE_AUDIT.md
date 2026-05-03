@@ -182,24 +182,24 @@ v3.0 對 P64 提出 **7 項可立即執行的高價值優化**，並識別出 **
 
 ---
 
-## 8. 主公裁示
+## 8. 主公裁示（2026-05-03 已審閱）
 
-### A. 7 項追溯優化要動工嗎？
+**狀態：✅ CLOSED**
 
-| 選項 | 描述 |
-|---|---|
-| **a** | 全做 #1-#7（~6 小時） |
-| **b** | 只做最高優先 #1-#3（~3.5 小時） |
-| **c** | 暫不做，列入 RISK_REGISTRY.md 列管 |
+| # | 項目 | 處置 |
+|---|---|---|
+| #1 Hook 單元測試 | ✅ 已完成（`tests/test_hooks/` 4 個測試） |
+| #2 G5-1 規則退化警示 | ✅ 已完成（`scripts/rule-decay-check.sh`） |
+| #3 fail-loud hook | ✅ 已完成 |
+| #4 Token 節省實測 | ✅ 已補做：實測 96.8%（見 `docs/p64-token-savings-metric.md`） |
+| #5 ADR 四層防線 | ✅ 已存在（`docs/adr/001-four-layer-defense-rationale.md`） |
+| #6 settings.json.bak | ✅ 已補做（`.claude/settings.json.bak`） |
+| #7 成功 PM | ✅ 已補做（`docs/postmortems/2026-05-01-phase-64-token-optimization-success.md`） |
 
-### B. 是否寫成「Phase 64 補遺章節」追加 TASK_HISTORY？
-
-如同 Phase 63.3.1 補遺模式，把追溯優化寫成 P64.1。
-
-### C. v3.0 → v3.1 升級議題
-
-是否依本診斷反思的 3 點補強框架？
+**A**：全部 7 項 2026-05-03 完成，無需另立 Phase。  
+**B**：不另寫補遺章節，已直接在各文件落地。  
+**C**：v3.1 升級留 G1-4 版本鎖議題，下次框架升級時處理。
 
 ---
 
-*本診斷依 X4 多角度同行審查 + G6 Postmortem 精神執行，受 17 層品質框架 v3.0 自我約束。*
+*本診斷依 X4 多角色同行審查 + G6 Postmortem 精神執行，受 17 層品質框架 v3.0 自我約束。*
