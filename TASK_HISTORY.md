@@ -5017,3 +5017,41 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - 🐛 `enforce_diversity` 無限循環互換（實機 dry-run 觸發）：candidate_pool 含 other_cards 自身 → 被換出的卡又被選回 → A↔B 反覆 swap → 主程式卡死
 - 修法：(1) `swapped_out_urls` set 永久標記被換出 URL 不再選回 (2) `max_iterations = max(len(other)*2, 4)` 安全保險 (3) 補迴歸測試 `test_enforce_diversity_no_infinite_swap`（共 39 cases 全綠）
 - 教訓：純單元測試的合成 candidate_pool 不含 other 自身，遮蔽此 bug；下次新增 picker helper 時測試 case 應刻意覆蓋「pool 與 selected 重疊」的真實場景
+
+### Phase 69 — 跨 AI 助理模型選擇指引（v1.1，收官 2026-05-07）
+
+**動機**
+主公在 Claude Code（Sonnet/Opus/Haiku）與 Gemini CLI / Antigravity（3.1 Pro High/Low、3 Flash）之間切換時，每次臨場決策易誤判。需建立可重複查表的決策框架，跨 AI 助理通用。
+
+**觸發**
+2026-05-07 此視窗，主公主動提出「希望有草案告訴我當前任務階段需要用哪些模型」。
+
+**17 層稽核（簡）**
+- S1 文字 / S2 邏輯 / S4 情境覆蓋 / S10 安全：✅
+- A3 章節架構 / A13 維護 / A14 文件：✅
+- META5 互鎖：本段補錄即解決 / META6 版本鎖：v1.x 已標
+- STR2 章節格式 / STR6 RISK_REGISTRY / STR7 影響半徑表：✅（本段同步啟用 RISK_REGISTRY.md）
+- X1 可逆性：半可逆（三檔追加可手動回退，§8.4 已寫回退協議）
+- X2 盲區掃描：主公看不到本指引在其他 IDE 是否被讀取（已記錄）
+- X3 時間敏感性：90 天回顧週期 + Gemini 升級觸發已寫
+- X4 三角審：主公 / 攻擊者 / 接手者三視角紀錄入主檔 §8.2
+
+**物理真相（檔案結構）**
+| 檔案 | 動作 |
+|---|---|
+| `docs/MODEL_SELECTION_GUIDE.md` | **新建** v0.1 → v0.2 → v0.3 → v1.0 → v1.1（193 行）|
+| `~/.claude/CLAUDE.md` | 追加全域章節（縮版）|
+| `~/.gemini/GEMINI.md` | 追加全域章節（縮版 + thinkingLevel 對應表）|
+| `memory/reference_model_guide.md` | **新建**（30 秒速查）|
+| `memory/MEMORY.md` | 加索引行 |
+| `memory/feedback_workflow.md` | Step 4 去除寫死 Opus，改連結到本指引 |
+| `docs/RISK_REGISTRY.md` | **新建**（STR6 啟用點）|
+| `TASK_HISTORY.md` | 本段 |
+
+**風險**
+- v1.1 後若 Gemini / Anthropic 出新模型大版本，本指引立即過時 → §8.3 已寫升版觸發條件
+- 三檔同步無自動檢測機制（G5-4 漂移風險）→ 留 v1.x 後續處理
+- 主公手動切換模型時，AI 不一定知道（盲區）→ §3.4 已要求對話中註明
+
+**狀態**
+✅ v1.1 定稿 + 三檔同步完成 + 跑完 63 維度 + 3 Patch 稽核（命中率 ~93%）+ TASK_HISTORY + RISK_REGISTRY 全部入帳。
