@@ -265,15 +265,21 @@ class ReportGenerator:
         
         # ── 🏮 Phase 40.21：同步至主戰線 (Canonical Sync) 🏮 ──
         # 這是為了解決 Line 連結與本地差異的問題。Line 傳送的通常是固定的主日期檔。
+        # P63.1.2 修補：output_path == canonical_path 時跳過 copy（避免 SameFileError）
         try:
             canonical_path = output_dir / f"{base_filename}.html"
-            shutil.copy2(output_path, canonical_path)
+            if output_path != canonical_path:
+                shutil.copy2(output_path, canonical_path)
             self.logger.info(f"  [⚡] 主線更新：已覆寫推播連結至最新版本 {output_path.name}")
-            
-            # ── 🏮 Phase 63.1：更新 Landing Page 戰報連結 🏮 ──
-            self._update_landing_page(output_dir)
         except Exception as ce:
             self.logger.warning(f"  [!] 主線更新失敗: {ce}")
+
+        # ── 🏮 Phase 63.1：更新 Landing Page 戰報連結 🏮 ──
+        # P63.1.2 修補：拆出獨立 try，不被 canonical sync 失敗連帶 block
+        try:
+            self._update_landing_page(output_dir)
+        except Exception as le:
+            self.logger.warning(f"  [!] Landing Page 更新失敗: {le}")
 
         # ── 資源同步：解決背景圖片失聯問題 ──
         try:
