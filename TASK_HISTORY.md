@@ -5140,3 +5140,45 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - [x] AI 失敗 fallback → 模板句仍出現，不空
 
 **狀態**：✅ 動工期完成，待主公拍板 commit + push
+
+### P69.1 旗艦展演模式根治（showcase_forced 四態化，收官 2026-05-08）
+
+**目標**：旗艦展演模式（showcase=True）被迫觸發時，讓主公能區分「主動展演（--showcase）」vs「API 配額耗盡（429）」vs「系統錯誤」，並消除被迫展演後的額外 LLM 浪費。
+
+**觸發**：主公 2026-05-08 發現報告持續顯示旗艦展演假資料；三假設排查確認根因為 Gemini API 429 配額耗盡。
+
+**稽核表（S+A+B9）**
+
+| 層 | 動作 |
+|---|---|
+| S1 代碼 | quota_error_triggered flag 命名清晰；四態 mode 常數語意明確 |
+| S2 邏輯 | 四路真值表：production/showcase/showcase_forced/error_fallback 全覆蓋 |
+| S4 測試 | 4 新 cases 全綠（TC1 429觸發、TC2 正常、TC3 主動showcase、TC4 跳LLM）；67/69 overall（2 pre-existing 失敗非 P69 引入）|
+| S10 安全 | quota_error flag 不洩漏 API key；mock 結果仍不寫 L1/L2 快取（迴歸驗證通過）|
+| A3 架構 | 沿用既有 is_showcase + quota_error 雙 flag，不引入新模組 |
+| A6 觀察 | `[!] 配額耗盡熔斷觸發 → quota_error=True` 日誌；`daily_summary skipped LLM: showcase mode` 日誌 |
+| A7 韌性 | generate_daily_summary showcase=True 直走 fallback，0 LLM 呼叫，防雪崩 |
+| A12 成本 | 修前每日 quota_error 後浪費 ~2 LLM call；修後 0 浪費 |
+| A13 維護 | mode 四態列舉寫進 generator.py 的 dict |
+| A14 文件 | Postmortem 寫入 docs/postmortems/2026-05-08-p69-showcase-forced-rootcause.md |
+| B9 UX | metadata comment 加四態中文標示（✅/🎭/⚠️/❌）|
+
+**影響檔案**
+
+| # | 檔案 | 動作 |
+|---|---|---|
+| 1 | `analyzer/sentiment.py` | F1 quota_error flag + A7 showcase 跳 LLM |
+| 2 | `main.py` | F2 mode 四態化 + F3 line 341 死字串修正 |
+| 3 | `reporter/generator.py` | B9 metadata comment 四態標示 |
+| 4 | `tests/test_showcase_modes.py` | 新建 4 cases |
+| 5 | `docs/postmortems/2026-05-08-p69-showcase-forced-rootcause.md` | Postmortem |
+
+**Exit 驗收**
+
+- [x] TC1-TC4 全綠（4/4）
+- [x] 全套 67/69（2 pre-existing 失敗 test_429_retry，非 P69 引入）
+- [x] mode 四態語意正確（production/showcase/showcase_forced/error_fallback）
+- [x] generate_daily_summary showcase=True → 0 LLM 呼叫（TC4 assert）
+- [x] Postmortem 完成
+
+**狀態**：✅ 待主公拍板 commit + push

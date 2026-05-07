@@ -273,8 +273,15 @@ class ReportGenerator:
         _total = _meta.get("total_calls", 0)
         _llm_calls = _meta.get("llm_calls", 0)
         _pct = int(_hits / _total * 100) if _total > 0 else 0
+        # P69 B9：mode 四態視覺標示
+        _mode_label = {
+            "production":      "✅ 真實輿情",
+            "showcase":        "🎭 主動展演（--showcase）",
+            "showcase_forced": "⚠️ 配額耗盡被迫展演（API 429）",
+            "error_fallback":  "❌ 系統錯誤備援",
+        }.get(_mode, f"❓ {_mode}")
         html_content = (
-            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode} -->\n"
+            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode} | {_mode_label} -->\n"
             + html_content
         )
 

@@ -282,6 +282,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         )
         analyzed_posts = analysis_res["posts"]
         active_showcase = analysis_res["is_showcase"] or showcase
+        # P69 F2：區分 showcase 四態（production / showcase / showcase_forced / error_fallback）
+        _quota_error = analysis_res.get("quota_error", False)
         daily_summary = await analyzer.generate_daily_summary(analyzed_posts, showcase=active_showcase)
 
         # 注入 LLM cache 統計 meta，供報告檔頂 metadata comment 使用
@@ -290,8 +292,14 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         _l2 = _stats.get("total_l2_hits", 0)
         _ap = _stats.get("total_apify_hits", 0)
         _miss = _stats.get("total_misses", 0)
+        if _quota_error:
+            _mode = "showcase_forced"
+        elif active_showcase:
+            _mode = "showcase"
+        else:
+            _mode = "production"
         daily_summary["_meta"] = {
-            "mode": "showcase" if active_showcase else "production",
+            "mode": _mode,
             "cache_hit": _l1 + _l2,
             "l1_hits": _l1,
             "l2_hits": _l2,
@@ -338,7 +346,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         daily_summary = analyzer._empty_summary(showcase=showcase)
         _fb_stats = analyzer.llm.cache_manager.get_stats()
         daily_summary["_meta"] = {
-            "mode": "showcase",
+            "mode": "showcase" if showcase else "error_fallback",
             "cache_hit": _fb_stats.get("total_l1_hits", 0) + _fb_stats.get("total_l2_hits", 0),
             "l1_hits": _fb_stats.get("total_l1_hits", 0),
             "l2_hits": _fb_stats.get("total_l2_hits", 0),
