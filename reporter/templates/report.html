@@ -1398,6 +1398,14 @@
                 style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
                 {{ overview }}
             </div>
+            {% if overflow_alerts %}
+            <!-- P68 溢位焦點（超過 3 條時顯示） -->
+            <div style="margin-top: 0.8rem; padding: 1rem 1.5rem; background: rgba(219,39,119,0.06); border-radius: 12px; border: 1px solid rgba(219,39,119,0.12);">
+                {% for alert in overflow_alerts %}
+                <div style="color: var(--text-main); font-size: 0.95rem; padding: 0.3rem 0; border-bottom: 1px solid rgba(219,39,119,0.08);">{{ alert.label }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         <div class="alert-banner">
@@ -1420,18 +1428,18 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <!-- Flagship Fallback (Phase 39 Consistency) -->
-                    <div class="alert-entry">
-                        <div class="alert-label-text">玩家活躍高峰</div>
-                        <div class="tactical-box">
-                            <div class="advice-header">
-                                <span>💡</span> 戰術行動指南 (OPERATIONAL ADVICE)
-                            </div>
-                            <div class="advice-body">
-                                今日 AoV 台服熱度持續攀升。玩家正密切關注芽芽新版本變動。
-                            </div>
+                    <!-- P68 動態今日焦點 fallback -->
+                    {% if dynamic_alerts %}
+                        {% for alert in dynamic_alerts %}
+                        <div class="alert-entry">
+                            <div class="alert-label-text">{{ alert.label }}</div>
                         </div>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert-entry">
+                            <div class="alert-label-text">今日台服輿情平穩，暫無異常警報。</div>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
