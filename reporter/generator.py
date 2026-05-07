@@ -141,6 +141,10 @@ class ReportGenerator:
         real_hot_topics = daily_summary.get("real_hot_topics", [])
         topic_to_posts = daily_summary.get("topic_to_posts", {})
 
+        # ── P68 動態今日焦點 ──────────────────────────────
+        dynamic_alerts = daily_summary.get("dynamic_alerts", [])
+        overflow_alerts = daily_summary.get("overflow_alerts", [])
+
         # 準備模板變數
         template_vars = {
             "date": report_date,
@@ -181,6 +185,8 @@ class ReportGenerator:
             "audio_url": daily_summary.get("audio_url", ""),
             "real_hot_topics": real_hot_topics,
             "topic_to_posts": topic_to_posts,
+            "dynamic_alerts": dynamic_alerts,
+            "overflow_alerts": overflow_alerts,
             "config": {
                 "HERO_FOCUS_NAME": getattr(config, "HERO_FOCUS_NAME", "芽芽"),
                 "ALERT_VOL_DELTA": getattr(config, "ALERT_VOL_DELTA", 20),

@@ -401,6 +401,29 @@ class SentimentAnalyzer:
                 summary["real_hot_topics"] = []
                 summary["topic_to_posts"] = {}
 
+            # P68 動態今日焦點（只在 alerts 為空時觸發）
+            history_delta = summary.get("history_delta", {})
+            if not history_delta.get("alerts"):
+                try:
+                    from analyzer.dynamic_focus import build_dynamic_alerts
+                    hero = getattr(__import__("config"), "HERO_FOCUS_NAME", "芽芽")
+                    df_result = await build_dynamic_alerts(
+                        summary=summary,
+                        analyzed_posts=analyzed_posts,
+                        hero_focus=hero,
+                        date_str=report_date,
+                        llm_client=self.llm,
+                    )
+                    summary["dynamic_alerts"] = df_result["dynamic_alerts"]
+                    summary["overflow_alerts"] = df_result["overflow_alerts"]
+                except Exception as _df_e:
+                    self.logger.warning("dynamic_focus 失敗，fallback 空：%s", _df_e)
+                    summary["dynamic_alerts"] = []
+                    summary["overflow_alerts"] = []
+            else:
+                summary["dynamic_alerts"] = []
+                summary["overflow_alerts"] = []
+
             # daily_summary 寫入快取
             cm.set(ds_key, summary)
             cm.save()

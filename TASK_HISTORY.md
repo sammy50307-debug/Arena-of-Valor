@@ -5098,3 +5098,45 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - [x] 雙欄並存（AI 觀察 + 統計熱詞）
 - [ ] 本機 dry-run 主公親驗（需真實 GHA 語料）
 
+
+### P68 — 「今日焦點」fallback 改動態生成
+
+**目標**：alerts 為空時不顯示寫死假訊息，改用即時資料動態組句。
+
+**觸發**：`history_delta.alerts` 為空時才啟動；有警報照舊走 tactical-box。
+
+**稽核表（S+A）**
+
+| 層 | 動作 |
+|---|---|
+| S1 代碼 | dynamic_focus.py 純函數設計，各 helper 單一職責 |
+| S2 邏輯 | D「較昨日 ±N」讀昨日 history_index，today=0 且 yesterday=0 時不輸出（避免無意義 0 篇句） |
+| S4 測試 | 5 cases 全綠（含 AI 失敗退回模板句、overflow 裁切） |
+| S10 安全 | overview 不被覆蓋（overflow 另開 sub-block，assert 通過）|
+| A3 架構 | dynamic_focus 與 P67 keyword_stats 平行，不互依賴 |
+| A6 觀察 | `logger.info("dynamic_focus: B=...,D=...,E=...,n_alerts=N,overflow=M")` |
+| A7 韌性 | AI 失敗 fallback 模板組句（不空）|
+| A12 成本 | ~300 token / 日，只在無歷史警報時觸發 |
+| A13 維護 | 模組 docstring 寫清楚 B/D/E 來源 |
+| A14 文件 | 此 TASK_HISTORY 段 + NEXT_SESSION_HANDOFF 更新 |
+| B9 UX | 去 tactical-box，單段 label 自然句顯示 |
+
+**影響檔案**
+
+| # | 檔案 | 動作 |
+|---|---|---|
+| 1 | `analyzer/dynamic_focus.py` | 新建 |
+| 2 | `analyzer/sentiment.py` | alerts 空時呼叫 build_dynamic_alerts |
+| 3 | `reporter/generator.py` | 傳 dynamic_alerts + overflow_alerts 進模板 |
+| 4 | `reporter/templates/report.html` | fallback 改動態渲染，overview 下方加 overflow sub-block |
+| 5 | `tests/test_dynamic_focus.py` | 新建 5 cases |
+
+**Exit 驗收**
+
+- [x] test_dynamic_focus 5 cases 全綠（63/63 overall）
+- [x] dry-run render 驗證：無 alerts → dynamic_alerts 三條單段顯示
+- [x] 迴歸驗證：有 alerts → 原 tactical-box 路徑不受影響
+- [x] overview 未被覆蓋（overflow 另開 sub-block）
+- [x] AI 失敗 fallback → 模板句仍出現，不空
+
+**狀態**：✅ 動工期完成，待主公拍板 commit + push
