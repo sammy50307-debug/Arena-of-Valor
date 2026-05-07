@@ -5055,3 +5055,46 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 
 **狀態**
 ✅ v1.1 定稿 + 三檔同步完成 + 跑完 63 維度 + 3 Patch 稽核（命中率 ~93%）+ TASK_HISTORY + RISK_REGISTRY 全部入帳。
+
+### Phase 67 — 「熱門關鍵話題」改真實統計（jieba 中文分詞 + Side Panel）
+
+**狀態**：✅ 收官  
+**日期**：2026-05-07  
+**分支**：main
+
+#### 目標
+將報告中「熱門關鍵話題」區塊從 AI 主觀觀察改為 jieba 真實詞頻統計，並新增 side panel 讓使用者點擊熱詞後查看所有來源文章。
+
+#### 觸發
+主公 2026-05-07 核可路線 C，P66.1 收官後接續動工。
+
+#### 物理真相（8 檔）
+
+| # | 檔案 | 動作 |
+|---|---|---|
+| 1 | analyzer/keyword_stats.py | 新建 — jieba 分詞 + posseg 詞性過濾 + 文章覆蓋率統計 |
+| 2 | configs/aov_terms.yaml | 新建 — AOV 戰隊/賽事/活動術語詞庫 |
+| 3 | configs/personal_blacklist.yaml | 沿用 P66.1 既有（P67 import 當停用詞）|
+| 4 | analyzer/sentiment.py | 改 — generate_daily_summary 尾端加 keyword_stats 呼叫，產 real_hot_topics + topic_to_posts |
+| 5 | reporter/generator.py | 改 — 加 real_hot_topics + topic_to_posts 至 template_vars |
+| 6 | reporter/templates/report.html | 改 — CSS side panel 樣式 + 真實熱詞卡 HTML + Side Panel HTML/JS |
+| 7 | tests/test_keyword_stats.py | 新建 — 7 cases 全綠（基本分詞、停用詞、詞性、覆蓋率去重、空語料、top_n 截斷、ImportError fallback）|
+| 8 | requirements.txt | 加 jieba>=0.42.1 |
+
+#### 設計決策
+
+- jieba posseg 用屬性讀取 `pair.word`/`pair.flag`（不用 tuple unpack），同時相容真實 jieba 與 unittest mock
+- `@lru_cache` 避免詞庫每請求重載
+- AI 熱門話題保留（標示「AI 觀察」），與統計熱詞並存雙欄
+- topic_to_posts 存 post URL（不存全文），避免 HTML 爆肥
+- jieba 初始化失敗時 fallback 空列表，不中斷報告流程
+
+#### 風險
+- jieba 分詞對短句（社群貼文）效果有限，需真實語料驗證排行品質
+- Python 3.8 相容：jieba 0.42.1 支援，無問題
+
+#### Exit 條件確認
+- [x] 7 cases 全綠
+- [x] 雙欄並存（AI 觀察 + 統計熱詞）
+- [ ] 本機 dry-run 主公親驗（需真實 GHA 語料）
+

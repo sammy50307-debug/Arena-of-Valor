@@ -1220,6 +1220,125 @@
             box-shadow: var(--glow-neon);
             backdrop-filter: blur(10px);
         }
+
+        /* ── P67 真實熱詞 ── */
+        .real-hot-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+        }
+        .hot-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: 1px solid rgba(96,165,250,0.3);
+        }
+        .hot-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+        }
+        .hot-tag .tag-count {
+            background: rgba(255,255,255,0.15);
+            border-radius: 999px;
+            padding: 0 0.4rem;
+            font-size: 0.75rem;
+        }
+
+        /* ── Side Panel ── */
+        #side-panel-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 900;
+        }
+        #side-panel {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 400px;
+            max-width: 95vw;
+            height: 100vh;
+            background: #0f172a;
+            border-left: 1px solid rgba(96,165,250,0.25);
+            z-index: 901;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.28s cubic-bezier(0.4,0,0.2,1);
+            overflow: hidden;
+        }
+        #side-panel.open { right: 0; }
+        #side-panel-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(96,165,250,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        #side-panel-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #93c5fd;
+        }
+        #side-panel-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.4rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 0.25rem;
+        }
+        #side-panel-close:hover { color: #e2e8f0; }
+        #side-panel-body {
+            padding: 0.75rem 1.25rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .sp-article {
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .sp-article:last-child { border-bottom: none; }
+        .sp-article a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .sp-article a:hover { text-decoration: underline; }
+        .sp-article .sp-meta {
+            font-size: 0.78rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 640px) {
+            #side-panel {
+                top: auto;
+                bottom: -100vh;
+                right: 0;
+                width: 100vw;
+                max-width: 100vw;
+                height: 70vh;
+                border-left: none;
+                border-top: 1px solid rgba(96,165,250,0.25);
+                border-radius: 1rem 1rem 0 0;
+                transition: bottom 0.28s cubic-bezier(0.4,0,0.2,1), right 0s;
+            }
+            #side-panel.open { bottom: 0; right: 0; }
+        }
     </style>
 </head>
 
@@ -1557,7 +1676,7 @@
             <div class="card">
                 <div class="card-header">
                     <span class="card-icon">🔥</span>
-                    <h2>熱門關鍵話題</h2>
+                    <h2>熱門關鍵話題 <small style="font-size:0.75rem;color:#94a3b8;font-weight:400;">AI 觀察</small></h2>
                 </div>
                 <ul style="list-style: none; padding: 0;">
                     {% for topic in hot_topics %}
@@ -1568,6 +1687,23 @@
                     </li>
                     {% endfor %}
                 </ul>
+            </div>
+            {% endif %}
+
+            {% if real_hot_topics %}
+            <!-- P67 真實熱詞統計卡 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h2>真實熱詞統計 <small style="font-size:0.75rem;color:#94a3b8;font-weight:400;">jieba 詞頻 · 點詞看來源</small></h2>
+                </div>
+                <div class="real-hot-tags">
+                    {% for item in real_hot_topics %}
+                    <span class="hot-tag" onclick="openSidePanel('{{ item.word | e }}')">
+                        {{ item.word }}<span class="tag-count">{{ item.count }}</span>
+                    </span>
+                    {% endfor %}
+                </div>
             </div>
             {% endif %}
         </div>
@@ -1946,6 +2082,72 @@
         window.addEventListener('load', () => {
             switchRegion('TW');
         });
+    </script>
+
+    <!-- P67 Side Panel -->
+    <div id="side-panel-overlay" onclick="closeSidePanel()"></div>
+    <div id="side-panel">
+        <div id="side-panel-header">
+            <span id="side-panel-title">熱詞來源</span>
+            <button id="side-panel-close" onclick="closeSidePanel()" aria-label="關閉">×</button>
+        </div>
+        <div id="side-panel-body"></div>
+    </div>
+
+    <script>
+    // P67 Side Panel — topic_to_posts 資料（post_id = URL）
+    const _topicToPosts = {{ topic_to_posts | tojson }};
+
+    // posts 索引（key = url）
+    const _postIndex = {};
+    {% for ap in posts %}
+    {% set p = ap.get('post', {}) %}
+    {% if p.get('url') and p.get('url') != 'N/A' %}
+    _postIndex[{{ p.url | tojson }}] = {
+        title: {{ (p.title or p.content[:40] or '(無標題)') | tojson }},
+        url:   {{ p.url | tojson }},
+        platform: {{ (p.platform or '') | tojson }}
+    };
+    {% endif %}
+    {% endfor %}
+
+    function openSidePanel(word) {
+        const panel = document.getElementById('side-panel');
+        const overlay = document.getElementById('side-panel-overlay');
+        const title = document.getElementById('side-panel-title');
+        const body = document.getElementById('side-panel-body');
+
+        title.textContent = '「' + word + '」相關文章';
+        const postIds = _topicToPosts[word] || [];
+        const items = postIds.map(pid => _postIndex[pid]).filter(Boolean);
+
+        if (items.length === 0) {
+            body.innerHTML = '<p style="color:#64748b;padding:1rem 0;">（無法取得文章連結）</p>';
+        } else {
+            body.innerHTML = items.map(it =>
+                '<div class="sp-article">' +
+                '<a href="' + it.url + '" target="_blank" rel="noopener">' + escHtml(it.title) + '</a>' +
+                '<span class="sp-meta">' + escHtml(it.platform) + '</span>' +
+                '</div>'
+            ).join('');
+        }
+
+        overlay.style.display = 'block';
+        panel.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidePanel() {
+        document.getElementById('side-panel').classList.remove('open');
+        document.getElementById('side-panel-overlay').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidePanel(); });
     </script>
 </body>
 
