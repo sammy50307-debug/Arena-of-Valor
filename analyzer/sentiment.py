@@ -389,6 +389,18 @@ class SentimentAnalyzer:
                 top_links.append({"title": content_preview, "url": p["post"]["url"], "platform": p["post"]["platform"]})
             summary["top_links"] = top_links
 
+            # P67 真實熱詞統計（jieba keyword_stats）
+            try:
+                from analyzer.keyword_stats import compute_hot_topics
+                raw_posts = [e["post"] for e in analyzed_posts]
+                real_hot_topics, topic_to_posts = compute_hot_topics(raw_posts)
+                summary["real_hot_topics"] = real_hot_topics
+                summary["topic_to_posts"] = topic_to_posts
+            except Exception as _kw_e:
+                self.logger.warning("keyword_stats 失敗，fallback 空列表：%s", _kw_e)
+                summary["real_hot_topics"] = []
+                summary["topic_to_posts"] = {}
+
             # daily_summary 寫入快取
             cm.set(ds_key, summary)
             cm.save()

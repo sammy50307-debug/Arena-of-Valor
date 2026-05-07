@@ -27,3 +27,6 @@ python-dotenv>=1.0.0
 
 # Utilities
 rich>=13.0.0
+
+# NLP — P67 真實熱詞統計
+jieba>=0.42.1

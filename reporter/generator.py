@@ -137,6 +137,10 @@ class ReportGenerator:
             elif isinstance(t, str):
                 hot_topics.append({"topic": t, "mention_count": 0})
 
+        # ── P67 真實熱詞（keyword_stats 統計）──────────────
+        real_hot_topics = daily_summary.get("real_hot_topics", [])
+        topic_to_posts = daily_summary.get("topic_to_posts", {})
+
         # 準備模板變數
         template_vars = {
             "date": report_date,
@@ -175,6 +179,8 @@ class ReportGenerator:
             "wordcloud": wordcloud_data,
             "heatmap_data": heatmap_data,
             "audio_url": daily_summary.get("audio_url", ""),
+            "real_hot_topics": real_hot_topics,
+            "topic_to_posts": topic_to_posts,
             "config": {
                 "HERO_FOCUS_NAME": getattr(config, "HERO_FOCUS_NAME", "芽芽"),
                 "ALERT_VOL_DELTA": getattr(config, "ALERT_VOL_DELTA", 20),
