@@ -1,23 +1,24 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-07 晚（P66.1 + P67 收官；P68 待動工）
-- **狀態**：✅ P66.1 + P67 已完成；P68 規格凍結待動工
-- **下個視窗開局**：直接動工 P68（今日焦點動態 fallback，2-3 小時，可複用 P67 platform_breakdown 統計）
+- **更新日期**：2026-05-08（P68 收官；P69 旗艦展演模式根治 待動工）
+- **狀態**：✅ P66.1 + P67 + P68 全部完成
+- **下個視窗開局**：動工 P69 — 旗艦展演模式（showcase=True）觸發根因排查與修治
 
 ---
 
 ## ⚡ 下個視窗開局速查（30 秒看完就能動工）
 
-### 本視窗（2026-05-07）做了什麼
+### 本視窗（2026-05-08）做了什麼
 
 | Phase | 狀態 | Commit | 內容 |
 |---|---|---|---|
 | **P66.1** | ✅ 已 push | `12b557e` | Top-5 Picker 個人化過濾 + 來源多樣性 |
-| **P67** | ✅ 已完成 | 本視窗 | 真實熱詞統計（jieba + side panel）|
-| **P68 規格** | 📋 凍結 | — | 今日焦點動態 fallback，規格詳見下方 |
+| **P67** | ✅ 已 push | `a8eb6c3` | 真實熱詞統計（jieba + side panel）|
+| **P68** | ✅ 已 push | `b01c55c` | 今日焦點動態 fallback（B/D/E 模板 + AI 潤飾）|
+| **P69 候選** | 📋 草案 | — | 旗艦展演模式觸發根因排查，規格詳見下方 |
 
-### 5/8 早 8:00 GHA 排程驗收清單（主公親點）
+### 5/8 GHA 排程驗收清單（主公親點，尚未確認）
 
 GHA 會自動用 P66.1 新代碼生 5/8 報告。打開 landing page 確認：
 
@@ -35,9 +36,10 @@ GHA 會自動用 P66.1 新代碼生 5/8 報告。打開 landing page 確認：
 | 選項 | Phase | 估時 | 依賴 |
 |---|---|---|---|
 | ~~A~~ | ~~P67 真實熱詞統計~~（✅ 已收官）| — | — |
-| **B** | **P68 今日焦點動態 fallback** | 2-3 小時 | P67 platform_breakdown 統計可直接複用 |
+| ~~B~~ | ~~P68 今日焦點動態 fallback~~（✅ 已收官）| — | — |
+| **C** | **P69 旗艦展演模式根治** | 1-2 小時（排查）+ 1-2 小時（修） | 無 |
 
-**建議路徑**：直接動工 P68（Sonnet 4.6）。
+**建議路徑**：動工 P69（Sonnet 4.6），先排查再修。
 
 ---
 
@@ -219,7 +221,77 @@ candidates = all_analyzed_posts
 5. commit + TASK_HISTORY 補 P68 段
 6. 主公拍板 push
 
-**估時**：2-3 小時（複用 P67 平台統計成果）
+**估時**：2-3 小時（複用 P67 平台統計成果）✅ **已收官 commit `b01c55c`**
+
+---
+
+### 🎯 P69（草案，待主公核可）— 旗艦展演模式（showcase=True）觸發根治
+
+**背景**：主公 2026-05-08 發現報告持續顯示「旗艦展演模式」假資料，非真實輿情分析結果。
+
+#### 問題描述
+
+旗艦展演模式（`showcase=True`）應只在 **API 完全耗盡 / 斷線** 時才觸發，但主公多次看到報告顯示假資料（showcase 的芽芽 mock 數字、mock 分析文），代表 showcase 在不該觸發的時候被啟動了。
+
+#### 已知觸發路徑（待排查確認）
+
+`analyzer/sentiment.py` 中有以下三個 showcase 觸發點：
+
+1. **主動傳入**：`analyze_posts(..., showcase=True)` 呼叫端（`main.py`）手動啟動
+2. **斷路器觸發**：`batch_chat` 拋出 `httpx.HTTPStatusError`（429）→ `showcase = True`
+3. **例外兜底**：其他 Exception → results=[]，但 showcase 不一定設 True（依現有邏輯）
+4. **_generate_fallback_summary**：`generate_daily_summary` 整體 try 失敗 → 走 fallback，fallback 預設 showcase=False 但某些路徑可能 showcase=True
+
+#### 排查計畫（開局第一件事）
+
+```bash
+# Step 1：查 main.py 是否有 showcase=True 的呼叫
+grep -n "showcase" main.py
+
+# Step 2：查最新 GHA log（GitHub Actions → AoV Daily Monitor → 最新一次 run）
+# 找 "[!] 系統進入極度備援模式" 或 "showcase" 出現在哪個步驟
+
+# Step 3：查最新 HTML report 的 metadata comment（首行）
+# <!-- cache_hit: X/Y (Z%) | llm_calls: N | mode: ??? -->
+# 若 mode=showcase 就是從 GHA 那次 run 開始
+
+# Step 4：查 sentiment.py 的 showcase 觸發邏輯是否有漏洞
+grep -n "showcase" analyzer/sentiment.py
+```
+
+#### 假設根因（排查後二選一確認）
+
+| 假設 | 症狀 | 修法 |
+|---|---|---|
+| **A** GHA 環境 Gemini API 配額耗盡（每日免費額度）| log 有 429、cache_hit rate 低 | 確認配額、考慮 batch 頻率降低或切模型 |
+| **B** main.py 預設 showcase=True 或條件有 bug | 本機 dry-run 也是 showcase | 修 showcase 觸發條件 |
+| **C** L2 快取讀到舊的 showcase 結果 | cache_hit 高但 mode=showcase | 清快取重跑，並防止 showcase 結果寫入快取 |
+
+#### 影響半徑（微 Phase；1-3 檔）
+
+| # | 檔案 | 動作 |
+|---|---|---|
+| 1 | `main.py` | 排查 showcase 呼叫點 |
+| 2 | `analyzer/sentiment.py` | 修 showcase 觸發邏輯（視根因決定） |
+| 3 | `analyzer/cache_manager.py` | 若根因是快取污染則修 |
+
+#### 17 層稽核（微 Phase；僅 S 級）
+
+| 層 | 動作 |
+|---|---|
+| S1 代碼 | showcase 觸發條件清晰、有明文說明 |
+| S2 邏輯 | 真實資料可用時 showcase 絕不啟動 |
+| S4 測試 | 補 test：模擬 API 成功 → assert 非 showcase 模式 |
+| S10 安全 | showcase mock 資料不污染 L2 快取（已有保護，確認生效）|
+
+#### Exit 條件
+
+1. 確認根因（A/B/C 三選一）
+2. 修補後本機 dry-run → HTML metadata comment mode≠showcase
+3. GHA 下次跑 → landing page 顯示真實資料（非芽芽 mock）
+4. commit + TASK_HISTORY 補 P69 段
+
+**估時**：排查 0.5-1 小時 + 修補 0.5-1 小時
 
 ---
 
