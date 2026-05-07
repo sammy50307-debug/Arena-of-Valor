@@ -8,6 +8,58 @@
 
 ## 🔥 下個視窗最優先任務
 
+### 🎯 P66.1（已核可、規格凍結）— Top-5 Picker 個人化過濾與來源多樣性
+
+**主公 2026-05-07 核可，先休息，下個視窗直接動工。**
+
+#### 規格凍結
+
+| 項目 | 規格 |
+|---|---|
+| 黑名單初始詞 | `星展`、`貝殼幣` |
+| 黑名單比對 | 標題 + 內文 snippet（contains 部分匹配） |
+| 黑名單命中 | 完全排除（從候選池踢掉） |
+| 🌸 **芽芽豁免** | **`is_yaya_related` 優先於黑名單**（見 `memory/feedback_yaya_priority.md`） |
+| 黑名單 log | `logger.info("filtered by blacklist: 星展 | post=...")` |
+| Dcard boost | 分數平手時 Dcard 優先進榜（小幅 source boost 1.05~1.10，不壓過主排序） |
+| 多樣性目標 | 5 卡至少 3 個不同平台 |
+| 多樣性替換範圍 | **只動「2 張一般卡」段**，不動「3 張芽芽卡」 |
+| 多樣性 fallback | 候選池不足 → 允許不滿足，log warning |
+
+#### 影響半徑（標準級 3-9 檔）
+
+1. `analyzer/top5_picker.py` — 主邏輯
+2. `config/personal_blacklist.yaml` — 新建（yaml.safe_load）
+3. `tests/test_top5_picker.py` — 補 6+ cases（黑名單×2、芽芽豁免×1、多樣性×3、Dcard boost×1）
+
+#### 演算法流程
+
+```
+candidates = all_analyzed_posts
+↓ [1] 過濾：keep if is_yaya(p) or not blacklist_hit(p)
+↓ [2] final_score = relevance × decay × boost(含 Dcard 微 boost)
+↓ [3] 分流 yaya_pool / general_pool
+↓ [4] yaya: top 3 by score
+↓ [5] general: top 2 by score
+↓ [6] 多樣性檢查 unique_platforms >= 3?
+       若 < 3 且候選池有其他平台 → 替換 general 最低分那張為「未出現平台分數最高」
+       若候選池無其他平台 → 接受不滿足 + log warning
+↓ [7] 回傳 5 卡
+```
+
+#### Exit 條件
+
+1. picker 29+ 單元測試全綠（原 23 + 新增 6）
+2. 本機 dry-run 重生報告，人工確認 5 卡無星展/貝殼幣
+3. commit 含 yaml + picker + test + TASK_HISTORY 補 P66.1 段
+4. 主公拍板 push
+
+**估時**：30-45 分鐘
+
+---
+
+
+
 ### T0 — ✅ 已修補（保留下方排查紀錄供查證）：GitHub Pages 最新動態詳情無文章
 
 **收官摘要（2026-05-07）**：
