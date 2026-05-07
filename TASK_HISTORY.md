@@ -4973,3 +4973,47 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 **狀態**：✅ 收官（commit + push 待主公核可）
 - 影響檔：`reporter/generator.py`（改 11 行）+ `tests/test_generator_landing.py`（新建 80 行）+ `index.html`（自動生成，指向 05-06）
 - 連動議題：無，獨立 hotfix
+
+### Phase 66.1 — Top-5 Picker 個人化過濾與來源多樣性（收官 2026-05-07）
+
+**目標**：把 Top-5 News Cards 升級為「個人化 + 多樣性」版本——標題/內文含主公黑名單詞（星展、貝殼幣）的文章直接踢出候選池；芽芽相關文章豁免黑名單；分數平手時 Dcard 微 boost 進榜；最終 5 卡保證至少 3 個不同平台。
+
+**觸發**：P65 收官後主公 2026-05-07 拍板規格凍結到 NEXT_SESSION_HANDOFF.md，本視窗繼續討論完 P67/P68 後直接動工。
+
+**稽核表**（標準級 3-9 檔，S+A 必過）：
+- S1 代碼：blacklist 用 `@lru_cache(maxsize=1)` 避免每次重載；helper 函式拆成 `_is_yaya_related` / `_is_blacklisted` / `_compute_source_boost` / `_get_platform`
+- S2 邏輯：黑名單比對範圍 = 標題 + 內文 contains（部分匹配）；芽芽豁免在黑名單檢查**之前**判斷；多樣性只動 2 張一般卡段，不動 3 張芽芽卡
+- S4 測試：`tests/test_top5_picker.py` 38 cases 全綠（原 23 + P66.1 新增 15：黑名單 ×3、Dcard ×3、helper ×5、enforce_diversity ×4）
+- S10 安全：`yaml.safe_load`（非 unsafe）、路徑由 config.PERSONAL_BLACKLIST_PATH 硬編碼、blacklist FileNotFoundError 降級為空 tuple 不拋
+- A3 架構：blacklist 過濾與 source boost 內聚於 picker；多樣性以 `enforce_diversity()` 公開函式由 generator 串接（外層做組裝決策）
+- A6 觀察：`logger.info("filtered by blacklist: 星展 | post=...")` + `enforce_diversity: swap ... for platform diversity`
+- A7 韌性：yaml 讀檔失敗 → 空黑名單繼續跑；多樣性候選池無未出現平台 → log warning 接受不滿足
+- A14 文件：本段 + handoff P66.1 規格凍結區
+- A15 流程：標準 Phase 流程（測試→TASK_HISTORY→commit→請示 push）
+
+**物理真相**：
+- 路徑衝突排雷：原 handoff 規畫 `config/personal_blacklist.yaml` → 與既有 `config.py` 衝突（同名 module/package 風險）→ 主公拍板 B 方案改 `configs/`（複數）
+- pick_top5 新增 `record_history: bool = True` 參數（向後相容）— generator.py 取候選池排序時傳 False，避免把全部一般文章 URL 寫進 history_index
+- enforce_diversity 流程：找 other_cards 最低分 → 從 candidate_pool 抓「未出現平台 + 分數最高」者替換 → 重複到滿足 N 平台或候選池耗盡
+- Dcard boost 設 1.05（保守值）—— 主排序仍由 relevance × decay 主導，只在分數平手或極接近時讓 Dcard 略勝
+
+**風險**：
+- 已緩解：blacklist `@lru_cache` 在新增黑名單詞時需手動清 cache 或重啟 process（但每日 CI 一次跑完即退出，無此風險）
+- 已緩解：芽芽豁免可能讓「芽芽 + 星展聯名」文上榜——主公 2026-05-07 確認可接受（罕見且豁免邏輯明確）
+- 已知未修：429 retry 既有測試（`tests/test_429_retry.py`）2 cases 預先就壞（GeminiClient `_cm` 屬性缺失）—— 與本 Phase 無關，不阻擋收官
+- 未來行為：黑名單詞由主公直接編 `configs/personal_blacklist.yaml`，下次 GHA 跑生效；P67 將共用此 yaml 當停用詞種子
+
+**影響半徑**（4 改 + 1 新建 = 5 檔）：
+- 新建：`configs/personal_blacklist.yaml`（種子兩詞）
+- 改：`config.py`（加 PERSONAL_BLACKLIST_PATH / DCARD_SOURCE_BOOST / DIVERSITY_MIN_PLATFORMS）
+- 改：`analyzer/top5_picker.py`（+ blacklist loader / source boost / yaya helper / blacklist helper / enforce_diversity / record_history 參數）
+- 改：`reporter/generator.py`（取全候選池 record_history=False → enforce_diversity → 只寫最終選中 URL 進 history）
+- 改：`tests/test_top5_picker.py`（+15 cases）
+
+**狀態**：✅ 收官（commit 待主公核可 push）
+
+
+**動工期發現的 bug 與修補（追記 2026-05-07）**：
+- 🐛 `enforce_diversity` 無限循環互換（實機 dry-run 觸發）：candidate_pool 含 other_cards 自身 → 被換出的卡又被選回 → A↔B 反覆 swap → 主程式卡死
+- 修法：(1) `swapped_out_urls` set 永久標記被換出 URL 不再選回 (2) `max_iterations = max(len(other)*2, 4)` 安全保險 (3) 補迴歸測試 `test_enforce_diversity_no_infinite_swap`（共 39 cases 全綠）
+- 教訓：純單元測試的合成 candidate_pool 不含 other 自身，遮蔽此 bug；下次新增 picker helper 時測試 case 應刻意覆蓋「pool 與 selected 重疊」的真實場景

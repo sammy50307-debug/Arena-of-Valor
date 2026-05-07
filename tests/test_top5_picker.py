@@ -1,6 +1,6 @@
 """
-T1 單元測試 — top5_picker (P65-S2)
-Exit Criteria: ≥ 12 cases 全綠
+T1 單元測試 — top5_picker (P65-S2 / P66.1)
+Exit Criteria: ≥ 29 cases 全綠（P65-S2 23 + P66.1 6+）
 """
 
 import pytest
@@ -10,7 +10,12 @@ from analyzer.top5_picker import (
     _extract_score,
     _compute_decay,
     _compute_boost,
+    _compute_source_boost,
+    _is_yaya_related,
+    _is_blacklisted,
+    _reset_blacklist_cache,
     pick_top5,
+    enforce_diversity,
 )
 from analyzer.url_normalizer import normalize
 
@@ -211,3 +216,204 @@ def test_normalize_strips_trailing_slash():
 def test_normalize_empty_url():
     assert normalize("") == ""
     assert normalize("#") == "#"
+
+
+# ────────────────────────────────────────────────────────
+# 6. P66.1 — 黑名單過濾 + 芽芽豁免
+# ────────────────────────────────────────────────────────
+
+@pytest.fixture
+def patched_blacklist(monkeypatch):
+    """Patch _load_blacklist 為固定詞表，繞過 yaml 與 lru_cache。"""
+    from analyzer import top5_picker as _picker
+    _reset_blacklist_cache()  # 清掉舊 cache（test 之間隔離）
+    monkeypatch.setattr(_picker, "_load_blacklist", lambda: ("星展", "貝殼幣"))
+    yield
+    # monkeypatch 自動還原；還原後再 clear 一次以保證下個 test 乾淨
+    monkeypatch.undo()
+    _reset_blacklist_cache()
+
+
+def test_blacklist_filters_post_with_keyword_in_title(patched_blacklist):
+    posts = [
+        _make_post(url="https://example.com/a", title="星展銀行新活動", score=0.9),
+        _make_post(url="https://example.com/b", title="正常文章", score=0.5),
+    ]
+    cards, _ = pick_top5(posts, hero_focus="芽芽", today=TODAY, now=NOW, history_index={})
+    urls = [c["post"]["url"] for c in cards]
+    assert "https://example.com/a" not in urls
+    assert "https://example.com/b" in urls
+
+
+def test_blacklist_filters_post_with_keyword_in_content(patched_blacklist):
+    posts = [
+        _make_post(url="https://example.com/c", title="標題", content="內文提到貝殼幣很有趣", score=0.9),
+        _make_post(url="https://example.com/d", title="標題", content="正常內文", score=0.5),
+    ]
+    cards, _ = pick_top5(posts, hero_focus="芽芽", today=TODAY, now=NOW, history_index={})
+    urls = [c["post"]["url"] for c in cards]
+    assert "https://example.com/c" not in urls
+    assert "https://example.com/d" in urls
+
+
+def test_blacklist_yaya_exemption(patched_blacklist):
+    """芽芽相關文章命中黑名單詞時仍保留（is_yaya_related 優先）。"""
+    yaya_post = _make_post(
+        url="https://example.com/yaya",
+        title="芽芽推薦星展卡",  # 同時含黑名單詞 + 芽芽
+        score=0.9,
+        hero_focus=True,
+    )
+    cards, _ = pick_top5([yaya_post], hero_focus="芽芽", today=TODAY, now=NOW, history_index={})
+    assert len(cards) == 1
+    assert cards[0]["post"]["url"] == "https://example.com/yaya"
+
+
+# ────────────────────────────────────────────────────────
+# 7. P66.1 — Dcard source boost
+# ────────────────────────────────────────────────────────
+
+def test_source_boost_dcard():
+    entry = _make_post()
+    entry["post"]["platform"] = "dcard"
+    assert _compute_source_boost(entry) == pytest.approx(1.05)
+
+
+def test_source_boost_non_dcard():
+    entry = _make_post()
+    entry["post"]["platform"] = "ptt"
+    assert _compute_source_boost(entry) == pytest.approx(1.0)
+
+
+def test_dcard_boost_breaks_tie_in_pick_top5(patched_blacklist):
+    """分數平手時 Dcard 文章排序高於非 Dcard。"""
+    ptt_post = _make_post(url="https://ptt.cc/x", score=0.7, title="PTT 文")
+    ptt_post["post"]["platform"] = "ptt"
+    dcard_post = _make_post(url="https://dcard.tw/x", score=0.7, title="Dcard 文")
+    dcard_post["post"]["platform"] = "dcard"
+    cards, _ = pick_top5([ptt_post, dcard_post], hero_focus="芽芽",
+                         today=TODAY, now=NOW, history_index={}, top_n=2)
+    assert cards[0]["post"]["url"] == "https://dcard.tw/x"
+
+
+# ────────────────────────────────────────────────────────
+# 8. P66.1 — _is_yaya_related / _is_blacklisted helpers
+# ────────────────────────────────────────────────────────
+
+def test_is_yaya_related_by_title():
+    entry = _make_post(title="芽芽新造型")
+    assert _is_yaya_related(entry, "芽芽") is True
+
+
+def test_is_yaya_related_by_is_hero_focus_flag():
+    entry = _make_post(hero_focus=True)
+    assert _is_yaya_related(entry, "芽芽") is True
+
+
+def test_is_yaya_related_negative():
+    entry = _make_post(title="一般文章", content="無關內文")
+    assert _is_yaya_related(entry, "芽芽") is False
+
+
+def test_is_blacklisted_hits():
+    entry = _make_post(title="星展卡推薦")
+    hit = _is_blacklisted(entry, ("星展", "貝殼幣"))
+    assert hit == "星展"
+
+
+def test_is_blacklisted_misses():
+    entry = _make_post(title="正常標題", content="正常內文")
+    assert _is_blacklisted(entry, ("星展", "貝殼幣")) is None
+
+
+# ────────────────────────────────────────────────────────
+# 9. P66.1 — enforce_diversity
+# ────────────────────────────────────────────────────────
+
+def _card(url: str, platform: str, score: float) -> dict:
+    """簡化版 card factory（picker metadata 直接填）。"""
+    return {
+        "post": {"url": url, "platform": platform, "title": f"t-{url}"},
+        "analysis": {},
+        "picker": {
+            "final_score": score,
+            "base_score": score,
+            "decay": 1.0,
+            "boost": 1.0,
+            "is_duplicate": False,
+            "dup_badge": "",
+            "norm_url": normalize(url),
+        },
+    }
+
+
+def test_enforce_diversity_already_satisfied():
+    """yaya + other 已 >= 3 平台 → 不動。"""
+    yaya = [_card("https://a/1", "巴哈", 0.9)]
+    other = [_card("https://b/1", "ptt", 0.8), _card("https://c/1", "dcard", 0.7)]
+    pool = list(other)
+    result = enforce_diversity(yaya, other, pool, min_platforms=3)
+    assert [c["post"]["url"] for c in result] == [c["post"]["url"] for c in other]
+
+
+def test_enforce_diversity_swap_for_third_platform():
+    """only 2 platforms → 替換最低分為候選池中未出現平台的最高分。"""
+    yaya = [_card("https://a/1", "巴哈", 0.9)]
+    other = [
+        _card("https://b/1", "ptt", 0.8),
+        _card("https://b/2", "ptt", 0.6),
+    ]
+    pool = list(other) + [
+        _card("https://d/1", "dcard", 0.5),  # 候選池有 dcard
+    ]
+    result = enforce_diversity(yaya, other, pool, min_platforms=3)
+    platforms = {c["post"]["platform"] for c in (yaya + result)}
+    assert "dcard" in platforms
+    assert len(platforms) >= 3
+    # 被換掉的應是最低分 (https://b/2)
+    urls = [c["post"]["url"] for c in result]
+    assert "https://b/2" not in urls
+    assert "https://b/1" in urls
+
+
+def test_enforce_diversity_pool_lacks_other_platforms():
+    """候選池無未出現平台 → 接受不滿足，不報錯。"""
+    yaya = [_card("https://a/1", "巴哈", 0.9)]
+    other = [
+        _card("https://b/1", "ptt", 0.8),
+        _card("https://b/2", "ptt", 0.6),
+    ]
+    pool = list(other)  # 候選池只有 ptt，沒第三平台可換
+    result = enforce_diversity(yaya, other, pool, min_platforms=3)
+    # 應原樣返回
+    assert [c["post"]["url"] for c in result] == [c["post"]["url"] for c in other]
+
+
+def test_enforce_diversity_empty_other():
+    """other_cards 為空 → 直接返回。"""
+    yaya = [_card("https://a/1", "巴哈", 0.9)]
+    result = enforce_diversity(yaya, [], [], min_platforms=3)
+    assert result == []
+
+
+def test_enforce_diversity_no_infinite_swap():
+    """
+    迴歸測試：實機 log 顯示 web↔youtube 無限互換。
+    根因：candidate_pool 含 other_cards 自身，被換出的卡又被選回來。
+    修補：swapped_out_urls 永久標記 + max_iterations 保險。
+    """
+    # yaya 平台 = web（與 other 重疊）
+    yaya = [_card("https://gamer.com.tw/y", "web", 0.9)]
+    # other 一張 web 一張 youtube，兩平台都已被 yaya/other 涵蓋
+    other = [
+        _card("https://gamer.com.tw/o1", "web", 0.7),
+        _card("https://yt.com/o2", "youtube", 0.6),
+    ]
+    # 候選池只有 web/youtube，沒有第三平台
+    pool = list(other) + [
+        _card("https://gamer.com.tw/p1", "web", 0.5),
+        _card("https://yt.com/p2", "youtube", 0.4),
+    ]
+    # 應該優雅退出（不滿足但不無限循環），且不超時
+    result = enforce_diversity(yaya, other, pool, min_platforms=3)
+    assert len(result) == 2  # 仍是 2 張一般卡

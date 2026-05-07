@@ -1,0 +1,16 @@
+# Personal Blacklist (P66.1)
+#
+# 用途：
+#   1. P66.1 Top-5 picker 黑名單 — 標題或內文 contains 任一詞 → 整篇排除（芽芽相關豁免）
+#   2. P67 keyword_stats 停用詞 — 即使統計時出現，也不列入熱詞榜（與黑名單共用詞庫）
+#
+# 規則：
+#   - 部分匹配（contains），不是整詞比對
+#   - 比對範圍：post.title + post.content（snippet）
+#   - 芽芽豁免：is_yaya_related 文章不受此黑名單影響（見 memory/feedback_yaya_priority.md）
+#
+# 主公新增詞時直接加到 blacklist 下方即可。
+
+blacklist:
+  - 星展
+  - 貝殼幣
