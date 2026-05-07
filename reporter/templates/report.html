@@ -1355,16 +1355,41 @@
                         {% endfor %}
                     </div>
 
-                    {% if hero_focus_posts %}
+                    {% if top5_yaya %}
                     <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
-                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">🔗 專屬討論連結</h3>
-                        {% for hp in hero_focus_posts[:3] %}
-                        <div style="margin-bottom: 0.5rem;">
-                            <a href="{{ hp.post.url }}" target="_blank" class="hero-link">
-                                [{{ hp.post.platform }}] {{ hp.analysis.summary }}
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.8rem;">📰 芽芽近期動態</h3>
+                        {% for card in top5_yaya %}
+                        {% set pd = card.get('post', {}) %}
+                        {% set an = card.get('analysis', {}) %}
+                        {% set pk = card.get('picker', {}) %}
+                        <div style="margin-bottom: 0.8rem; background: rgba(253,242,248,0.6); border: 1px solid #fbcfe8; border-radius: 14px; padding: 0.8rem;">
+                            <a href="{{ pd.get('url','#') }}" target="_blank" rel="noopener noreferrer"
+                               aria-label="{{ pd.get('title', pd.get('content',''))[:60] }} — 開啟原文"
+                               style="text-decoration:none; color:inherit; display:block;">
+                                <div style="font-size:0.88rem; font-weight:700; color:#be185d; margin-bottom:0.3rem; line-height:1.4;">
+                                    {% set t = pd.get('title') or pd.get('content','') %}
+                                    {{ t[:70] }}{% if t|length > 70 %}…{% endif %}
+                                </div>
+                                <div style="font-size:0.75rem; color:#9ca3af; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                    <span style="background:#fce7f3;color:#be185d;padding:1px 7px;border-radius:999px;font-weight:600;">{{ pd.get('platform','?')|upper }}</span>
+                                    <span>{{ pd.get('published_date') or pd.get('timestamp','') }}</span>
+                                    {% if pk.get('is_duplicate') %}
+                                    <span style="background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:999px;">↻ 重複</span>
+                                    {% endif %}
+                                </div>
+                                {% set snip = an.get('summary') if an.get('summary') and an.get('summary') != '分析失敗' else (pd.get('content','')[:80]) %}
+                                {% if snip %}
+                                <div style="font-size:0.8rem;color:#6b7280;margin-top:0.4rem;line-height:1.5;">
+                                    {{ snip[:80] }}{% if snip|length > 80 %}…{% endif %}
+                                </div>
+                                {% endif %}
                             </a>
                         </div>
                         {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem; text-align: center; color: #f9a8d4; font-size: 0.9rem; padding-bottom: 0.5rem;">
+                        🌸 今天芽芽在森林裡休息喔~
                     </div>
                     {% endif %}
                 </div>
@@ -1545,89 +1570,114 @@
                 </div>
 
                 <div class="feed-container">
-                    {# Combined feed with fallback #}
-                    {% set display_posts = posts if posts else (hero_focus_posts if hero_focus_posts else top_links) %}
-                    
+                    {# P65 Top-5 News Cards #}
+                    {% if top5_news %}
+                        {% for card in top5_news %}
+                        {% set post_data = card.get('post', {}) %}
+                        {% set a = card.get('analysis', {}) %}
+                        {% set pk = card.get('picker', {}) %}
+                        {% set region = post_data.get('region', 'TW') %}
+                        {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
+                        {% set is_yaya = (focus_hero in (post_data.get('title','') or '')) or (focus_hero in (post_data.get('content','') or '')) or pk.get('boost',1.0) > 1.0 %}
+                        {% set sentiment = a.get('sentiment', 'neutral') %}
+                        {% set is_dup = pk.get('is_duplicate', False) %}
+                        {% set dup_badge = pk.get('dup_badge', '') %}
+
+                        <div class="post-container filterable-region" data-region="{{ region }}">
+                            <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}"
+                                style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+
+                                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span class="region-tag tag-{{ region|lower }}">
+                                        {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN' %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
+                                    </span>
+                                    <span class="post-platform" style="{% if is_yaya %}background:#fdf2f8;color:#db2777;{% endif %}">
+                                        {{ post_data.get('platform','?')|upper }}
+                                    </span>
+                                    {% if is_dup %}
+                                    <span style="font-size:0.72rem;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:600;">
+                                        ↻ 重複{% if dup_badge == 'day1' %}&nbsp;·&nbsp;昨日{% elif dup_badge == 'day3' %}&nbsp;·&nbsp;3日內{% elif dup_badge == 'day7' %}&nbsp;·&nbsp;週內{% endif %}
+                                    </span>
+                                    {% endif %}
+                                    <span style="font-size:0.72rem;color:#94a3b8;margin-left:auto;">
+                                        #{{ loop.index }}
+                                        &nbsp;★{{ "%.2f"|format(pk.get('final_score',0)) }}
+                                    </span>
+                                </div>
+
+                                <a href="{{ post_data.get('url','#') }}" target="_blank" rel="noopener noreferrer"
+                                    aria-label="{{ post_data.get('title', post_data.get('content','新聞'))[:80] }} — 開啟原文"
+                                    style="text-decoration:none;color:inherit;">
+                                    <div class="post-title" style="{% if is_yaya %}color:#db2777;{% endif %}">
+                                        {% set title_text = post_data.get('title') or post_data.get('content','') %}
+                                        {{ title_text[:80] }}{% if title_text|length > 80 %}…{% endif %}
+                                    </div>
+
+                                    <div class="post-meta">
+                                        <span>{{ post_data.get('published_date') or post_data.get('timestamp','時間未知') }}</span>
+                                        {% if post_data.get('author') and post_data.get('author') != 'unknown' %}
+                                        <span>· @{{ post_data.author }}</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="post-snippet original-content" style="{% if is_yaya %}color:#831843;{% endif %}">
+                                        {% set snippet = a.get('summary') if (a.get('summary') and a.get('summary') != '分析失敗') else (post_data.get('content','')[:120]) %}
+                                        {{ snippet[:120] }}{% if snippet|length > 120 %}…{% endif %}
+                                    </div>
+
+                                    {% if a and a.get('sentiment') %}
+                                    <div class="post-sentiment text-{% if sentiment == 'positive' %}pos{% elif sentiment == 'negative' %}neg{% else %}neu{% endif %}"
+                                        style="{% if is_yaya %}color:#be185d !important;{% endif %}">
+                                        AI: {{ sentiment|upper }}{% if is_yaya %} [{{ focus_hero }}]{% endif %}
+                                    </div>
+                                    {% endif %}
+                                </a>
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    {# fallback: 沿用舊版 feed #}
+                    {% set display_posts = posts if posts else (hero_focus_posts if hero_focus_posts else []) %}
                     {% for p in display_posts %}
                     {% set a = p.get('analysis', {}) %}
-                    {% set post_data = p.get('post', p) %} {# Handle different nesting levels #}
+                    {% set post_data = p.get('post', p) %}
                     {% set region = post_data.get('region', 'TW') %}
                     {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
                     {% set is_yaya = (focus_hero in post_data.get("content", "")) or (focus_hero in a.get("summary", "")) %}
-
                     <div class="post-container filterable-region" data-region="{{ region }}">
                         <div class="post-card {% if is_yaya %}yaya-highlight{% endif %}"
                             style="animation-delay: {{ loop.index0 * 0.1 }}s;">
-                            <!-- 區域標籤 (Phase 33) -->
                             <div style="margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="region-tag tag-{{ region|lower }}">
-                                    {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN'
-                                    %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
+                                    {% if region == 'TW' %}🇹🇼 TW{% elif region == 'TH' %}🇹🇭 TH{% elif region == 'VN' %}🇻🇳 VN{% else %}🌐 GLOBAL{% endif %}
                                 </span>
-                                {% if post_data.translated_content %}
-                                <button class="translate-btn" onclick="toggleTranslation(this)">
-                                    <span class="icon">🔍</span> 原文對覽
-                                </button>
-                                {% endif %}
                             </div>
-
-                            <a href="{{ post_data.get('url', '#') }}" target="_blank"
-                                style="text-decoration: none; color: inherit;">
+                            <a href="{{ post_data.get('url', '#') }}" target="_blank" style="text-decoration: none; color: inherit;">
                                 <div class="post-title" style="{% if is_yaya %}color: #db2777;{% endif %}">
-                                    {% if post_data.get('content') %}
-                                    {{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}
-                                    {% else %}
-                                    無內容
-                                    {% endif %}
+                                    {% if post_data.get('content') %}{{ post_data.content[:60] }}{% if post_data.content|length > 60 %}...{% endif %}{% else %}無內容{% endif %}
                                 </div>
-
                                 <div class="post-meta">
-                                    <span class="post-platform"
-                                        style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{
-                                        post_data.get('platform', 'Unknown')|upper }}</span>
-                                    <span>{{ post_data.get('published_date') if post_data.get('published_date') else
-                                        post_data.get('timestamp', '時間未知') }}</span>
-                                    {% if post_data.get('author') and post_data.author != 'unknown' %}
-                                    <span>· @{{ post_data.author }}</span>
-                                    {% endif %}
+                                    <span class="post-platform" style="{% if is_yaya %}background: #fdf2f8; color: #db2777;{% endif %}">{{ post_data.get('platform', 'Unknown')|upper }}</span>
+                                    <span>{{ post_data.get('published_date') if post_data.get('published_date') else post_data.get('timestamp', '時間未知') }}</span>
                                 </div>
-
-                                <div class="post-snippet-container">
-                                    <div class="post-snippet original-content"
-                                        style="{% if post_data.translated_content %}display: none;{% endif %} {% if is_yaya %}color: #831843;{% endif %}">
-                                        {% if a and a.get('summary') and a.summary != '分析失敗' %}
-                                        {{ a.summary }}
-                                        {% else %}
-                                        {{ post_data.get('content', '')[:100] }}...
-                                        {% endif %}
-                                    </div>
-                                    {% if post_data.translated_content %}
-                                    <div class="post-snippet translated-content"
-                                        style="{% if is_yaya %}color: #831843;{% endif %}">
-                                        <div
-                                            style="font-size: 0.75rem; color: #be185d; font-weight: 700; margin-bottom: 0.3rem;">
-                                            ✨ AI 繁中翻譯：</div>
-                                        {{ post_data.translated_content }}
-                                    </div>
-                                    {% endif %}
+                                <div class="post-snippet original-content" style="{% if is_yaya %}color: #831843;{% endif %}">
+                                    {% if a and a.get('summary') and a.summary != '分析失敗' %}{{ a.summary }}{% else %}{{ post_data.get('content', '')[:100] }}...{% endif %}
                                 </div>
-
                                 {% if a %}
-                                <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}"
-                                    style="{% if is_yaya %}color: #be185d !important;{% endif %}">
-                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }} {% if is_yaya %}[焦點：{{ focus_hero
-                                    }}]{% endif %}
+                                <div class="post-sentiment text-{% if a.sentiment == 'positive' %}pos{% elif a.sentiment == 'negative' %}neg{% else %}neu{% endif %}" style="{% if is_yaya %}color: #be185d !important;{% endif %}">
+                                    AI 判定: {{ a.get('sentiment', 'NEUTRAL')|upper }}{% if is_yaya %} [焦點：{{ focus_hero }}]{% endif %}
                                 </div>
                                 {% endif %}
                             </a>
                         </div>
                     </div>
                     {% endfor %}
-
-                    {% if not posts %}
+                    {% if not display_posts %}
                     <div style="text-align: center; color: #94a3b8; padding: 2rem;">
-                        今日暫無相關動態。
+                        近期動態冷清，明日再訪。
                     </div>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
