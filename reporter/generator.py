@@ -14,7 +14,7 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader
 
 import config
-from analyzer.top5_picker import pick_top5
+from analyzer.top5_picker import pick_top5, enforce_diversity
 from analyzer import news_history_indexer as _indexer
 from analyzer.url_normalizer import normalize as _normalize_url
 
@@ -218,10 +218,24 @@ class ReportGenerator:
                     p for p in other_pool
                     if _normalize_url(p.get("post", p).get("url", "#")) not in selected_urls
                 ]
-                other_cards, _ = pick_top5(
+                # P66.1 — 取一般候選池完整排序（不寫 history），供 enforce_diversity 用
+                all_other_cards, _ = pick_top5(
                     remaining_other, hero_focus=hero, today=report_date,
-                    bypass_dedup=bypass, top_n=need_general,
+                    bypass_dedup=bypass, top_n=max(need_general, len(remaining_other)),
+                    record_history=False,
                 )
+                other_cards = all_other_cards[:need_general]
+
+                # P66.1 — 多樣性：5 卡至少 3 平台（只動 2 張一般卡段）
+                other_cards = enforce_diversity(
+                    yaya_cards, other_cards, all_other_cards,
+                )
+
+                # 把最終選中的一般卡 URL 寫進 history_index
+                final_other_urls = [c["post"].get("url", "#")
+                                    for c in other_cards if not c["picker"]["is_duplicate"]]
+                idx_after_other = _indexer.record_urls(final_other_urls, idx_after_yaya, today=report_date)
+                _indexer.save_index(idx_after_other)
 
                 top5_yaya = yaya_cards                        # 芽芽觀察室用
                 top5_news = yaya_cards + other_cards          # 最新動態詳情：3+2

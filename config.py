@@ -92,6 +92,11 @@ TOP5_SCORE_DECAY_HOURS = int(os.getenv("TOP5_SCORE_DECAY_HOURS", "72"))
 TOP5_SCORE_DECAY_MIN = float(os.getenv("TOP5_SCORE_DECAY_MIN", "0.3"))
 TOP5_DEDUP_THRESHOLD = float(os.getenv("TOP5_DEDUP_THRESHOLD", "0.85"))
 
+# ── P66.1 Top-5 Picker 個人化過濾與多樣性 ────────────────
+PERSONAL_BLACKLIST_PATH = BASE_DIR / "configs" / "personal_blacklist.yaml"
+DCARD_SOURCE_BOOST = float(os.getenv("DCARD_SOURCE_BOOST", "1.05"))
+DIVERSITY_MIN_PLATFORMS = int(os.getenv("DIVERSITY_MIN_PLATFORMS", "3"))
+
 # 確保必要資料夾存在
 DATA_DIR.mkdir(exist_ok=True)
 REPORTS_DIR.mkdir(exist_ok=True)
