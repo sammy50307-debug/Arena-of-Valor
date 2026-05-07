@@ -4862,3 +4862,43 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - 63.1.1 ✅（bug 修 + git add 補全，commits 220f6ae / 714750b）
 - 63.1.2 ✅（涵蓋於 63.1.1 replacer else 分支）
 - 從下次 GHA 起，每出新報告 index.html 自動 commit 推上 origin，無需手動操作
+
+### P65 最新動態 5 卡精準推送 Top-5 News Cards（收官 2026-05-07）
+
+**目標**：報表頁「最新動態詳情」從空狀態改造為每日固定 5 張可點擊新聞卡（3 芽芽 + 2 一般 AoV），芽芽觀察室左欄同步顯示芽芽專屬 3 卡；無芽芽文章日顯示「今天芽芽在森林裡休息喔~」。
+
+**觸發背景**：主公觀察到「最新動態詳情」常顯示空狀態，且連結無法確認是否為原文。
+
+**17 層稽核表（簡）**：
+- S 級全過：代碼純函式設計 / 邏輯 score×decay×boost 公式 / 測試 23 cases / 安全 Jinja2 autoescape
+- A 級全過：架構焦點 boost / 資料 atomic write + .bak / 可觀察性 picker log / 韌性降級空列表
+- B 級觸發：UX aria-label / 部署 feature flag / 效能 asyncio-ready
+
+**新增檔案**：
+- `analyzer/top5_picker.py`（score×decay×boost + dedup + bypass）
+- `analyzer/url_normalizer.py`（UTM/fbclid 去除）
+- `analyzer/news_history_indexer.py`（atomic write + .bak + 14 天 prune）
+- `tests/test_top5_picker.py`（23 cases 全綠）
+
+**修改檔案**：
+- `config.py`：新增 ENABLE_TOP5_NEWS / HERO_BOOST_FACTOR / OG_FETCH_DAILY_LIMIT 等 7 個設定
+- `reporter/generator.py`：注入 pick_top5，3 芽芽 + (5-N) 一般邏輯，top5_yaya / top5_news 雙變數
+- `reporter/templates/report.html`：5 卡 block（↻ 重複徽章 / aria-label）+ 芽芽近期動態 + 休息訊息 fallback；移除舊「🔗 專屬討論連結」
+
+**物理真相**：
+- raw_*.json 的 score 欄位（0.70-0.98）作為 base_score
+- 時間衰減：decay = max(0.3, 1 - age_hours/72)
+- 焦點英雄 boost = 1.2，其餘 1.0
+- history_index 14 天滾動視窗，atomic write .bak 防損毀
+- 無芽芽文章日：芽芽觀察室顯示「🌸 今天芽芽在森林裡休息喔~」
+
+**Exit Criteria**：
+- [x] 5 篇依 score×decay×boost 排序（3 芽芽優先 + 2 一般補滿）
+- [x] 5 卡含標題 + 平台 + 情緒標籤 + 摘要 + 時間
+- [x] T1 單元測試 23/23 全綠
+- [x] 整合測試：有/無芽芽文章兩情境正確渲染
+- [ ] S5 主公親點 5 連結（待真實資料日驗收）
+
+**風險結案**：R8 三層 fallback 已由新 picker 取代 ✅ / R13 本地 dry-run 攔截 ✅ / R4 bypass_dedup 實作 ✅
+
+**狀態**：✅ 收官，commit feat(P65) push origin/main

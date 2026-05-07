@@ -14,6 +14,9 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader
 
 import config
+from analyzer.top5_picker import pick_top5
+from analyzer import news_history_indexer as _indexer
+from analyzer.url_normalizer import normalize as _normalize_url
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +181,54 @@ class ReportGenerator:
                 "ALERT_NEG_RATIO": getattr(config, "ALERT_NEG_RATIO", 30),
             }
         }
+
+        # ── P65 Top-5 News Cards (3 芽芽 + 2 一般) ──────────────────────────
+        top5_news: list = []
+        top5_yaya: list = []
+        if getattr(config, "ENABLE_TOP5_NEWS", True):
+            try:
+                hero = getattr(config, "HERO_FOCUS_NAME", "芽芽")
+                bypass = daily_summary.get("_meta", {}).get("is_showcase", False)
+
+                def _is_yaya(p: dict) -> bool:
+                    post = p.get("post", p)
+                    an = p.get("analysis", {})
+                    return bool(
+                        post.get("is_hero_focus")
+                        or an.get("is_hero_focus")
+                        or hero in (post.get("title", "") or "")
+                        or hero in (post.get("content", "") or "")
+                        or hero in (an.get("summary", "") or "")
+                    )
+
+                yaya_pool = [p for p in analyzed_posts if _is_yaya(p)]
+                other_pool = [p for p in analyzed_posts if not _is_yaya(p)]
+
+                # Top-3 芽芽（最多 3 篇）
+                yaya_cards, idx_after_yaya = pick_top5(
+                    yaya_pool, hero_focus=hero, today=report_date,
+                    bypass_dedup=bypass, top_n=3,
+                )
+                _indexer.save_index(idx_after_yaya)
+
+                # 剩餘名額由一般文章補滿 5 張
+                need_general = 5 - len(yaya_cards)
+                selected_urls = {c["picker"]["norm_url"] for c in yaya_cards}
+                remaining_other = [
+                    p for p in other_pool
+                    if _normalize_url(p.get("post", p).get("url", "#")) not in selected_urls
+                ]
+                other_cards, _ = pick_top5(
+                    remaining_other, hero_focus=hero, today=report_date,
+                    bypass_dedup=bypass, top_n=need_general,
+                )
+
+                top5_yaya = yaya_cards                        # 芽芽觀察室用
+                top5_news = yaya_cards + other_cards          # 最新動態詳情：3+2
+            except Exception as _e:
+                logger.warning("top5_picker 失敗，降級為空列表：%s", _e)
+        template_vars["top5_news"] = top5_news
+        template_vars["top5_yaya"] = top5_yaya
 
         # ── 防空機制：如果 AI 摘要遺失但有抓到文章，手動補齊 ──────────────────
         hp_list = template_vars["hero_focus_posts"]

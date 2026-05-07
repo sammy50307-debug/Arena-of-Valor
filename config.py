@@ -82,6 +82,16 @@ ALERT_VOL_DELTA = 50.0  # 比週均值高出 50% 觸發紅頭警報
 ALERT_NEG_RATIO = 70.0  # 負面論調佔比超過 70% 觸發示警
 ALERT_WR_DROP = 3.0     # 勝率在 24H 內下滑超過 3% 觸發警告
 
+# ── P65 Top-5 News Cards ─────────────────────────────────
+ENABLE_TOP5_NEWS = os.getenv("ENABLE_TOP5_NEWS", "true").lower() == "true"
+HERO_BOOST_FACTOR = float(os.getenv("HERO_BOOST_FACTOR", "1.2"))
+OG_FETCH_DAILY_LIMIT = int(os.getenv("OG_FETCH_DAILY_LIMIT", "50"))
+NEWS_HISTORY_INDEX_PATH = DATA_DIR / "news_history_index.json"
+NEWS_HISTORY_MAX_DAYS = int(os.getenv("NEWS_HISTORY_MAX_DAYS", "14"))
+TOP5_SCORE_DECAY_HOURS = int(os.getenv("TOP5_SCORE_DECAY_HOURS", "72"))
+TOP5_SCORE_DECAY_MIN = float(os.getenv("TOP5_SCORE_DECAY_MIN", "0.3"))
+TOP5_DEDUP_THRESHOLD = float(os.getenv("TOP5_DEDUP_THRESHOLD", "0.85"))
+
 # 確保必要資料夾存在
 DATA_DIR.mkdir(exist_ok=True)
 REPORTS_DIR.mkdir(exist_ok=True)
