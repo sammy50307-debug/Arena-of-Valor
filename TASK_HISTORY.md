@@ -4902,3 +4902,30 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 **風險結案**：R8 三層 fallback 已由新 picker 取代 ✅ / R13 本地 dry-run 攔截 ✅ / R4 bypass_dedup 實作 ✅
 
 **狀態**：✅ 收官，commit feat(P65) push origin/main
+
+### Phase 65-hotfix — `@keyframes popIn` 缺失修補（2026-05-07）
+
+**目標**：修補「最新動態詳情」右欄 5 張新聞卡在 GitHub Pages / LINE 連結中完全不顯示的 P0 bug。
+
+**觸發**：主公 2026-05-07 視窗交接後 T0 排查。截圖顯示右欄標題下方一片空白，即使 HTML 結構完整含 5 張卡。
+
+**稽核表**（微 Phase 1-2 檔，依 Patch-1 僅 S 級必填）：
+- 代碼層：6 行 CSS @keyframes，from/to 對齊 .post-card 預設值
+- 邏輯層：CSS 引用未定義 animation → animation 不執行、forwards 不保留 → opacity:0 永久卡住
+- 測試層：本機目視通過（主公 chrome 開 data/reports/aov_report_2026-05-06.html）→ 5 卡現身
+- 安全層：N/A（純 CSS 動畫，無 XSS/注入面）
+
+**物理真相**：
+- 根因：`reporter/templates/report.html:349` 引用 `animation: popIn`，但整份 template 從未定義 `@keyframes popIn`（4 月黃金版 V16_GOLDEN_BUILD 起即如此）
+- 為何今天才暴露：P65 將 `.post-card` 用於 Top-5 News Cards 顯眼位置，首次讓老 bug 浮上水面
+- 孤兒動畫掃描（修補後）：`refs - defs = []` 歸零；死碼僅剩 `shimmer`（不動，疑似 inline style 動態引用）
+- 升級方案：發現不必重生 HTML，直接 patch `aov_report_2026-05-06.html` 補同樣 11 行 CSS → 零 API 配額消耗
+
+**風險**：
+- 已緩解：keyframe `from` 完全對齊 `.post-card` 預設值 → 動畫起點無跳動
+- 已知未修：`.post-card` 第 354 行 `transform: translateZ(0)` 覆蓋第 348 行 transform（CSS 後者勝）→ 獨立 lint issue，本次超範圍不動
+- 未來行為：GHA 5/7 08:00 排程跑 → 自動用新 template 生 05-07 報告 → 期望行為
+
+**狀態**：✅ 收官（commit 待主公核可 push）
+- 影響檔：`reporter/templates/report.html` + `data/reports/aov_report_2026-05-06.html`（各 +11 行）
+- 連動議題（記入 memory）：top5 文章品質、熱門關鍵話題作用 → P66+ 草案
