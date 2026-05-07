@@ -192,6 +192,8 @@ class SentimentAnalyzer:
                 )
             )
 
+        # P69：區分主動 showcase（user --showcase）vs 被迫 showcase（429 配額熔斷）
+        quota_error_triggered = False
         try:
             results = await self.llm.batch_chat(
                 system_prompt=SYSTEM_SINGLE_POST,
@@ -201,10 +203,10 @@ class SentimentAnalyzer:
                 response_schema=SINGLE_POST_SCHEMA
             )
         except httpx.HTTPStatusError as e:
-            # 這是斷路器：當 batch_chat 全盤拋出 429 時，表示系統需要緊急備援
-            self.logger.warning("偵測到毀滅性 429 額度耗盡！斷路器觸發！強制切換至戰情室預演數據。")
+            self.logger.warning("[!] 配額耗盡熔斷觸發 → 強制切換至戰情室預演數據（quota_error=True）")
             results = []
-            showcase = True # 強制切換
+            showcase = True
+            quota_error_triggered = True
         except Exception as e:
             if showcase:
                 self.logger.warning(f"分析失敗 ({e})... 任務模式：啟動精品級數據備援系統。")
@@ -244,7 +246,7 @@ class SentimentAnalyzer:
                     "analysis": mock_analysis
                 }
                 analyzed.append(entry)
-            return {"posts": analyzed, "is_showcase": True}
+            return {"posts": analyzed, "is_showcase": True, "quota_error": quota_error_triggered}
 
         analyzed = []
         for res, analysis in zip(search_results, results):
@@ -291,7 +293,7 @@ class SentimentAnalyzer:
                 })
 
         self.logger.info(f"完成 {len(analyzed)} 筆結果分析 (Final Showcase Status: {showcase})")
-        result = {"posts": analyzed, "is_showcase": showcase}
+        result = {"posts": analyzed, "is_showcase": showcase, "quota_error": False}
 
         # L1 寫入：showcase 結果不寫，避免污染快取
         if l1_key and not showcase and analyzed:
@@ -313,14 +315,18 @@ class SentimentAnalyzer:
 
         report_date = date or datetime.now().strftime("%Y-%m-%d")
 
+        # P69 A7：showcase 模式直接走 fallback，不打 LLM（省配額、防雪崩）
+        if showcase:
+            self.logger.info("daily_summary skipped LLM: showcase mode → fallback 模板（quota 保護）")
+            return self._generate_fallback_summary(analyzed_posts, report_date, showcase)
+
         # daily_summary 快取命中
         cm = self.llm.cache_manager
         ds_key = cm.daily_summary_key(report_date)
-        if not showcase:
-            cached_summary = cm.get(ds_key)
-            if cached_summary is not None:
-                self.logger.info(f"   [⚡] daily_summary 快取命中 ({ds_key})")
-                return cached_summary
+        cached_summary = cm.get(ds_key)
+        if cached_summary is not None:
+            self.logger.info(f"   [⚡] daily_summary 快取命中 ({ds_key})")
+            return cached_summary
         analysis_text = self._format_analysis_for_summary(analyzed_posts)
 
         regional_summary_data = {}
