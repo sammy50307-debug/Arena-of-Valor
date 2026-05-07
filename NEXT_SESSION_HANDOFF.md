@@ -354,3 +354,38 @@ py -3 main.py --dry-run --force  # 第二次，L1 應命中
    - `enforce_diversity(yaya_cards, other_cards, candidate_pool, *, min_platforms=3)`
    - 兩者皆有 docstring + 測試覆蓋
 5. **記憶補充**：本次 dry-run 跑太久（>1 分鐘）改用 smoke test。下次動工 P67 jieba 分詞時，要預留時間做真實 dry-run（jieba 分詞效能需驗證）。
+
+---
+
+## ⚡ P69 Ad-hoc 收官補錄（2026-05-07 晚加場）
+
+**Phase 69 — 跨 AI 助理模型選擇指引 v1.1** 已於本日 ad-hoc 動工 + 收官，**插入在 P67/P68 動工之前**。
+
+### 收官重點
+
+- ✅ 主檔 `docs/MODEL_SELECTION_GUIDE.md`（v1.1，含 §8 治理與運維）
+- ✅ 三檔同步：~/.claude/CLAUDE.md + ~/.gemini/GEMINI.md + memory/reference_model_guide.md
+- ✅ STR6 啟用：新建 `docs/RISK_REGISTRY.md`（R-001~R-003）
+- ✅ TASK_HISTORY Phase 69 段已寫入
+- ✅ 跑 63 維度 + 3 Patch 完整稽核（命中率 ~93%）
+- ✅ commit `c969d49` + push origin/main
+
+### 對下視窗的影響
+
+- **P67/P68 規格不變**，仍可照本檔上方規格動工
+- **動工模型建議改用本指引推薦**：P67/P68 都屬「標準 8 檔工程」→ **Sonnet 4.6**（不要用 Opus，省成本；卡住才升）
+- commit 流程的 `Co-Authored-By` 欄位**不要再寫死 Opus 4.7**，依當下動工模型填（feedback_workflow.md 已修）
+
+### 新增的長期觀察項（90 天後檢視）
+
+- R-001：三檔同步無自動檢測（手動自律中）
+- R-002：Gemini / Anthropic 新模型大版本上線時的腐化風險
+- R-003：AI 是否實際遵循「Opus 卡住主動提醒」強制條款（觀察期至 2026-08-05）
+
+### 編號說明
+
+P69 屬於**治理類 ad-hoc Phase**，不在原 handoff 規劃內，但已正式登記為 Phase 69。原 handoff 規劃的「下個 P67 / 後續 P68」**編號維持不變**，下視窗動工順序：
+
+```
+P69（已收官）→ P67（待動工，建議 Sonnet 4.6）→ P68（待動工，建議 Sonnet 4.6）
+```
