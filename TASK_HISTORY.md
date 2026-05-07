@@ -4929,3 +4929,47 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 **狀態**：✅ 收官（commit 待主公核可 push）
 - 影響檔：`reporter/templates/report.html` + `data/reports/aov_report_2026-05-06.html`（各 +11 行）
 - 連動議題（記入 memory）：top5 文章品質、熱門關鍵話題作用 → P66+ 草案
+
+### Phase 63.1.2 — Canonical Sync SameFileError 修補（2026-05-07）
+
+**目標**：修補 GHA 自 5/4 起連續 3 天 commit 未帶 index.html → landing page 永遠停在 5/3 戰報的 P0 bug。
+
+**觸發**：主公 2026-05-07 P65-hotfix 收官後發現 landing page「消失」（實為過期凍結）。
+
+**稽核表**（微 Phase 2-3 檔，依 Patch-1 S+A 級必填）：
+- 代碼層：1 處改動（generator.py:268-282 拆兩個 try + same-file 守衛）
+- 邏輯層：output_path == canonical_path 時跳過 shutil.copy2、landing page 與 sync 解耦
+- 測試層：補 2 個 integration test（tests/test_generator_landing.py，主路徑 + 邊界），全綠
+- 可觀察性層：兩個獨立 warning log（主線更新失敗 / Landing Page 更新失敗），可區分故障點
+- 韌性層：sync 失敗不再連帶阻斷 landing page 更新
+- 安全層：N/A（無外部輸入面）
+- 文件層：本段 + commit message
+- 流程層：依 STR1-4 標準
+
+**物理真相**：
+- 根因：`reporter/generator.py:268` 原 try 區塊內，`shutil.copy2(output_path, canonical_path)` 在 GHA 第一次跑當日（aov_report_YYYY-MM-DD.html 不存在 → while 不進 → output_path 直接等於 canonical_path）→ SameFileError → 整個 try fail → `_update_landing_page` 從未被執行
+- 為何本機看不到：本機 aov_report_*.html 已存在 → while 進 → output_path 走 _v2 命名 → 不同檔 → copy 成功 → landing 正常更新
+- GHA log 證據：5/4/5/5/5/6 三次 commit (`f979a04`/`f819809`/`5ff8a62`) 均未含 index.html
+- 連帶設計缺陷：原 try 把 canonical sync 與 landing page 更新綁一起，任一失敗都連帶 fail（錯誤處理粒度太粗）
+
+**修法**：
+- A. canonical sync 加 `if output_path != canonical_path` 守衛 → 同檔時跳過 copy
+- B. `_update_landing_page` 拆出獨立 try → 與 canonical sync 失敗解耦
+- C. 本機 index.html 走路 P：以「指向 05-06」（origin/main 上實際有的最新報告）一併 commit，主公 push 後立即生效，不必等 5/8 GHA
+
+**邊際思考已捨棄**（邊際遞減）：
+- 升 warning → error（風格一致性）
+- 自我檢測 landing page 日期是否今日（過度工程）
+- except Exception → except SameFileError（守衛已 cover、Exception 兼顧 OSError 更穩）
+- 把 _update_landing_page 拉出 generator（職責分離議題，超範圍 → 留 P67+）
+- atomic write（write_text 已單次寫入）
+- 整合測試（單元 test 已涵蓋核心）
+- 回頭補 5/4-5/6 historical landing page 快照（無人關心）
+
+**風險**：
+- 已緩解：補了 same-file 守衛 + 拆 try + 2 個 test
+- 未來行為：5/8 GHA 用修補後代碼自動跑 → 寫 aov_report_2026-05-08.html → canonical sync 守衛 pass → landing page 獨立更新 → commit 帶上 index.html → 主公 5/8 早上開 landing page 看到 05-08 戰報
+
+**狀態**：✅ 收官（commit + push 待主公核可）
+- 影響檔：`reporter/generator.py`（改 11 行）+ `tests/test_generator_landing.py`（新建 80 行）+ `index.html`（自動生成，指向 05-06）
+- 連動議題：無，獨立 hotfix
