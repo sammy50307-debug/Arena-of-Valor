@@ -5236,3 +5236,84 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 **測試結果**：45/45 全綠（原 39 + 新增 6 cases）；全套 73/73 零回歸
 
 **狀態**：✅ 收官
+
+### P70.3 — LINE 滑動失靈修補（收官 2026-05-08）
+
+**目標**：修補 LINE in-app browser（WKWebView / Chrome WebView）開啟報告後，整頁無法垂直滑動的問題（P63.2 遺留）。
+
+**根因**：`reporter/templates/report.html` 的 `html, body {}` 規則將 `overflow-x: hidden` 同時套在 `html` 元素上。LINE 的 WebView 以 `html` 元素作為 viewport scroll container；當 `html` 有 `overflow: hidden`（任一軸），WebView 停止轉發 touch scroll 事件 → 整頁滑不動。
+
+**修法（1 個檔案，微 Phase / S 級）**：
+- 拆分 `html, body {}` → 獨立 `html {}` + `body {}`
+  - `html {}` 只保留 `width: 100%`（不加 overflow-x:hidden）
+  - `body {}` 保留 `overflow-x: hidden` + `-webkit-overflow-scrolling: touch`
+  - `body {}` 新增 `touch-action: pan-y`（明示 LINE WebView 允許垂直 pan）
+- CSS overflow 從 `html` 移到 `body` 後，body overflow 會按 CSS spec propagate 到 viewport，水平 scrollbar 不受影響
+
+**17 層稽核（Patch-1 微 Phase）**：
+- S1 代碼：✅ 最小改動，無邏輯複雜度
+- S2 邏輯：✅ CSS overflow propagation spec 確認
+- S4 測試：N/A HTML/CSS 無自動化測試；需在 LINE 實機驗證
+- S10 安全：✅ 無安全影響
+
+**影響範圍**：`reporter/templates/report.html`（1 個檔案）
+
+**狀態**：✅ 收官（template 已修，待主公實機驗收 + commit）
+
+---
+
+#### P70.3 收官補錄（2026-05-08，63 維度稽核 + 主公實機驗收後）
+
+**主公實機驗收結果**：點開 5/6 號舊報告**仍滑不動** → 確認 template 修補只對未來新生成報告有效，舊 HTML 已寫死 CSS。
+
+**治標處理（10 個舊主版報告批次修補）**：
+- 範圍：`data/reports/aov_report_2026-05-{01..10}.html` 共 10 個（5/1～5/10 主版）
+- 方法：Python idempotent 字串替換（OLD_BLOCK → NEW_BLOCK）
+- 不在範圍：`_v*` 變體共 23 個（preview / version 副本，主公不點）+ 3-4 月共 11 個（CSS pattern 不同，需個別處理）
+
+**Exit Criteria（STR3 補錄）**：
+- [x] EC1：`reporter/templates/report.html` 拆分 + touch-action: pan-y
+- [x] EC2：10 個 5 月主版舊報告同步修補
+- [ ] EC3：主公在 LINE 實機重新點 5/6（**強制刷新清快取**）驗證滑動恢復 — 待 commit + push 後驗收
+- [ ] EC4：未來新生成報告（下次 GHA 成功跑完後）二次驗收
+
+**comment 增補（X4 接手者視角）**：
+- template 與 10 個舊報告 comment 統一為：`/* prevent LINE WebView from swallowing vertical pan events; see WebKit bug #153852 */`
+
+**衍生產出**：
+- 新 Postmortem：`docs/postmortems/2026-05-08-p70.3-line-scroll-postmortem.md`
+- RISK_REGISTRY 新登記：R-004（UI/UX LINE 迴歸盲區）、R-005（`-webkit-overflow-scrolling` 90 天 review）
+
+**G2 認知防火牆強化**：「我以為 CSS 在所有環境都 OK」加入「我以為清單」 → 下次改 `overflow` / `position: fixed` / `touch-action` 等屬性主動提示需 LINE 實機測試。
+
+**狀態**：✅ 治本 + 治標完成；EC3/EC4 待主公驗收後關閉。
+
+---
+
+### P70.3.1 — 報告頁加「回戰略門戶」按鈕（收官 2026-05-08）
+
+**目標**：解決主公「藍紫色 landing page 不見了」抱怨 — 過去從 LINE 推播點開報告後沒有路徑回到 landing page，只能主動 key 根 URL。
+
+**根因**：`reporter/templates/report.html` 從未含返回 landing page 的入口；LINE 推播訊息只發單一具體報告 URL（commit `a69986e` 設定）→ 主公從 LINE 進入報告後就走丟。
+
+**驗證**：`curl https://sammy50307-debug.github.io/Arena-of-Valor/` 返回 HTTP 200，line page 線上完整正常 → 不是 page 不見、是路徑不通。
+
+**修法（方案 B，主公拍板）**：
+- `reporter/templates/report.html`：`<style>` 末加 `.back-to-landing` pill 樣式（粉色系、小尺寸、左上角、hover 平移效果）；`<body>` 後加 `<a class="back-to-landing" href="https://sammy50307-debug.github.io/Arena-of-Valor/">← 回戰略門戶</a>`
+- 10 個 5 月主版舊報告（`aov_report_2026-05-{01..10}.html`）批次套用相同修補（idempotent Python 腳本：偵測 `back-to-landing` 已存在則 skip）
+
+**17 層稽核（Patch-1 微 Phase）**：
+- S1 代碼：✅ 純 HTML/CSS 加 element + class，無邏輯
+- S2 邏輯：N/A
+- S4 測試：⚠️ 同 P70.3，無自動化測試；待主公實機點驗
+- S10 安全：✅ 外連 URL 用 `rel="home"`，無 XSS / 開放性風險
+- A14 文件：✅ 本錨點
+- B9 UX：✅ 觸發（templates/）；位置、樣式、文字均經考量；mobile 媒體查詢調整 padding
+
+**影響範圍**：1 template + 10 個 HTML 舊報告 = 11 檔
+
+**Exit Criteria**：
+- [x] EC1：template + 10 舊報告均含 `back-to-landing` 按鈕
+- [ ] EC2：主公在 LINE 點 5/6 報告 → 看到左上角粉色 pill「← 回戰略門戶」→ 點下去能進藍紫頁
+
+**狀態**：✅ 修補完成，待主公驗收 + commit/push。

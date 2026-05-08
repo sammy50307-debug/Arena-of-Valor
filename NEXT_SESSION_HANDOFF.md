@@ -1,9 +1,9 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-08（P70.7 + P70.1 收官）
-- **狀態**：✅ P70.7 + P70.1 完成，P70 系列進行中
-- **下個視窗開局**：接續 P70 系列，下一個是 P70.3（LINE 滑動失靈）
+- **更新日期**：2026-05-08（P70.3 + P70.3.1 全部修補完成，含 R-007/R-008 補強；待主公 LINE 實機驗收）
+- **狀態**：✅ P70.7 + P70.1 收官；🟡 P70.3 + P70.3.1 修補完成、待驗收 + commit/push
+- **下個視窗開局**：①確認 P70.3 EC3/EC4 驗收結果並 commit/push ②動工 P70.5'
 
 ---
 
@@ -15,19 +15,23 @@
 |---|---|---|---|
 | **P70.7** | ✅ 已 push | `40d1874` | 清除 data/ 三個 0-byte raw 殘留（2026-03-23/25/27）|
 | **P70.1** | ✅ 已 push | `b9868fb` | Picker 去重懲罰 + 同平台排名衰減 + 芽芽×1.5 bonus |
+| **P70.3** | 🟡 待 commit/push | — | LINE 滑動失靈：template 拆 html/body + touch-action:pan-y + 10 舊報告同步修補 + index.html 預防性修補 |
+| **P70.3.1** | 🟡 待 commit/push | — | 報告頁加「← 回戰略門戶」按鈕 + R-007（mobile blur）+ R-008（:focus + aria-label）補強；template + 10 舊報告全部同步 |
 
 ### P70 系列動工順序（已確認）
 
 ```
-P70.7 ✅ → P70.1 ✅ → P70.3 → P70.5' → P70.2 → P70.4 → P70.6
+P70.7 ✅ → P70.1 ✅ → P70.3 🟡 → P70.5' → P70.2 → P70.4 → P70.6
 ```
 
-### 下個視窗動工：P70.3
+### 下個視窗動工：先收 P70.3 → 再動 P70.5'
 
-**內容**：LINE 滑動失靈排查 + 修補  
-**估時**：1-2 小時  
-**模型**：Sonnet 4.6 起手，偵錯模糊時升 Opus 4.7  
-**級別**：微 Phase（S 級）
+**P70.3 收尾任務**（10 分鐘）：
+1. 確認主公 LINE 實機驗收結果（清快取後 5/6 報告是否可滑）
+2. 若 OK → 拆兩個 commit + push（見下節「P70.3 commit 計畫」）
+3. 若不 OK → git revert 修補 + 升 Opus 4.7 重查根因
+
+**P70.5' 動工**（接續）：見下方「P70.5' 統包內容」
 
 ---
 
@@ -37,7 +41,7 @@ P70.7 ✅ → P70.1 ✅ → P70.3 → P70.5' → P70.2 → P70.4 → P70.6
 |---|---|---|---|
 | **P70.7** | 0-byte raw 殘留清理 | ✅ 收官 | `40d1874` |
 | **P70.1** | Picker 品質強化（去重懲罰 + 平台衰減）| ✅ 收官 | `b9868fb` |
-| **P70.3** | LINE 滑動失靈排查 + 修補 | ⏳ 待動工 | — |
+| **P70.3** | LINE 滑動失靈排查 + 修補 | 🟡 待驗收+commit | — |
 | **P70.5'** | P61.1 統包（R20+R23+R24 cache 邏輯）| ⏳ 待動工 | — |
 | **P70.2** | GHA 每日健康巡檢 | ⏳ 待動工 | — |
 | **P70.4** | OpenAI fallback | ⏳ 待動工 | — |
@@ -96,22 +100,57 @@ P70.7 ✅ → P70.1 ✅ → P70.3 → P70.5' → P70.2 → P70.4 → P70.6
 
 ---
 
-## 📋 P70.3 草案要點（下視窗開局讀）
+## 📋 P70.3 收尾與 commit 計畫（下視窗讀完即可執行）
 
-**症狀**：LINE 點開報告後，滑動/觸控失靈（P63.2 遺留問題）。
+### 已完成內容
 
-**排查方向**：
-1. `reporter/templates/report.html` 的 touch event handler（`touchstart` / `touchmove` / `touchend`）
-2. CSS `overflow` / `position: fixed` 是否阻擋捲動
-3. P65 / P67 側邊欄（side panel）新增後是否引入 event 攔截
+**根因**：`reporter/templates/report.html` 的 `html, body { overflow-x: hidden }` 把 `overflow-x` 套在 `html` 元素上，LINE WebView 將 `html` 視為 viewport scroll container，遇到 hidden 即停止轉發 touch scroll → 整頁滑不動。
 
-**開局第一步**：
-```bash
-grep -n "touchstart\|touchmove\|touchend\|preventDefault\|stopPropagation" reporter/templates/report.html
+**治本（template）**：拆分 `html, body {}` → 獨立 `html {}` + `body {}`；body 加 `touch-action: pan-y` + WebKit bug #153852 註解
+
+**治標（10 個舊主版報告）**：`data/reports/aov_report_2026-05-{01..10}.html` 已批次套用相同 CSS 修補（idempotent Python 替換）
+
+**X2 盲區補做（index.html）**：landing page 也有相同 CSS 風險，預防性套用相同修補
+
+**衍生產出**：
+- 新檔：`docs/postmortems/2026-05-08-p70.3-line-scroll-postmortem.md`
+- 更新：`docs/RISK_REGISTRY.md`（R-004 + R-005）
+- 更新：`TASK_HISTORY.md`（P70.3 主段 + 收官補錄）
+
+### Exit Criteria
+
+- [x] EC1：template 修補 + comment 補 spec 連結
+- [x] EC2：10 個 5 月主版舊報告同步修補
+- [x] EC2.5：X2 盲區補做 — `index.html` 預防性修補
+- [ ] **EC3**：主公在 LINE 實機重新點 5/6（清快取或外部瀏覽器開）驗證滑動恢復 ← **待主公驗收**
+- [ ] EC4：未來新生成報告（下次 GHA 跑成功後）二次驗收
+
+### Commit 計畫（建議拆兩 commit，主公定奪 push）
+
+**Commit 1：P70.3 治本+治標**
+```
+fix(P70.3): LINE 滑動失靈根治 — html/body 拆分 + touch-action:pan-y
+
+- reporter/templates/report.html：拆分 html, body 規則，html 移除 overflow-x:hidden，body 補 touch-action: pan-y（防 LINE WebView swallow vertical pan events）
+- data/reports/aov_report_2026-05-{01..10}.html：10 個舊主版報告批次套用相同 CSS 修補
+- index.html：landing page 預防性套用（X2 盲區掃描補做）
+- 根因：LINE WebView 將 html 視為 viewport scroll container，overflow:hidden on html 會停止轉發 touch scroll（WebKit bug #153852）
 ```
 
-**模型**：Sonnet 4.6 起手；若 touch event 邏輯複雜連 3 輪沒進展 → 升 Opus 4.7
+**Commit 2：P70.3 docs 補錄**
+```
+docs(P70.3): postmortem + RISK_REGISTRY + TASK_HISTORY 收官
+
+- 新增 postmortem：失誤學「我以為 CSS 在所有環境都 OK」加進防火牆清單
+- RISK_REGISTRY 新登記 R-004（UI/UX LINE 迴歸盲區）+ R-005（webkit-overflow-scrolling 90 天 review）
+- TASK_HISTORY 補 Exit Criteria + 收官紀錄
+- NEXT_SESSION_HANDOFF 收尾段更新
+```
+
+### 若 EC3 驗收失敗
+
+`git checkout -- reporter/templates/report.html data/reports/ index.html` 還原所有修補 → 升 Opus 4.7 重查根因（不要硬撐 Sonnet）。
 
 ---
 
-*下個視窗讀完此檔即可直接動工 P70.3。*
+*下個視窗讀完此檔即可直接動工 P70.3 收尾或 P70.5'。*
