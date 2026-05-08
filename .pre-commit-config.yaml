@@ -1,0 +1,49 @@
+# .pre-commit-config.yaml — P71.4
+#
+# 安裝：pip install pre-commit && pre-commit install
+# 手動執行：pre-commit run --all-files
+#
+# D4 決議（2026-05-09）：起始 warning 模式（--warn-only），2026-05-23 後升 block
+#   升級方式：移除 lint-skill-registry hook 的 --warn-only flag，CI 已是 block 模式
+#
+# SA4 決議：detect-secrets 防止 API key / credential 洩漏進 commit
+#   baseline 更新：detect-secrets scan --update .secrets.baseline
+
+repos:
+  # ── 本地 Lint Hooks ────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      # Skill Registry Lint（P71.1/P71.2）
+      # D4：--warn-only 起始 warning；2026-05-23 後移除此 flag 升為 block
+      - id: lint-skill-registry
+        name: "[P71] Lint Skill Registry"
+        entry: python scripts/lint_skill_registry.py --warn-only
+        language: system
+        pass_filenames: false
+        files: '^(skills/registry\.json|\.agent/skills/.+/SKILL\.md)$'
+        always_run: false
+
+      # Phase Plan Pre-flight 體檢（P71.1 STR10）
+      # --allow-skip 允許緊急繞過，自動入 RISK_REGISTRY
+      - id: lint-phase-plan
+        name: "[P71] Lint Phase Plan (Pre-flight M1+M2)"
+        entry: python scripts/lint_phase_plan.py --allow-skip
+        language: system
+        pass_filenames: true
+        files: '^docs/P\d+.*\.md$'
+
+  # ── SA4：Secrets Leakage 防護 ──────────────────────────────────────────────
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: "[SA4] Detect Secrets"
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            data/.*|
+            \.secrets\.baseline$|
+            .*\.lock$|
+            .*\.bak_.*|
+            \.deploy_manifest\.json$
+          )$

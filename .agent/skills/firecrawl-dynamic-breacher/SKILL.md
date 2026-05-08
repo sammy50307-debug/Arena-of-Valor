@@ -74,3 +74,31 @@ firecrawl-dynamic-breacher/
 ## 🚀 相依套件與需求
 - `requests`
 - 註冊並在環境變數中寫入 `FIRECRAWL_API_KEY` (如無設定，系統可降級備援模式，但會失去深層渲染穿透力)。
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/firecrawl-dynamic-breacher
+
+# 說明
+python __main__.py --help
+
+# 抓取 JS 動態頁面
+python __main__.py https://example.com
+
+# 指定 JS 等待時間（毫秒）
+python __main__.py https://example.com --wait 5000
+
+# JSON 輸出（含 url + markdown）
+python __main__.py https://example.com --output json
+
+# stdin pipe（URL 從管線讀入）
+echo "https://example.com" | python __main__.py --stdin
+
+# NO_COLOR（plain markdown 輸出）
+NO_COLOR=1 python __main__.py https://example.com
+```
+
+依賴：`requests`；需設定 `FIRECRAWL_API_KEY` 環境變數。

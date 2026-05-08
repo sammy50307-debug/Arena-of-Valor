@@ -86,3 +86,29 @@ hallucination-judge/
 
 ## 🚀 相依套件
 - 純 Python 標準庫（`re`, `json`），無需額外安裝。
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/hallucination-judge
+
+# 說明
+python __main__.py --help
+
+# 直接輸入文字驗證
+python __main__.py "芽芽勝率 85%，雷獅討論量 1234"
+
+# JSON 輸出（含 issues / confidence_score）
+python __main__.py "文章內容..." --output json
+
+# stdin pipe（管線模式）
+cat report.txt | python __main__.py --stdin
+cat report.txt | python __main__.py --stdin --output json
+
+# NO_COLOR（CI / 日誌）
+NO_COLOR=1 python __main__.py "文章內容..."
+```
+
+返回碼：0 = PASS；1 = WARN / FAIL。依賴：純標準庫 + `resources/hero_whitelist.json`。

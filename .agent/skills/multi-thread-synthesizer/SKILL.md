@@ -71,3 +71,29 @@ multi-thread-synthesizer/
 
 ## 🚀 相依套件
 - Python 原生 `asyncio` (無需額外安裝)
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/multi-thread-synthesizer
+
+# 說明
+python __main__.py --help
+
+# 示範模式（5 個 fake 並行任務）
+python __main__.py --demo
+
+# 指定並發數
+python __main__.py --demo --concurrency 10
+
+# JSON 輸出（供解析結果）
+python __main__.py --demo --output json
+
+# NO_COLOR（plain 格式）
+NO_COLOR=1 python __main__.py --demo
+```
+
+> 注意：本 skill 為函式庫元件。實際使用需在 Python 程式碼中 `from scripts.synthesizer import AsyncSynthesizer`。
+> 依賴：Python 原生 `asyncio`，無需額外安裝。

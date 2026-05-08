@@ -45,6 +45,7 @@ S1_ENVIRONMENT_KEYS = ["ide", "terminal", "antigravity", "pure_llm"]
 
 errors = []
 warnings = []
+_WARN_ONLY = False  # D4: 2026-05-23 後改 pre-commit hook 移除 --warn-only 升為 block
 
 
 def err(msg: str):
@@ -212,14 +213,21 @@ def print_result(skills: list | None = None):
     elif not errors:
         print(f"\n✅ 無阻擋性錯誤（{len(warnings)} 條警告）")
     else:
-        print(f"\n❌ FAIL — {len(errors)} 條錯誤須修正後才能通過")
-        sys.exit(1)
+        if _WARN_ONLY:
+            print(f"\n⚠️  WARN-ONLY — {len(errors)} 條錯誤（D4 warning 模式，2026-05-23 後升 block）")
+        else:
+            print(f"\n❌ FAIL — {len(errors)} 條錯誤須修正後才能通過")
+            sys.exit(1)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Lint skills/registry.json（P71.2 含 S1 schema 驗證）")
     parser.add_argument("--s1-only", action="store_true", help="僅檢查 in-use/stale 的 S1 完整欄位（目前 flag 保留，行為與完整模式相同）")
+    parser.add_argument("--warn-only", action="store_true", help="D4：印出錯誤但 exit 0（warning 模式，2026-05-23 後升 block）")
     args = parser.parse_args()
+    if args.warn_only:
+        global _WARN_ONLY
+        _WARN_ONLY = True
     lint_registry(s1_only=args.s1_only)
 
 

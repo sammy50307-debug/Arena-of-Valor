@@ -1,9 +1,9 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-09（P71.2 收官；lint 19/19 全綠）
-- **狀態**：✅ P71.0 ✅ P71.1 ✅ P71.2 收官；⏳ **P71.3 自包含化 + 終端適配** 待動工
-- **下個視窗開局**：直接動工 **P71.3 — 11 個 skill 自包含化 + 終端機適配**（S3, C1, C3, C5, C6, D1-D3）
+- **更新日期**：2026-05-09（P71.4 收官；deploy_skills.py + pre-commit + CI 完成）
+- **狀態**：✅ P71.0 ✅ P71.1 ✅ P71.2 ✅ P71.3 ✅ P71.4 收官；⏳ **P71.5 shared/project 二級分類** 待動工
+- **下個視窗開局**：直接動工 **P71.5 — shared/project 二級分類 + ~/skills-shared/ git repo**
 
 ---
 
@@ -31,8 +31,8 @@
 | **P71.0** | SKILL_INVENTORY.md 盤點（20 skill 分類） | ✅ | `ffb9ebe` |
 | **P71.1** | registry.json + lint + PHASE_TEMPLATE + Pre-flight 體檢 | ✅ | `5029486` |
 | **P71.2** | S1 schema × 11 SKILL.md + S2/V1 觸發協議 × 全域指令檔 | ✅ | `b1fa1ac` |
-| **P71.3** | 11 skill 自包含化 + `__main__.py` + 終端適配 | ⏳ **下一站** | — |
-| **P71.4** | deploy_skills.py + pre-commit + CI | ⏳ | — |
+| **P71.3** | 11 skill 自包含化 + `__main__.py` + 終端適配 | ✅ | 本次視窗 |
+| **P71.4** | deploy_skills.py + pre-commit + CI + SA1/SA4 | ✅ | 本次視窗 |
 | **P71.5** | shared/project 二級分類 + ~/skills-shared/ | ⏳ | — |
 | **P71.6** | smart-task-router 救活（L2 路由） | ⏳ | — |
 | **P71.7** | SKILL_HEALTH.md Dashboard | ⏳ | — |
@@ -92,27 +92,46 @@
 P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ⏳ → P70.2 → P70.4 → P70.6
 ```
 
-### 下個視窗動工：P71.3
+### ✅ P71.3 收官（2026-05-09）
 
-**P71.3 任務**：11 個 in-use/stale skill 自包含化 + 終端機適配（1.5 視窗）
+**已完成**：11 個 `__main__.py` 建立 + 11 個 SKILL.md 補「終端執行」章節。
 
-對應優化點：S3, C1, C3, C5, C6, D1-D3
-
-每個 skill 需補：
-1. `__main__.py`（`python -m skills.<name>` 可執行）
-2. `--help` / `--output json|plain|rich` / `NO_COLOR=1` 支援（C5, C6, C3）
-3. `stdin pipe` 支援（`cat data | python -m skills.X`）（C1）
-4. 終端 vs IDE 雙模 stdout（D1）
-5. SKILL.md 補「self-contained 執行命令 + 完整依賴清單」（S3）
-
-11 個 skill（優先順序）：
+**執行方式**（以 history-trend-query 為例）：
+```bash
+cd .agent/skills/history-trend-query
+python __main__.py hero 芽芽 --days 7
+python __main__.py hero 芽芽 --output json
+NO_COLOR=1 python __main__.py overall
 ```
-in-use（先）: history-trend-query, nl-to-prompt-structurer,
-              api-quota-guardian, hallucination-judge, hot-deployer
-stale（後）:  ai-news-radar, firecrawl-dynamic-breacher,
-              html-markdown-distiller, multi-thread-synthesizer,
-              semantic-cache-shield, trend-anomaly-detector
+
+**重要設計決策**：
+- `python -m skills.<name>` 是 P71.5 目標（需改目錄為底線命名）；P71.3 用 `python __main__.py`
+- `_output_mode()` 每個 `__main__.py` inline（自包含），不引跨 skill 共用模組
+- hallucination-judge 返回碼：0=PASS / 1=WARN+FAIL
+
+### ✅ P71.4 收官（2026-05-09）
+
+**已完成**：`deploy_skills.py`（copy + lockfile + SA1）+ `.pre-commit-config.yaml`（SA4 detect-secrets）+ 2 CI workflows。
+
+**關鍵決策**：
+- D4：pre-commit `--warn-only`（exit 0）；CI 不用 `--warn-only`（block）；2026-05-23 後本機升 block
+- SA1：`safe_path()` 驗三根目錄（PROJECT_ROOT / ~/.gemini / D:/skills-shared）
+- `.secrets.baseline` 空 results{}；誤報更新：`detect-secrets scan --update .secrets.baseline`
+
+**使用方式**：
+```bash
+py -3 scripts/deploy_skills.py --list             # 看可部署清單
+py -3 scripts/deploy_skills.py                    # dry-run 預覽
+py -3 scripts/deploy_skills.py --execute --backup # 實際同步（含備份）
+pre-commit install                                 # 安裝 hook（首次）
 ```
+
+### 下個視窗動工：P71.5
+
+**P71.5 任務**：shared/project 二級分類 + `~/skills-shared/`（`D:/skills-shared/`）git repo 建立 + sys.path shim 過渡
+
+對應優化點：A1
+注意：mv 目錄會破壞 import 路徑（R-P71-11），需設計 shim 或 alias
 
 ---
 

@@ -371,3 +371,38 @@ py scripts/anomaly_marker.py --hero 芽芽 --days 30 --threshold 2.0
 | `test_anomaly_marker.py` | 5 | T1-T5 z-score 邊界 / 防呆 / value_key |
 
 零回歸、零外部相依（純標準庫）。
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/history-trend-query
+
+# 說明
+python __main__.py --help
+python __main__.py hero --help
+
+# 單英雄走勢（預設 7 天）
+python __main__.py hero 芽芽
+python __main__.py hero 芽芽 --days 14
+
+# 多英雄比較
+python __main__.py heroes 芽芽 雷獅 --days 7
+
+# 整體 / 平台別輿情
+python __main__.py overall --days 7
+python __main__.py platform --days 7
+
+# JSON 輸出（供 pipe / jq / CI）
+python __main__.py hero 芽芽 --output json | jq '.points[0]'
+
+# plain 模式（無顏色 / 日誌友好）
+NO_COLOR=1 python __main__.py overall
+```
+
+| 模式 | 說明 |
+|---|---|
+| `rich`（預設 TTY） | sparkline + Markdown 表格 |
+| `plain`（pipe / NO_COLOR） | 純 Markdown 表格 |
+| `json` | 完整時序結構，可 jq 解析 |

@@ -219,3 +219,30 @@ py scripts/cli.py route --stdin
 ---
 
 *最後更新：2026-04-26 / Phase 62 S4 收官 → v1.0.0*
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/nl-to-prompt-structurer
+
+# 說明
+python __main__.py --help
+
+# 自然語言 → 五段式 Prompt
+python __main__.py prompt "用 markdown 整理今天戰報"
+python __main__.py prompt --lang en --role Translator "translate this"
+
+# 自然語言 → P61 呼叫規格 JSON
+python __main__.py route "芽芽最近兩週的聲量"
+
+# stdin pipe（安全模式，免疫 shell 元字元）
+echo "整理戰報" | python __main__.py prompt --stdin
+cat query.txt | python __main__.py route --stdin
+
+# plain / NO_COLOR
+NO_COLOR=1 python __main__.py prompt "整理戰報"
+```
+
+依賴：純標準庫，無需額外安裝。

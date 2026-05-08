@@ -98,3 +98,33 @@ if guardian.should_fallback(): # >= 95% 時 True
 ## 🚀 相依套件
 
 純 Python 標準庫（`json`, `pathlib`, `datetime`）。零外部依賴。
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/api-quota-guardian
+
+# 說明
+python __main__.py --help
+
+# 查詢額度狀態
+python __main__.py status
+python __main__.py status --output json
+
+# 記錄 API 呼叫
+python __main__.py record --count 1
+python __main__.py record --count 5 --output json
+
+# 重置本月計數（謹慎使用）
+python __main__.py reset
+
+# 指定 provider / limit
+python __main__.py --provider tavily --limit 500 status
+
+# NO_COLOR（CI 日誌）
+NO_COLOR=1 python __main__.py status
+```
+
+依賴：純標準庫（`json`, `pathlib`, `datetime`），零外部依賴。
