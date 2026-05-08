@@ -1,9 +1,56 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-08（P70.3 + P70.3.1 全收官 push；主公實機驗收通過）
-- **狀態**：✅ P70.7 ✅ P70.1 ✅ P70.3 ✅ P70.3.1 收官；⏳ P70.5' 待動工
-- **下個視窗開局**：直接動工 P70.5'（P61.1 統包：R20+R23+R24 cache 邏輯修補）
+- **更新日期**：2026-05-08（P70.5' 收官；75/75 全綠零回歸）
+- **狀態**：✅ P70.7 ✅ P70.1 ✅ P70.3 ✅ P70.3.1 ✅ P70.5' 收官；⏳ P71 skill 盤點待動工
+- **下個視窗開局**：思考並動工 **P71 — skill 基礎架構建設**（75% 孤兒率治理 + STR9 流程加固）
+
+---
+
+## 🆕 P71 開工前必讀（skill 盤點結果）
+
+### 殘酷真相
+
+20 個 skill 中只有 4 個真在用（代碼引用），1 個有 slash 入口無代碼引用，**15 個是孤兒**（無入口、無代碼引用）。**退化率 75%，G5 抗熵警報嚴重超標**。
+
+### 主公已拍板（2026-05-08）
+
+- **決策 2 ✅** 三層歸檔：`.agent/skills/in-use/`（4 個）+ `.agent/skills/candidate/`（補入口後可用）+ `.agent/skills/_archive/`（90 天觀察）
+- **決策 3 ✅** `docs/PHASE_TEMPLATE.md` 加 **STR9**：「新 skill 收官時必須擇一：(a) 接 `.claude/commands/` slash / (b) 被生產代碼 import / (c) 標記為純知識庫並寫入 SKILL_INVENTORY.md」
+
+### 主公保留待新視窗思考
+
+- **決策 1（哪些孤兒補入口）** 暫不裁決，新視窗開局先**仔細思考 skill 基礎架構**（如何系統化運用、避免再生孤兒、有無共用核心模組可抽取）
+
+### P71 建議範圍（待新視窗開局思考細化）
+
+| 階段 | 動作 | 影響檔案 |
+|---|---|---|
+| **S0 架構思考** | 先想清楚「skill 基礎架構」：分群？共用核心？dispatch 機制？是否可彼此組合？ | 草案文件 |
+| **S1 盤點** | 寫 `docs/SKILL_INVENTORY.md`（每個 skill 狀態、依賴、推薦動作） | +1 文件 |
+| **S2 補 slash** | 主公點名的 skill 各補 `.claude/commands/<name>.md` | 視主公決策（3-7 檔） |
+| **S3 歸檔** | 確定廢棄的 skill 移到 `.agent/skills/_archive/` | mv 數個目錄 |
+| **S4 流程加固** | `PHASE_TEMPLATE.md` 加 STR9；`OPTIMIZATION_FRAMEWORK.md` G5-1 加「skill 90 天 idle」條款 | +2 文件 |
+| **S5 Postmortem** | `docs/postmortem/P71_skill_orphans.md`（為何 75% 變孤兒） | +1 文件 |
+| **S6 風險登記** | RISK_REGISTRY 加 R-009「skill 生產不接入流程」 | +1 行 |
+
+### Skill 現況分類速查
+
+**🟢 真在用（4）**
+- `api-quota-guardian` → `scrapers/tavily_searcher.py`
+- `hallucination-judge` → `analyzer/keyword_stats.py`
+- `history-trend-query` → `analyzer/data_writer.py` + `/trend`
+- `hot-deployer` → `.github/workflows/daily_report.yml`
+
+**🟡 半接入（1）**：`nl-to-prompt-structurer`（有 `/prompt` 但無代碼引用）
+
+**❌ 孤兒（15）**：ai-news-radar / auto-proxy-evader / cot-prompt-compactor / daily-diff-radar / firecrawl-dynamic-breacher / html-markdown-distiller / instagram-facebook-dcard-platform-copywriter / multi-thread-synthesizer / rich-push-formatter / semantic-cache-shield / session-handoff-packager / smart-task-router / trend-anomaly-detector / ui-ux-pro-max / waterfall-search-chain
+
+### 邏輯重疊高風險組（需架構思考時併考）
+
+- 爬蟲韌性三胞胎：`auto-proxy-evader` / `firecrawl-dynamic-breacher` / `multi-thread-synthesizer`
+- 趨勢偵測雙胞胎：`trend-anomaly-detector` vs `daily-diff-radar`
+- Prompt 工程雙胞胎：`cot-prompt-compactor` vs `nl-to-prompt-structurer`
 
 ---
 
@@ -22,7 +69,7 @@
 ### P70 系列動工順序
 
 ```
-P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ⏳ → P70.2 → P70.4 → P70.6
+P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ⏳ → P70.2 → P70.4 → P70.6
 ```
 
 ### 下個視窗動工：P70.5'
@@ -37,7 +84,7 @@ P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ⏳ → P70.2 �
 | **P70.1** | Picker 品質強化（去重懲罰 + 平台衰減）| ✅ 收官 | `b9868fb` |
 | **P70.3** | LINE 滑動失靈排查 + 根治 | ✅ 收官 | `a2a6d39` |
 | **P70.3.1** | 報告頁「← 回戰略門戶」按鈕 | ✅ 收官 | `a2a6d39` |
-| **P70.5'** | P61.1 統包（R20+R23+R24 cache 邏輯）| ⏳ 待動工 | — |
+| **P70.5'** | test_429_retry P69.1 技術債（R20/R23/R24 已於 P61.1 落地）| ✅ 收官 | 待 commit |
 | **P70.2** | GHA 每日健康巡檢 | ⏳ 待動工 | — |
 | **P70.4** | OpenAI fallback | ⏳ 待動工 | — |
 | **P70.6** | llm_cache LRU / TTL 機制（預防性）| ⏳ 待動工 | — |
@@ -111,8 +158,9 @@ P69.1 修改了 `gemini_client.py`，導致 `GeminiClient._cm` 屬性缺失，�
 
 | 項目 | 描述 | 狀態 |
 |---|---|---|
-| `test_429_retry.py` 2 cases | `GeminiClient._cm` 屬性缺失（P69.1 改 gemini_client.py 後測試未跟上）| ⏳ 待修，P70.5' 統包 |
-| R20/R23/R24 | history-trend-query cache 邏輯瑕疵 | ⏳ P70.5' 統包 |
+| `test_429_retry.py` 2 cases | `GeminiClient._cm` 屬性缺失（P69.1 改 gemini_client.py 後測試未跟上）| ✅ P70.5' 已修，75/75 全綠 |
+| R20/R23/R24 | history-trend-query cache 邏輯瑕疵 | ✅ P61.1 已落地（renderer.py / time_series_loader.py） |
+| Skill 75% 孤兒率 | 20 個 skill 中 15 個無入口無代碼引用 | ⏳ P71 全面治理 |
 | GHA 連 2 天（5/7、5/8）無報告 | 原因未排查完（本機無 API key 無法 E-C/E-D 測試）| ⏳ P70.2 排查 |
 
 ---

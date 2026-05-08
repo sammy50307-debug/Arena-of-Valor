@@ -5317,3 +5317,75 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - [ ] EC2：主公在 LINE 點 5/6 報告 → 看到左上角粉色 pill「← 回戰略門戶」→ 點下去能進藍紫頁
 
 **狀態**：✅ 修補完成，待主公驗收 + commit/push。
+
+### 🛠️ Phase 70.5' — test_429_retry P69.1 技術債清償（2026-05-08）
+
+**目標**：修復 P69.1 後 `test_429_retry.py` 2 cases 失敗（`AttributeError: 'GeminiClient' object has no attribute '_cm'`），讓全套測試零回歸。
+
+**觸發**：NEXT_SESSION_HANDOFF.md「下個視窗動工 P70.5'」+ 主公 2026-05-08 拍板統包 R20/R23/R24 + test_429_retry 技術債。
+
+---
+
+#### 17 層稽核表（Patch-1：1 檔 → 僅 S 級必填）
+
+| 層 | 評估 |
+|---|---|
+| 1 Code | ✅ 微改動（測試 setup 重構，~10 行） |
+| 2 Logic | ✅ 修正測試對 `_429_waits = [60, 300, 900]` 新版邏輯的斷言 |
+| 4 Testing | ✅ 75/75 全綠（73 + 本次修復 2） |
+| 10 Security | N/A |
+
+---
+
+#### 物理真相
+
+**根因**：P69.1 改 `analyzer/gemini_client.py` 引入 `CacheManager`：
+- 舊：`self._cache / self._cache_lock / self._total_calls / self._cache_hits`
+- 新：`self._cm = CacheManager()` + `self._save_lock = asyncio.Lock()`
+- `chat()` 第 103 行 `self._cm.get(cache_key)` 在測試 mock client 上 `AttributeError`
+
+**附帶根因**：測試斷言 `wait_calls == [60, 120]` 對應 P63.4-S1b 舊版邏輯，P69.1 已改為 `_429_waits = [60, 300, 900]`，斷言過期。
+
+**修法**（`tests/test_429_retry.py`）：
+- 兩個測試的 `__new__` setup 移除舊 4 屬性，改設 `client._cm = MagicMock()`（`get.return_value = None`）+ `client._save_lock = asyncio.Lock()`
+- `test_429_waits_60s_then_120s_before_raising` 重命名為 `test_429_waits_60s_then_300s_then_900s_before_raising`，斷言改為 `[60, 300, 900]`
+- 模組 docstring 更新 wait 序列說明
+
+---
+
+#### 影響半徑
+
+| 檔案 | 動作 |
+|---|---|
+| `tests/test_429_retry.py` | 兩個測試 setup 重構 + 一個重命名 + docstring 更新 |
+
+---
+
+#### R20/R23/R24 確認狀態
+
+P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格為「代碼根治」並 ✅ 收官：
+- R20 `.agent/skills/history-trend-query/scripts/renderer.py:562` `date_seen.sort()`
+- R23 `.agent/skills/history-trend-query/scripts/time_series_loader.py:181,205` `copy.deepcopy()` 兩路
+- R24 `.agent/skills/history-trend-query/scripts/time_series_loader.py:75,176` `_range_mtime` + cache key 4-elem
+
+本次 P70.5' 確認三項代碼皆已落地，無需重複修補。
+
+---
+
+#### 風險登記
+
+| 風險 | 評估 |
+|---|---|
+| Mock 過度設計 | 採最小 mock（只 mock 實際呼叫的 `get`），降低未來代碼改動的測試漂移 |
+| wait 序列再變 | 已在 docstring 與測試名稱明文 `60→300→900`，後續若再改邏輯時測試會立即失敗，提示同步更新 |
+
+---
+
+#### 狀態：✅ 收官
+
+- 全套 75/75 全綠（含本次新增 2）
+- R20/R23/R24 已於 P61.1 落地，本 Phase 僅清償 test_429_retry 技術債
+- 留下交接：P71 skill 盤點（75% 孤兒率）+ STR9 流程加固
+
+---
+
