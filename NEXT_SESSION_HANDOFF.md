@@ -7,50 +7,65 @@
 
 ---
 
-## 🆕 P71 開工前必讀（skill 盤點結果）
+## 🆕 P71 開工指南（Skill 不朽性建設）
 
-### 殘酷真相
+### ⭐ 動工指揮文件
 
-20 個 skill 中只有 4 個真在用（代碼引用），1 個有 slash 入口無代碼引用，**15 個是孤兒**（無入口、無代碼引用）。**退化率 75%，G5 抗熵警報嚴重超標**。
+> **完整計畫書：[`docs/P71_PLAN.md`](./docs/P71_PLAN.md)**（v1.0 / 2026-05-08 / Opus 4.7 起草）
 
-### 主公已拍板（2026-05-08）
+新視窗開局必讀順序：
+1. 本檔（NEXT_SESSION_HANDOFF.md）
+2. **`docs/P71_PLAN.md`**（完整 12 階段計畫 + 17 層稽核 + 10 優化點 + 風險表）
+3. `docs/OPTIMIZATION_FRAMEWORK.md` v3.1（63 維度 + 3 Patch）
+4. `CLAUDE.md` + `GEMINI.md`（全域 + 專案）
+5. `memory/MEMORY.md`
 
-- **決策 2 ✅** 三層歸檔：`.agent/skills/in-use/`（4 個）+ `.agent/skills/candidate/`（補入口後可用）+ `.agent/skills/_archive/`（90 天觀察）
-- **決策 3 ✅** `docs/PHASE_TEMPLATE.md` 加 **STR9**：「新 skill 收官時必須擇一：(a) 接 `.claude/commands/` slash / (b) 被生產代碼 import / (c) 標記為純知識庫並寫入 SKILL_INVENTORY.md」
+### P71 核心目標（主公 2026-05-08 拍板）
 
-### 主公保留待新視窗思考
+> 「**這些 skill 都可以永久被使用不會消失，使用時機是 LLM 自行判斷不需要我提醒**」
 
-- **決策 1（哪些孤兒補入口）** 暫不裁決，新視窗開局先**仔細思考 skill 基礎架構**（如何系統化運用、避免再生孤兒、有無共用核心模組可抽取）
+- **G1 永久不滅**：跨 IDE / 跨模型 / 跨時代仍活著
+- **G2 自動觸發**：LLM 讀 description schema 自動匹配，無需主公點名
 
-### P71 建議範圍（待新視窗開局思考細化）
+### 12 階段速查（細節見 P71_PLAN.md）
 
-| 階段 | 動作 | 影響檔案 |
-|---|---|---|
-| **S0 架構思考** | 先想清楚「skill 基礎架構」：分群？共用核心？dispatch 機制？是否可彼此組合？ | 草案文件 |
-| **S1 盤點** | 寫 `docs/SKILL_INVENTORY.md`（每個 skill 狀態、依賴、推薦動作） | +1 文件 |
-| **S2 補 slash** | 主公點名的 skill 各補 `.claude/commands/<name>.md` | 視主公決策（3-7 檔） |
-| **S3 歸檔** | 確定廢棄的 skill 移到 `.agent/skills/_archive/` | mv 數個目錄 |
-| **S4 流程加固** | `PHASE_TEMPLATE.md` 加 STR9；`OPTIMIZATION_FRAMEWORK.md` G5-1 加「skill 90 天 idle」條款 | +2 文件 |
-| **S5 Postmortem** | `docs/postmortem/P71_skill_orphans.md`（為何 75% 變孤兒） | +1 文件 |
-| **S6 風險登記** | RISK_REGISTRY 加 R-009「skill 生產不接入流程」 | +1 行 |
+```
+P71.0  盤點         (寫 SKILL_INVENTORY.md)
+P71.1  治理層       (registry.json + lint + STR9)
+P71.2  自動觸發引擎 (★ 4 欄 schema + 觸發協議寫雙家全域檔)
+P71.3  自包含化     (★ SKILL.md 永久保險)
+P71.4  同步工具     (deploy_skills.py + pre-commit + CI)
+P71.5  二級分類     (~/skills-shared/ 跨專案倉庫)
+P71.6  路由引擎     (smart-task-router 救活)
+P71.7  Dashboard    (SKILL_HEALTH.md 自動生成)
+P71.8  diff 裁決    (主公逐一裁決 7 個 Gemini-only)
+P71.9  孤兒處置     (8 個 orphan：升級或歸檔)
+P71.10 Postmortem   (P50 後規則退化根因)
+P71.11 B 級延伸     (版本鎖 / 依賴圖 / Permanent Bundle)
+```
 
-### Skill 現況分類速查
+### 動工前主公須再拍板的小決策（D1-D6）
 
-**🟢 真在用（4）**
-- `api-quota-guardian` → `scrapers/tavily_searcher.py`
-- `hallucination-judge` → `analyzer/keyword_stats.py`
-- `history-trend-query` → `analyzer/data_writer.py` + `/trend`
-- `hot-deployer` → `.github/workflows/daily_report.yml`
+詳見 P71_PLAN.md 末尾「動工前主公須再拍板的小決策」表格。
 
-**🟡 半接入（1）**：`nl-to-prompt-structurer`（有 `/prompt` 但無代碼引用）
+### 7 個 Gemini-only diff 裁決順序（P71.5 用）
 
-**❌ 孤兒（15）**：ai-news-radar / auto-proxy-evader / cot-prompt-compactor / daily-diff-radar / firecrawl-dynamic-breacher / html-markdown-distiller / instagram-facebook-dcard-platform-copywriter / multi-thread-synthesizer / rich-push-formatter / semantic-cache-shield / session-handoff-packager / smart-task-router / trend-anomaly-detector / ui-ux-pro-max / waterfall-search-chain
+```
+1. ai-news-radar              (536 行)
+2. instagram-facebook-dcard   (388 行)
+3. html-markdown-distiller    (92)
+4. semantic-cache-shield      (90)
+5. trend-anomaly-detector     (70)
+6. firecrawl-dynamic-breacher (68)
+7. multi-thread-synthesizer   (64)
+```
 
-### 邏輯重疊高風險組（需架構思考時併考）
+### 重大發現（本視窗勘查）
 
-- 爬蟲韌性三胞胎：`auto-proxy-evader` / `firecrawl-dynamic-breacher` / `multi-thread-synthesizer`
-- 趨勢偵測雙胞胎：`trend-anomaly-detector` vs `daily-diff-radar`
-- Prompt 工程雙胞胎：`cot-prompt-compactor` vs `nl-to-prompt-structurer`
+1. ✅ **Gemini Antigravity 已駐紮 7 個 skill**（不是孤兒，是「跨家移居」）
+2. ✅ **P43-P50 黃金期建立過「全域部署」傳統**，P50 後規則退化（G5 抗熵實證）
+3. ✅ **Gemini 沒有 slash commands 機制**（自然語言觸發 SKILL.md）
+4. ✅ **雙端 7 個 skill 嚴重 diff（66-536 行）**，需主公人工裁決
 
 ---
 
