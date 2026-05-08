@@ -1,8 +1,9 @@
 """
 Unit tests for GeminiClient 429 wait-retry logic (P63.4-S1b).
 
-Verifies that when all models return 429, the client waits 60s then 120s
+Verifies that when all models return 429, the client waits 60s → 300s → 900s
 before finally raising — instead of immediately triggering the circuit breaker.
+(P70.5': 更新至 P69.1 後的 _cm / _save_lock 新 API)
 """
 
 import asyncio
@@ -23,17 +24,17 @@ def _make_429_response():
 
 
 @pytest.mark.asyncio
-async def test_429_waits_60s_then_120s_before_raising():
-    """模型全耗盡後，依序等待 60s、120s，第三輪才 raise。"""
+async def test_429_waits_60s_then_300s_then_900s_before_raising():
+    """模型全耗盡後，依序等待 60s→300s→900s，四輪後 raise。"""
     from analyzer.gemini_client import GeminiClient
 
     client = GeminiClient.__new__(GeminiClient)
     client.api_key = "test-key"
     client.logger = MagicMock()
-    client._cache = {}
-    client._cache_lock = asyncio.Lock()
-    client._total_calls = 0
-    client._cache_hits = 0
+    mock_cm = MagicMock()
+    mock_cm.get.return_value = None
+    client._cm = mock_cm
+    client._save_lock = asyncio.Lock()
 
     sleep_calls = []
 
@@ -52,8 +53,8 @@ async def test_429_waits_60s_then_120s_before_raising():
         with pytest.raises(httpx.HTTPStatusError):
             await client.chat("sys", "user")
 
-    wait_calls = [s for s in sleep_calls if s in (60, 120)]
-    assert wait_calls == [60, 120], f"期望 [60, 120]，實際 {wait_calls}"
+    wait_calls = [s for s in sleep_calls if s in (60, 300, 900)]
+    assert wait_calls == [60, 300, 900], f"期望 [60, 300, 900]，實際 {wait_calls}"
 
 
 @pytest.mark.asyncio
@@ -64,10 +65,10 @@ async def test_429_recovers_if_model_succeeds_after_wait():
     client = GeminiClient.__new__(GeminiClient)
     client.api_key = "test-key"
     client.logger = MagicMock()
-    client._cache = {}
-    client._cache_lock = asyncio.Lock()
-    client._total_calls = 0
-    client._cache_hits = 0
+    mock_cm = MagicMock()
+    mock_cm.get.return_value = None
+    client._cm = mock_cm
+    client._save_lock = asyncio.Lock()
 
     call_count = 0
 
