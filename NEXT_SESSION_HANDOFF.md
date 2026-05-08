@@ -1,52 +1,57 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-08（P70.5' 收官；75/75 全綠零回歸）
-- **狀態**：✅ P70.7 ✅ P70.1 ✅ P70.3 ✅ P70.3.1 ✅ P70.5' 收官；⏳ P71 skill 盤點待動工
-- **下個視窗開局**：思考並動工 **P71 — skill 基礎架構建設**（75% 孤兒率治理 + STR9 流程加固）
+- **更新日期**：2026-05-09（P71.2 收官；lint 19/19 全綠）
+- **狀態**：✅ P71.0 ✅ P71.1 ✅ P71.2 收官；⏳ **P71.3 自包含化 + 終端適配** 待動工
+- **下個視窗開局**：直接動工 **P71.3 — 11 個 skill 自包含化 + 終端機適配**（S3, C1, C3, C5, C6, D1-D3）
 
 ---
 
-## 🆕 P71 開工指南（Skill 不朽性建設）
+## 🆕 P71 進度看板（2026-05-09 更新）
 
 ### ⭐ 動工指揮文件
 
-> **完整計畫書：[`docs/P71_PLAN.md`](./docs/P71_PLAN.md)**（v1.0 / 2026-05-08 / Opus 4.7 起草）
+> **完整計畫書：[`docs/P71_PLAN.md`](./docs/P71_PLAN.md)**（**v1.2 凍結版** / 2026-05-09）
 
 新視窗開局必讀順序：
 1. 本檔（NEXT_SESSION_HANDOFF.md）
-2. **`docs/P71_PLAN.md`**（完整 12 階段計畫 + 17 層稽核 + 10 優化點 + 風險表）
-3. `docs/OPTIMIZATION_FRAMEWORK.md` v3.1（63 維度 + 3 Patch）
-4. `CLAUDE.md` + `GEMINI.md`（全域 + 專案）
-5. `memory/MEMORY.md`
+2. **`docs/P71_PLAN.md`**（v1.2 凍結：26 優化點 + Pre-flight 9 視角 + P71/P72/P73 拆分）
+3. `docs/SKILL_INVENTORY.md`（P71.0 盤點成果）
+4. `skills/registry.json`（P71.2 升級完成，S1 schema 全備）
 
-### P71 核心目標（主公 2026-05-08 拍板）
+### P71 核心目標（主公 2026-05-08/09 拍板）
 
 > 「**這些 skill 都可以永久被使用不會消失，使用時機是 LLM 自行判斷不需要我提醒**」
+> 「**當 SKILL 觸發的時候要顯示讓我看到**」（V1 觸發塊）
 
-- **G1 永久不滅**：跨 IDE / 跨模型 / 跨時代仍活著
-- **G2 自動觸發**：LLM 讀 description schema 自動匹配，無需主公點名
+### P71 階段進度
 
-### 12 階段速查（細節見 P71_PLAN.md）
+| 階段 | 內容 | 狀態 | Commit |
+|---|---|---|---|
+| **P71.0** | SKILL_INVENTORY.md 盤點（20 skill 分類） | ✅ | `ffb9ebe` |
+| **P71.1** | registry.json + lint + PHASE_TEMPLATE + Pre-flight 體檢 | ✅ | `5029486` |
+| **P71.2** | S1 schema × 11 SKILL.md + S2/V1 觸發協議 × 全域指令檔 | ✅ | `b1fa1ac` |
+| **P71.3** | 11 skill 自包含化 + `__main__.py` + 終端適配 | ⏳ **下一站** | — |
+| **P71.4** | deploy_skills.py + pre-commit + CI | ⏳ | — |
+| **P71.5** | shared/project 二級分類 + ~/skills-shared/ | ⏳ | — |
+| **P71.6** | smart-task-router 救活（L2 路由） | ⏳ | — |
+| **P71.7** | SKILL_HEALTH.md Dashboard | ⏳ | — |
+| **P71.8** | 7 個 Gemini diff 主公裁決 | ⏳ | — |
+| **P71.9** | 8 個 orphan 處置 | ⏳ | — |
+| **P71.10** | Postmortem + R-009~011 | ⏳ | — |
 
-```
-P71.0  盤點         (寫 SKILL_INVENTORY.md)
-P71.1  治理層       (registry.json + lint + STR9)
-P71.2  自動觸發引擎 (★ 4 欄 schema + 觸發協議寫雙家全域檔)
-P71.3  自包含化     (★ SKILL.md 永久保險)
-P71.4  同步工具     (deploy_skills.py + pre-commit + CI)
-P71.5  二級分類     (~/skills-shared/ 跨專案倉庫)
-P71.6  路由引擎     (smart-task-router 救活)
-P71.7  Dashboard    (SKILL_HEALTH.md 自動生成)
-P71.8  diff 裁決    (主公逐一裁決 7 個 Gemini-only)
-P71.9  孤兒處置     (8 個 orphan：升級或歸檔)
-P71.10 Postmortem   (P50 後規則退化根因)
-P71.11 B 級延伸     (版本鎖 / 依賴圖 / Permanent Bundle)
-```
+### D1-D8 決策（全部已拍板，見 SKILL_INVENTORY.md）
 
-### 動工前主公須再拍板的小決策（D1-D6）
-
-詳見 P71_PLAN.md 末尾「動工前主公須再拍板的小決策」表格。
+| # | 決策 | 已確認 |
+|---|---|---|
+| D1 | ~/skills-shared/ 路徑 = `D:/skills-shared/` | ✅ |
+| D2 | 本機 git init → 後上 GitHub | ✅ |
+| D3 | 信心閾值 0.7 詢問 / 0.9 直接執行 | ✅ |
+| D4 | pre-commit 起始 warning | ✅ |
+| D5 | instagram-facebook-dcard 歸檔；其餘 19 全保留 | ✅ |
+| D6 | 建 `<proj>/.gemini/` | ✅ |
+| D7 | 修全域 CLAUDE.md 同步 Pre-flight 協議 | ✅ 已執行 |
+| D8 | lint_phase_plan.py --allow-skip 自動入 RISK | ✅ |
 
 ### 7 個 Gemini-only diff 裁決順序（P71.5 用）
 
@@ -87,7 +92,27 @@ P71.11 B 級延伸     (版本鎖 / 依賴圖 / Permanent Bundle)
 P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ⏳ → P70.2 → P70.4 → P70.6
 ```
 
-### 下個視窗動工：P70.5'
+### 下個視窗動工：P71.3
+
+**P71.3 任務**：11 個 in-use/stale skill 自包含化 + 終端機適配（1.5 視窗）
+
+對應優化點：S3, C1, C3, C5, C6, D1-D3
+
+每個 skill 需補：
+1. `__main__.py`（`python -m skills.<name>` 可執行）
+2. `--help` / `--output json|plain|rich` / `NO_COLOR=1` 支援（C5, C6, C3）
+3. `stdin pipe` 支援（`cat data | python -m skills.X`）（C1）
+4. 終端 vs IDE 雙模 stdout（D1）
+5. SKILL.md 補「self-contained 執行命令 + 完整依賴清單」（S3）
+
+11 個 skill（優先順序）：
+```
+in-use（先）: history-trend-query, nl-to-prompt-structurer,
+              api-quota-guardian, hallucination-judge, hot-deployer
+stale（後）:  ai-news-radar, firecrawl-dynamic-breacher,
+              html-markdown-distiller, multi-thread-synthesizer,
+              semantic-cache-shield, trend-anomaly-detector
+```
 
 ---
 
