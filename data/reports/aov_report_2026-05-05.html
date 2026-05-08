@@ -66,10 +66,15 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html {
+            width: 100%;
+        }
+
+        body {
             overflow-x: hidden;
             width: 100%;
             -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling for iOS */
+            touch-action: pan-y; /* prevent LINE WebView from swallowing vertical pan events; see WebKit bug #153852 */
         }
 
         body {
@@ -271,7 +276,7 @@
                 border-radius: 12px;
             }
 
-            .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav {
+            .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav, .back-to-landing {
                 /* Disable backdrop-filter on mobile to completely stop scrolling jitter/lag */
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
@@ -1210,10 +1215,49 @@
             box-shadow: var(--glow-neon);
             backdrop-filter: blur(10px);
         }
+
+        /* ── Back-to-Landing Pill ── */
+        .back-to-landing {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 1rem 0 0 2rem;
+            padding: 0.55rem 1.2rem;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(219, 39, 119, 0.25);
+            border-radius: 999px;
+            color: #be185d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 20;
+        }
+        .back-to-landing:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(-3px);
+            border-color: #f472b6;
+        }
+        .back-to-landing:focus {
+            outline: 2px solid #f472b6;
+            outline-offset: 3px;
+        }
+        @media (max-width: 992px) {
+            .back-to-landing {
+                margin: 0.75rem 0 0 1.2rem;
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <a class="back-to-landing" href="https://sammy50307-debug.github.io/Arena-of-Valor/" rel="home" aria-label="返回戰略門戶首頁">← 回戰略門戶</a>
+
     <header class="header">
         <h1>Arena of Valor 輿情分析</h1>
         <div class="date-pill">2026-05-05</div>

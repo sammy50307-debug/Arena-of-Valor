@@ -1,3 +1,4 @@
+<!-- cache_hit: 0/0 (0%) | llm_calls: 0 | mode: test -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 
@@ -65,10 +66,15 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html {
+            width: 100%;
+        }
+
+        body {
             overflow-x: hidden;
             width: 100%;
             -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling for iOS */
+            touch-action: pan-y; /* prevent LINE WebView from swallowing vertical pan events; see WebKit bug #153852 */
         }
 
         body {
@@ -270,7 +276,7 @@
                 border-radius: 12px;
             }
 
-            .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav {
+            .card, .global-insights-card, .alert-banner, .post-card, .combat-stats-panel, .audio-player-container, .region-nav, .back-to-landing {
                 /* Disable backdrop-filter on mobile to completely stop scrolling jitter/lag */
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
@@ -1209,10 +1215,49 @@
             box-shadow: var(--glow-neon);
             backdrop-filter: blur(10px);
         }
+
+        /* ── Back-to-Landing Pill ── */
+        .back-to-landing {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 1rem 0 0 2rem;
+            padding: 0.55rem 1.2rem;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(219, 39, 119, 0.25);
+            border-radius: 999px;
+            color: #be185d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 20;
+        }
+        .back-to-landing:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(-3px);
+            border-color: #f472b6;
+        }
+        .back-to-landing:focus {
+            outline: 2px solid #f472b6;
+            outline-offset: 3px;
+        }
+        @media (max-width: 992px) {
+            .back-to-landing {
+                margin: 0.75rem 0 0 1.2rem;
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <a class="back-to-landing" href="https://sammy50307-debug.github.io/Arena-of-Valor/" rel="home" aria-label="返回戰略門戶首頁">← 回戰略門戶</a>
+
     <header class="header">
         <h1>Arena of Valor 輿情分析</h1>
         <div class="date-pill">2026-05-01</div>
@@ -1266,7 +1311,7 @@
             </div>
             <div
                 style="color: var(--text-main); line-height: 1.8; font-size: 1.1rem; padding: 1.5rem; background: rgba(255,255,255,0.4); border-radius: 16px; backdrop-filter: blur(5px); position: relative; z-index: 5; border: 1px solid rgba(219, 39, 119, 0.15);">
-                今日無搜集到任何資料。
+                測試
             </div>
         </div>
 
@@ -1307,7 +1352,7 @@
                 </div>
 
                 <div class="hero-summary">
-                    今日無特定焦點分析
+                    芽芽今日熱度上升
                 </div>
 
                 <div class="hero-grid">
@@ -1316,6 +1361,92 @@
                         
                     </div>
 
+                    
+                    <div style="margin-top: 1rem; border-top: 1px dashed #f9a8d4; padding-top: 1rem;">
+                        <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.8rem;">📰 芽芽近期動態</h3>
+                        
+                        
+                        
+                        
+                        <div style="margin-bottom: 0.8rem; background: rgba(253,242,248,0.6); border: 1px solid #fbcfe8; border-radius: 14px; padding: 0.8rem;">
+                            <a href="https://example.com/aov-yaya-guide" target="_blank" rel="noopener noreferrer"
+                               aria-label="【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？ — 開啟原文"
+                               style="text-decoration:none; color:inherit; display:block;">
+                                <div style="font-size:0.88rem; font-weight:700; color:#be185d; margin-bottom:0.3rem; line-height:1.4;">
+                                    
+                                    【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？
+                                </div>
+                                <div style="font-size:0.75rem; color:#9ca3af; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                    <span style="background:#fce7f3;color:#be185d;padding:1px 7px;border-radius:999px;font-weight:600;">WEBSITE</span>
+                                    <span></span>
+                                    
+                                    <span style="background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:999px;">↻ 重複</span>
+                                    
+                                </div>
+                                
+                                
+                                <div style="font-size:0.8rem;color:#6b7280;margin-top:0.4rem;line-height:1.5;">
+                                    【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？
+                                </div>
+                                
+                            </a>
+                        </div>
+                        
+                        
+                        
+                        
+                        <div style="margin-bottom: 0.8rem; background: rgba(253,242,248,0.6); border: 1px solid #fbcfe8; border-radius: 14px; padding: 0.8rem;">
+                            <a href="https://example.com/ptt-aov-yaya" target="_blank" rel="noopener noreferrer"
+                               aria-label="[討論] 芽芽目前的裝備選擇？坦裝還是全法？ — 開啟原文"
+                               style="text-decoration:none; color:inherit; display:block;">
+                                <div style="font-size:0.88rem; font-weight:700; color:#be185d; margin-bottom:0.3rem; line-height:1.4;">
+                                    
+                                    [討論] 芽芽目前的裝備選擇？坦裝還是全法？
+                                </div>
+                                <div style="font-size:0.75rem; color:#9ca3af; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                    <span style="background:#fce7f3;color:#be185d;padding:1px 7px;border-radius:999px;font-weight:600;">FORUM</span>
+                                    <span></span>
+                                    
+                                    <span style="background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:999px;">↻ 重複</span>
+                                    
+                                </div>
+                                
+                                
+                                <div style="font-size:0.8rem;color:#6b7280;margin-top:0.4rem;line-height:1.5;">
+                                    [討論] 芽芽目前的裝備選擇？坦裝還是全法？
+                                </div>
+                                
+                            </a>
+                        </div>
+                        
+                        
+                        
+                        
+                        <div style="margin-bottom: 0.8rem; background: rgba(253,242,248,0.6); border: 1px solid #fbcfe8; border-radius: 14px; padding: 0.8rem;">
+                            <a href="https://example.com/art-yaya" target="_blank" rel="noopener noreferrer"
+                               aria-label="【繪畫】萌系芽芽：櫻花下的守護者 — 開啟原文"
+                               style="text-decoration:none; color:inherit; display:block;">
+                                <div style="font-size:0.88rem; font-weight:700; color:#be185d; margin-bottom:0.3rem; line-height:1.4;">
+                                    
+                                    【繪畫】萌系芽芽：櫻花下的守護者
+                                </div>
+                                <div style="font-size:0.75rem; color:#9ca3af; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                                    <span style="background:#fce7f3;color:#be185d;padding:1px 7px;border-radius:999px;font-weight:600;">INSTAGRAM</span>
+                                    <span></span>
+                                    
+                                    <span style="background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:999px;">↻ 重複</span>
+                                    
+                                </div>
+                                
+                                
+                                <div style="font-size:0.8rem;color:#6b7280;margin-top:0.4rem;line-height:1.5;">
+                                    【繪畫】萌系芽芽：櫻花下的守護者
+                                </div>
+                                
+                            </a>
+                        </div>
+                        
+                    </div>
                     
                 </div>
 
@@ -1331,23 +1462,23 @@
                     <span class="card-icon">📊</span>
                     <h2>聲量總覽</h2>
                 </div>
-                <div class="metric-big">0</div>
+                <div class="metric-big">12</div>
                 <div class="metric-desc">今日相關新聞與社群提及數</div>
 
                 <div class="sentiment-grid">
                     <div class="sent-box sent-pos">
                         <div class="num">
-                            0
+                            8
                             
                         </div>
                         <div class="lbl">正面 👍</div>
                     </div>
                     <div class="sent-box sent-neg">
-                        <div class="num">0</div>
+                        <div class="num">1</div>
                         <div class="lbl">負面 👎</div>
                     </div>
                     <div class="sent-box sent-neu">
-                        <div class="num">0</div>
+                        <div class="num">3</div>
                         <div class="lbl">中性 😐</div>
                     </div>
                 </div>
@@ -1378,15 +1509,10 @@
                     <h2>AI 智能解讀 (LLM)</h2>
                 </div>
                 <div class="ai-overview">
-                    <div style="margin-bottom: 1rem;">今日無搜集到任何資料。</div>
+                    <div style="margin-bottom: 1rem;">測試</div>
                     
                 </div>
 
-                
-                <div class="recommendation-box">
-                    <strong style="color: #166534; display: block; margin-bottom: 0.5rem;">💡 營運行動建議</strong>
-                    今日無資料可供分析。
-                </div>
                 
 
                 <div class="sentiment-guide">
@@ -1415,13 +1541,304 @@
                 <div class="feed-container">
                     
                     
-                    
-                    
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
 
-                    
-                    <div style="text-align: center; color: #94a3b8; padding: 2rem;">
-                        今日暫無相關動態。
-                    </div>
+                        <div class="post-container filterable-region" data-region="TW">
+                            <div class="post-card yaya-highlight"
+                                style="animation-delay: 0.0s;">
+
+                                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span class="region-tag tag-tw">
+                                        🇹🇼 TW
+                                    </span>
+                                    <span class="post-platform" style="background:#fdf2f8;color:#db2777;">
+                                        WEBSITE
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:600;">
+                                        ↻ 重複&nbsp;·&nbsp;昨日
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;color:#94a3b8;margin-left:auto;">
+                                        #1
+                                        &nbsp;★1.18
+                                    </span>
+                                </div>
+
+                                <a href="https://example.com/aov-yaya-guide" target="_blank" rel="noopener noreferrer"
+                                    aria-label="【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？ — 開啟原文"
+                                    style="text-decoration:none;color:inherit;">
+                                    <div class="post-title" style="color:#db2777;">
+                                        
+                                        【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？
+                                    </div>
+
+                                    <div class="post-meta">
+                                        <span></span>
+                                        
+                                    </div>
+
+                                    <div class="post-snippet original-content" style="color:#831843;">
+                                        
+                                        【傳說對決】新版芽芽輔助教學：如何成為隊友的最強護盾？
+                                    </div>
+
+                                    
+                                    <div class="post-sentiment text-pos"
+                                        style="color:#be185d !important;">
+                                        AI: POSITIVE [芽芽]
+                                    </div>
+                                    
+                                </a>
+
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+
+                        <div class="post-container filterable-region" data-region="TW">
+                            <div class="post-card yaya-highlight"
+                                style="animation-delay: 0.1s;">
+
+                                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span class="region-tag tag-tw">
+                                        🇹🇼 TW
+                                    </span>
+                                    <span class="post-platform" style="background:#fdf2f8;color:#db2777;">
+                                        FORUM
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:600;">
+                                        ↻ 重複&nbsp;·&nbsp;昨日
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;color:#94a3b8;margin-left:auto;">
+                                        #2
+                                        &nbsp;★1.10
+                                    </span>
+                                </div>
+
+                                <a href="https://example.com/ptt-aov-yaya" target="_blank" rel="noopener noreferrer"
+                                    aria-label="[討論] 芽芽目前的裝備選擇？坦裝還是全法？ — 開啟原文"
+                                    style="text-decoration:none;color:inherit;">
+                                    <div class="post-title" style="color:#db2777;">
+                                        
+                                        [討論] 芽芽目前的裝備選擇？坦裝還是全法？
+                                    </div>
+
+                                    <div class="post-meta">
+                                        <span></span>
+                                        
+                                    </div>
+
+                                    <div class="post-snippet original-content" style="color:#831843;">
+                                        
+                                        [討論] 芽芽目前的裝備選擇？坦裝還是全法？
+                                    </div>
+
+                                    
+                                    <div class="post-sentiment text-pos"
+                                        style="color:#be185d !important;">
+                                        AI: POSITIVE [芽芽]
+                                    </div>
+                                    
+                                </a>
+
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+
+                        <div class="post-container filterable-region" data-region="TW">
+                            <div class="post-card yaya-highlight"
+                                style="animation-delay: 0.2s;">
+
+                                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span class="region-tag tag-tw">
+                                        🇹🇼 TW
+                                    </span>
+                                    <span class="post-platform" style="background:#fdf2f8;color:#db2777;">
+                                        INSTAGRAM
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:600;">
+                                        ↻ 重複&nbsp;·&nbsp;昨日
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;color:#94a3b8;margin-left:auto;">
+                                        #3
+                                        &nbsp;★1.06
+                                    </span>
+                                </div>
+
+                                <a href="https://example.com/art-yaya" target="_blank" rel="noopener noreferrer"
+                                    aria-label="【繪畫】萌系芽芽：櫻花下的守護者 — 開啟原文"
+                                    style="text-decoration:none;color:inherit;">
+                                    <div class="post-title" style="color:#db2777;">
+                                        
+                                        【繪畫】萌系芽芽：櫻花下的守護者
+                                    </div>
+
+                                    <div class="post-meta">
+                                        <span></span>
+                                        
+                                    </div>
+
+                                    <div class="post-snippet original-content" style="color:#831843;">
+                                        
+                                        【繪畫】萌系芽芽：櫻花下的守護者
+                                    </div>
+
+                                    
+                                    <div class="post-sentiment text-pos"
+                                        style="color:#be185d !important;">
+                                        AI: POSITIVE [芽芽]
+                                    </div>
+                                    
+                                </a>
+
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+
+                        <div class="post-container filterable-region" data-region="TW">
+                            <div class="post-card "
+                                style="animation-delay: 0.30000000000000004s;">
+
+                                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span class="region-tag tag-tw">
+                                        🇹🇼 TW
+                                    </span>
+                                    <span class="post-platform" style="">
+                                        FACEBOOK
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;color:#94a3b8;margin-left:auto;">
+                                        #4
+                                        &nbsp;★0.95
+                                    </span>
+                                </div>
+
+                                <a href="https://example.com/aov-pro-league" target="_blank" rel="noopener noreferrer"
+                                    aria-label="2026 傳說職業聯賽：台服戰隊奪冠後，玩家聲量爆棚！ — 開啟原文"
+                                    style="text-decoration:none;color:inherit;">
+                                    <div class="post-title" style="">
+                                        
+                                        2026 傳說職業聯賽：台服戰隊奪冠後，玩家聲量爆棚！
+                                    </div>
+
+                                    <div class="post-meta">
+                                        <span></span>
+                                        
+                                    </div>
+
+                                    <div class="post-snippet original-content" style="">
+                                        
+                                        2026 傳說職業聯賽：台服戰隊奪冠後，玩家聲量爆棚！
+                                    </div>
+
+                                    
+                                    <div class="post-sentiment text-neu"
+                                        style="">
+                                        AI: NEUTRAL
+                                    </div>
+                                    
+                                </a>
+
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+
+                        <div class="post-container filterable-region" data-region="TW">
+                            <div class="post-card "
+                                style="animation-delay: 0.4s;">
+
+                                <div style="margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                    <span class="region-tag tag-tw">
+                                        🇹🇼 TW
+                                    </span>
+                                    <span class="post-platform" style="">
+                                        WEBSITE
+                                    </span>
+                                    
+                                    <span style="font-size:0.72rem;color:#94a3b8;margin-left:auto;">
+                                        #5
+                                        &nbsp;★0.90
+                                    </span>
+                                </div>
+
+                                <a href="https://example.com/aov-patch-notes" target="_blank" rel="noopener noreferrer"
+                                    aria-label="官方更新：台服平衡調整公告，多名射手遭削弱 — 開啟原文"
+                                    style="text-decoration:none;color:inherit;">
+                                    <div class="post-title" style="">
+                                        
+                                        官方更新：台服平衡調整公告，多名射手遭削弱
+                                    </div>
+
+                                    <div class="post-meta">
+                                        <span></span>
+                                        
+                                    </div>
+
+                                    <div class="post-snippet original-content" style="">
+                                        
+                                        官方更新：台服平衡調整公告，多名射手遭削弱
+                                    </div>
+
+                                    
+                                    <div class="post-sentiment text-neu"
+                                        style="">
+                                        AI: NEUTRAL
+                                    </div>
+                                    
+                                </a>
+
+                            </div>
+                        </div>
+                        
                     
                 </div>
             </div>
@@ -1516,7 +1933,7 @@
                 },
         yAxis: {
             type: 'category',
-                data: ["\u82bd\u82bd", "\u76ae\u76ae"],
+                data: ["\u76ae\u76ae", "\u82bd\u82bd"],
             splitArea: { show: true },
             axisLabel: { color: '#64748b', fontWeight: 'bold' }
         },
@@ -1536,7 +1953,7 @@
         series: [{
             name: '熱度趨勢',
             type: 'heatmap',
-            data: [[0, 0, 5, 1], [0, 1, 11, 1], [1, 0, 11, 0], [1, 1, 10, 1], [2, 0, 5, 0], [2, 1, 4, 0], [3, 0, 9, 0], [3, 1, 7, 0], [4, 0, 3, 0], [4, 1, 3, 1], [5, 0, 5, 1], [5, 1, 7, 0], [6, 0, 12, 0], [6, 1, 7, 0], [7, 0, 9, 1], [7, 1, 10, 0]],
+            data: [[0, 0, 10, 0], [0, 1, 11, 0], [1, 0, 8, 0], [1, 1, 6, 1], [2, 0, 12, 0], [2, 1, 7, 0], [3, 0, 8, 0], [3, 1, 11, 1], [4, 0, 9, 0], [4, 1, 10, 1], [5, 0, 5, 0], [5, 1, 3, 1], [6, 0, 11, 1], [6, 1, 3, 1], [7, 0, 4, 0], [7, 1, 5, 0]],
             label: { show: false },
             emphasis: {
             itemStyle: {
