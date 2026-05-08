@@ -20,12 +20,18 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html, body {
+        html {
+            height: auto;
+            min-height: 100%;
+        }
+
+        body {
             height: auto;
             min-height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-y; /* prevent LINE WebView from swallowing vertical pan events; see WebKit bug #153852 */
         }
 
         body {
