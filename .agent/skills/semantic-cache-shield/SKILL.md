@@ -1,7 +1,48 @@
 ---
 name: semantic-cache-shield
-description: 語意快取神盾，專門用來攔截高同質性的論壇洗版文章。透過比對輸入文本的特徵與雜湊值，直接抽調快取庫裡的歷史分析結果，達成零 Token 消耗的高速檢索。
+type: exec
+status: stale
+schema_version: 1
 version: 1.0.0
+description: 特徵+雜湊值攔截高同質洗版文章，零 Token 消耗從快取直接回傳
+
+when_to_use:
+  - 需要過濾論壇中大量重複/洗版文章
+  - 抓取的文章有高度同質性，想避免重複 LLM 分析
+  - 需要加速大量文章處理時（快取命中率高時有效）
+when_NOT_to_use:
+  - 首次抓取文章（快取為空時效果有限）
+  - 需要分析全部文章（不希望過濾任何內容）
+trigger_keywords: [快取, 洗版, 語意快取, 重複文章過濾, cache, semantic, 洗版文章, 去重]
+
+example_invocations:
+  - input: "這堆文章很多洗版的，幫我過濾掉"
+    skill: semantic-cache-shield
+    v1_trigger_block: |
+      🪧 [semantic-cache-shield 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「洗版文章過濾」
+      ├─ 信心分數：0.85
+      ├─ 來源層：smart-task-router (L2)
+      └─ 動作：執行 semantic-cache-shield
+
+entry_points:
+  cli: "python -m skills.semantic_cache_shield"
+  import: "skills.semantic_cache_shield"
+  prompt_paste: "adapters/prompt_paste/semantic-cache-shield.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: true
+  pure_llm: false
+
+deployed_to: [gemini-global]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: []
+last_used: 2026-04-19
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[semantic-cache-shield 已啟動]`。

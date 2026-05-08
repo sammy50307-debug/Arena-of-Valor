@@ -1,7 +1,48 @@
 ---
 name: hot-deployer
-description: 熱部署儀。自動偵測 data/reports/ 中最新的 HTML 戰報，同步複製至 ui_previews/，更新 index.html 連結，並執行 git push 將戰報即時部署至 GitHub Pages 戰情看板。
+type: exec
+status: in-use
+schema_version: 1
 version: 1.0.0
+description: 自動偵測最新 HTML 戰報並 git push 至 GitHub Pages 戰情看板
+
+when_to_use:
+  - 需要將最新 HTML 戰報部署到 GitHub Pages 時
+  - 主公說「把報告推上去」「發布報告」「更新戰情看板」
+  - 生成報告後需要立即上線供外部訪問
+when_NOT_to_use:
+  - 生成戰報內容本身 → 先跑資料分析流程
+  - 查詢英雄走勢 → 用 history-trend-query
+trigger_keywords: [部署, deploy, GitHub Pages, 戰報上線, 推上去, 發布報告, 更新看板, 熱部署, hot-deploy]
+
+example_invocations:
+  - input: "把最新的報告推上 GitHub Pages"
+    skill: hot-deployer
+    v1_trigger_block: |
+      🪧 [hot-deployer 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「推上 GitHub Pages」
+      ├─ 信心分數：0.94
+      ├─ 來源層：主公口頭
+      └─ 動作：執行 hot-deployer
+
+entry_points:
+  cli: "python -m skills.hot_deployer"
+  import: "skills.hot_deployer"
+  prompt_paste: "adapters/prompt_paste/hot-deployer.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: false
+  pure_llm: false
+
+deployed_to: [claude-project]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: []
+last_used: 2026-05-09
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[hot-deployer 已啟動]`。

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-lint_skill_registry.py — P71.1 基礎版
-驗證 skills/registry.json 的格式完整性 + 實體存在性。
+lint_skill_registry.py — P71.2 升級版
+驗證 skills/registry.json 的格式完整性 + 實體存在性 + S1 schema 欄位。
 
-P71.2 升級：加 S1 完整 schema 驗證（when_to_use / trigger_keywords 等）
-P71.2 升級：加 V1-5 trace check（SKILL.md 啟動標記存在性）
+P71.1：基礎格式 + V1-5 啟動標記 trace check
+P71.2：S1 完整欄位驗證（when_to_use / trigger_keywords / environments 等）
 
 用法：
   python scripts/lint_skill_registry.py
   python scripts/lint_skill_registry.py --fix-report   # 輸出缺失項目的修復清單
+  python scripts/lint_skill_registry.py --s1-only      # 僅檢查 in-use/stale 的 S1 完整欄位
 """
 
 import json
@@ -23,6 +24,25 @@ REQUIRED_FIELDS = ["name", "type", "status", "claude_path", "deployed_to"]
 VALID_TYPES = {"exec", "pipe", "prompt", "data"}
 VALID_STATUSES = {"in-use", "stale", "orphan", "archived"}
 
+# S1 欄位：in-use / stale 狀態的 skill 必須有完整 S1 schema
+S1_REQUIRED_STATUSES = {"in-use", "stale"}
+S1_REQUIRED_FIELDS = [
+    "schema_version",
+    "version",
+    "description",
+    "when_to_use",
+    "when_NOT_to_use",
+    "trigger_keywords",
+    "entry_points",
+    "environments",
+    "deployed_to",
+    "requires",
+    "depends_on",
+    "last_used",
+]
+S1_ENTRY_POINT_KEYS = ["cli", "import", "prompt_paste", "claude_slash"]
+S1_ENVIRONMENT_KEYS = ["ide", "terminal", "antigravity", "pure_llm"]
+
 errors = []
 warnings = []
 
@@ -35,7 +55,57 @@ def warn(msg: str):
     warnings.append(f"  ⚠️  {msg}")
 
 
-def lint_registry(fix_report: bool = False):
+def lint_s1_schema(skill: dict, prefix: str):
+    """驗證 S1 schema 必填欄位（in-use / stale 必過）。"""
+    for field in S1_REQUIRED_FIELDS:
+        if field not in skill:
+            err(f"{prefix} 缺少 S1 必填欄位：{field}")
+            continue
+
+        val = skill[field]
+
+        # when_to_use / when_NOT_to_use — 非空 list
+        if field in ("when_to_use", "when_NOT_to_use"):
+            if not isinstance(val, list) or len(val) == 0:
+                err(f"{prefix} {field} 必須是非空陣列")
+
+        # trigger_keywords — 非空 list，至少 2 個關鍵字
+        if field == "trigger_keywords":
+            if not isinstance(val, list) or len(val) < 2:
+                err(f"{prefix} trigger_keywords 至少需要 2 個關鍵字，現有：{len(val) if isinstance(val, list) else 0}")
+
+        # entry_points — 必須有 cli / import / prompt_paste / claude_slash
+        if field == "entry_points":
+            if not isinstance(val, dict):
+                err(f"{prefix} entry_points 必須是物件")
+            else:
+                for key in S1_ENTRY_POINT_KEYS:
+                    if key not in val:
+                        err(f"{prefix} entry_points 缺少 {key} 欄位")
+
+        # environments — 四個布林欄位必須全有
+        if field == "environments":
+            if not isinstance(val, dict):
+                err(f"{prefix} environments 必須是物件")
+            else:
+                for key in S1_ENVIRONMENT_KEYS:
+                    if key not in val:
+                        err(f"{prefix} environments 缺少 {key} 欄位")
+                    elif not isinstance(val[key], bool):
+                        err(f"{prefix} environments.{key} 必須是布林值")
+
+        # schema_version — 整數 >= 1
+        if field == "schema_version":
+            if not isinstance(val, int) or val < 1:
+                err(f"{prefix} schema_version 必須是整數 >= 1")
+
+        # description — 非空字串
+        if field == "description":
+            if not isinstance(val, str) or len(val.strip()) == 0:
+                err(f"{prefix} description 不能為空")
+
+
+def lint_registry(s1_only: bool = False):
     if not REGISTRY_PATH.exists():
         print(f"❌ registry.json 不存在：{REGISTRY_PATH}")
         sys.exit(1)
@@ -67,7 +137,7 @@ def lint_registry(fix_report: bool = False):
             err(f"{prefix} 重複的 skill name")
         names_seen.add(name)
 
-        # 必填欄位
+        # 必填欄位（所有 skill 共用）
         for field in REQUIRED_FIELDS:
             if field not in skill:
                 err(f"{prefix} 缺少必填欄位：{field}")
@@ -81,6 +151,10 @@ def lint_registry(fix_report: bool = False):
         s = skill.get("status", "")
         if s not in VALID_STATUSES:
             err(f"{prefix} status 值無效：'{s}'（允許：{VALID_STATUSES}）")
+
+        # S1 schema 驗證（僅 in-use / stale）
+        if s in S1_REQUIRED_STATUSES:
+            lint_s1_schema(skill, prefix)
 
         # claude_path 目錄存在性
         claude_path_str = skill.get("claude_path")
@@ -98,6 +172,14 @@ def lint_registry(fix_report: bool = False):
                     content = skill_md.read_text(encoding="utf-8")
                     if "已啟動" not in content:
                         warn(f"{prefix} SKILL.md 缺少啟動標記（V1-5）：'[{name} 已啟動]'")
+                    # S1 trace check：in-use/stale skill 的 SKILL.md 必須有完整 frontmatter
+                    if s in S1_REQUIRED_STATUSES:
+                        if "schema_version:" not in content:
+                            warn(f"{prefix} SKILL.md frontmatter 缺少 schema_version（S1 未升級）")
+                        if "when_to_use:" not in content:
+                            warn(f"{prefix} SKILL.md frontmatter 缺少 when_to_use（S1 未升級）")
+                        if "trigger_keywords:" not in content:
+                            warn(f"{prefix} SKILL.md frontmatter 缺少 trigger_keywords（S1 未升級）")
 
         # deployed_to 合法值
         deployed = skill.get("deployed_to", [])
@@ -107,12 +189,13 @@ def lint_registry(fix_report: bool = False):
             if d not in {"claude-project", "gemini-global", "claude-global"}:
                 warn(f"{prefix} deployed_to 含未知值：'{d}'")
 
-    print_result(fix_report, skills)
+    print_result(skills)
 
 
-def print_result(fix_report: bool = False, skills: list = None):
+def print_result(skills: list | None = None):
     total = len(skills) if skills else 0
-    print(f"\n🔍 lint_skill_registry — {total} skills 掃描完畢")
+    s1_count = sum(1 for s in (skills or []) if s.get("status") in S1_REQUIRED_STATUSES)
+    print(f"\n🔍 lint_skill_registry (P71.2) — {total} skills 掃描（{s1_count} 個需過 S1 schema 驗證）")
 
     if errors:
         print(f"\n錯誤（{len(errors)} 條）：")
@@ -134,10 +217,10 @@ def print_result(fix_report: bool = False, skills: list = None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Lint skills/registry.json")
-    parser.add_argument("--fix-report", action="store_true", help="輸出缺失項目修復清單")
+    parser = argparse.ArgumentParser(description="Lint skills/registry.json（P71.2 含 S1 schema 驗證）")
+    parser.add_argument("--s1-only", action="store_true", help="僅檢查 in-use/stale 的 S1 完整欄位（目前 flag 保留，行為與完整模式相同）")
     args = parser.parse_args()
-    lint_registry(fix_report=args.fix_report)
+    lint_registry(s1_only=args.s1_only)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,48 @@
 ---
 name: api-quota-guardian
-description: API 額度守衛。持久化追蹤 Tavily（或其他付費搜尋 API）的月使用量，達 80%/95% 門檻時警示，並提供 should_fallback() 旗標讓瀑布鏈主動切換免費源，避免被動觸發 429。
+type: exec
+status: in-use
+schema_version: 1
 version: 1.0.0
+description: 追蹤 Tavily API 月額度，80%/95% 門檻警示，自動提供備援旗標
+
+when_to_use:
+  - 爬蟲任務前確認 Tavily API 額度是否充足
+  - 出現 Tavily 429 錯誤、需要切換備援時
+  - 需要查詢本月 API 使用量或設定用量上限
+when_NOT_to_use:
+  - 網頁爬取本身 → 用 firecrawl-dynamic-breacher 或 waterfall-search-chain
+  - 管理非 Tavily 的 API 配額 → 視需求擴充
+trigger_keywords: [API額度, 配額, Tavily, 429, quota, 額度不夠, should_fallback, 搜尋API, API用量]
+
+example_invocations:
+  - input: "Tavily 額度還夠嗎？"
+    skill: api-quota-guardian
+    v1_trigger_block: |
+      🪧 [api-quota-guardian 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「Tavily 額度」
+      ├─ 信心分數：0.95
+      ├─ 來源層：主公口頭
+      └─ 動作：執行 api-quota-guardian
+
+entry_points:
+  cli: "python -m skills.api_quota_guardian"
+  import: "skills.api_quota_guardian"
+  prompt_paste: "adapters/prompt_paste/api-quota-guardian.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: false
+  pure_llm: false
+
+deployed_to: [claude-project]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: []
+last_used: 2026-05-09
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[api-quota-guardian 已啟動]`。

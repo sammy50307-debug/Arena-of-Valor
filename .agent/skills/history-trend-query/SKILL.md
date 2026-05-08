@@ -1,7 +1,57 @@
 ---
 name: history-trend-query
-description: 過去 N 天英雄 / 整體輿情 / 平台別走勢的被動查詢器。補 Phase 50 trend-anomaly-detector（主動告警）的缺口，提供 pull 式時序檢視、四種視覺化格式（sparkline/Markdown/HTML SVG/JSON）、多英雄共圖、跨軌與獨立軌正規化、fuzzy 英雄名比對、LRU cache 加速。
+type: pipe
+status: in-use
+schema_version: 1
 version: 1.0.0
+description: 查詢過去 N 天英雄 / 整體輿情 / 平台別走勢，四種視覺化格式輸出
+
+when_to_use:
+  - 主公詢問某英雄最近的聲量或討論趨勢
+  - 需要查看過去 N 天的英雄輿情走勢圖
+  - 跨英雄比較聲量、情緒走勢
+  - 主公說「看一下芽芽最近的討論」「最近有沒有人討論 XX」
+when_NOT_to_use:
+  - 即時異常警報或 Z-Score 偵測 → 用 trend-anomaly-detector
+  - 生成/部署報告 → 用 hot-deployer
+trigger_keywords: [聲量, 走勢, 趨勢, 輿情, 最近幾天, 歷史查詢, trend, 英雄討論, 過去N天, 芽芽聲量, 聲量查詢]
+
+example_invocations:
+  - input: "幫我看芽芽最近 7 天的聲量"
+    skill: history-trend-query
+    v1_trigger_block: |
+      🪧 [history-trend-query 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「芽芽聲量」
+      ├─ 信心分數：0.92
+      ├─ 來源層：smart-task-router (L2)
+      └─ 動作：執行 history-trend-query
+  - input: "/trend hero 芽芽 7d"
+    skill: history-trend-query
+    v1_trigger_block: |
+      🪧 [history-trend-query 已觸發]
+      ├─ 觸發理由：slash command /trend 直接觸發
+      ├─ 信心分數：1.00
+      ├─ 來源層：slash command
+      └─ 動作：執行 history-trend-query
+
+entry_points:
+  cli: "python -m skills.history_trend_query"
+  import: "skills.history_trend_query"
+  prompt_paste: "adapters/prompt_paste/history-trend-query.md"
+  claude_slash: "/trend"
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: false
+  pure_llm: false
+
+deployed_to: [claude-project]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: []
+last_used: 2026-05-09
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[history-trend-query 已啟動]`。

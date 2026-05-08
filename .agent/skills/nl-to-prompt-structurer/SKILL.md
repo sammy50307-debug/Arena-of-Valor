@@ -1,7 +1,48 @@
 ---
 name: nl-to-prompt-structurer
-description: 自然語言 → 結構化 Prompt 翻譯器。純 Python 規則式（零 LLM API 成本）、中英雙語自動偵測、五段式 Markdown 輸出（角色/背景/任務/限制/輸出格式）。附加 query router 子模組可將 NL 解析為 P61 history-trend-query 的 Python API 呼叫。
+type: pipe
+status: in-use
+schema_version: 1
 version: 1.0.0
+description: 自然語言轉五段式結構化 Prompt，純規則零 LLM 成本
+
+when_to_use:
+  - 主公想將口語需求整理成結構化 prompt
+  - 需要快速生成五段式（角色/背景/任務/限制/輸出格式）骨架
+  - 主公說「幫我把這個整理成 prompt」「套個 prompt 格式」
+when_NOT_to_use:
+  - 精煉現有 prompt → 用 cot-prompt-compactor
+  - 查詢英雄走勢 → 用 history-trend-query
+trigger_keywords: [prompt, 結構化, 幫我寫prompt, 整理需求, 五段式, structurer, prompt格式, 套格式, nl-to-prompt]
+
+example_invocations:
+  - input: "幫我把這段需求套成 prompt 格式"
+    skill: nl-to-prompt-structurer
+    v1_trigger_block: |
+      🪧 [nl-to-prompt-structurer 已觸發]
+      ├─ 觸發理由：slash command /prompt 直接觸發
+      ├─ 信心分數：1.00
+      ├─ 來源層：slash command
+      └─ 動作：執行 nl-to-prompt-structurer
+
+entry_points:
+  cli: "python -m skills.nl_to_prompt_structurer"
+  import: "skills.nl_to_prompt_structurer"
+  prompt_paste: "adapters/prompt_paste/nl-to-prompt-structurer.md"
+  claude_slash: "/prompt"
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: false
+  pure_llm: true
+
+deployed_to: [claude-project]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: []
+last_used: 2026-05-09
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[nl-to-prompt-structurer 已啟動]`。

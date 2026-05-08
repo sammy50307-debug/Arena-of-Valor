@@ -1,26 +1,89 @@
 {
   "schema_version": 1,
   "last_updated": "2026-05-09",
-  "note": "P71.1 基礎版。P71.2 升級完整 S1 schema（when_to_use / trigger_keywords / environments 等）",
+  "note": "P71.2 升級：11 個 in-use/stale skill 補完整 S1 schema（when_to_use / trigger_keywords / environments 等）",
   "skills": [
     {
       "name": "ai-news-radar",
       "type": "pipe",
       "status": "stale",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "從 9 大科技媒體自動抓取最新 AI 新聞，輸出繁中整合報告",
       "claude_path": ".agent/skills/ai-news-radar",
       "gemini_path": "~/.gemini/antigravity/skills/ai-news-radar",
       "slash_command": null,
+      "when_to_use": [
+        "需要蒐集今日最新 AI 科技新聞時",
+        "主公說「幫我看最新 AI 動態」「今天有什麼 AI 新聞」",
+        "需要每日情報簡報素材"
+      ],
+      "when_NOT_to_use": [
+        "AOV 英雄走勢查詢 → 用 history-trend-query",
+        "特定網頁爬取 → 用 firecrawl-dynamic-breacher"
+      ],
+      "trigger_keywords": ["AI新聞", "科技新聞", "每日情報", "news radar", "AI動態", "最新AI", "AI趨勢", "情報簡報"],
+      "entry_points": {
+        "cli": "python -m skills.ai_news_radar",
+        "import": "skills.ai_news_radar",
+        "prompt_paste": "adapters/prompt_paste/ai-news-radar.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": false
+      },
       "deployed_to": ["gemini-global"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": ["apify-client", "httpx"],
+        "env": ["APIFY_TOKEN"]
+      },
+      "depends_on": [],
+      "last_used": "2026-04-17",
       "notes": "P71.8 diff 裁決待完成（536 行差異）"
     },
     {
       "name": "api-quota-guardian",
       "type": "exec",
       "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "追蹤 Tavily API 月額度，80%/95% 門檻警示，自動提供備援旗標",
       "claude_path": ".agent/skills/api-quota-guardian",
       "gemini_path": null,
       "slash_command": null,
+      "when_to_use": [
+        "爬蟲任務前確認 Tavily API 額度是否充足",
+        "出現 Tavily 429 錯誤、需要切換備援時",
+        "需要查詢本月 API 使用量或設定用量上限"
+      ],
+      "when_NOT_to_use": [
+        "網頁爬取本身 → 用 firecrawl-dynamic-breacher 或 waterfall-search-chain",
+        "管理非 Tavily 的 API 配額 → 視需求擴充"
+      ],
+      "trigger_keywords": ["API額度", "配額", "Tavily", "429", "quota", "額度不夠", "should_fallback", "搜尋API", "API用量"],
+      "entry_points": {
+        "cli": "python -m skills.api_quota_guardian",
+        "import": "skills.api_quota_guardian",
+        "prompt_paste": "adapters/prompt_paste/api-quota-guardian.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
       "deployed_to": ["claude-project"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-05-09",
       "notes": ""
     },
     {
@@ -57,70 +120,289 @@
       "name": "firecrawl-dynamic-breacher",
       "type": "exec",
       "status": "stale",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "透過 Firecrawl API 渲染 JS 動態網頁並提取 Markdown，破解反爬蟲",
       "claude_path": ".agent/skills/firecrawl-dynamic-breacher",
       "gemini_path": "~/.gemini/antigravity/skills/firecrawl-dynamic-breacher",
       "slash_command": null,
+      "when_to_use": [
+        "需要抓取重度依賴 JavaScript 動態載入的網頁",
+        "一般爬蟲拿到空白或亂碼頁面時",
+        "SPA 網站或需要滾動載入的無限捲動頁面"
+      ],
+      "when_NOT_to_use": [
+        "靜態 HTML 網頁清理 → 用 html-markdown-distiller（更輕量）",
+        "多論壇同步抓取 → 用 multi-thread-synthesizer"
+      ],
+      "trigger_keywords": ["Firecrawl", "動態網頁", "JS渲染", "爬蟲", "SPA", "網頁抓取", "動態載入", "無限捲動", "反爬蟲"],
+      "entry_points": {
+        "cli": "python -m skills.firecrawl_dynamic_breacher",
+        "import": "skills.firecrawl_dynamic_breacher",
+        "prompt_paste": "adapters/prompt_paste/firecrawl-dynamic-breacher.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": false
+      },
       "deployed_to": ["gemini-global"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": ["firecrawl-py"],
+        "env": ["FIRECRAWL_API_KEY"]
+      },
+      "depends_on": [],
+      "last_used": "2026-04-19",
       "notes": "P71.8 diff 裁決待完成（68 行差異）"
     },
     {
       "name": "hallucination-judge",
       "type": "data",
       "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "校驗 AI 生成戰報中英雄名稱與數值合理性，防止幻覺污染報告",
       "claude_path": ".agent/skills/hallucination-judge",
       "gemini_path": null,
       "slash_command": null,
+      "when_to_use": [
+        "AI 生成英雄戰報後需要驗證英雄名稱合法性",
+        "驗證情緒分數、勝率等數值是否在合理範圍",
+        "懷疑 AI 回答含有幻覺英雄名稱時"
+      ],
+      "when_NOT_to_use": [
+        "查詢英雄走勢/聲量 → 用 history-trend-query",
+        "抓取論壇原始資料 → 用 multi-thread-synthesizer"
+      ],
+      "trigger_keywords": ["幻覺", "英雄名稱驗證", "白名單", "戰報驗證", "hallucination", "驗證英雄", "英雄白名單", "假英雄"],
+      "entry_points": {
+        "cli": "python -m skills.hallucination_judge",
+        "import": "skills.hallucination_judge",
+        "prompt_paste": "adapters/prompt_paste/hallucination-judge.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": true
+      },
       "deployed_to": ["claude-project"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-05-09",
       "notes": ""
     },
     {
       "name": "history-trend-query",
       "type": "pipe",
       "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "查詢過去 N 天英雄 / 整體輿情 / 平台別走勢，四種視覺化格式輸出",
       "claude_path": ".agent/skills/history-trend-query",
       "gemini_path": null,
       "slash_command": "/trend",
+      "when_to_use": [
+        "主公詢問某英雄最近的聲量或討論趨勢",
+        "需要查看過去 N 天的英雄輿情走勢圖",
+        "跨英雄比較聲量、情緒走勢",
+        "主公說「看一下芽芽最近的討論」「最近有沒有人討論 XX」"
+      ],
+      "when_NOT_to_use": [
+        "即時異常警報或 Z-Score 偵測 → 用 trend-anomaly-detector",
+        "生成/部署報告 → 用 hot-deployer"
+      ],
+      "trigger_keywords": ["聲量", "走勢", "趨勢", "輿情", "最近幾天", "歷史查詢", "trend", "英雄討論", "過去N天", "芽芽聲量", "聲量查詢"],
+      "entry_points": {
+        "cli": "python -m skills.history_trend_query",
+        "import": "skills.history_trend_query",
+        "prompt_paste": "adapters/prompt_paste/history-trend-query.md",
+        "claude_slash": "/trend"
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
       "deployed_to": ["claude-project"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-05-09",
       "notes": ""
     },
     {
       "name": "hot-deployer",
       "type": "exec",
       "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "自動偵測最新 HTML 戰報並 git push 至 GitHub Pages 戰情看板",
       "claude_path": ".agent/skills/hot-deployer",
       "gemini_path": null,
       "slash_command": null,
+      "when_to_use": [
+        "需要將最新 HTML 戰報部署到 GitHub Pages 時",
+        "主公說「把報告推上去」「發布報告」「更新戰情看板」",
+        "生成報告後需要立即上線供外部訪問"
+      ],
+      "when_NOT_to_use": [
+        "生成戰報內容本身 → 先跑資料分析流程",
+        "查詢英雄走勢 → 用 history-trend-query"
+      ],
+      "trigger_keywords": ["部署", "deploy", "GitHub Pages", "戰報上線", "推上去", "發布報告", "更新看板", "熱部署", "hot-deploy"],
+      "entry_points": {
+        "cli": "python -m skills.hot_deployer",
+        "import": "skills.hot_deployer",
+        "prompt_paste": "adapters/prompt_paste/hot-deployer.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
       "deployed_to": ["claude-project"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-05-09",
       "notes": "GHA 自動觸發"
     },
     {
       "name": "html-markdown-distiller",
       "type": "exec",
       "status": "stale",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "剝離 HTML 廣告/導覽列並輸出精簡 Markdown，大幅降低 Token 量",
       "claude_path": ".agent/skills/html-markdown-distiller",
       "gemini_path": "~/.gemini/antigravity/skills/html-markdown-distiller",
       "slash_command": null,
+      "when_to_use": [
+        "有一份 HTML 需要去除廣告、導覽列、頁尾等雜訊",
+        "需要將網頁內容轉成乾淨 Markdown 後送入 LLM",
+        "Token 超量時需要壓縮 HTML 內容"
+      ],
+      "when_NOT_to_use": [
+        "需要渲染 JS 動態網頁 → 用 firecrawl-dynamic-breacher",
+        "論壇多線程同步抓取 → 用 multi-thread-synthesizer"
+      ],
+      "trigger_keywords": ["HTML轉Markdown", "網頁淨化", "去除廣告", "distiller", "HTML清理", "網頁轉文字", "去雜訊"],
+      "entry_points": {
+        "cli": "python -m skills.html_markdown_distiller",
+        "import": "skills.html_markdown_distiller",
+        "prompt_paste": "adapters/prompt_paste/html-markdown-distiller.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": false
+      },
       "deployed_to": ["gemini-global"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": ["beautifulsoup4"]
+      },
+      "depends_on": [],
+      "last_used": "2026-04-18",
       "notes": "P71.8 diff 裁決待完成（92 行差異）"
     },
     {
       "name": "multi-thread-synthesizer",
       "type": "exec",
       "status": "stale",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "asyncio 多線程同步抓取 Dcard/PTT/巴哈/FB，融合輸出高密度情報",
       "claude_path": ".agent/skills/multi-thread-synthesizer",
       "gemini_path": "~/.gemini/antigravity/skills/multi-thread-synthesizer",
       "slash_command": null,
+      "when_to_use": [
+        "需要同時從多個論壇抓取資料時",
+        "主公說「幫我看各平台今天的討論」「多平台情報蒐集」",
+        "需要比較跨平台聲量和情緒時"
+      ],
+      "when_NOT_to_use": [
+        "單一特定網頁抓取 → 用 firecrawl-dynamic-breacher",
+        "僅查詢歷史走勢（不需實時抓取）→ 用 history-trend-query"
+      ],
+      "trigger_keywords": ["多論壇", "同步抓取", "Dcard", "PTT", "巴哈", "FB", "多平台情報", "論壇聚合", "多線程"],
+      "entry_points": {
+        "cli": "python -m skills.multi_thread_synthesizer",
+        "import": "skills.multi_thread_synthesizer",
+        "prompt_paste": "adapters/prompt_paste/multi-thread-synthesizer.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": false
+      },
       "deployed_to": ["gemini-global"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": ["httpx"]
+      },
+      "depends_on": ["api-quota-guardian"],
+      "last_used": "2026-04-19",
       "notes": "P71.8 diff 裁決待完成（64 行差異）"
     },
     {
       "name": "nl-to-prompt-structurer",
       "type": "pipe",
       "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "自然語言轉五段式結構化 Prompt，純規則零 LLM 成本",
       "claude_path": ".agent/skills/nl-to-prompt-structurer",
       "gemini_path": null,
       "slash_command": "/prompt",
+      "when_to_use": [
+        "主公想將口語需求整理成結構化 prompt",
+        "需要快速生成五段式（角色/背景/任務/限制/輸出格式）骨架",
+        "主公說「幫我把這個整理成 prompt」「套個 prompt 格式」"
+      ],
+      "when_NOT_to_use": [
+        "精煉現有 prompt → 用 cot-prompt-compactor",
+        "查詢英雄走勢 → 用 history-trend-query"
+      ],
+      "trigger_keywords": ["prompt", "結構化", "幫我寫prompt", "整理需求", "五段式", "structurer", "prompt格式", "套格式", "nl-to-prompt"],
+      "entry_points": {
+        "cli": "python -m skills.nl_to_prompt_structurer",
+        "import": "skills.nl_to_prompt_structurer",
+        "prompt_paste": "adapters/prompt_paste/nl-to-prompt-structurer.md",
+        "claude_slash": "/prompt"
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": true
+      },
       "deployed_to": ["claude-project"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-05-09",
       "notes": ""
     },
     {
@@ -137,10 +419,41 @@
       "name": "semantic-cache-shield",
       "type": "exec",
       "status": "stale",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "特徵+雜湊值攔截高同質洗版文章，零 Token 消耗從快取直接回傳",
       "claude_path": ".agent/skills/semantic-cache-shield",
       "gemini_path": "~/.gemini/antigravity/skills/semantic-cache-shield",
       "slash_command": null,
+      "when_to_use": [
+        "需要過濾論壇中大量重複/洗版文章",
+        "抓取的文章有高度同質性，想避免重複 LLM 分析",
+        "需要加速大量文章處理時（快取命中率高時有效）"
+      ],
+      "when_NOT_to_use": [
+        "首次抓取文章（快取為空時效果有限）",
+        "需要分析全部文章（不希望過濾任何內容）"
+      ],
+      "trigger_keywords": ["快取", "洗版", "語意快取", "重複文章過濾", "cache", "semantic", "洗版文章", "去重"],
+      "entry_points": {
+        "cli": "python -m skills.semantic_cache_shield",
+        "import": "skills.semantic_cache_shield",
+        "prompt_paste": "adapters/prompt_paste/semantic-cache-shield.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": false
+      },
       "deployed_to": ["gemini-global"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-04-19",
       "notes": "P71.8 diff 裁決待完成（90 行差異）"
     },
     {
@@ -167,10 +480,41 @@
       "name": "trend-anomaly-detector",
       "type": "exec",
       "status": "stale",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "Z-Score 即時偵測論壇聲量/情緒異常暴增，輸出紅黃警報",
       "claude_path": ".agent/skills/trend-anomaly-detector",
       "gemini_path": "~/.gemini/antigravity/skills/trend-anomaly-detector",
       "slash_command": null,
+      "when_to_use": [
+        "需要主動偵測輿情是否有異常暴增",
+        "主公說「有沒有什麼聲量突然爆炸的」「輿情有沒有異常」",
+        "需要 Z-Score 或移動平均分析玩家怨氣是否超標"
+      ],
+      "when_NOT_to_use": [
+        "查看過去走勢（被動 pull）→ 用 history-trend-query",
+        "抓取論壇原始資料 → 用 multi-thread-synthesizer"
+      ],
+      "trigger_keywords": ["異常", "Z-Score", "警報", "輿情爆炸", "anomaly", "暴增", "聲量異常", "輿情警報", "玩家怨氣"],
+      "entry_points": {
+        "cli": "python -m skills.trend_anomaly_detector",
+        "import": "skills.trend_anomaly_detector",
+        "prompt_paste": "adapters/prompt_paste/trend-anomaly-detector.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": false
+      },
       "deployed_to": ["gemini-global"],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": ["history-trend-query"],
+      "last_used": "2026-04-19",
       "notes": "P71.8 diff 裁決待完成（70 行差異）"
     },
     {
