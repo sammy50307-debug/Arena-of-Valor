@@ -35,6 +35,16 @@ _BOOST: float = config.HERO_BOOST_FACTOR
 _DCARD_BOOST: float = getattr(config, "DCARD_SOURCE_BOOST", 1.05)
 _DIVERSITY_MIN: int = getattr(config, "DIVERSITY_MIN_PLATFORMS", 3)
 
+# P70.1
+_DUP_PENALTY: dict[str, float] = {
+    "day1": getattr(config, "DUP_PENALTY_DAY1", 0.3),
+    "day3": getattr(config, "DUP_PENALTY_DAY3", 0.2),
+    "day7": getattr(config, "DUP_PENALTY_DAY7", 0.1),
+}
+_PLATFORM_RANK_DECAY: float = getattr(config, "PLATFORM_RANK_DECAY", 0.1)
+_PLATFORM_RANK_MIN: float = getattr(config, "PLATFORM_RANK_MIN", 0.3)
+_YAYA_REPEAT_BONUS: float = getattr(config, "YAYA_REPEAT_BONUS", 1.5)
+
 
 # ── P66.1 黑名單載入 ─────────────────────────────────────
 
@@ -250,7 +260,17 @@ def pick_top5(
         ts = _get_timestamp(entry)
         decay = _compute_decay(ts, now=now)
         boost = _compute_boost(entry, hero_focus) * _compute_source_boost(entry)
-        final = base * decay * boost
+        is_yaya = _is_yaya_related(entry, hero_focus)
+
+        # P70.1 A — 去重懲罰 / 芽芽重複加成
+        if is_yaya and is_dup:
+            dup_factor = _YAYA_REPEAT_BONUS
+        elif is_dup:
+            dup_factor = _DUP_PENALTY.get(dup_badge, 1.0)
+        else:
+            dup_factor = 1.0
+
+        final = base * decay * boost * dup_factor
 
         post = entry.get("post", entry)
         analysis = entry.get("analysis", {})
@@ -263,17 +283,35 @@ def pick_top5(
                 "base_score": round(base, 4),
                 "decay": round(decay, 4),
                 "boost": round(boost, 4),
+                "dup_factor": round(dup_factor, 4),
                 "is_duplicate": is_dup,
                 "dup_badge": dup_badge,
                 "norm_url": norm_url,
             },
         }
         scored.append((final, card))
-        logger.debug("picker score url=%s base=%.3f decay=%.3f boost=%.3f final=%.3f dup=%s",
-                     norm_url, base, decay, boost, final, is_dup)
+        logger.debug("picker score url=%s base=%.3f decay=%.3f boost=%.3f dup_factor=%.3f final=%.3f dup=%s",
+                     norm_url, base, decay, boost, dup_factor, final, is_dup)
 
+    # P70.1 B — 同平台排名衰減（芽芽豁免，不計入 platform_rank 計數）
     scored.sort(key=lambda t: t[0], reverse=True)
-    cards = [card for _, card in scored[:top_n]]
+    platform_seen: dict[str, int] = {}
+    adjusted: list[tuple[float, dict]] = []
+    for score, card in scored:
+        if _is_yaya_related(card, hero_focus):
+            adjusted.append((score, card))
+            continue
+        plat = _get_platform(card)
+        rank = platform_seen.get(plat, 0) + 1
+        platform_seen[plat] = rank
+        penalty = max(_PLATFORM_RANK_MIN, 1.0 - _PLATFORM_RANK_DECAY * (rank - 1))
+        adj_score = score * penalty
+        card["picker"]["platform_rank"] = rank
+        card["picker"]["platform_penalty"] = round(penalty, 4)
+        card["picker"]["final_score"] = round(adj_score, 4)
+        adjusted.append((adj_score, card))
+    adjusted.sort(key=lambda t: t[0], reverse=True)
+    cards = [card for _, card in adjusted[:top_n]]
 
     if record_history:
         urls_to_record = [c["post"].get("url", "#") for c in cards if not c["picker"]["is_duplicate"]]

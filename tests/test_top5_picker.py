@@ -417,3 +417,89 @@ def test_enforce_diversity_no_infinite_swap():
     # 應該優雅退出（不滿足但不無限循環），且不超時
     result = enforce_diversity(yaya, other, pool, min_platforms=3)
     assert len(result) == 2  # 仍是 2 張一般卡
+
+
+# ────────────────────────────────────────────────────────
+# P70.1 — 去重懲罰 + 同平台排名衰減
+# ────────────────────────────────────────────────────────
+
+def test_dup_penalty_day1():
+    """day1 重複文章 dup_factor=0.3。"""
+    url = "https://example.com/dup-day1"
+    history = {normalize(url): {"first_seen": TODAY}}
+    post = _make_post(url=url, score=0.8)
+    cards, _ = pick_top5([post], today=TODAY, now=NOW, history_index=history)
+    assert cards[0]["picker"]["dup_factor"] == pytest.approx(0.3)
+    assert cards[0]["picker"]["is_duplicate"] is True
+
+
+def test_dup_penalty_gradient():
+    """day7 懲罰 > day3 > day1（dup_factor 遞減）。"""
+    urls = {
+        "day1": "https://example.com/grad-d1",
+        "day3": "https://example.com/grad-d3",
+        "day7": "https://example.com/grad-d7",
+    }
+    history = {
+        normalize(urls["day1"]): {"first_seen": "2026-05-02"},   # age=1 → day1
+        normalize(urls["day3"]): {"first_seen": "2026-05-01"},   # age=2 → day3
+        normalize(urls["day7"]): {"first_seen": "2026-04-26"},   # age=7 → day7
+    }
+    posts = [_make_post(url=u, score=0.8) for u in urls.values()]
+    cards, _ = pick_top5(posts, today=TODAY, now=NOW, history_index=history, top_n=3)
+    factors = {c["post"]["url"]: c["picker"]["dup_factor"] for c in cards}
+    assert factors[urls["day1"]] == pytest.approx(0.3)
+    assert factors[urls["day3"]] == pytest.approx(0.2)
+    assert factors[urls["day7"]] == pytest.approx(0.1)
+    assert factors[urls["day7"]] < factors[urls["day3"]] < factors[urls["day1"]]
+
+
+def test_dup_yaya_bonus():
+    """芽芽重複文章 dup_factor=1.5（加分而非懲罰）。"""
+    url = "https://example.com/yaya-dup"
+    history = {normalize(url): {"first_seen": TODAY}}
+    post = _make_post(url=url, score=0.8, hero_focus=True)
+    cards, _ = pick_top5([post], hero_focus="芽芽", today=TODAY, now=NOW, history_index=history)
+    assert cards[0]["picker"]["dup_factor"] == pytest.approx(1.5)
+    assert cards[0]["picker"]["is_duplicate"] is True
+
+
+def test_platform_rank_decay_basic():
+    """同平台 3 篇：排名越後 penalty 越大、final_score 越低。"""
+    posts = [_make_post(url=f"https://example.com/ptt{i}", score=0.8) for i in range(3)]
+    cards, _ = pick_top5(posts, hero_focus="芽芽", today=TODAY, now=NOW, history_index={}, top_n=3)
+    ptt_cards = sorted(
+        [c for c in cards if c["picker"].get("platform_rank") is not None],
+        key=lambda c: c["picker"]["platform_rank"],
+    )
+    assert len(ptt_cards) >= 2
+    assert ptt_cards[0]["picker"]["platform_penalty"] == pytest.approx(1.0)
+    assert ptt_cards[1]["picker"]["platform_penalty"] == pytest.approx(0.9)
+    assert ptt_cards[0]["picker"]["final_score"] > ptt_cards[1]["picker"]["final_score"]
+
+
+def test_platform_rank_yaya_exempt():
+    """芽芽文章不計入同平台排名計數，一般文章仍是第 1 篇（penalty=1.0）。"""
+    yaya = _make_post(url="https://example.com/yaya-ptt", score=0.9, hero_focus=True)
+    normal = _make_post(url="https://example.com/normal-ptt", score=0.8)
+    cards, _ = pick_top5([yaya, normal], hero_focus="芽芽", today=TODAY, now=NOW, history_index={}, top_n=2)
+    normal_card = next(c for c in cards if c["post"]["url"] == "https://example.com/normal-ptt")
+    assert normal_card["picker"].get("platform_rank") == 1
+    assert normal_card["picker"].get("platform_penalty") == pytest.approx(1.0)
+
+
+def test_combined_dup_and_platform():
+    """day1 重複 + 同平台第 2 篇：final_score 遠低於新鮮第 1 篇。"""
+    url_dup = "https://example.com/dup-p2"
+    url_fresh = "https://example.com/fresh-p1"
+    history = {normalize(url_dup): {"first_seen": TODAY}}
+    posts = [
+        _make_post(url=url_fresh, score=0.8),
+        _make_post(url=url_dup, score=0.8),
+    ]
+    cards, _ = pick_top5(posts, hero_focus="芽芽", today=TODAY, now=NOW, history_index=history, top_n=2)
+    dup_card = next(c for c in cards if c["post"]["url"] == url_dup)
+    fresh_card = next(c for c in cards if c["post"]["url"] == url_fresh)
+    assert dup_card["picker"]["dup_factor"] == pytest.approx(0.3)
+    assert dup_card["picker"].get("platform_rank") == 2
+    assert dup_card["picker"]["final_score"] < fresh_card["picker"]["final_score"]

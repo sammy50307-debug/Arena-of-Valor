@@ -5209,3 +5209,30 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 **物理真相**：data/ 下 raw_YYYYMMDD.json 現存 7 份（2026-03-29 起），皆有內容。
 
 **狀態**：✅ 收官
+
+### P70.1 — Picker 品質強化：去重懲罰 + 同平台排名衰減（收官 2026-05-08）
+
+**目標**：治兩個 P66.1 遺留痛點（A）重複文章帶徽章不扣分仍上榜；（B）同平台霸榜 5 卡 / base_score 天花板無法區分。
+
+**影響半徑**：標準級 3 檔（top5_picker.py + config.py + test_top5_picker.py）
+
+**修法 A — 去重懲罰因子（dup_factor）**：
+- `final = base × decay × boost × dup_factor`
+- day1=×0.3 / day3=×0.2 / day7=×0.1（越舊懲罰越重）
+- 芽芽豁免：is_yaya_related → dup_factor=×1.5（加分而非懲罰）
+
+**修法 B — 同平台排名衰減（platform_rank_decay）**：
+- 排序後對非芽芽文章依同平台出現次序降權
+- 第 N 篇 × max(0.3, 1.0 - 0.1 × (N-1))
+- 芽芽不計入 platform_rank 計數，platform_rank=1 penalty=1.0
+
+**新 config.py 參數**（P70.1 區塊）：
+- DUP_PENALTY_DAY1=0.3 / DAY3=0.2 / DAY7=0.1
+- PLATFORM_RANK_DECAY=0.1 / PLATFORM_RANK_MIN=0.3
+- YAYA_REPEAT_BONUS=1.5
+
+**picker metadata 新增欄位**：`dup_factor`、`platform_rank`、`platform_penalty`
+
+**測試結果**：45/45 全綠（原 39 + 新增 6 cases）；全套 73/73 零回歸
+
+**狀態**：✅ 收官

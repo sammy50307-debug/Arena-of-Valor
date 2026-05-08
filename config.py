@@ -97,6 +97,17 @@ PERSONAL_BLACKLIST_PATH = BASE_DIR / "configs" / "personal_blacklist.yaml"
 DCARD_SOURCE_BOOST = float(os.getenv("DCARD_SOURCE_BOOST", "1.05"))
 DIVERSITY_MIN_PLATFORMS = int(os.getenv("DIVERSITY_MIN_PLATFORMS", "3"))
 
+# ── P70.1 Picker 品質強化：去重懲罰 + 同平台排名衰減 ─────
+# 重複文章懲罰因子（越舊懲罰越重；芽芽豁免）
+DUP_PENALTY_DAY1 = float(os.getenv("DUP_PENALTY_DAY1", "0.3"))
+DUP_PENALTY_DAY3 = float(os.getenv("DUP_PENALTY_DAY3", "0.2"))
+DUP_PENALTY_DAY7 = float(os.getenv("DUP_PENALTY_DAY7", "0.1"))
+# 同平台每多一篇的衰減率（第 N 篇 × max(MIN, 1 - DECAY×(N-1))；芽芽豁免）
+PLATFORM_RANK_DECAY = float(os.getenv("PLATFORM_RANK_DECAY", "0.1"))
+PLATFORM_RANK_MIN = float(os.getenv("PLATFORM_RANK_MIN", "0.3"))
+# 芽芽重複文章加成（即使重複仍加分，確保芽芽優先）
+YAYA_REPEAT_BONUS = float(os.getenv("YAYA_REPEAT_BONUS", "1.5"))
+
 # 確保必要資料夾存在
 DATA_DIR.mkdir(exist_ok=True)
 REPORTS_DIR.mkdir(exist_ok=True)
