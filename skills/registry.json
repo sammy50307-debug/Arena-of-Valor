@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "last_updated": "2026-05-09",
+  "note": "P71.1 基礎版。P71.2 升級完整 S1 schema（when_to_use / trigger_keywords / environments 等）",
+  "skills": [
+    {
+      "name": "ai-news-radar",
+      "type": "pipe",
+      "status": "stale",
+      "claude_path": ".agent/skills/ai-news-radar",
+      "gemini_path": "~/.gemini/antigravity/skills/ai-news-radar",
+      "slash_command": null,
+      "deployed_to": ["gemini-global"],
+      "notes": "P71.8 diff 裁決待完成（536 行差異）"
+    },
+    {
+      "name": "api-quota-guardian",
+      "type": "exec",
+      "status": "in-use",
+      "claude_path": ".agent/skills/api-quota-guardian",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": ["claude-project"],
+      "notes": ""
+    },
+    {
+      "name": "auto-proxy-evader",
+      "type": "exec",
+      "status": "orphan",
+      "claude_path": ".agent/skills/auto-proxy-evader",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 補入 firecrawl 爬蟲流程"
+    },
+    {
+      "name": "cot-prompt-compactor",
+      "type": "prompt",
+      "status": "orphan",
+      "claude_path": ".agent/skills/cot-prompt-compactor",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 補 trigger_keywords 後啟用"
+    },
+    {
+      "name": "daily-diff-radar",
+      "type": "exec",
+      "status": "orphan",
+      "claude_path": ".agent/skills/daily-diff-radar",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 補 slash + 接報告流程"
+    },
+    {
+      "name": "firecrawl-dynamic-breacher",
+      "type": "exec",
+      "status": "stale",
+      "claude_path": ".agent/skills/firecrawl-dynamic-breacher",
+      "gemini_path": "~/.gemini/antigravity/skills/firecrawl-dynamic-breacher",
+      "slash_command": null,
+      "deployed_to": ["gemini-global"],
+      "notes": "P71.8 diff 裁決待完成（68 行差異）"
+    },
+    {
+      "name": "hallucination-judge",
+      "type": "data",
+      "status": "in-use",
+      "claude_path": ".agent/skills/hallucination-judge",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": ["claude-project"],
+      "notes": ""
+    },
+    {
+      "name": "history-trend-query",
+      "type": "pipe",
+      "status": "in-use",
+      "claude_path": ".agent/skills/history-trend-query",
+      "gemini_path": null,
+      "slash_command": "/trend",
+      "deployed_to": ["claude-project"],
+      "notes": ""
+    },
+    {
+      "name": "hot-deployer",
+      "type": "exec",
+      "status": "in-use",
+      "claude_path": ".agent/skills/hot-deployer",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": ["claude-project"],
+      "notes": "GHA 自動觸發"
+    },
+    {
+      "name": "html-markdown-distiller",
+      "type": "exec",
+      "status": "stale",
+      "claude_path": ".agent/skills/html-markdown-distiller",
+      "gemini_path": "~/.gemini/antigravity/skills/html-markdown-distiller",
+      "slash_command": null,
+      "deployed_to": ["gemini-global"],
+      "notes": "P71.8 diff 裁決待完成（92 行差異）"
+    },
+    {
+      "name": "multi-thread-synthesizer",
+      "type": "exec",
+      "status": "stale",
+      "claude_path": ".agent/skills/multi-thread-synthesizer",
+      "gemini_path": "~/.gemini/antigravity/skills/multi-thread-synthesizer",
+      "slash_command": null,
+      "deployed_to": ["gemini-global"],
+      "notes": "P71.8 diff 裁決待完成（64 行差異）"
+    },
+    {
+      "name": "nl-to-prompt-structurer",
+      "type": "pipe",
+      "status": "in-use",
+      "claude_path": ".agent/skills/nl-to-prompt-structurer",
+      "gemini_path": null,
+      "slash_command": "/prompt",
+      "deployed_to": ["claude-project"],
+      "notes": ""
+    },
+    {
+      "name": "rich-push-formatter",
+      "type": "exec",
+      "status": "orphan",
+      "claude_path": ".agent/skills/rich-push-formatter",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 補 slash + LINE bot 整合"
+    },
+    {
+      "name": "semantic-cache-shield",
+      "type": "exec",
+      "status": "stale",
+      "claude_path": ".agent/skills/semantic-cache-shield",
+      "gemini_path": "~/.gemini/antigravity/skills/semantic-cache-shield",
+      "slash_command": null,
+      "deployed_to": ["gemini-global"],
+      "notes": "P71.8 diff 裁決待完成（90 行差異）"
+    },
+    {
+      "name": "session-handoff-packager",
+      "type": "pipe",
+      "status": "orphan",
+      "claude_path": ".agent/skills/session-handoff-packager",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 補 slash，對應 Gemini handoff"
+    },
+    {
+      "name": "smart-task-router",
+      "type": "exec",
+      "status": "orphan",
+      "claude_path": ".agent/skills/smart-task-router",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.6 救活為 L2 路由引擎"
+    },
+    {
+      "name": "trend-anomaly-detector",
+      "type": "exec",
+      "status": "stale",
+      "claude_path": ".agent/skills/trend-anomaly-detector",
+      "gemini_path": "~/.gemini/antigravity/skills/trend-anomaly-detector",
+      "slash_command": null,
+      "deployed_to": ["gemini-global"],
+      "notes": "P71.8 diff 裁決待完成（70 行差異）"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "type": "data",
+      "status": "orphan",
+      "claude_path": ".agent/skills/ui-ux-pro-max",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 補 trigger_keywords（介面/UI/樣式/配色）後啟用"
+    },
+    {
+      "name": "waterfall-search-chain",
+      "type": "exec",
+      "status": "orphan",
+      "claude_path": ".agent/skills/waterfall-search-chain",
+      "gemini_path": null,
+      "slash_command": null,
+      "deployed_to": [],
+      "notes": "P71.9 與 api-quota-guardian 配對啟用"
+    }
+  ]
+}
