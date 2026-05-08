@@ -84,3 +84,30 @@ semantic-cache-shield/
 # 測試快取寫入與命中效果
 python .agent/skills/semantic-cache-shield/scripts/test_skill.py
 ```
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/semantic-cache-shield
+
+# 說明
+python __main__.py --help
+
+# 查詢快取統計
+python __main__.py stats
+python __main__.py stats --output json
+
+# 查詢快取命中
+python __main__.py lookup "芽芽最近走勢"
+python __main__.py lookup "芽芽最近走勢" --output json
+
+# 儲存查詢結果至快取
+python __main__.py store "芽芽最近走勢" "回答內容..."
+
+# NO_COLOR（CI 日誌）
+NO_COLOR=1 python __main__.py stats
+```
+
+依賴：Python 原生 `sqlite3`，無需額外安裝。

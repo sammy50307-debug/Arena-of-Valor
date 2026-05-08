@@ -1,0 +1,28 @@
+name: Skill Registry Lint (P71.4)
+
+on:
+  push:
+    paths:
+      - 'skills/registry.json'
+      - '.agent/skills/**/SKILL.md'
+      - 'scripts/lint_skill_registry.py'
+  pull_request:
+    paths:
+      - 'skills/registry.json'
+      - '.agent/skills/**/SKILL.md'
+      - 'scripts/lint_skill_registry.py'
+
+jobs:
+  lint-skill-registry:
+    name: Lint Skill Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Lint skills/registry.json
+        # CI 不用 --warn-only：線上必須 block（D4 決議）
+        run: python scripts/lint_skill_registry.py

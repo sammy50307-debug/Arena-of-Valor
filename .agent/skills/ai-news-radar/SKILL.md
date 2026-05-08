@@ -299,3 +299,32 @@ python scripts/fetch_news.py --output data/reports/ai_$(date +%Y%m%d).md
 # 🔍 JSON 格式供後端分析
 python scripts/fetch_news.py --format json --output data/ai_data.json
 ```
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/ai-news-radar
+
+# 說明（透傳至 fetch_news.py）
+python __main__.py --help
+
+# 抓取全語系新聞（預設 markdown）
+python __main__.py
+
+# 指定語系 / 主題 / 筆數
+python __main__.py --lang zh-TW --limit 5
+python __main__.py --topic "LLM" --limit 3
+
+# JSON 輸出（供後端解析）
+python __main__.py --format json
+
+# 儲存至檔案
+python __main__.py --format markdown --output data/ai_news.md
+
+# NO_COLOR（強制 markdown 格式，無 ANSI）
+NO_COLOR=1 python __main__.py
+```
+
+依賴：`apify-client`、`httpx`；需設定 `APIFY_TOKEN` 環境變數。

@@ -1,0 +1,37 @@
+name: Phase Plan Lint (P71.4 STR10)
+
+on:
+  push:
+    paths:
+      - 'docs/P**.md'
+      - 'scripts/lint_phase_plan.py'
+  pull_request:
+    paths:
+      - 'docs/P**.md'
+      - 'scripts/lint_phase_plan.py'
+
+jobs:
+  lint-phase-plans:
+    name: Lint Phase Plans (Pre-flight M1+M2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Find and lint all Phase Plan docs
+        run: |
+          shopt -s nullglob
+          plans=(docs/P*.md)
+          if [ ${#plans[@]} -eq 0 ]; then
+            echo "ℹ️  No Phase Plan docs found, skipping."
+            exit 0
+          fi
+          failed=0
+          for f in "${plans[@]}"; do
+            echo "--- Checking: $f ---"
+            python scripts/lint_phase_plan.py "$f" || failed=1
+          done
+          exit $failed

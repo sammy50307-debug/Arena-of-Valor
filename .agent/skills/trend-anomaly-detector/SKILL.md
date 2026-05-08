@@ -74,3 +74,32 @@ trend-anomaly-detector/
 
 ## 🚀 相依套件
 - 此演算法為了保證極致的執行速度，使用純 Python 原生庫 (`math`) 撰寫，無須掛載笨重的 numpy 或 pandas。
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/trend-anomaly-detector
+
+# 說明
+python __main__.py --help
+
+# 直接傳入數列（最後一個為當前值）
+python __main__.py 100 120 95 110 300
+
+# 調整閾值
+python __main__.py 100 120 300 --red 2.5 --yellow 1.5
+
+# JSON 輸出（含 z_score / severity）
+python __main__.py 100 120 95 110 300 --output json
+
+# stdin pipe（JSON 格式）
+echo "[100, 120, 95, 110, 300]" | python __main__.py --stdin
+cat data.json | python __main__.py --stdin --output json
+
+# NO_COLOR（plain 輸出）
+NO_COLOR=1 python __main__.py 100 120 300
+```
+
+依賴：純標準庫（`math`），無需額外安裝。返回碼：0 = 正常；1 = 解析錯誤。

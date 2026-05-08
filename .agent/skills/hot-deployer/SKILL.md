@@ -91,3 +91,29 @@ hot-deployer/
 
 ## 🚀 相依套件
 - 純 Python 標準庫（`shutil`, `subprocess`, `pathlib`），無需額外安裝。
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/hot-deployer
+
+# 說明
+python __main__.py --help
+
+# 模擬部署（dry-run，不實際 push）
+python __main__.py deploy --dry-run
+python __main__.py deploy --dry-run --output json
+
+# 正式部署
+python __main__.py deploy
+
+# JSON 輸出（供 CI 解析結果）
+python __main__.py deploy --output json
+
+# NO_COLOR（CI 日誌）
+NO_COLOR=1 python __main__.py deploy --dry-run
+```
+
+返回碼：0 = 成功；1 = 失敗。依賴：純標準庫 + git（系統需安裝）。

@@ -85,3 +85,30 @@ python .agent/skills/html-markdown-distiller/scripts/html_to_md.py --input ".age
 ## ⚙️ 相依套件要求
 - `beautifulsoup4`：DOM 解析與裁剪
 - `markdownify`：HTML 轉 Markdown 核心引擎
+
+---
+
+## 🖥️ 終端執行（P71.3）
+
+```bash
+cd .agent/skills/html-markdown-distiller
+
+# 說明
+python __main__.py --help
+
+# 從檔案輸入
+python __main__.py --input page.html
+python __main__.py --input page.html --output result.md
+
+# stdin pipe（HTML 從管線讀入）
+cat page.html | python __main__.py --stdin
+curl https://example.com | python __main__.py --stdin
+
+# JSON 輸出（含 markdown 欄位）
+cat page.html | python __main__.py --stdin --output-format json
+
+# NO_COLOR（plain markdown）
+NO_COLOR=1 python __main__.py --input page.html
+```
+
+依賴：`beautifulsoup4`、`markdownify`（`pip install beautifulsoup4 markdownify`）。
