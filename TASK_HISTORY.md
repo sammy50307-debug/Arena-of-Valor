@@ -5182,3 +5182,30 @@ C:/Users/sammy/.claude/projects/d--Coding-Project-Arena-of-Valor/memory/
 - [x] Postmortem 完成
 
 **狀態**：✅ 待主公拍板 commit + push
+
+### P70.7 — 0-byte raw 殘留清理（收官 2026-05-08）
+
+**目標**：清除 data/ 下 3 個 0-byte 歷史殘留 raw 檔，回歸資料夾整潔。
+
+**影響半徑**：極微（純刪檔，不改代碼）
+
+**動工前三確認**：
+- C1 ✅ 三檔皆 0-byte（2026-03-28 00:18 殘留）
+- C2 ✅ grep 無任何代碼引用（analyzer/ reporter/ tests/ main.py 全無）
+- C3 ✅ 三檔為 untracked（不在 git 追蹤中，P56.5 atomic write 治本後從未成功寫入）
+
+**刪除清單**：
+- `data/raw_20260323.json`（0-byte）
+- `data/raw_20260325.json`（0-byte）
+- `data/raw_20260327.json`（0-byte）
+
+**測試結果**：全套 pytest 67/67 passes（零回歸）
+
+**附帶發現（新技術債）**：
+- `tests/test_429_retry.py` 2 cases 既有失敗（P69.1 前就存在）
+- 根因：`GeminiClient.__new__` 手建物件缺 `_cm` 屬性，P69.1 改 `gemini_client.py` 後測試未跟上
+- 建議：P70 後置週期補入 TECH_DEBT.md 追蹤
+
+**物理真相**：data/ 下 raw_YYYYMMDD.json 現存 7 份（2026-03-29 起），皆有內容。
+
+**狀態**：✅ 收官
