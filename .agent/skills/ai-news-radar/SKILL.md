@@ -1,16 +1,49 @@
 ---
 name: ai-news-radar
-description: |
-  多語系 AI 情報雷達。從 9 大科技媒體（台灣繁中 × 全球英文 × 日本亞洲）自動抓取最新 AI 新聞，
-  透過現有 Apify 爬蟲架構深度擷取，以繁體中文整合報告輸出。
-  適用於：AI 趨勢研究、每日情報簡報、技術 skill 素材蒐集。
-version: "1.0.0"
-created: "2026-04-17"
-author: "Antigravity × 主公"
+type: pipe
+status: stale
+schema_version: 1
+version: 1.0.0
+description: 從 9 大科技媒體自動抓取最新 AI 新聞，輸出繁中整合報告
+
+when_to_use:
+  - 需要蒐集今日最新 AI 科技新聞時
+  - 主公說「幫我看最新 AI 動態」「今天有什麼 AI 新聞」
+  - 需要每日情報簡報素材
+when_NOT_to_use:
+  - AOV 英雄走勢查詢 → 用 history-trend-query
+  - 特定網頁爬取 → 用 firecrawl-dynamic-breacher
+trigger_keywords: [AI新聞, 科技新聞, 每日情報, news radar, AI動態, 最新AI, AI趨勢, 情報簡報]
+
+example_invocations:
+  - input: "幫我看今天的 AI 新聞"
+    skill: ai-news-radar
+    v1_trigger_block: |
+      🪧 [ai-news-radar 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「AI 新聞」
+      ├─ 信心分數：0.90
+      ├─ 來源層：smart-task-router (L2)
+      └─ 動作：執行 ai-news-radar
+
+entry_points:
+  cli: "python -m skills.ai_news_radar"
+  import: "skills.ai_news_radar"
+  prompt_paste: "adapters/prompt_paste/ai-news-radar.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: true
+  pure_llm: false
+
+deployed_to: [gemini-global]
 requires:
-  - apify_client (pip install apify-client)
-  - httpx (pip install httpx)
-  - APIFY_TOKEN 環境變數
+  python: ">=3.10"
+  packages: [apify-client, httpx]
+  env: [APIFY_TOKEN]
+depends_on: []
+last_used: 2026-04-17
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[ai-news-radar 已啟動]`。

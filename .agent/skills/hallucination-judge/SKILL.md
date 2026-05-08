@@ -1,7 +1,48 @@
 ---
 name: hallucination-judge
-description: AI 幻覺裁判。校驗 AI 生成戰報中的英雄名稱是否存在於官方白名單，並驗證情緒分數、勝率等數值是否在合理範圍內，防止 AI 胡言亂語污染戰情報告。
+type: data
+status: in-use
+schema_version: 1
 version: 1.0.0
+description: 校驗 AI 生成戰報中英雄名稱與數值合理性，防止幻覺污染報告
+
+when_to_use:
+  - AI 生成英雄戰報後需要驗證英雄名稱合法性
+  - 驗證情緒分數、勝率等數值是否在合理範圍
+  - 懷疑 AI 回答含有幻覺英雄名稱時
+when_NOT_to_use:
+  - 查詢英雄走勢/聲量 → 用 history-trend-query
+  - 抓取論壇原始資料 → 用 multi-thread-synthesizer
+trigger_keywords: [幻覺, 英雄名稱驗證, 白名單, 戰報驗證, hallucination, 驗證英雄, 英雄白名單, 假英雄]
+
+example_invocations:
+  - input: "確認這份戰報的英雄名稱是否正確"
+    skill: hallucination-judge
+    v1_trigger_block: |
+      🪧 [hallucination-judge 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「英雄名稱驗證」
+      ├─ 信心分數：0.91
+      ├─ 來源層：主公口頭
+      └─ 動作：執行 hallucination-judge
+
+entry_points:
+  cli: "python -m skills.hallucination_judge"
+  import: "skills.hallucination_judge"
+  prompt_paste: "adapters/prompt_paste/hallucination-judge.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: false
+  pure_llm: true
+
+deployed_to: [claude-project]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: []
+last_used: 2026-05-09
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[hallucination-judge 已啟動]`。

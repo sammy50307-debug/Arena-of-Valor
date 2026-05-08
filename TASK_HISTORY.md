@@ -5389,3 +5389,28 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 
 ---
 
+
+### P71.2 — 自動觸發引擎（收官 2026-05-09）
+
+**目標**：S1 schema 升級（11 個 SKILL.md + registry.json）+ S2/V1 自動觸發協議寫入全域指令檔
+
+**觸發**：P71.1 治理層完成，依計畫書 v1.2 順序進入 P71.2
+
+**稽核層**：
+- L1 Code：lint_skill_registry.py 19 skills 全過（S1 + V1-5）
+- L2 Logic：when_to_use / when_NOT_to_use / trigger_keywords 三欄互補，不重疊
+- L4 Testing：py -3 scripts/lint_skill_registry.py → ✅ 全通過，無警告
+- L10 Security：skill frontmatter 均用 `<your-api-key>` placeholder，無洩漏
+
+**物理真相**：
+- 11 個 SKILL.md frontmatter 升級為 S1 完整 schema（type/status/schema_version/when_to_use/when_NOT_to_use/trigger_keywords/example_invocations/entry_points/environments/deployed_to/requires/depends_on/last_used）
+- skills/registry.json 補齊 11 個 in-use/stale skill 的 S1 欄位；8 個 orphan 維持最小化
+- lint_skill_registry.py 升級：S1 欄位完整性驗證 + SKILL.md frontmatter trace check
+- ~/.claude/CLAUDE.md + ~/.gemini/GEMINI.md 末尾加入 S2 自動觸發協議 + V1 觸發塊格式
+- memory/feedback_skill_startup_marker.md 升級為 V1 完整版（舊「啟動標記鐵律」→ 觸發理由+信心+來源+動作）
+
+**風險**：
+- orphan skill 的 registry 條目無 S1 欄位 → lint 設計為 in-use/stale 才驗，不誤報
+- python 指令在此機器對應舊版本（需用 py -3） → 不影響功能，CI 用絕對路徑
+
+**狀態**：✅ 收官 / lint 全綠 / 待 commit

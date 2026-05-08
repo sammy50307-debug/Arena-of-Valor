@@ -1,7 +1,48 @@
 ---
 name: multi-thread-synthesizer
-description: 跨維度多線程聚合兵，透過 asyncio.gather 將多個論壇（Dcard、PTT、巴哈、FB）的抓取任務同步發出，大幅縮短等待時間，並自動融合各來源結果，產出標記時間戳與平台來源的高密度情報戰報。
+type: exec
+status: stale
+schema_version: 1
 version: 1.0.0
+description: asyncio 多線程同步抓取 Dcard/PTT/巴哈/FB，融合輸出高密度情報
+
+when_to_use:
+  - 需要同時從多個論壇抓取資料時
+  - 主公說「幫我看各平台今天的討論」「多平台情報蒐集」
+  - 需要比較跨平台聲量和情緒時
+when_NOT_to_use:
+  - 單一特定網頁抓取 → 用 firecrawl-dynamic-breacher
+  - 僅查詢歷史走勢（不需實時抓取）→ 用 history-trend-query
+trigger_keywords: [多論壇, 同步抓取, Dcard, PTT, 巴哈, FB, 多平台情報, 論壇聚合, 多線程]
+
+example_invocations:
+  - input: "幫我同步抓 Dcard、PTT、巴哈今天的討論"
+    skill: multi-thread-synthesizer
+    v1_trigger_block: |
+      🪧 [multi-thread-synthesizer 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「多論壇同步抓取」
+      ├─ 信心分數：0.91
+      ├─ 來源層：smart-task-router (L2)
+      └─ 動作：執行 multi-thread-synthesizer
+
+entry_points:
+  cli: "python -m skills.multi_thread_synthesizer"
+  import: "skills.multi_thread_synthesizer"
+  prompt_paste: "adapters/prompt_paste/multi-thread-synthesizer.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: true
+  pure_llm: false
+
+deployed_to: [gemini-global]
+requires:
+  python: ">=3.10"
+  packages: [httpx, asyncio]
+depends_on: [api-quota-guardian]
+last_used: 2026-04-19
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[multi-thread-synthesizer 已啟動]`。

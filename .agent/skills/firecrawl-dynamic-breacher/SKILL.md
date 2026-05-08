@@ -1,7 +1,49 @@
 ---
 name: firecrawl-dynamic-breacher
-description: 動態網頁渲染刺客，專攻重度依賴 JavaScript 動態載入（如 SPA 或無限捲動）的敵軍陣地。透過對接 Firecrawl API，無視反爬蟲機制，強行渲染整張網頁並直接提取為最純粹的 Markdown 格式，為大腦省下 90% 除噪功夫。
+type: exec
+status: stale
+schema_version: 1
 version: 1.0.0
+description: 透過 Firecrawl API 渲染 JS 動態網頁並提取 Markdown，破解反爬蟲
+
+when_to_use:
+  - 需要抓取重度依賴 JavaScript 動態載入的網頁
+  - 一般爬蟲拿到空白或亂碼頁面時
+  - SPA 網站或需要滾動載入的無限捲動頁面
+when_NOT_to_use:
+  - 靜態 HTML 網頁清理 → 用 html-markdown-distiller（更輕量）
+  - 多論壇同步抓取 → 用 multi-thread-synthesizer
+trigger_keywords: [Firecrawl, 動態網頁, JS渲染, 爬蟲, SPA, 網頁抓取, 動態載入, 無限捲動, 反爬蟲]
+
+example_invocations:
+  - input: "這個網頁是 SPA，幫我抓下來"
+    skill: firecrawl-dynamic-breacher
+    v1_trigger_block: |
+      🪧 [firecrawl-dynamic-breacher 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「SPA 網頁抓取」
+      ├─ 信心分數：0.88
+      ├─ 來源層：smart-task-router (L2)
+      └─ 動作：執行 firecrawl-dynamic-breacher
+
+entry_points:
+  cli: "python -m skills.firecrawl_dynamic_breacher"
+  import: "skills.firecrawl_dynamic_breacher"
+  prompt_paste: "adapters/prompt_paste/firecrawl-dynamic-breacher.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: true
+  pure_llm: false
+
+deployed_to: [gemini-global]
+requires:
+  python: ">=3.10"
+  packages: [firecrawl-py]
+  env: [FIRECRAWL_API_KEY]
+depends_on: []
+last_used: 2026-04-19
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[firecrawl-dynamic-breacher 已啟動]`。

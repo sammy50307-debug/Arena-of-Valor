@@ -1,7 +1,48 @@
 ---
 name: trend-anomaly-detector
-description: 輿情核爆級異常觀測儀。利用數學演算法 (如 Z-Score 或移動平均) 針對論壇聲量或情緒變化進行即時偏差偵測。一旦單日內發現玩家怨氣或討論流量暴增突破臨界點，將立刻產出紅色等級的警報。
+type: exec
+status: stale
+schema_version: 1
 version: 1.0.0
+description: Z-Score 即時偵測論壇聲量/情緒異常暴增，輸出紅黃警報
+
+when_to_use:
+  - 需要主動偵測輿情是否有異常暴增
+  - 主公說「有沒有什麼聲量突然爆炸的」「輿情有沒有異常」
+  - 需要 Z-Score 或移動平均分析玩家怨氣是否超標
+when_NOT_to_use:
+  - 查看過去走勢（被動 pull）→ 用 history-trend-query
+  - 抓取論壇原始資料 → 用 multi-thread-synthesizer
+trigger_keywords: [異常, Z-Score, 警報, 輿情爆炸, anomaly, 暴增, 聲量異常, 輿情警報, 玩家怨氣]
+
+example_invocations:
+  - input: "最近有沒有哪個英雄聲量突然暴增？"
+    skill: trend-anomaly-detector
+    v1_trigger_block: |
+      🪧 [trend-anomaly-detector 已觸發]
+      ├─ 觸發理由：匹配 trigger_keyword「聲量暴增」
+      ├─ 信心分數：0.87
+      ├─ 來源層：smart-task-router (L2)
+      └─ 動作：執行 trend-anomaly-detector
+
+entry_points:
+  cli: "python -m skills.trend_anomaly_detector"
+  import: "skills.trend_anomaly_detector"
+  prompt_paste: "adapters/prompt_paste/trend-anomaly-detector.md"
+  claude_slash: null
+
+environments:
+  ide: true
+  terminal: true
+  antigravity: true
+  pure_llm: false
+
+deployed_to: [gemini-global]
+requires:
+  python: ">=3.10"
+  packages: []
+depends_on: [history-trend-query]
+last_used: 2026-04-19
 ---
 
 > ⚡ **啟動標記**：請在執行此 skill 時，先在回覆中明確標註 `[trend-anomaly-detector 已啟動]`。
