@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "last_updated": "2026-05-09",
-  "note": "P71.5 升級：8 個 shared skills 搬至 D:/skills-shared/（絕對路徑）",
+  "last_updated": "2026-05-11",
+  "note": "P71.8 收官：6 stale shared skills 同步 Gemini 並改 in-use",
   "skills": [
     {
       "name": "ai-news-radar",
       "type": "pipe",
-      "status": "stale",
+      "status": "in-use",
       "schema_version": 1,
       "version": "1.0.0",
       "description": "從 9 大科技媒體自動抓取最新 AI 新聞，輸出繁中整合報告",
@@ -58,8 +58,8 @@
         ]
       },
       "depends_on": [],
-      "last_used": "2026-04-17",
-      "notes": "P71.8 diff 裁決待完成（536 行差異）",
+      "last_used": "2026-05-11",
+      "notes": "P71.8 完成：Gemini 同步完畢，S1 schema + __main__.py 已推入",
       "shared": true
     },
     {
@@ -149,7 +149,7 @@
     {
       "name": "firecrawl-dynamic-breacher",
       "type": "exec",
-      "status": "stale",
+      "status": "in-use",
       "schema_version": 1,
       "version": "1.0.0",
       "description": "透過 Firecrawl API 渲染 JS 動態網頁並提取 Markdown，破解反爬蟲",
@@ -201,8 +201,8 @@
         ]
       },
       "depends_on": [],
-      "last_used": "2026-04-19",
-      "notes": "P71.8 diff 裁決待完成（68 行差異）",
+      "last_used": "2026-05-11",
+      "notes": "P71.8 完成：Gemini 同步完畢",
       "shared": true
     },
     {
@@ -369,7 +369,7 @@
     {
       "name": "html-markdown-distiller",
       "type": "exec",
-      "status": "stale",
+      "status": "in-use",
       "schema_version": 1,
       "version": "1.0.0",
       "description": "剝離 HTML 廣告/導覽列並輸出精簡 Markdown，大幅降低 Token 量",
@@ -416,14 +416,14 @@
         ]
       },
       "depends_on": [],
-      "last_used": "2026-04-18",
-      "notes": "P71.8 diff 裁決待完成（92 行差異）",
+      "last_used": "2026-05-11",
+      "notes": "P71.8 完成：Gemini 同步完畢",
       "shared": true
     },
     {
       "name": "multi-thread-synthesizer",
       "type": "exec",
-      "status": "stale",
+      "status": "in-use",
       "schema_version": 1,
       "version": "1.0.0",
       "description": "asyncio 多線程同步抓取 Dcard/PTT/巴哈/FB，融合輸出高密度情報",
@@ -474,8 +474,8 @@
       "depends_on": [
         "api-quota-guardian"
       ],
-      "last_used": "2026-04-19",
-      "notes": "P71.8 diff 裁決待完成（64 行差異）",
+      "last_used": "2026-05-11",
+      "notes": "P71.8 完成：Gemini 同步完畢",
       "shared": true
     },
     {
@@ -545,7 +545,7 @@
     {
       "name": "semantic-cache-shield",
       "type": "exec",
-      "status": "stale",
+      "status": "in-use",
       "schema_version": 1,
       "version": "1.0.0",
       "description": "特徵+雜湊值攔截高同質洗版文章，零 Token 消耗從快取直接回傳",
@@ -591,8 +591,8 @@
         "packages": []
       },
       "depends_on": [],
-      "last_used": "2026-04-19",
-      "notes": "P71.8 diff 裁決待完成（90 行差異）",
+      "last_used": "2026-05-11",
+      "notes": "P71.8 完成：Gemini 同步完畢",
       "shared": true
     },
     {
@@ -659,7 +659,7 @@
     {
       "name": "trend-anomaly-detector",
       "type": "exec",
-      "status": "stale",
+      "status": "in-use",
       "schema_version": 1,
       "version": "1.0.0",
       "description": "Z-Score 即時偵測論壇聲量/情緒異常暴增，輸出紅黃警報",
@@ -708,8 +708,8 @@
       "depends_on": [
         "history-trend-query"
       ],
-      "last_used": "2026-04-19",
-      "notes": "P71.8 diff 裁決待完成（70 行差異）",
+      "last_used": "2026-05-11",
+      "notes": "P71.8 完成：Gemini 同步完畢",
       "shared": true
     },
     {

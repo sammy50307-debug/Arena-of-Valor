@@ -23,23 +23,23 @@
 
 | Skill | Status | Env | Deployed | Test | Last Used | Health |
 |---|---|---|---|---|---|---|
-| ai-news-radar | stale | IDE+CLI+AG | gemini | ✅ | 2026-04-17 | 🟡 |
+| ai-news-radar | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
 | api-quota-guardian | in-use | IDE+CLI | claude | ✅ | 2026-05-09 | 🟢 |
 | auto-proxy-evader | orphan | — | — | ✅ | — | 🔴 |
 | cot-prompt-compactor | orphan | — | — | ✅ | — | 🔴 |
 | daily-diff-radar | orphan | — | — | ✅ | — | 🔴 |
-| firecrawl-dynamic-breacher | stale | IDE+CLI+AG | gemini | ✅ | 2026-04-19 | 🟡 |
+| firecrawl-dynamic-breacher | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
 | hallucination-judge | in-use | IDE+CLI+LLM | claude | ✅ | 2026-05-09 | 🟢 |
 | history-trend-query | in-use | IDE+CLI | claude | ✅ | 2026-05-09 | 🟢 |
 | hot-deployer | in-use | IDE+CLI | claude | ✅ | 2026-05-09 | 🟢 |
-| html-markdown-distiller | stale | IDE+CLI+AG | gemini | ✅ | 2026-04-18 | 🟡 |
-| multi-thread-synthesizer | stale | IDE+CLI+AG | gemini | ✅ | 2026-04-19 | 🟡 |
+| html-markdown-distiller | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
+| multi-thread-synthesizer | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
 | nl-to-prompt-structurer | in-use | IDE+CLI+LLM | claude | ✅ | 2026-05-09 | 🟢 |
 | rich-push-formatter | orphan | — | — | ✅ | — | 🔴 |
-| semantic-cache-shield | stale | IDE+CLI+AG | gemini | ✅ | 2026-04-19 | 🟡 |
+| semantic-cache-shield | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
 | session-handoff-packager | orphan | — | — | ✅ | — | 🔴 |
 | smart-task-router | in-use | IDE+CLI+AG+LLM | — | ✅ | 2026-05-11 | 🟡 |
-| trend-anomaly-detector | stale | IDE+CLI+AG | gemini | ✅ | 2026-04-19 | 🟡 |
+| trend-anomaly-detector | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
 | ui-ux-pro-max | orphan | — | — | ❌ | — | 🔴 |
 | waterfall-search-chain | orphan | — | — | ✅ | — | 🔴 |
 
@@ -47,8 +47,8 @@
 
 | 燈號 | 數量 | 說明 |
 |---|---|---|
-| 🟢 | 5 | in-use + deployed + test 全齊 |
-| 🟡 | 7 | stale 或 deployed 為空 |
+| 🟢 | 11 | in-use + deployed + test 全齊 |
+| 🟡 | 1 | stale 或 deployed 為空 |
 | 🔴 | 7 | orphan / archived / test 缺失 |
 
 ## 💡 燈號說明
