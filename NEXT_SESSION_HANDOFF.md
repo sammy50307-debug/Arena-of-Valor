@@ -7,6 +7,49 @@
 
 ---
 
+## 🚀 下個視窗動工：P71.7 — SKILL_HEALTH.md Dashboard
+
+**目標（對應優化點 A4）**：自動生成 `docs/SKILL_HEALTH.md`，一眼看到所有 skill 雙端同步狀態 / 測試燈號 / P71 進度看板。
+
+### P71.7 最小可交付物（MVP）
+
+| 產出 | 說明 |
+|---|---|
+| `docs/SKILL_HEALTH.md` | 靜態版（腳本生成）：19 skill 狀態表 + P71.0-P71.10 進度條 |
+| `scripts/gen_skill_health.py` | 讀 `skills/registry.json` → 生成 SKILL_HEALTH.md |
+| `.github/workflows/skill_health.yml` | GHA：每次 push main 自動重生成並 commit |
+
+### Dashboard 欄位設計
+
+```
+| Skill | Status | Env | Deployed | Test | Last Used | Health |
+|---|---|---|---|---|---|---|
+| history-trend-query | in-use | IDE+CLI+AG+LLM | claude+gemini | ✅ | 2026-05-09 | 🟢 |
+| smart-task-router   | in-use | IDE+CLI+AG+LLM | —             | ✅ | 2026-05-11 | 🟡 |
+| ai-news-radar       | stale  | IDE+CLI+AG      | gemini        | ❓ | 2026-04-17 | 🟡 |
+| auto-proxy-evader   | orphan | —               | —             | ❌ | —         | 🔴 |
+```
+
+**燈號邏輯（純 Python 推斷）**：
+- 🟢：in-use + deployed_to 非空 + test 存在
+- 🟡：stale 或 deployed_to 為空（但有 test）
+- 🔴：orphan 或 archived 或 test 不存在
+
+### 注意事項
+
+- `gen_skill_health.py` 不執行測試，只讀 registry + 掃 `test_skill.py` 是否存在
+- GHA workflow 用 `git config user.email "github-actions[bot]@..."` 避免污染 git blame
+- 初版不需要 O1/O2/O3 metrics（那是 P72.0 的事）
+- P71 進度看板直接硬寫進模板（不需動態計算）
+
+### 參考文件
+
+- `docs/P71_PLAN.md`（v1.2 凍結版）§ A4 優化點 + P71.7 說明
+- `skills/registry.json`（19 個 skill，剛被 P71.6 更新）
+- `NEXT_SESSION_HANDOFF.md` 本檔（P71 進度看板區塊）
+
+---
+
 ## ⚡ 本視窗（2026-05-11）做了什麼
 
 | Phase | Commit | 內容 |
