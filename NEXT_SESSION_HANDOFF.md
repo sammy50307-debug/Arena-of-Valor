@@ -1,9 +1,36 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-09（P71.5 收官；8 shared skills → D:/skills-shared/ + GitHub push 待補）
-- **狀態**：✅ P71.0 ✅ P71.1 ✅ P71.2 ✅ P71.3 ✅ P71.4 ✅ P71.5 收官；⏳ **P71.6 smart-task-router 路由引擎** 待動工
-- **下個視窗開局**：直接動工 **P71.6 — smart-task-router 救活（L2 路由）**
+- **更新日期**：2026-05-09（P71.3～P71.5 本視窗全數收官；skills-shared GitHub push 完成）
+- **狀態**：✅ P71.0～P71.5 全收官；⏳ P71.6～P71.10 待動工
+- **下個視窗開局**：直接動工 **P71.6 — smart-task-router 救活（L2 路由引擎）**
+
+---
+
+## ⚡ 本視窗（2026-05-09）做了什麼
+
+| Phase | Commit | 內容 |
+|---|---|---|
+| **P71.3** | `fb4548c`（合併）| 11 個 `__main__.py` + SKILL.md 終端執行章節 |
+| **P71.4** | `fb4548c` | `deploy_skills.py`（copy+lockfile+SA1）+ `.pre-commit-config.yaml`（SA4）+ 2 CI workflows + `--warn-only`（D4）|
+| **P71.5** | `7c9e607` | 8 shared skills → `D:/skills-shared/`（獨立 git repo，已 push GitHub）+ registry.json 絕對路徑 |
+
+### 重要架構變更（P71.5）
+
+- **`D:/skills-shared/`**：獨立 git repo（`sammy50307-debug/skills-shared`，private）
+  - 8 個跨專案 skill：ai-news-radar / api-quota-guardian / firecrawl-dynamic-breacher / html-markdown-distiller / multi-thread-synthesizer / nl-to-prompt-structurer / semantic-cache-shield / trend-anomaly-detector
+- **`.agent/skills/`**：只剩 AOV 專屬 3 個（history-trend-query / hallucination-judge / hot-deployer）+ 9 個 orphan（P71.9 待處置）
+- **`skills/registry.json`**：shared skill 的 `claude_path` 已改為絕對路徑 `D:/skills-shared/X`，並加 `"shared": true`
+
+### P71.4 工具速查
+
+```bash
+py -3 scripts/deploy_skills.py --list           # 看所有 skill 路徑
+py -3 scripts/deploy_skills.py                  # dry-run 預覽
+py -3 scripts/deploy_skills.py --execute --backup  # 實際同步到 Gemini
+pre-commit install                              # 安裝 hook（首次）
+# D4：2026-05-23 後移除 .pre-commit-config.yaml 的 --warn-only 升為 block
+```
 
 ---
 
