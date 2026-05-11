@@ -1,40 +1,35 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-11（P71.7 收官）
+- **更新日期**：2026-05-11（P71.7～P71.9 + ui-ux-pro-max test 全收官）
 - **狀態**：✅ P71.0～P71.9 全收官；⏳ P71.10 待動工
 - **下個視窗開局**：直接動工 **P71.10 — Postmortem + R-009~011**
 
 ---
 
-## 🚀 下個視窗動工：P71.8 — 7 個 Gemini diff 主公裁決
+## 🚀 下個視窗動工：P71.10 — Postmortem + R-009~011
 
-**目標**：由主公逐一裁決 7 個 shared skill 的雙端 diff（D:/skills-shared vs .gemini/antigravity），決定保留哪個版本為基準。
+**目標**：P71 整體復盤，補錄 R-009~011 風險登記，產出 Postmortem 文件。
 
-### P71.8 裁決順序
+### P71.10 工作清單
 
-| # | Skill | Diff 行數 | 說明 |
-|---|---|---|---|
-| 1 | ai-news-radar | 536 行 | 最大，優先裁決 |
-| 2 | instagram-facebook-dcard | 388 行 | 已歸檔，確認是否棄置 |
-| 3 | html-markdown-distiller | 92 行 | |
-| 4 | semantic-cache-shield | 90 行 | |
-| 5 | trend-anomaly-detector | 70 行 | |
-| 6 | firecrawl-dynamic-breacher | 68 行 | |
-| 7 | multi-thread-synthesizer | 64 行 | |
+| 項目 | 說明 |
+|---|---|
+| Postmortem 文件 | `docs/postmortem/P71_postmortem.md`（依模板） |
+| R-009 | smart-task-router deployed_to 空（P71.8 前的遺留）已補 claude-project |
+| R-010 | ui-ux-pro-max 無 test → **已解決**（本視窗補齊） |
+| R-011 | orphan SKILL.md 仍為舊格式（22 條 lint warning）→ 視必要性補齊或豁免 |
+| 跨 Phase 學習 | P71.0～P71.9 九段教訓提煉（G6 + STR8） |
 
-### 操作方式
+### 當前 Skill 狀態（收工快照）
 
-```bash
-# 比對兩端差異（以 ai-news-radar 為例）
-diff -r "D:/skills-shared/ai-news-radar" ~/.gemini/antigravity/skills/ai-news-radar
-```
+- **🟢 19 / 🟡 0 / 🔴 0** — 史上首次全綠
+- 詳見 `docs/SKILL_HEALTH.md`（2026-05-11 生成）
 
 ### 參考文件
 
-- `docs/P71_PLAN.md`（v1.2 凍結版）§ P71.8
-- `docs/SKILL_HEALTH.md`（P71.7 生成）— stale skill 清單
-- `skills/registry.json` — notes 欄位有各 diff 行數備註
+- `docs/P71_PLAN.md`（v1.2 凍結版）§ P71.10
+- `docs/RISK_REGISTRY.md` — R-009~011 待補錄
 
 ---
 
@@ -45,7 +40,8 @@ diff -r "D:/skills-shared/ai-news-radar" ~/.gemini/antigravity/skills/ai-news-ra
 | **P71.6** | `ba7352f` | smart-task-router 救活：router.py 接 S1 schema registry / 數值信心分數 / V1 觸發塊 / `__main__.py` CLI / 8/8 測試全綠 |
 | **P71.7** | 本次視窗 | `scripts/gen_skill_health.py` + `docs/SKILL_HEALTH.md` + `.github/workflows/skill_health.yml`：19 skill 狀態 🟢5 🟡7 🔴7 |
 | **P71.8** | 本次視窗 | 6 stale shared skills Gemini 同步（S1 schema + __main__.py 推入）；🟢 11 / 🟡 0 |
-| **P71.9** | 本次視窗 | 7 orphan → in-use，補 S1 schema + 7 × __main__.py；**🟢 18 / 🟡 0 / 🔴 1** |
+| **P71.9** | 本次視窗 | 7 orphan → in-use，補 S1 schema + 7 × __main__.py；🟢 18 / 🟡 0 / 🔴 1 |
+| **P71.9+** | 本次視窗 | ui-ux-pro-max 補 `test_skill.py`（6/6）；**🟢 19 / 🟡 0 / 🔴 0 史上首次全綠** |
 
 ### P71.6 技術細節
 
