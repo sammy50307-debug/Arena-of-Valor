@@ -5571,3 +5571,58 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 - GHA workflow 僅在 registry.json 或腳本變動時觸發，減少不必要的 commit 噪音
 
 **狀態**：✅ P71.7 完成；下一站 P71.8（7 個 Gemini diff 裁決）
+
+### P71.8 — 6 stale shared skills Gemini diff 裁決（收官 2026-05-11）
+
+**目標**：解決 D:/skills-shared 與 Gemini antigravity 雙端 diff，確立 shared 為單一真相來源。
+
+**診斷結果**：
+- 核心 .py + test_skill.py：6/6 內容完全一致（diff 為純 CRLF/LF 換行差）
+- SKILL.md：shared 有 S1 schema（P71.2），Gemini 為舊格式 → shared 勝
+- `__main__.py`：只在 shared（P71.3 新增）→ 補入 Gemini
+- `examples/`：4 個 skill 僅 Gemini 有 → 先補入 shared，再雙端一致
+
+**裁決：D:/skills-shared 為主，單向推入 Gemini（PowerShell cp，排除 __pycache__ / yaya_cache.db）**
+
+**17 層稽核（微 Phase，S 級）**：
+
+| 層 | 狀態 | 說明 |
+|---|---|---|
+| Code (S) | ✅ | PowerShell 迴圈 cp，明確排除 binary/cache |
+| Logic (S) | ✅ | 先補 Gemini examples→shared；再 shared→Gemini |
+| Testing (S) | ✅ | SKILL_HEALTH.md 重生成驗收：🟢 11 / 🟡 1 / 🔴 7 |
+| Security (S) | ✅ | 純本地 fs 操作，不觸網 |
+
+**物理真相**：
+- 6 skill × SKILL.md（S1 schema）+ __main__.py 已進 Gemini antigravity/skills/
+- 4 skill 的 examples/（ai-news-radar 除外）已雙端一致
+- registry.json：ai-news-radar / firecrawl-dynamic-breacher / html-markdown-distiller / multi-thread-synthesizer / semantic-cache-shield / trend-anomaly-detector → `in-use`
+
+**狀態**：✅ P71.8 完成；commit `11c8f4d`；下一站 P71.9（8 個 orphan 處置）
+
+### P71.9 — 7 個 orphan skill 全部啟用（收官 2026-05-11）
+
+**目標**：補齊所有 orphan 的 S1 schema，讓 smart-task-router 能路由至所有 19 個 skill。
+
+**17 層稽核（微 Phase，S 級）**：
+
+| 層 | 狀態 | 說明 |
+|---|---|---|
+| Code (S) | ✅ | 7 × `__main__.py` 依 P71.3 模式實作，統一 CLI 介面 |
+| Logic (S) | ✅ | S1 schema 填寫依各 script 實際 API 設計 |
+| Testing (S) | ✅ | lint_skill_registry.py 無阻擋性錯誤；SKILL_HEALTH 🟢18 |
+| Security (S) | ✅ | 純本地 fs 操作，無外部呼叫 |
+
+**物理真相**：
+- registry.json：7 orphan 全部改 `in-use`，補 when_to_use / when_NOT_to_use / trigger_keywords / environments / entry_points
+- 7 × `__main__.py`：auto-proxy-evader / cot-prompt-compactor / daily-diff-radar / rich-push-formatter / session-handoff-packager / ui-ux-pro-max / waterfall-search-chain
+- SKILL_HEALTH.md：🟢 18 / 🟡 0 / 🔴 1（ui-ux-pro-max 無 test_skill.py，其餘全綠）
+- 唯一 🔴 原因：ui-ux-pro-max 為純 data/LLM skill，補 test 待後續
+
+**待後續處理（非阻擋）**：
+- ui-ux-pro-max：補 test_skill.py
+- auto-proxy-evader：整合進 firecrawl 爬蟲流程
+- rich-push-formatter：LINE bot 整合
+- daily-diff-radar / session-handoff-packager：補 slash command
+
+**狀態**：✅ P71.9 完成；commit `50f2395`；下一站 P71.10（Postmortem）
