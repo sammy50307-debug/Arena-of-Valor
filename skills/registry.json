@@ -608,12 +608,53 @@
     {
       "name": "smart-task-router",
       "type": "exec",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "2.0.0",
+      "description": "L2 路由引擎：純規則關鍵字比對，自動路由至最適 skill 並輸出 V1 觸發塊",
       "claude_path": ".agent/skills/smart-task-router",
       "gemini_path": null,
       "slash_command": null,
+      "when_to_use": [
+        "收到模糊任務描述，需要判斷該用哪個 skill 時",
+        "主公說「幫我…」但沒點名 skill 時，LLM 自動呼叫此路由器",
+        "多 skill 可能匹配，需要信心分數排序"
+      ],
+      "when_NOT_to_use": [
+        "主公已明確點名 skill（直接執行即可，不需路由）",
+        "查詢 AOV 英雄走勢 → 用 history-trend-query",
+        "驗證英雄名稱 → 用 hallucination-judge"
+      ],
+      "trigger_keywords": [
+        "路由",
+        "分派任務",
+        "該用哪個skill",
+        "哪個特種兵",
+        "任務分配",
+        "smart-task-router",
+        "自動路由",
+        "判斷技能"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py \"<query>\"",
+        "import": "from scripts.router import SmartTaskRouter",
+        "prompt_paste": "adapters/prompt_paste/smart-task-router.md",
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": true,
+        "pure_llm": true
+      },
       "deployed_to": [],
-      "notes": "P71.6 救活為 L2 路由引擎"
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": "2026-05-11",
+      "notes": "P71.6 救活為 L2 路由引擎；讀 skills/registry.json S1 schema；信心 ≥0.9 AUTO / 0.7-0.89 CONFIRM"
     },
     {
       "name": "trend-anomaly-detector",
