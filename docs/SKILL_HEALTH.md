@@ -23,23 +23,23 @@
 
 | Skill | Status | Env | Deployed | Test | Last Used | Health |
 |---|---|---|---|---|---|---|
-| ai-news-radar | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
-| api-quota-guardian | in-use | IDE+CLI | claude | ✅ | 2026-05-09 | 🟢 |
+| ai-news-radar | in-use | IDE+CLI+AG | gemini | ❓ | 2026-05-11 | 🟡 |
+| api-quota-guardian | in-use | IDE+CLI | claude | ❓ | 2026-05-09 | 🟡 |
 | auto-proxy-evader | orphan | — | — | ✅ | — | 🔴 |
 | cot-prompt-compactor | orphan | — | — | ✅ | — | 🔴 |
 | daily-diff-radar | orphan | — | — | ✅ | — | 🔴 |
-| firecrawl-dynamic-breacher | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
+| firecrawl-dynamic-breacher | in-use | IDE+CLI+AG | gemini | ❓ | 2026-05-11 | 🟡 |
 | hallucination-judge | in-use | IDE+CLI+LLM | claude | ✅ | 2026-05-09 | 🟢 |
 | history-trend-query | in-use | IDE+CLI | claude | ✅ | 2026-05-09 | 🟢 |
 | hot-deployer | in-use | IDE+CLI | claude | ✅ | 2026-05-09 | 🟢 |
-| html-markdown-distiller | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
-| multi-thread-synthesizer | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
-| nl-to-prompt-structurer | in-use | IDE+CLI+LLM | claude | ✅ | 2026-05-09 | 🟢 |
+| html-markdown-distiller | in-use | IDE+CLI+AG | gemini | ❓ | 2026-05-11 | 🟡 |
+| multi-thread-synthesizer | in-use | IDE+CLI+AG | gemini | ❓ | 2026-05-11 | 🟡 |
+| nl-to-prompt-structurer | in-use | IDE+CLI+LLM | claude | ❓ | 2026-05-09 | 🟡 |
 | rich-push-formatter | orphan | — | — | ✅ | — | 🔴 |
-| semantic-cache-shield | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
+| semantic-cache-shield | in-use | IDE+CLI+AG | gemini | ❓ | 2026-05-11 | 🟡 |
 | session-handoff-packager | orphan | — | — | ✅ | — | 🔴 |
 | smart-task-router | in-use | IDE+CLI+AG+LLM | — | ✅ | 2026-05-11 | 🟡 |
-| trend-anomaly-detector | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
+| trend-anomaly-detector | in-use | IDE+CLI+AG | gemini | ❓ | 2026-05-11 | 🟡 |
 | ui-ux-pro-max | orphan | — | — | ❌ | — | 🔴 |
 | waterfall-search-chain | orphan | — | — | ✅ | — | 🔴 |
 
@@ -47,8 +47,8 @@
 
 | 燈號 | 數量 | 說明 |
 |---|---|---|
-| 🟢 | 11 | in-use + deployed + test 全齊 |
-| 🟡 | 1 | stale 或 deployed 為空 |
+| 🟢 | 3 | in-use + deployed + test 全齊 |
+| 🟡 | 9 | stale 或 deployed 為空 |
 | 🔴 | 7 | orphan / archived / test 缺失 |
 
 ## 💡 燈號說明
