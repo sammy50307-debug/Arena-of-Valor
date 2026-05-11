@@ -40,16 +40,16 @@
 | session-handoff-packager | in-use | IDE+CLI | claude | ✅ | — | 🟢 |
 | smart-task-router | in-use | IDE+CLI+AG+LLM | claude | ✅ | 2026-05-11 | 🟢 |
 | trend-anomaly-detector | in-use | IDE+CLI+AG | gemini | ✅ | 2026-05-11 | 🟢 |
-| ui-ux-pro-max | in-use | IDE+CLI+LLM | claude | ❌ | — | 🔴 |
+| ui-ux-pro-max | in-use | IDE+CLI+LLM | claude | ✅ | — | 🟢 |
 | waterfall-search-chain | in-use | IDE+CLI | claude | ✅ | — | 🟢 |
 
 ## 📈 統計摘要
 
 | 燈號 | 數量 | 說明 |
 |---|---|---|
-| 🟢 | 18 | in-use + deployed + test 全齊 |
+| 🟢 | 19 | in-use + deployed + test 全齊 |
 | 🟡 | 0 | stale 或 deployed 為空 |
-| 🔴 | 1 | orphan / archived / test 缺失 |
+| 🔴 | 0 | orphan / archived / test 缺失 |
 
 ## 💡 燈號說明
 
