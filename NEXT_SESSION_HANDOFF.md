@@ -1,9 +1,9 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-09（P71.4 收官；deploy_skills.py + pre-commit + CI 完成）
-- **狀態**：✅ P71.0 ✅ P71.1 ✅ P71.2 ✅ P71.3 ✅ P71.4 收官；⏳ **P71.5 shared/project 二級分類** 待動工
-- **下個視窗開局**：直接動工 **P71.5 — shared/project 二級分類 + ~/skills-shared/ git repo**
+- **更新日期**：2026-05-09（P71.5 收官；8 shared skills → D:/skills-shared/ + GitHub push 待補）
+- **狀態**：✅ P71.0 ✅ P71.1 ✅ P71.2 ✅ P71.3 ✅ P71.4 ✅ P71.5 收官；⏳ **P71.6 smart-task-router 路由引擎** 待動工
+- **下個視窗開局**：直接動工 **P71.6 — smart-task-router 救活（L2 路由）**
 
 ---
 
@@ -33,7 +33,7 @@
 | **P71.2** | S1 schema × 11 SKILL.md + S2/V1 觸發協議 × 全域指令檔 | ✅ | `b1fa1ac` |
 | **P71.3** | 11 skill 自包含化 + `__main__.py` + 終端適配 | ✅ | 本次視窗 |
 | **P71.4** | deploy_skills.py + pre-commit + CI + SA1/SA4 | ✅ | 本次視窗 |
-| **P71.5** | shared/project 二級分類 + ~/skills-shared/ | ⏳ | — |
+| **P71.5** | 8 shared skills → D:/skills-shared/ + registry 絕對路徑 | ✅ | 本次視窗 |
 | **P71.6** | smart-task-router 救活（L2 路由） | ⏳ | — |
 | **P71.7** | SKILL_HEALTH.md Dashboard | ⏳ | — |
 | **P71.8** | 7 個 Gemini diff 主公裁決 | ⏳ | — |
