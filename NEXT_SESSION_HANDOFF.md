@@ -1,9 +1,38 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-09（P71.3～P71.5 本視窗全數收官；skills-shared GitHub push 完成）
-- **狀態**：✅ P71.0～P71.5 全收官；⏳ P71.6～P71.10 待動工
-- **下個視窗開局**：直接動工 **P71.6 — smart-task-router 救活（L2 路由引擎）**
+- **更新日期**：2026-05-11（P71.6 收官；commit `ba7352f`）
+- **狀態**：✅ P71.0～P71.6 全收官；⏳ P71.7～P71.10 待動工
+- **下個視窗開局**：直接動工 **P71.7 — SKILL_HEALTH.md Dashboard**
+
+---
+
+## ⚡ 本視窗（2026-05-11）做了什麼
+
+| Phase | Commit | 內容 |
+|---|---|---|
+| **P71.6** | `ba7352f` | smart-task-router 救活：router.py 接 S1 schema registry / 數值信心分數 / V1 觸發塊 / `__main__.py` CLI / 8/8 測試全綠 |
+
+### P71.6 技術細節
+
+**信心算法**：
+- `trigger_keywords` 命中：每個 +0.2（強匹配）
+- `when_to_use` 命中：每條描述 ≥2 詞 +0.05（弱匹配）
+- `when_NOT_to_use` 命中：每條 ≥2 詞 −0.2（負向）
+
+**閾值（D3 決定）**：
+- ≥ 0.9 → `AUTO`（直接執行 + 印 V1）
+- 0.7 ~ 0.89 → `CONFIRM`（詢問主公 [Y/n]）
+- < 0.7 → `NO_MATCH`（不觸發）
+
+**CLI 用法**：
+```bash
+cd .agent/skills/smart-task-router
+python __main__.py "幫我查芽芽聲量走勢趨勢"
+python __main__.py "幫我查芽芽聲量走勢趨勢" --output json
+python __main__.py list
+NO_COLOR=1 python __main__.py "芽芽聲量"
+```
 
 ---
 
@@ -61,7 +90,7 @@ pre-commit install                              # 安裝 hook（首次）
 | **P71.3** | 11 skill 自包含化 + `__main__.py` + 終端適配 | ✅ | 本次視窗 |
 | **P71.4** | deploy_skills.py + pre-commit + CI + SA1/SA4 | ✅ | 本次視窗 |
 | **P71.5** | 8 shared skills → D:/skills-shared/ + registry 絕對路徑 | ✅ | 本次視窗 |
-| **P71.6** | smart-task-router 救活（L2 路由） | ⏳ | — |
+| **P71.6** | smart-task-router 救活（L2 路由） | ✅ | `ba7352f` |
 | **P71.7** | SKILL_HEALTH.md Dashboard | ⏳ | — |
 | **P71.8** | 7 個 Gemini diff 主公裁決 | ⏳ | — |
 | **P71.9** | 8 個 orphan 處置 | ⏳ | — |
