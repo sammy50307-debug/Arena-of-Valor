@@ -5521,3 +5521,53 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 - `trend-anomaly-detector` 依計畫書歸 shared，即便 depends_on history-trend-query（軟性資料依賴，非 Python import）
 
 **狀態**：✅ P71.5 完成（GitHub push 待主公建 repo）；下一站 P71.6（smart-task-router 路由引擎）
+
+### P71.6 — smart-task-router 救活（L2 路由引擎）（收官 2026-05-11）
+
+**目標**：讓 smart-task-router 讀 registry.json S1 schema，輸出數值信心分數 + V1 觸發塊。
+
+**17 層稽核（微 Phase，S 級必填）**：
+
+| 層 | 狀態 | 說明 |
+|---|---|---|
+| Code (S) | ✅ | router.py + `__main__.py` CLI 重寫 |
+| Logic (S) | ✅ | 信心算法：trigger_keywords +0.2 / when_to_use +0.05 / when_NOT_to_use −0.2 |
+| Testing (S) | ✅ | 8/8 測試全綠（test_skill.py） |
+| Security (S) | ✅ | 純本地 JSON 讀取，無外部呼叫 |
+
+**物理真相**：
+- `router.py`：`SmartTaskRouter` 類別，讀 registry.json，輸出 `RouteResult(skill, confidence, action, trigger_block)`
+- `__main__.py`：CLI 入口，支援 `list` 子命令 + `--output json` + `NO_COLOR` 環境變數
+- 閾值（D3）：≥0.9 AUTO / 0.7-0.89 CONFIRM / <0.7 NO_MATCH
+- V1 觸發塊：`🪧 [skill-name 已觸發]` 四行格式
+
+**狀態**：✅ P71.6 完成；commit `ba7352f`
+
+---
+
+### P71.7 — SKILL_HEALTH.md Dashboard（收官 2026-05-11）
+
+**目標（A4 優化點）**：自動生成 `docs/SKILL_HEALTH.md`，一眼看到所有 skill 狀態 / 測試燈號 / P71 進度看板。
+
+**17 層稽核（微 Phase，S 級必填）**：
+
+| 層 | 狀態 | 說明 |
+|---|---|---|
+| Code (S) | ✅ | `scripts/gen_skill_health.py`：120 行，argparse CLI，純 stdlib |
+| Logic (S) | ✅ | 燈號邏輯：🟢 in-use+deployed+test / 🟡 stale 或 deployed 空 / 🔴 orphan+test 缺 |
+| Testing (S) | ✅ | 腳本跑通，SKILL_HEALTH.md 生成正確（🟢5 🟡7 🔴7） |
+| Security (S) | ✅ | 純本地讀寫，no exec，no network |
+
+**物理真相**：
+- `scripts/gen_skill_health.py`：讀 `skills/registry.json` → 生成 `docs/SKILL_HEALTH.md`
+- `docs/SKILL_HEALTH.md`：19 skill 狀態表（燈號 / Env / Deployed / Test / Last Used）+ P71.0-10 進度條 + 統計摘要
+- `.github/workflows/skill_health.yml`：push main 時若 registry.json 或腳本有變動自動重生成並 commit
+- test 路徑偵測：先找 `<path>/test_skill.py`，再找 `<path>/scripts/test_skill.py`；CI 環境 D:/skills-shared 不可達 → ❓（非 ❌）
+- 燈號特例：smart-task-router 為 in-use 但 deployed_to 空 → 🟡（P71.8 補部署後升 🟢）
+
+**關鍵決策**：
+- P71 進度看板硬寫進模板（不動態計算），P72.0 再升 metric
+- test 三態：✅ 有 / ❌ 確認無 / ❓ 路徑不可達（CI 環境誠實顯示）
+- GHA workflow 僅在 registry.json 或腳本變動時觸發，減少不必要的 commit 噪音
+
+**狀態**：✅ P71.7 完成；下一站 P71.8（7 個 Gemini diff 裁決）

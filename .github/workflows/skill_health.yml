@@ -1,0 +1,34 @@
+name: Update SKILL_HEALTH.md
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/registry.json"
+      - "scripts/gen_skill_health.py"
+
+jobs:
+  update-skill-health:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate SKILL_HEALTH.md
+        run: python scripts/gen_skill_health.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/SKILL_HEALTH.md
+          git diff --staged --quiet && echo "No changes." || \
+            git commit -m "chore(auto): regenerate SKILL_HEALTH.md [skip ci]" && git push
