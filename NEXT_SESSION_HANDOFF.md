@@ -1,52 +1,40 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-11（P71.6 收官；commit `ba7352f`）
-- **狀態**：✅ P71.0～P71.6 全收官；⏳ P71.7～P71.10 待動工
-- **下個視窗開局**：直接動工 **P71.7 — SKILL_HEALTH.md Dashboard**
+- **更新日期**：2026-05-11（P71.7 收官）
+- **狀態**：✅ P71.0～P71.7 全收官；⏳ P71.8～P71.10 待動工
+- **下個視窗開局**：直接動工 **P71.8 — 7 個 Gemini diff 裁決**
 
 ---
 
-## 🚀 下個視窗動工：P71.7 — SKILL_HEALTH.md Dashboard
+## 🚀 下個視窗動工：P71.8 — 7 個 Gemini diff 主公裁決
 
-**目標（對應優化點 A4）**：自動生成 `docs/SKILL_HEALTH.md`，一眼看到所有 skill 雙端同步狀態 / 測試燈號 / P71 進度看板。
+**目標**：由主公逐一裁決 7 個 shared skill 的雙端 diff（D:/skills-shared vs .gemini/antigravity），決定保留哪個版本為基準。
 
-### P71.7 最小可交付物（MVP）
+### P71.8 裁決順序
 
-| 產出 | 說明 |
-|---|---|
-| `docs/SKILL_HEALTH.md` | 靜態版（腳本生成）：19 skill 狀態表 + P71.0-P71.10 進度條 |
-| `scripts/gen_skill_health.py` | 讀 `skills/registry.json` → 生成 SKILL_HEALTH.md |
-| `.github/workflows/skill_health.yml` | GHA：每次 push main 自動重生成並 commit |
+| # | Skill | Diff 行數 | 說明 |
+|---|---|---|---|
+| 1 | ai-news-radar | 536 行 | 最大，優先裁決 |
+| 2 | instagram-facebook-dcard | 388 行 | 已歸檔，確認是否棄置 |
+| 3 | html-markdown-distiller | 92 行 | |
+| 4 | semantic-cache-shield | 90 行 | |
+| 5 | trend-anomaly-detector | 70 行 | |
+| 6 | firecrawl-dynamic-breacher | 68 行 | |
+| 7 | multi-thread-synthesizer | 64 行 | |
 
-### Dashboard 欄位設計
+### 操作方式
 
+```bash
+# 比對兩端差異（以 ai-news-radar 為例）
+diff -r "D:/skills-shared/ai-news-radar" ~/.gemini/antigravity/skills/ai-news-radar
 ```
-| Skill | Status | Env | Deployed | Test | Last Used | Health |
-|---|---|---|---|---|---|---|
-| history-trend-query | in-use | IDE+CLI+AG+LLM | claude+gemini | ✅ | 2026-05-09 | 🟢 |
-| smart-task-router   | in-use | IDE+CLI+AG+LLM | —             | ✅ | 2026-05-11 | 🟡 |
-| ai-news-radar       | stale  | IDE+CLI+AG      | gemini        | ❓ | 2026-04-17 | 🟡 |
-| auto-proxy-evader   | orphan | —               | —             | ❌ | —         | 🔴 |
-```
-
-**燈號邏輯（純 Python 推斷）**：
-- 🟢：in-use + deployed_to 非空 + test 存在
-- 🟡：stale 或 deployed_to 為空（但有 test）
-- 🔴：orphan 或 archived 或 test 不存在
-
-### 注意事項
-
-- `gen_skill_health.py` 不執行測試，只讀 registry + 掃 `test_skill.py` 是否存在
-- GHA workflow 用 `git config user.email "github-actions[bot]@..."` 避免污染 git blame
-- 初版不需要 O1/O2/O3 metrics（那是 P72.0 的事）
-- P71 進度看板直接硬寫進模板（不需動態計算）
 
 ### 參考文件
 
-- `docs/P71_PLAN.md`（v1.2 凍結版）§ A4 優化點 + P71.7 說明
-- `skills/registry.json`（19 個 skill，剛被 P71.6 更新）
-- `NEXT_SESSION_HANDOFF.md` 本檔（P71 進度看板區塊）
+- `docs/P71_PLAN.md`（v1.2 凍結版）§ P71.8
+- `docs/SKILL_HEALTH.md`（P71.7 生成）— stale skill 清單
+- `skills/registry.json` — notes 欄位有各 diff 行數備註
 
 ---
 
@@ -55,6 +43,7 @@
 | Phase | Commit | 內容 |
 |---|---|---|
 | **P71.6** | `ba7352f` | smart-task-router 救活：router.py 接 S1 schema registry / 數值信心分數 / V1 觸發塊 / `__main__.py` CLI / 8/8 測試全綠 |
+| **P71.7** | 本次視窗 | `scripts/gen_skill_health.py` + `docs/SKILL_HEALTH.md` + `.github/workflows/skill_health.yml`：19 skill 狀態 🟢5 🟡7 🔴7 |
 
 ### P71.6 技術細節
 
@@ -134,7 +123,7 @@ pre-commit install                              # 安裝 hook（首次）
 | **P71.4** | deploy_skills.py + pre-commit + CI + SA1/SA4 | ✅ | 本次視窗 |
 | **P71.5** | 8 shared skills → D:/skills-shared/ + registry 絕對路徑 | ✅ | 本次視窗 |
 | **P71.6** | smart-task-router 救活（L2 路由） | ✅ | `ba7352f` |
-| **P71.7** | SKILL_HEALTH.md Dashboard | ⏳ | — |
+| **P71.7** | SKILL_HEALTH.md Dashboard | ✅ | 本次視窗 |
 | **P71.8** | 7 個 Gemini diff 主公裁決 | ⏳ | — |
 | **P71.9** | 8 個 orphan 處置 | ⏳ | — |
 | **P71.10** | Postmortem + R-009~011 | ⏳ | — |
