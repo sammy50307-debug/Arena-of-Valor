@@ -119,32 +119,164 @@
     {
       "name": "auto-proxy-evader",
       "type": "exec",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "動態 User-Agent 輪替 + 指數退避重試，應對 403/429 封鎖",
       "claude_path": ".agent/skills/auto-proxy-evader",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 補入 firecrawl 爬蟲流程"
+      "when_to_use": [
+        "爬蟲遇到 403 Forbidden 或 429 Too Many Requests 時",
+        "需要自動輪替 User-Agent 繞過反爬蟲偵測",
+        "請求失敗需要指數退避自動重試時"
+      ],
+      "when_NOT_to_use": [
+        "JS 動態渲染網頁 → 用 firecrawl-dynamic-breacher",
+        "多論壇同步抓取 → 用 multi-thread-synthesizer"
+      ],
+      "trigger_keywords": [
+        "403",
+        "429",
+        "封鎖",
+        "User-Agent",
+        "爬蟲封鎖",
+        "退避重試",
+        "反封鎖",
+        "rate limit",
+        "proxy",
+        "UA輪替"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py",
+        "import": "from scripts.evader import UAPool",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊；firecrawl 流程整合待後續"
     },
     {
       "name": "cot-prompt-compactor",
       "type": "prompt",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "將肥胖 Prompt 轉成 Pydantic 結構化輸出模型，消滅幻覺並節約 Token",
       "claude_path": ".agent/skills/cot-prompt-compactor",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 補 trigger_keywords 後啟用"
+      "when_to_use": [
+        "需要精煉現有 prompt，強制啟用 structured outputs",
+        "AI 輸出有幻覺、格式不穩定需要改善時",
+        "需要將 prompt 轉成 Pydantic 模型節約 Token"
+      ],
+      "when_NOT_to_use": [
+        "從零建立新 prompt → 用 nl-to-prompt-structurer",
+        "查詢英雄走勢 → 用 history-trend-query"
+      ],
+      "trigger_keywords": [
+        "精煉prompt",
+        "壓縮prompt",
+        "Pydantic",
+        "structured output",
+        "prompt瘦身",
+        "結構化輸出",
+        "幻覺消滅",
+        "prompt優化",
+        "cot-prompt"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py",
+        "import": "from scripts.compactor import compact_prompt",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": true
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": [
+          "pydantic"
+        ]
+      },
+      "depends_on": [],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊"
     },
     {
       "name": "daily-diff-radar",
       "type": "exec",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "比對今日與昨日 analysis_*.json，輸出英雄上下榜、情緒 Δ、聲量 Δ% 變化摘要",
       "claude_path": ".agent/skills/daily-diff-radar",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 補 slash + 接報告流程"
+      "when_to_use": [
+        "需要比對今日與昨日英雄數據差異時",
+        "想知道哪些英雄聲量/情緒今日明顯變動",
+        "產出每日變化摘要供報告使用"
+      ],
+      "when_NOT_to_use": [
+        "查看過去多日趨勢 → 用 history-trend-query",
+        "即時異常偵測 → 用 trend-anomaly-detector"
+      ],
+      "trigger_keywords": [
+        "每日差異",
+        "日報對比",
+        "今日變化",
+        "英雄上下榜",
+        "昨日對比",
+        "日差",
+        "diff雷達",
+        "daily-diff",
+        "今昨比較"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py",
+        "import": "from scripts.radar import DailyDiffRadar",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊；slash command 待後續"
     },
     {
       "name": "firecrawl-dynamic-breacher",
@@ -535,12 +667,57 @@
     {
       "name": "rich-push-formatter",
       "type": "exec",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "將 daily-diff-radar / analysis JSON 轉成含 emoji 燈號與 Δ 箭頭的 Markdown 日報",
       "claude_path": ".agent/skills/rich-push-formatter",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 補 slash + LINE bot 整合"
+      "when_to_use": [
+        "需要將分析 JSON 格式化成人類可讀的 Markdown 日報",
+        "準備推播到 Discord / Obsidian / LINE 時",
+        "需要有 emoji 燈號與 Δ 方向箭頭的英雄變動清單"
+      ],
+      "when_NOT_to_use": [
+        "產生分析數據本身 → 先跑 daily-diff-radar",
+        "查詢歷史趨勢 → 用 history-trend-query"
+      ],
+      "trigger_keywords": [
+        "日報格式化",
+        "推播",
+        "Markdown格式",
+        "戰報排版",
+        "格式化",
+        "每日報告",
+        "LINE推播",
+        "rich-push",
+        "emoji日報"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py",
+        "import": "from scripts.formatter import format_report",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [
+        "daily-diff-radar"
+      ],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊；LINE bot 整合待後續"
     },
     {
       "name": "semantic-cache-shield",
@@ -598,12 +775,55 @@
     {
       "name": "session-handoff-packager",
       "type": "pipe",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "收工前打包任務快照，產出 lite/full 兩版 Markdown 供下個視窗零摩擦接手",
       "claude_path": ".agent/skills/session-handoff-packager",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 補 slash，對應 Gemini handoff"
+      "when_to_use": [
+        "視窗收工前需要打包任務快照給下個視窗",
+        "切換模型（Claude → Gemini / GPT）前的交接打包",
+        "主公說「幫我打包交接」「收工了」「下個視窗繼續」"
+      ],
+      "when_NOT_to_use": [
+        "正常工作中間 → 視窗結束前再用",
+        "查歷史記錄 → 讀 TASK_HISTORY.md"
+      ],
+      "trigger_keywords": [
+        "交接",
+        "handoff",
+        "打包",
+        "收工",
+        "session打包",
+        "跨視窗",
+        "任務快照",
+        "下個視窗",
+        "切換模型"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py --doing \"\" --next \"\"",
+        "import": "from scripts.packager import SessionHandoffPackager",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊；slash command 待後續"
     },
     {
       "name": "smart-task-router",
@@ -647,14 +867,16 @@
         "antigravity": true,
         "pure_llm": true
       },
-      "deployed_to": [],
+      "deployed_to": [
+        "claude-project"
+      ],
       "requires": {
         "python": ">=3.10",
         "packages": []
       },
       "depends_on": [],
       "last_used": "2026-05-11",
-      "notes": "P71.6 救活為 L2 路由引擎；讀 skills/registry.json S1 schema；信心 ≥0.9 AUTO / 0.7-0.89 CONFIRM"
+      "notes": "P71.6 救活為 L2 路由引擎；讀 skills/registry.json S1 schema；信心 ≥0.9 AUTO / 0.7-0.89 CONFIRM；透過 CLAUDE.md S2 協議內建於 Claude project"
     },
     {
       "name": "trend-anomaly-detector",
@@ -715,22 +937,111 @@
     {
       "name": "ui-ux-pro-max",
       "type": "data",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "UI/UX 設計情報庫：50 種風格 / 21 配色盤 / 50 字體配對 / 20 圖表模板 / 9 技術棧",
       "claude_path": ".agent/skills/ui-ux-pro-max",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 補 trigger_keywords（介面/UI/樣式/配色）後啟用"
+      "when_to_use": [
+        "需要 UI 設計風格建議、配色方案、字體配對時",
+        "主公說「幫我想一個介面設計」「這個頁面該用什麼配色」",
+        "需要前端技術棧或圖表樣式推薦時"
+      ],
+      "when_NOT_to_use": [
+        "後端架構設計 → 不適用",
+        "英雄數據分析 → 用 history-trend-query"
+      ],
+      "trigger_keywords": [
+        "介面",
+        "UI",
+        "UX",
+        "樣式",
+        "配色",
+        "設計",
+        "排版",
+        "字體",
+        "顏色方案",
+        "前端設計",
+        "design"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py",
+        "import": "from scripts.core import UIUXProMax",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": true
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊"
     },
     {
       "name": "waterfall-search-chain",
       "type": "exec",
-      "status": "orphan",
+      "status": "in-use",
+      "schema_version": 1,
+      "version": "1.0.0",
+      "description": "瀑布式輪用搜尋鏈：Tavily → DDG 依序嘗試，前者超額/失敗自動切換後者",
       "claude_path": ".agent/skills/waterfall-search-chain",
       "gemini_path": null,
       "slash_command": null,
-      "deployed_to": [],
-      "notes": "P71.9 與 api-quota-guardian 配對啟用"
+      "when_to_use": [
+        "搜尋任務需要備援機制，避免 Tavily 超額時中斷",
+        "主公說「搜一下 X」但不確定 Tavily 額度是否足夠",
+        "需要 Tavily → DDG 自動瀑布切換時"
+      ],
+      "when_NOT_to_use": [
+        "確認 Tavily 額度狀態 → 用 api-quota-guardian",
+        "單純靜態網頁抓取 → 用 html-markdown-distiller"
+      ],
+      "trigger_keywords": [
+        "搜尋備援",
+        "Tavily超額",
+        "DDG",
+        "瀑布搜尋",
+        "搜尋鏈",
+        "waterfall",
+        "搜尋切換",
+        "備援搜尋"
+      ],
+      "entry_points": {
+        "cli": "python __main__.py \"<query>\"",
+        "import": "from scripts.waterfall import WaterfallSearchChain",
+        "prompt_paste": null,
+        "claude_slash": null
+      },
+      "environments": {
+        "ide": true,
+        "terminal": true,
+        "antigravity": false,
+        "pure_llm": false
+      },
+      "deployed_to": [
+        "claude-project"
+      ],
+      "requires": {
+        "python": ">=3.10",
+        "packages": []
+      },
+      "depends_on": [
+        "api-quota-guardian"
+      ],
+      "last_used": null,
+      "notes": "P71.9 完成：S1 schema 補齊；api-quota-guardian 配對已設 depends_on"
     }
   ]
 }
