@@ -5493,3 +5493,31 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 - detect-secrets baseline：空 results{}，附更新指令；誤報時 `detect-secrets scan --update .secrets.baseline`
 
 **狀態**：✅ P71.4 完成；下一站 P71.5（shared/project 二級分類 + ~/skills-shared/）
+
+### P71.5 — shared/project 二級分類 + ~/skills-shared/ git repo（2026-05-09）
+
+**目標**：把 8 個跨專案 skill 從 `.agent/skills/` 拆出，遷移至獨立 git repo `D:/skills-shared/`，並建 GitHub remote。
+
+**觸發**：接續 P71.4（deploy_skills.py + pre-commit + CI），依計畫書 v1.2 A1 優化點進入 P71.5。
+
+**影響範圍**：`D:/skills-shared/`（新 repo） + 修 registry.json + 修 deploy_skills.py + 刪 .agent/skills/ 8 目錄。
+
+| 層 | 狀態 | 說明 |
+|---|---|---|
+| Code (S) | ✅ | deploy_skills.py 補絕對路徑支援（is_absolute() 判斷）|
+| Logic (S) | ✅ | registry.json claude_path 8 個改絕對路徑；SA1 ALLOWED_ROOTS 已涵蓋 D:/skills-shared |
+| Testing (S) | ✅ | lint 全過 + deploy --list 正確分流 |
+| Security (S) | ✅ | SA1 safe_path 驗三根目錄，D:/skills-shared 在 ALLOWED_ROOTS 內 |
+| Architecture (A) | ✅ | 三層架構：D:/skills-shared（共享）/ .agent/skills（AOV 專屬）/ orphan（待 P71.9）|
+
+**物理真相**：
+- `D:/skills-shared/` 8 個 skill 目錄 + .gitignore（獨立 git repo `master` 初始 commit `0e2485d`）
+- registry.json 8 個 claude_path 改絕對路徑 + `shared: true` 欄位
+- deploy_skills.py：`deploy_one()` 加 `is_absolute()` 分支，支援絕對 + 相對混用
+- GitHub remote：`sammy50307-debug/skills-shared`（private）— push 待主公建 repo 後補
+
+**關鍵決策**：
+- 遷移後 .agent/skills/ 只留 AOV 專屬（history-trend-query / hallucination-judge / hot-deployer）+ 9 個 orphan（P71.9）
+- `trend-anomaly-detector` 依計畫書歸 shared，即便 depends_on history-trend-query（軟性資料依賴，非 Python import）
+
+**狀態**：✅ P71.5 完成（GitHub push 待主公建 repo）；下一站 P71.6（smart-task-router 路由引擎）

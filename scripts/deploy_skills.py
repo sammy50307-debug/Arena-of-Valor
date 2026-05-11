@@ -82,11 +82,15 @@ def deploy_one(
     claude_raw = skill.get("claude_path")
     gemini_raw = skill.get("gemini_path")
 
-    # 解析 SA1 safe paths
+    # 解析 SA1 safe paths（支援絕對路徑 claude_path，如 D:/skills-shared/X）
     try:
-        claude_path = safe_path(
-            str(PROJECT_ROOT / claude_raw) if claude_raw else ""
-        )
+        if claude_raw:
+            _cp = Path(claude_raw)
+            claude_path = safe_path(
+                str(_cp) if _cp.is_absolute() else str(PROJECT_ROOT / claude_raw)
+            )
+        else:
+            claude_path = None
         gemini_path = safe_path(gemini_raw)
     except ValueError as e:
         print(f"  ❌ [{name}] {e}")
