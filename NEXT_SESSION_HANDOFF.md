@@ -2,8 +2,8 @@
 
 - **建立日期**：2026-04-27（原版）
 - **更新日期**：2026-05-11（P71.7 收官）
-- **狀態**：✅ P71.0～P71.7 全收官；⏳ P71.8～P71.10 待動工
-- **下個視窗開局**：直接動工 **P71.8 — 7 個 Gemini diff 裁決**
+- **狀態**：✅ P71.0～P71.9 全收官；⏳ P71.10 待動工
+- **下個視窗開局**：直接動工 **P71.10 — Postmortem + R-009~011**
 
 ---
 
@@ -44,6 +44,8 @@ diff -r "D:/skills-shared/ai-news-radar" ~/.gemini/antigravity/skills/ai-news-ra
 |---|---|---|
 | **P71.6** | `ba7352f` | smart-task-router 救活：router.py 接 S1 schema registry / 數值信心分數 / V1 觸發塊 / `__main__.py` CLI / 8/8 測試全綠 |
 | **P71.7** | 本次視窗 | `scripts/gen_skill_health.py` + `docs/SKILL_HEALTH.md` + `.github/workflows/skill_health.yml`：19 skill 狀態 🟢5 🟡7 🔴7 |
+| **P71.8** | 本次視窗 | 6 stale shared skills Gemini 同步（S1 schema + __main__.py 推入）；🟢 11 / 🟡 0 |
+| **P71.9** | 本次視窗 | 7 orphan → in-use，補 S1 schema + 7 × __main__.py；**🟢 18 / 🟡 0 / 🔴 1** |
 
 ### P71.6 技術細節
 
@@ -124,8 +126,8 @@ pre-commit install                              # 安裝 hook（首次）
 | **P71.5** | 8 shared skills → D:/skills-shared/ + registry 絕對路徑 | ✅ | 本次視窗 |
 | **P71.6** | smart-task-router 救活（L2 路由） | ✅ | `ba7352f` |
 | **P71.7** | SKILL_HEALTH.md Dashboard | ✅ | 本次視窗 |
-| **P71.8** | 7 個 Gemini diff 主公裁決 | ⏳ | — |
-| **P71.9** | 8 個 orphan 處置 | ⏳ | — |
+| **P71.8** | 7 個 Gemini diff 主公裁決 | ✅ | 本次視窗 |
+| **P71.9** | 7 個 orphan 啟用 | ✅ | 本次視窗 |
 | **P71.10** | Postmortem + R-009~011 | ⏳ | — |
 
 ### D1-D8 決策（全部已拍板，見 SKILL_INVENTORY.md）
