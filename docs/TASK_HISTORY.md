@@ -70,3 +70,21 @@
 - R-P72-03：O3 token 為 placeholder 0，P72.4 整合再填真實值
 
 **退出條件**：✅ logger 建立 / ✅ 11 __main__.py 更新 / ✅ gen_skill_metrics.py 建立 / ✅ 16/16 測試全綠 / ✅ SKILL_HEALTH 更新
+
+### P72.4 — metrics 接入 SKILL_HEALTH.md（2026-05-14）
+
+**目標**：把 P72.0 建立的 O1/O2/O3 metrics 接入 SKILL_HEALTH Dashboard，health table 自動展開含 Calls / Avg ms / Fail% / Avg Tok 四欄。
+
+**物理真相**：
+- scripts/gen_skill_health.py（UPDATED）：
+  - 頂層 import skill_metrics_logger（try/except graceful fallback）
+  - load_metrics_stats() 讀 ~/.claude/skill_metrics.jsonl → summarize
+  - _metric_cells() 回傳 (calls, avg_ms, fail_pct, avg_tok) display strings
+  - has_metrics=True 時 table 自動展開 4 個 metrics 欄位
+  - 新增「Metrics 狀態」區塊：無資料時顯示提示
+  - P71-P72 進度看板加入 P72.4 行
+- docs/SKILL_HEALTH.md（UPDATED）：重新生成，🟢19/19 維持
+
+**測試**：88/91 passed（無新 regression；3 failures 為 pre-existing test_dynamic_focus 問題）
+
+**退出條件**：✅ gen_skill_health.py 更新 / ✅ 生成腳本正常執行 / ✅ dashboard metrics 區塊正確顯示 / ✅ 零回歸
