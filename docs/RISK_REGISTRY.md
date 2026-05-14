@@ -116,6 +116,61 @@
 
 ---
 
+### R-012：metrics JSONL 無 size cap 與輪轉策略（P72.0 遺留）
+
+- **來源**：P72.0 收官（2026-05-14）/ B-009 通則化
+- **風險級**：🟢 低（短期）/ 🟡 中（長期 ≥ 1 年）
+- **狀態**：Open（觀察期）
+- **描述**：`skill_metrics_logger._run_with_metrics()` append-only 寫入 `~/.claude/skill_metrics.jsonl`，無 size cap、無 rolling、無 retention 政策。19 個 skill × 每天若干次呼叫 × 365 天 ≈ 數萬筆，雖短期單檔大小可控（< 100MB 等級），但缺輪轉策略意味著未來必須 migration。
+- **緩解策略**：
+  - 短期（< 90 天）：每月主公手動檢查檔案大小，超過 10MB 就 archive 一次
+  - 中期：在 `gen_skill_metrics.py` 加 `--rotate` 子命令，按月切檔（`skill_metrics_2026-05.jsonl`）
+  - 長期：考慮改用 SQLite 取代 JSONL，原生支援查詢與 retention
+- **觸發升級**：檔案 ≥ 50MB → 升 🟡；單次 dashboard 生成耗時 ≥ 5s → 升 🔴 強制做輪轉
+
+---
+
+### R-013：M4 `--sync-rules` anchor heuristic 召回率低（P72.3 遺留）
+
+- **來源**：P72.3 收官（2026-05-14）/ B-006 通則化
+- **風險級**：🟡 中
+- **狀態**：Open（人工 SOP 緩解中）
+- **描述**：`m4_track_blindspots.py --sync-rules` 用字面 anchor 比對 B-NNN 通則化規則 vs PHASE_TEMPLATE.md，實測 PHASE_TEMPLATE v1.1 已含 B-001/B-003/B-005 對應規則但輸出顯示「已涵蓋 0 條」。Heuristic 沒處理同義改寫、結構性改寫、規則拆分三種變體，可能誤導 AI 或主公以為 PHASE_TEMPLATE 漏接規則而重複加入。
+- **緩解策略**：
+  - 短期：CLI 輸出最後一行強制印「⚠️ 召回率低，主公人工審核必要」（已落地）
+  - 中期：升級 anchor 為「規則關鍵詞 + 同義詞表」比對（如 `test_skill.py` ≈ `skill 測試` ≈ `Exit Criteria 測試項`）
+  - 長期：考慮用 embedding 相似度（Gemini embedding API）替代字面比對
+- **觸發升級**：主公在 ≥ 2 個 Phase 因為 `--sync-rules` 誤導而重複加入規則 → 升 🔴，強制中期方案落地
+
+---
+
+### R-014：4 個歷史 Phase（P63/P64/P69/P70.3）缺 blindspot（M4 偵測）
+
+- **來源**：P72.3 M4 `--status` 偵測（2026-05-14）
+- **風險級**：🟢 低
+- **狀態**：Open（待回填）
+- **描述**：M4 協議於 P71.1（2026-05-09）才落地，先前 4 個 Phase（P63/P64/P69/P70.3）的 postmortem 已寫但無對應 blindspots 檔。雖然當時的 postmortem 多少有涵蓋「以為清單」「教訓」，但未按 B-NNN 結構化，造成 `cross_phase_review.py` 無法自動撈取通則化規則，新 Phase 計畫書 §M3 段落只看得到 P71/P72 規則。
+- **緩解策略**：
+  - 短期：本風險即記錄事實本身（M4 是 P71.1 後協議，先前 Phase 不溯及既往）
+  - 中期：主公或 AI 視時間每次回填 1 個（`py scripts/m4_track_blindspots.py --scaffold p63` 等），不強制一次處理完
+- **觸發升級**：若 `cross_phase_review.py` 召回率因此低於 80% → 升 🟡，排獨立 Phase 一次回填
+
+---
+
+### R-015：test_dynamic_focus 3 個 pre-existing 失敗連跑 5 Phase 積欠（P72 遺留）
+
+- **來源**：P72.5 收官審視（2026-05-14）/ B-008 通則化
+- **風險級**：🟡 中
+- **狀態**：Open（升級為獨立 Phase 處理）
+- **描述**：`test_dynamic_focus.py` 3 個測試案例事件迴圈隔離問題（單檔跑 OK / 全套跑掛），從 P72.0 開始連續 5 個 Phase 被標為「pre-existing 不阻擋」，無人處理。違反 B-008 通則化「連 ≥ 3 個 Phase 標 pre-existing 必須升級為獨立 Phase」原則。
+- **緩解策略**：
+  - 短期：本風險記錄為「升級觸發證據」，後續 P73 或單獨 sub-phase 處理
+  - 中期：開獨立 Phase（暫名 P72.6 或 P73.0）專責修復事件迴圈隔離
+- **觸發升級**：若再被 ≥ 1 個 Phase 標為 pre-existing 放行 → 升 🔴，主公拍板強制下一 Phase 開工前先解
+- **關閉條件**：3 個測試案例全綠（單檔 / 全套皆通過）
+
+---
+
 ## 已關閉風險（Closed）
 
 ### R-009：smart-task-router SKILL.md `deployed_to` 欄位為空（P71.8 遺留）
@@ -143,3 +198,4 @@
 - **2026-05-07**：建立檔案（隨 P69 模型選擇指引啟用 STR6）；登記 R-001/R-002/R-003。
 - **2026-05-08**：P70.3 收官登記 R-004（UI/UX LINE 迴歸盲區）+ R-005（webkit deprecated 屬性 90 天 review）。P70.3.1 審計追加 R-006（舊報告同步風險）+ R-007（mobile blur fix，已關閉）+ R-008（a11y fix，已關閉）。
 - **2026-05-14**：P71.10 收官登記 R-009（deployed_to 空，已關閉）+ R-010（ui-ux-pro-max 無 test，已關閉）+ R-011（orphan lint warning，豁免觀察中）。
+- **2026-05-14**：P72.5 收官登記 R-012（metrics JSONL retention）+ R-013（M4 sync-rules anchor heuristic 召回率低）+ R-014（4 個歷史 Phase 缺 blindspot）+ R-015（test_dynamic_focus 積欠升級獨立 Phase）。
