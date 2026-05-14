@@ -1,9 +1,44 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-14（**P72.5 收官** + v1.2 升版主公全核可待寫入）
-- **狀態**：✅ P72.0~P72.5 全收官；⏳ **PHASE_TEMPLATE v1.2 升版主公已全核可，待下個視窗寫入**
+- **更新日期**：2026-05-14（**AGENTS.md 建立** + P72 遺留 commit 清理）
+- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線；⏳ **PHASE_TEMPLATE v1.2 升版待寫入**
 - **下個視窗第一動作**：寫入 PHASE_TEMPLATE v1.2（已全核可的 6 條，B-007 跳過）
+
+---
+
+## ⚡ 本視窗（2026-05-14 晚間）做了什麼
+
+| 項目 | Commit | 內容 |
+|---|---|---|
+| **AGENTS.md** | `7bf490e` | 新增 ChatGPT / Codex 專用工作守則（503 行 / 17 段落），整合自 CLAUDE.md + GEMINI.md + .agent/rules.md + .agents/rules/projectrules.md。含終端機環境規範、Skill 基礎設施、scripts 工具箱、63 維度稽核 |
+| **P72 收官紀錄** | `244ff72` | commit 先前未推的 TASK_HISTORY +109 行 / RISK_REGISTRY R-012~R-015 / HANDOFF 更新 |
+| **P72.5 postmortem** | `6f1bc32` | commit 先前未推的 2 份 postmortem + blindspots（B-006~B-010） |
+
+### AGENTS.md 涵蓋內容（17 段落速查）
+
+1. 專案總覽（五大模組）
+2. 稱呼與語言（主公 / 繁中）
+3. **新對話啟動協議**（讀 handoff → phase 記憶 → phase0 → registry）
+4. **計畫書先行鐵律**（版面精美 / 主公同意才動工）
+5. TASK_HISTORY 鐵律 + Hook 防呆（Codex 手動等效表）
+6. 無損技術存檔協議（7 條紀錄準則）
+7. 密涅瓦思考框架（4 大類）
+8. 寫程式行為準則
+9. **終端機環境與操作規範**（UTF-8 / py 慣例 / chcp / 檔案安全）
+10. **Git 工作流慣例**（commit 格式 7 type / push 必問主公）
+11. **Slash Command 對應表**（/prompt + /trend 的 CLI 入口）
+12. **Skill 基礎設施**（二級架構 / __main__.py / smart-task-router / 健康儀表板）
+13. **scripts 終端工具箱**（12 個腳本速查）
+14. 模型選擇指引（含 Gemini thinkingLevel + 200K+ 劣化警告）
+15. 17 層品質框架 v3.1（63 維度 + 3 Patch）
+16. Skill 自動觸發協議（S2 + V1 + 終端 plain 模式）
+17. 專案關鍵路徑速查表
+
+### 63 維度稽核結果
+
+- S 級 4 層 **全 PASS**
+- 稽核發現 2 項已當場修正：① Push 必問主公（L230）② test commit type 補齊（L223）
 
 ---
 
