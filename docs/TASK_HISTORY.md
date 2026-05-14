@@ -111,3 +111,26 @@
   `
 
 **退出條件**：✅ 腳本建立 / ✅ CI workflow 建立 / ✅ dry-run 正常 / ✅ 設定指引清晰
+
+### P72.2 — 歷史交叉審查機制（M3 自動化）（2026-05-14）
+
+**目標**：自動從 docs/postmortems/ 讀近期盲點與教訓，生成 M3 體檢 checklist，供新 Phase 計畫書「逐條確認是否重蹈」。
+
+**物理真相**：
+- scripts/cross_phase_review.py（NEW）
+  - 讀最近 N 個 postmortem 檔案（預設 5）
+  - 盲點檔案：抽 B-xxx 通則化條文
+  - 一般 postmortem：抽 核心教訓 + 以為清單（各去重、去噪）
+  - 輸出 Markdown checklist（text）或 JSON
+  - --list 列出所有可用 postmortem
+
+**使用方式**：
+  `
+  py -3 scripts/cross_phase_review.py            # 最近 5 個 postmortem
+  py -3 scripts/cross_phase_review.py --recent 3 # 最近 3 個
+  py -3 scripts/cross_phase_review.py --list     # 列清單
+  `
+
+**M3 整合流程**：新 Phase 計畫書草稿完成後，執行本腳本，將輸出貼入 §M3 段落逐條勾選，才視為 Pre-flight 通過。
+
+**退出條件**：✅ 腳本建立 / ✅ --list 正確 / ✅ --recent 3 輸出 16 條無重複教訓
