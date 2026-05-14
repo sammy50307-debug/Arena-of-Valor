@@ -1,45 +1,86 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-14（P71.10 全收官）
-- **狀態**：✅ P71.0～P71.10 全收官；⏳ P72 待動工
-- **下個視窗開局**：直接動工 **P72.0 — metrics 基礎建設（O1-O3）**
+- **更新日期**：2026-05-14（P72.3 收官，連跑 5 個 phase）
+- **狀態**：✅ P72.0 / P72.1 / P72.2 / P72.3 / P72.4 全收官；⏳ **P72.5 待動工**
+- **下個視窗開局**：直接動工 **P72.5 — Postmortem + R 系列風險登記**（P72 系列收官 phase）
 
 ---
 
-## 🚀 下個視窗動工：P72.0 — Skill Metrics 基礎建設
+## 🚀 下個視窗動工：P72.5 — Postmortem + R 系列風險登記
 
-**目標**：為 skill 體系建立可量化的使用指標基礎（O1-O3），讓 SKILL_HEALTH 從「存在/缺失」升級到「活躍度/命中率」。
+**目標**：為 P72 系列（P72.0~P72.4）寫 postmortem + blindspots，並把本系列暴露的新風險登入 RISK_REGISTRY。是 P72 系列的最後一塊。
 
-### P72.0 工作清單（依 P71_PLAN.md P72 範圍宣告）
+### P72.5 工作清單
 
-| Phase | 動作 | 對應優化點 | 視窗估計 |
-|---|---|---|---|
-| **P72.0** | metrics 基礎建設（O1-O3）| O1, O2, O3 | 1 |
-| **P72.1** | 雙 remote 自動 backup | D1 | 0.5 |
-| **P72.2** | 歷史交叉審查機制（M3）| M3 | 0.5 |
-| **P72.3** | 時效追溯機制（M4 從手動升級為自動）| M4 | 0.5 |
-| **P72.4** | metrics 接入 SKILL_HEALTH.md | — | 0.3 |
-| **P72.5** | Postmortem + R 系列風險登記 | — | 0.3 |
+1. **寫 P72 postmortem**：`docs/postmortems/2026-05-14-phase-72-<topic>.md`
+   - 主題建議：「metrics 基礎建設 + M3/M4 自動化的順序拼接」
+   - 涵蓋 P72.0-P72.4 的核心教訓（≥ 3 條「我以為」事件）
 
-### 入口條件（P72.0 Entry Criteria）
+2. **寫 P72 blindspots**：直接用 `py scripts/m4_track_blindspots.py --scaffold p72` 生成樣板，再填 ≥ 3 條 B-NNN
+   - 候選盲點：
+     - `--sync-rules` anchor heuristic 太嚴格（測試發現「已涵蓋 0 條」明顯低估）
+     - PowerShell 與 bash heredoc 不互通（多次 commit 卡在這）
+     - test_dynamic_focus 3 個 pre-existing 失敗一直沒解（事件迴圈隔離）
 
-- ✅ P71 全收官（P71.0 ~ P71.10）
-- ✅ 19/19 skill 全綠
-- ✅ RISK_REGISTRY R-009~011 已登記
-- ✅ P71 Postmortem + Blindspots 已產出
+3. **登入 RISK_REGISTRY**：R-012+ 系列
+   - R-012 候選：metrics JSONL 檔無 size cap → 跑久了會無限長
+   - R-013 候選：M4 sync-rules anchor heuristic 召回率低
+   - R-014 候選：4 個歷史 phase（P63/P64/P69/P70.3）缺 blindspot（M4 偵測出來）
 
-### 當前 Skill 狀態（P71.10 收官快照）
+4. **回填歷史 phase blindspots**（可選，視時間）：
+   - `py scripts/m4_track_blindspots.py --status` 看缺哪些
+   - 對 P63/P64/P69/P70.3 逐一 `--scaffold` 後人工填寫
 
-- **🟢 19 / 🟡 0 / 🔴 0** — 史上首次全綠（2026-05-11 達成，P71.10 維持）
-- 詳見 `docs/SKILL_HEALTH.md`
+### 入口條件（P72.5 Entry Criteria）
+
+- ✅ P72.0~P72.4 全收官
+- ✅ M4 自動化腳本（scripts/m4_track_blindspots.py）可用
+- ✅ 19/19 skill 維持全綠
+
+### 退出條件（P72.5 Exit Criteria）
+
+- ✅ P72 postmortem 寫好（≥ 3 條核心教訓）
+- ✅ P72 blindspots 寫好（≥ 3 條 B-NNN）
+- ✅ RISK_REGISTRY 新增 ≥ 2 條 R 系列
+- ✅ `--status` 對 P72 顯示「已配對」
 
 ### 參考文件
 
 - `docs/P71_PLAN.md`（v1.2 凍結版）§ P72 範圍宣告
-- `docs/RISK_REGISTRY.md` — R-009~011 已登記（2026-05-14）
-- `docs/postmortems/2026-05-14-phase-71-skill-deployment-decay.md`
-- `docs/postmortems/2026-05-14-phase-71-blindspots.md`（M4 首次套用，5 條盲點）
+- `docs/RISK_REGISTRY.md` — R-009~011 已登記，P72.5 接續 R-012+
+- `scripts/m4_track_blindspots.py` —— P72.3 新建，本 phase 直接套用
+
+---
+
+## ⚡ 本視窗（2026-05-14）做了什麼 — P72 系列連跑 5 Phase
+
+| Phase | Commit | 內容 |
+|---|---|---|
+| **P72.0** | `0894548` | Skill Metrics 基礎建設：`scripts/skill_metrics_logger.py` + 11 × __main__.py 接 `_run_with_metrics()` + `scripts/gen_skill_metrics.py` CLI + 16 單測 |
+| **P72.4** | `7855714` | metrics 接入 SKILL_HEALTH.md：gen_skill_health.py 偵測 metrics 自動展開 11 欄表格（含 O1/O2/O3 數據）|
+| **P72.1** | `b6119d2` | 雙 remote 自動 backup：`scripts/backup_push.py`（local CLI）+ `.github/workflows/backup-mirror.yml`（CI），尚未設 BACKUP_REMOTE_URL secret 所以 CI 是 no-op |
+| **P72.2** | `a1492db` | M3 歷史交叉審查自動化：`scripts/cross_phase_review.py` 從 postmortems 抽 B-NNN 通則化 + 核心教訓 + 以為清單，輸出 Markdown checklist 供新 Phase 計畫書 §M3 段落使用 |
+| **P72.3** | `ce904f5` | M4 時效追溯自動化：`scripts/m4_track_blindspots.py`（--status / --scaffold / --sync-rules）+ 21 單測，**不可逆動作隔離**（不自動寫 PHASE_TEMPLATE.md）|
+
+### 累積測試成績
+- **全套**：109 passed / 3 failed（3 failed 為 pre-existing test_dynamic_focus 事件迴圈隔離，全 P72 系列無回歸）
+- **P72.0**：16 單測
+- **P72.3**：21 單測
+
+### 已知遺留問題（P72.5 候選盲點素材）
+
+1. **test_dynamic_focus 3 個 pre-existing 失敗**：跑單檔 OK、跑全套會掛，事件迴圈共用問題。連跑 5 個 Phase 都沒處理，已成積欠。
+2. **`--sync-rules` anchor heuristic 召回率低**：實測 PHASE_TEMPLATE v1.1 已含 B-001/003/005 規則但 anchor 沒匹配上。文件已標「主公人工審核」但仍是粗糙設計。
+3. **metrics JSONL 無 size cap**：`~/.claude/skill_metrics.jsonl` append-only，跑久會無限長。
+4. **P72 commits 尚未 push**：本視窗收尾時主公決定。
+
+### 本視窗未做（為何沒做）
+
+- ❌ **push 到 origin/main**：守則「push 必問」，等主公拍板
+- ❌ **P72.5**（postmortem + 風險登記）：刻意留下個視窗開工，給足思考空間寫盲點
+
+---
 
 ---
 
