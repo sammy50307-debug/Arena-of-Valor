@@ -23,9 +23,10 @@ P71_PHASES = [
     ("P71.5", "8 shared → `D:/skills-shared/` + registry 絕對路徑", "✅"),
     ("P71.6", "smart-task-router 救活（L2 路由引擎）", "✅"),
     ("P71.7", "SKILL_HEALTH.md Dashboard（本腳本）", "✅"),
-    ("P71.8", "7 個 Gemini diff 主公裁決", "⏳"),
-    ("P71.9", "8 個 orphan 處置", "⏳"),
-    ("P71.10", "Postmortem + R-009~011", "⏳"),
+    ("P71.8", "6 stale shared skills Gemini 同步", "✅"),
+    ("P71.9", "7 orphan → in-use + 補 S1 schema + __main__.py", "✅"),
+    ("P71.10", "Postmortem + R-009~011 風險登記", "✅"),
+    ("P72.0", "metrics 基礎建設（O1/O2/O3）", "✅"),
 ]
 
 
