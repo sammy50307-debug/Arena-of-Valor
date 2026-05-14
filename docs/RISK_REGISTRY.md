@@ -103,9 +103,38 @@
 
 ---
 
+### R-011：Orphan SKILL.md 仍為舊格式（22 條 lint warning）
+
+- **來源**：P71.9 收官（2026-05-11）
+- **風險級**：🟢 低
+- **狀態**：Open（豁免觀察）
+- **描述**：P71.8/P71.9 處置的 orphan/archived skill SKILL.md 尚未全面升級為 S1 schema 格式，`lint_skill_registry.py` 對這些檔案產生 22 條 lint warning。這些 skill 均已標記為非 in-use（orphan/archived），不影響正常觸發路徑。
+- **緩解策略**：
+  - 短期：豁免 orphan/archived skill 的 S1 schema 強制要求；lint 工具已以 `--warn-only` 模式處理這些 warning
+  - 中期：若有 orphan skill 復活為 in-use，升級為必做項
+- **觸發升級**：orphan skill 重新啟用 → 必須完成 S1 schema 升級才能 commit
+
+---
+
 ## 已關閉風險（Closed）
 
-（暫無）
+### R-009：smart-task-router SKILL.md `deployed_to` 欄位為空（P71.8 遺留）
+
+- **來源**：P71.8 前（2026-05-11 前後發現）
+- **風險級**：🟢 低
+- **狀態**：✅ 已修補（P71.10，2026-05-14）
+- **描述**：P71.8 升級 smart-task-router 為 in-use 時，SKILL.md 的 `deployed_to` 欄位遺留為空陣列 `[]`，未正確標記部署目標 `claude-project`，導致 registry 中部署資訊不完整。
+- **修補**：P71.10 將 `deployed_to: []` 修正為 `deployed_to: ["claude-project"]`。
+
+---
+
+### R-010：ui-ux-pro-max skill 缺少 test_skill.py（P71.9 遺留）
+
+- **來源**：P71.9 收官前發現（2026-05-11）
+- **風險級**：🟡 中（SKILL_HEALTH 顯示 🔴）
+- **狀態**：✅ 已修補（P71.9+，2026-05-11）
+- **描述**：P71.9 處置 orphan skill 時，ui-ux-pro-max 升級為 in-use 但未補充 `test_skill.py`，導致 SKILL_HEALTH 顯示該 skill 為 🔴，打破「19 全綠」目標。
+- **修補**：P71.9+ 補充 6/6 測試案例（schema lint / CLI 執行 / V1 觸發塊 / when_to_use / 範例查詢 / 輸出格式），達成史上首次 19/19 全綠。
 
 ---
 
@@ -113,3 +142,4 @@
 
 - **2026-05-07**：建立檔案（隨 P69 模型選擇指引啟用 STR6）；登記 R-001/R-002/R-003。
 - **2026-05-08**：P70.3 收官登記 R-004（UI/UX LINE 迴歸盲區）+ R-005（webkit deprecated 屬性 90 天 review）。P70.3.1 審計追加 R-006（舊報告同步風險）+ R-007（mobile blur fix，已關閉）+ R-008（a11y fix，已關閉）。
+- **2026-05-14**：P71.10 收官登記 R-009（deployed_to 空，已關閉）+ R-010（ui-ux-pro-max 無 test，已關閉）+ R-011（orphan lint warning，豁免觀察中）。
