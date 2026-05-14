@@ -46,5 +46,29 @@ def main() -> None:
         print(f"（{args.category} 類別尚無資料，請直接向 LLM 詢問設計建議）")
 
 
+def _run_with_metrics() -> None:
+    import time as _time
+    _t0 = _time.perf_counter()
+    _rc = 0
+    try:
+        _ret = main()
+        _rc = _ret if isinstance(_ret, int) else 0
+    except SystemExit as _e:
+        _rc = _e.code if isinstance(_e.code, int) else (0 if _e.code is None else 1)
+    except Exception:
+        _rc = 1
+    finally:
+        _dur = (_time.perf_counter() - _t0) * 1000
+    try:
+        _scripts = str(Path(__file__).resolve().parents[3] / "scripts")
+        if _scripts not in sys.path:
+            sys.path.insert(0, _scripts)
+        from skill_metrics_logger import record as _rec
+        _rec("ui-ux-pro-max", _dur, _rc)
+    except Exception:
+        pass
+    sys.exit(_rc)
+
+
 if __name__ == "__main__":
-    main()
+    _run_with_metrics()

@@ -41,3 +41,32 @@
 
 **狀態**：✅ P71 全部收官（P71.0 ~ P71.10）
 
+### P72.0 — Skill Metrics 基礎建設（O1-O3）（2026-05-14）
+
+**目標**：為 skill CLI 執行建立可量化指標基礎，讓 SKILL_HEALTH 從「存在/缺失」升級到「活躍度/命中率」。
+
+**對應優化點**：O1（執行時長）/ O2（失敗率）/ O3（Token 消耗）
+
+**17 層稽核**（標準 Phase 14 檔 S+A 必過）：
+- S 級全過：Code/Logic/Testing/Security
+- A 級全過：Architecture（R-P72-02）/ Data（R-P72-01）/ Observability / Resilience / Maintainability / Documentation / Process
+- B 級 N/A：無外部 API / 無 UI / 無部署 / 無 i18n
+
+**物理真相**：
+- scripts/skill_metrics_logger.py（NEW）— record() / load_all() / summarize()，寫至 ~/.claude/skill_metrics.jsonl
+- scripts/gen_skill_metrics.py（NEW）— CLI reader，輸出 O1/O2/O3 表格
+- 	ests/test_skill_metrics_logger.py（NEW）— 16/16 全綠
+- .agent/skills/*/ 11 個 __main__.py（UPDATED）— 加 _run_with_metrics() wrapper
+- scripts/gen_skill_health.py（UPDATED）— P71 全收官標記 + P72.0 行加入
+
+**測試結果**：
+- 	est_skill_metrics_logger.py：16/16 ✅
+- 全套：91 tests = 88 passed + 3 failed（pre-existing test_dynamic_focus event loop 問題，非本次引入）
+- **零回歸**
+
+**風險登記**：
+- R-P72-01：skill_metrics.jsonl 無限增長（延 P73 加輪換）
+- R-P72-02：4層 parents[3] path 跳轉在目錄重組後可能失效（接受，目錄結構已固定）
+- R-P72-03：O3 token 為 placeholder 0，P72.4 整合再填真實值
+
+**退出條件**：✅ logger 建立 / ✅ 11 __main__.py 更新 / ✅ gen_skill_metrics.py 建立 / ✅ 16/16 測試全綠 / ✅ SKILL_HEALTH 更新
