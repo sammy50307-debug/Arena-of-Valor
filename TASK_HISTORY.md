@@ -5626,3 +5626,112 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 - daily-diff-radar / session-handoff-packager：補 slash command
 
 **狀態**：✅ P71.9 完成；commit `50f2395`；下一站 P71.10（Postmortem）
+
+---
+
+### P72.0 — Skill Metrics 基礎建設（收官 2026-05-14）
+
+**目標**：補齊 skill 體系的「運行時可觀察性」缺口。
+
+**修法**：
+- 新增 `scripts/skill_metrics_logger.py`：`_run_with_metrics()` 包裝器寫 JSONL 至 `~/.claude/skill_metrics.jsonl`
+- 11 個 `__main__.py` 接入 `_run_with_metrics()`
+- 新增 `scripts/gen_skill_metrics.py` CLI 聚合 O1（呼叫數）/ O2（成功率）/ O3（平均耗時）
+- 16 單測（全綠）
+
+**commit**：`0894548`
+
+---
+
+### P72.4 — metrics 接入 SKILL_HEALTH.md Dashboard（收官 2026-05-14）
+
+**目標**：把 P72.0 的 JSONL 數據自動展現在 SKILL_HEALTH 看板。
+
+**修法**：`gen_skill_health.py` 偵測 metrics 存在自動展開 11 欄表格（原 4 欄 + O1/O2/O3 + last_used + p50_ms + p95_ms）；無 metrics 時 graceful 退回 4 欄。
+
+**commit**：`7855714`
+
+---
+
+### P72.1 — 雙 remote 自動 backup（收官 2026-05-14）
+
+**目標**：避免單一 GitHub remote 失效造成資料損失（G3 緊急應變）。
+
+**修法**：
+- 新增 `scripts/backup_push.py`（local CLI）—— 推 origin + 第二 remote
+- 新增 `.github/workflows/backup-mirror.yml`（CI mirror）
+- 已知遺留：`BACKUP_REMOTE_URL` secret 未設 → CI 是 no-op（候選 R 系列：待設遠端後啟用）
+
+**commit**：`b6119d2`
+
+---
+
+### P72.2 — M3 跨 Phase 審查自動化（收官 2026-05-14）
+
+**目標**：把「新 Phase 計畫書 §M3 段落要回顧過往通則化規則」這條協議從人工變自動。
+
+**修法**：新增 `scripts/cross_phase_review.py` —— 掃 `docs/postmortems/*.md` 抽 B-NNN 通則化、核心教訓、以為清單，輸出 Markdown checklist 給新 Phase 計畫書貼用。
+
+**commit**：`a1492db`
+
+---
+
+### P72.3 — M4 時效追溯機制自動化（收官 2026-05-14）
+
+**目標**：M4 協議從「每 Phase 收官人工檢查 blindspot」升級為自動化命令。
+
+**修法**：新增 `scripts/m4_track_blindspots.py` 三命令：
+- `--status`：列 phase × postmortem × blindspot 對照表
+- `--scaffold <ph>`：為缺 blindspot Phase 生成 B-NNN 樣板
+- `--sync-rules`：dry-run 比對 B-NNN 通則 vs PHASE_TEMPLATE.md（**X1 不可逆動作隔離**：只印建議，不自動寫入 PHASE_TEMPLATE）
+
+**測試**：21 單測（全綠）
+
+**commit**：`ce904f5`
+
+---
+
+### P72.5 — Postmortem + R 系列風險登記（收官 2026-05-14）
+
+**目標**：為 P72 系列（P72.0~P72.4）寫 postmortem + blindspots，把本系列暴露的新風險登入 RISK_REGISTRY，作為 P72 系列收尾 Phase。
+
+**修法**：
+
+1. **P72 Postmortem** ── `docs/postmortems/2026-05-14-phase-72-metrics-and-m3m4-stitching.md`
+   - 涵蓋 P72.0~P72.4 五個 Phase
+   - 核心教訓（G6 通則化）≥ 4 條：
+     - 治理規則的「規格」與「工具」必須同 Phase 落地
+     - 自動化建議性決策必須與自動化執行明確切割（X1）
+     - 可觀察性 metrics 必須有 size cap / 滾動策略
+     - 跨平台腳本必須兩端實測
+   - 「以為」清單 6 條
+
+2. **P72 Blindspots** ── `docs/postmortems/2026-05-14-phase-72-blindspots.md`（M4 `--scaffold p72` 生成樣板後填充）
+   - B-006：`--sync-rules` anchor heuristic 召回率低
+   - B-007：PowerShell 與 bash here-doc 不互通
+   - B-008：test_dynamic_focus 3 個 pre-existing 失敗連跑 5 Phase 積欠
+   - B-009：metrics JSONL 無 size cap 與輪轉策略
+   - B-010：B-NNN 編號衝突防範（本 Phase 自踩 B-005 重複，發現後重編 B-006~B-009）
+   - **PHASE_TEMPLATE v1.2 升版「待議」**：X1 原則下不自動寫入
+
+3. **RISK_REGISTRY 新增 R-012 ~ R-015**：
+   - R-012：metrics JSONL retention（🟢→🟡 長期）
+   - R-013：M4 sync-rules anchor heuristic 召回率（🟡 人工 SOP 緩解）
+   - R-014：4 個歷史 Phase（P63/P64/P69/P70.3）缺 blindspot（🟢 待回填）
+   - R-015：test_dynamic_focus 積欠升級為獨立 Phase（🟡 觀察）
+
+4. **驗收**：`py scripts/m4_track_blindspots.py --status`
+   ```
+   P72   1   1   ✅ 已配對
+   ```
+
+**17 層稽核（影響半徑：3 檔 → 標準 Phase，S+A 必填）**：
+- S 級 4 層全過（無代碼/邏輯/安全變更，測試靠 --status 驗收）
+- A 級適用 5 層全過（可觀察性 = postmortem 本身、可維護性 = P71 樣板沿用、文件 = 主軸、流程 = 收官同步 handoff）
+- B 級 N/A
+
+**Pre-flight 9 視角 + 紅藍對抗 ≥ 5 質疑**：草案產出時完成（含 test_dynamic_focus 是否本 Phase 處理 → 拒絕，獨立成 R-015）
+
+**可逆性 X1**：postmortem/blindspots 新檔 = 完全可逆；RISK_REGISTRY 追加 = 半可逆；**不動 PHASE_TEMPLATE.md**（凍結文件，遵 P72.3 設計）
+
+**狀態**：✅ P72.5 完成；P72 系列（P72.0~P72.5）全收官；commit 待主公拍板

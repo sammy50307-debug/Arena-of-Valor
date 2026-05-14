@@ -1,55 +1,110 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-14（P72.3 收官，連跑 5 個 phase）
-- **狀態**：✅ P72.0 / P72.1 / P72.2 / P72.3 / P72.4 全收官；⏳ **P72.5 待動工**
-- **下個視窗開局**：直接動工 **P72.5 — Postmortem + R 系列風險登記**（P72 系列收官 phase）
+- **更新日期**：2026-05-14（**P72.5 收官** + v1.2 升版主公全核可待寫入）
+- **狀態**：✅ P72.0~P72.5 全收官；⏳ **PHASE_TEMPLATE v1.2 升版主公已全核可，待下個視窗寫入**
+- **下個視窗第一動作**：寫入 PHASE_TEMPLATE v1.2（已全核可的 6 條，B-007 跳過）
 
 ---
 
-## 🚀 下個視窗動工：P72.5 — Postmortem + R 系列風險登記
+## 🚨 下個視窗開局第一動作：寫入 PHASE_TEMPLATE v1.2
 
-**目標**：為 P72 系列（P72.0~P72.4）寫 postmortem + blindspots，並把本系列暴露的新風險登入 RISK_REGISTRY。是 P72 系列的最後一塊。
+**背景**：P72.5 收官時 `--sync-rules` 暴露 R-013 anchor heuristic 召回率低，主公決定（選項 C）先消化 B-NNN 通則化規則升版 PHASE_TEMPLATE.md。草案 7 條主公已**全核可**，但本視窗 token 將盡，暫不寫入，留下視窗開工。
 
-### P72.5 工作清單
+### v1.2 升版內容（**全核可，可直接寫入**）
 
-1. **寫 P72 postmortem**：`docs/postmortems/2026-05-14-phase-72-<topic>.md`
-   - 主題建議：「metrics 基礎建設 + M3/M4 自動化的順序拼接」
-   - 涵蓋 P72.0-P72.4 的核心教訓（≥ 3 條「我以為」事件）
+> **X1 不可逆動作**：PHASE_TEMPLATE.md 是凍結文件。本次升版已獲主公親口「全核可」確認（2026-05-14 對話紀錄），下個視窗 AI **可直接寫入**，無需再次請示。
 
-2. **寫 P72 blindspots**：直接用 `py scripts/m4_track_blindspots.py --scaffold p72` 生成樣板，再填 ≥ 3 條 B-NNN
-   - 候選盲點：
-     - `--sync-rules` anchor heuristic 太嚴格（測試發現「已涵蓋 0 條」明顯低估）
-     - PowerShell 與 bash heredoc 不互通（多次 commit 卡在這）
-     - test_dynamic_focus 3 個 pre-existing 失敗一直沒解（事件迴圈隔離）
+| # | 來源 | 動作 | 插入位置 |
+|---|---|---|---|
+| **1** | B-002 (P71) | 新增 **§0.5「狀態轉換清單」**（條件式必填）：若本 Phase 涉及 skill/模組生命週期轉換（active/archived/orphan），明定 (a) 狀態定義 (b) 轉換條件 (c) 轉換執行者 | §0 元資料之後 |
+| **2** | B-004 (P71) | **§STR9 表格下加備註**：「schema lint 要同時驗『欄位存在』與『欄位值有意義』；`deployed_to: []` 對 in-use skill 視為 warning」 | §STR9 表格下方 |
+| **3** | B-006 (P72) | **§7 X4 加新項 X4-J「自動化建議性工具邊界」**：列出本 Phase 引入的字面比對啟發式 + 標注「召回率僅供參考」邊界 | §7 X4 之後 |
+| **4** | ~~B-007~~ | ⚠️ **跳過**（屬 CLAUDE.md 鐵律範圍，留待另開鐵律 v0.5 升版議題）| — |
+| **5** | B-008 (P72) | **§M2 紅藍對抗表格加必填欄位「pre-existing 失敗計次」**：每條 pre-existing failing test 記錄已被多少 Phase 跳過，≥ 3 須升為獨立 Phase | §M2 表格加一欄 |
+| **6** | B-009 (P72) | **§6 A 級可觀察性層加備註**：「本 Phase 若引入 append-only 檔案（log/metrics/audit trail），必須明列 size cap / rolling policy / retention SOP 三項中至少一項」 | §6 可觀察性層 |
+| **7** | B-010 (P72) | **§11 Postmortem 預埋點加備註框**：「下個 B-NNN / R-NNN 編號查詢命令：`grep -h '^### [BR]-' docs/**.md \| sort -u \| tail`；B-NNN/R-NNN 全域連續，禁止 Phase 內局部編號」 | §11 之後加備註框 |
 
-3. **登入 RISK_REGISTRY**：R-012+ 系列
-   - R-012 候選：metrics JSONL 檔無 size cap → 跑久了會無限長
-   - R-013 候選：M4 sync-rules anchor heuristic 召回率低
-   - R-014 候選：4 個歷史 phase（P63/P64/P69/P70.3）缺 blindspot（M4 偵測出來）
+### 版本戳記更新（必做）
 
-4. **回填歷史 phase blindspots**（可選，視時間）：
-   - `py scripts/m4_track_blindspots.py --status` 看缺哪些
-   - 對 P63/P64/P69/P70.3 逐一 `--scaffold` 後人工填寫
+**舊**（PHASE_TEMPLATE.md 第 234 行附近）：
+```
+*樣板版本：v1.1（2026-05-09 P71.1 新增 STR9/STR10/Pre-flight 體檢 M1+M2）*
+```
 
-### 入口條件（P72.5 Entry Criteria）
+**新**：
+```
+*樣板版本：v1.2（2026-05-14 P72.5 新增 6 項升版：§0.5 狀態轉換清單 / STR9 lint 強化備註 / X4-J 自動化工具邊界 / M2 pre-existing 計次 / §6 retention 備註 / §11 B-NNN 查詢備註）*
+```
 
-- ✅ P72.0~P72.4 全收官
-- ✅ M4 自動化腳本（scripts/m4_track_blindspots.py）可用
-- ✅ 19/19 skill 維持全綠
+### 額外連帶更新（寫入後一併處理）
 
-### 退出條件（P72.5 Exit Criteria）
+1. **P71 blindspots 體檢清單升版摘要表格**：v1.2 欄從「待議」改「**已落地（2026-05-14 P72.5 寫入）**」（檔案 `docs/postmortems/2026-05-14-phase-71-blindspots.md` 第 86 行附近）
+2. **P72 blindspots 體檢清單升版摘要表格**：v1.2 欄從「待議」改「**已落地（2026-05-14 P72.5 寫入）**」（檔案 `docs/postmortems/2026-05-14-phase-72-blindspots.md`）
+3. **跑 `py scripts/m4_track_blindspots.py --sync-rules`** 驗收 — 此時應該看到 anchor heuristic 對部分規則命中（不會 100%，因為 R-013 已記錄此 heuristic 召回率本身就低）
+4. **TASK_HISTORY 追加 P72.5 補遺段落**：記錄 v1.2 寫入動作 + commit 訊息草稿（cat >> heredoc，不用 Edit）
+5. **更新 handoff** 標 v1.2 已落地
 
-- ✅ P72 postmortem 寫好（≥ 3 條核心教訓）
-- ✅ P72 blindspots 寫好（≥ 3 條 B-NNN）
-- ✅ RISK_REGISTRY 新增 ≥ 2 條 R 系列
-- ✅ `--status` 對 P72 顯示「已配對」
+### 動工順序（下個視窗）
 
-### 參考文件
+```
+1. Read docs/PHASE_TEMPLATE.md（特別是 §0、§STR9、§7 X4、§M2、§6、§11）
+2. 用 Edit 工具依「插入位置」逐條插入 6 條升版內容
+3. 更新版本戳記（第 234 行附近）
+4. Edit 兩份 blindspots 把「v1.2 待議」改「已落地」
+5. py scripts/m4_track_blindspots.py --sync-rules 驗收
+6. cat >> TASK_HISTORY.md 寫 P72.5 補遺段落
+7. 更新本 handoff 移除「下個視窗第一動作」段
+8. （主公拍板才 commit / push）
+```
 
-- `docs/P71_PLAN.md`（v1.2 凍結版）§ P72 範圍宣告
-- `docs/RISK_REGISTRY.md` — R-009~011 已登記，P72.5 接續 R-012+
-- `scripts/m4_track_blindspots.py` —— P72.3 新建，本 phase 直接套用
+### 後續候選 Phase
+
+寫完 v1.2 後，主公可選：
+- P70.2 GHA 每日健康巡檢
+- P70.4 OpenAI fallback
+- P70.6 llm_cache LRU / TTL
+- R-014 歷史 4 Phase blindspot 回填（P63/P64/P69/P70.3）
+- R-015 升級為獨立 Phase 處理 test_dynamic_focus
+
+---
+
+---
+
+## 🚀 下個視窗候選動工選項（主公擇一）
+
+### 選項 A：P70.2 — GHA 每日健康巡檢
+排查 5/7、5/8 連 2 天 GHA 無報告原因，補健康巡檢機制。
+
+### 選項 B：P70.4 — OpenAI fallback
+Gemini 失敗時的退路，避免單一 LLM 供應商風險。
+
+### 選項 C：P70.6 — llm_cache LRU / TTL 機制（預防性）
+為避免 cache 無限增長的預防性改造。
+
+### 選項 D：R-014 收尾 — 4 個歷史 Phase blindspot 回填
+對 P63/P64/P69/P70.3 逐一 `py scripts/m4_track_blindspots.py --scaffold pXX` 後填寫。
+
+### 選項 E：R-015 升級 — test_dynamic_focus 獨立 Phase
+連跑 5 個 Phase 積欠的事件迴圈隔離問題，本 Phase 已升級為獨立 Phase 處理候選。
+
+---
+
+## ✅ P72.5 收官紀錄（2026-05-14）
+
+**產出**：
+| 檔案 | 內容 |
+|---|---|
+| `docs/postmortems/2026-05-14-phase-72-metrics-and-m3m4-stitching.md` | P72 系列 postmortem，4 條核心教訓 + 6 條「以為」清單 |
+| `docs/postmortems/2026-05-14-phase-72-blindspots.md` | B-006~B-010 共 5 條盲點（含通則化；B-010 為本 Phase 自踩編號衝突）|
+| `docs/RISK_REGISTRY.md` | 新增 R-012/R-013/R-014/R-015（4 條開放風險）|
+| `TASK_HISTORY.md` | 追加 P72.0~P72.5 共 6 段收官紀錄（+108 行）|
+
+**驗收**：`py scripts/m4_track_blindspots.py --status` → P72 顯示「✅ 已配對」
+
+**X1 不可逆動作隔離**：PHASE_TEMPLATE.md v1.2 升版項記為「待議」，本 Phase 依「先草案後寫入」流程處理（B-006~B-010 + P71 待議 B-002/B-004 對應規則待主公逐條核可後另行升版）。
+
+**待 commit**：本視窗收尾時主公拍板（守則「push 必問」）。
 
 ---
 
