@@ -38,7 +38,7 @@ environments:
   antigravity: true
   pure_llm: true
 
-deployed_to: []
+deployed_to: ["claude-project"]
 requires:
   python: ">=3.10"
   packages: []

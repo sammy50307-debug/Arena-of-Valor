@@ -1,35 +1,45 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-11（P71.7～P71.9 + ui-ux-pro-max test 全收官）
-- **狀態**：✅ P71.0～P71.9 全收官；⏳ P71.10 待動工
-- **下個視窗開局**：直接動工 **P71.10 — Postmortem + R-009~011**
+- **更新日期**：2026-05-14（P71.10 全收官）
+- **狀態**：✅ P71.0～P71.10 全收官；⏳ P72 待動工
+- **下個視窗開局**：直接動工 **P72.0 — metrics 基礎建設（O1-O3）**
 
 ---
 
-## 🚀 下個視窗動工：P71.10 — Postmortem + R-009~011
+## 🚀 下個視窗動工：P72.0 — Skill Metrics 基礎建設
 
-**目標**：P71 整體復盤，補錄 R-009~011 風險登記，產出 Postmortem 文件。
+**目標**：為 skill 體系建立可量化的使用指標基礎（O1-O3），讓 SKILL_HEALTH 從「存在/缺失」升級到「活躍度/命中率」。
 
-### P71.10 工作清單
+### P72.0 工作清單（依 P71_PLAN.md P72 範圍宣告）
 
-| 項目 | 說明 |
-|---|---|
-| Postmortem 文件 | `docs/postmortem/P71_postmortem.md`（依模板） |
-| R-009 | smart-task-router deployed_to 空（P71.8 前的遺留）已補 claude-project |
-| R-010 | ui-ux-pro-max 無 test → **已解決**（本視窗補齊） |
-| R-011 | orphan SKILL.md 仍為舊格式（22 條 lint warning）→ 視必要性補齊或豁免 |
-| 跨 Phase 學習 | P71.0～P71.9 九段教訓提煉（G6 + STR8） |
+| Phase | 動作 | 對應優化點 | 視窗估計 |
+|---|---|---|---|
+| **P72.0** | metrics 基礎建設（O1-O3）| O1, O2, O3 | 1 |
+| **P72.1** | 雙 remote 自動 backup | D1 | 0.5 |
+| **P72.2** | 歷史交叉審查機制（M3）| M3 | 0.5 |
+| **P72.3** | 時效追溯機制（M4 從手動升級為自動）| M4 | 0.5 |
+| **P72.4** | metrics 接入 SKILL_HEALTH.md | — | 0.3 |
+| **P72.5** | Postmortem + R 系列風險登記 | — | 0.3 |
 
-### 當前 Skill 狀態（收工快照）
+### 入口條件（P72.0 Entry Criteria）
 
-- **🟢 19 / 🟡 0 / 🔴 0** — 史上首次全綠
-- 詳見 `docs/SKILL_HEALTH.md`（2026-05-11 生成）
+- ✅ P71 全收官（P71.0 ~ P71.10）
+- ✅ 19/19 skill 全綠
+- ✅ RISK_REGISTRY R-009~011 已登記
+- ✅ P71 Postmortem + Blindspots 已產出
+
+### 當前 Skill 狀態（P71.10 收官快照）
+
+- **🟢 19 / 🟡 0 / 🔴 0** — 史上首次全綠（2026-05-11 達成，P71.10 維持）
+- 詳見 `docs/SKILL_HEALTH.md`
 
 ### 參考文件
 
-- `docs/P71_PLAN.md`（v1.2 凍結版）§ P71.10
-- `docs/RISK_REGISTRY.md` — R-009~011 待補錄
+- `docs/P71_PLAN.md`（v1.2 凍結版）§ P72 範圍宣告
+- `docs/RISK_REGISTRY.md` — R-009~011 已登記（2026-05-14）
+- `docs/postmortems/2026-05-14-phase-71-skill-deployment-decay.md`
+- `docs/postmortems/2026-05-14-phase-71-blindspots.md`（M4 首次套用，5 條盲點）
 
 ---
 
