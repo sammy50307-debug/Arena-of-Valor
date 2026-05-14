@@ -88,3 +88,26 @@
 **測試**：88/91 passed（無新 regression；3 failures 為 pre-existing test_dynamic_focus 問題）
 
 **退出條件**：✅ gen_skill_health.py 更新 / ✅ 生成腳本正常執行 / ✅ dashboard metrics 區塊正確顯示 / ✅ 零回歸
+
+### P72.1 — 雙 remote 自動 backup（2026-05-14）
+
+**目標**：為 AOV repo 建立雙 remote backup 基礎設施，防止 GitHub 誤刪或帳號被駭。
+
+**物理真相**：
+- scripts/backup_push.py（NEW）：push 當前 branch 到所有已設定 remote；1個 remote 時印出設定指南
+- .github/workflows/backup-mirror.yml（NEW）：push main 時自動 mirror；無 BACKUP_REMOTE_URL secret 時 no-op
+
+**待主公做的一次性設定**：
+  1. 建立第二個 GitHub repo（不同帳號為佳）
+  2. git remote add backup <url>
+  3. GitHub repo → Settings → Secrets → BACKUP_REMOTE_URL = https://<TOKEN>@github.com/...
+  4. 執行 py -3 scripts/backup_push.py 完成第一次 push
+
+**使用方式**：
+  `
+  py -3 scripts/backup_push.py --status    # 查 remote 狀態
+  py -3 scripts/backup_push.py --dry-run   # 模擬
+  py -3 scripts/backup_push.py             # 實際 push 所有 remote
+  `
+
+**退出條件**：✅ 腳本建立 / ✅ CI workflow 建立 / ✅ dry-run 正常 / ✅ 設定指引清晰

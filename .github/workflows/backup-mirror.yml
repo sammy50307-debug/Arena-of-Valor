@@ -1,0 +1,39 @@
+# P72.1: Backup mirror — push to second remote on every main push.
+#
+# Activation (one-time setup):
+#   1. Create a backup repo (different account recommended)
+#   2. Go to GitHub repo → Settings → Secrets → Actions → New secret:
+#      Name:  BACKUP_REMOTE_URL
+#      Value: https://<TOKEN>@github.com/YOUR_BACKUP/Arena-of-Valor-backup.git
+#   3. Push to main — this workflow will automatically mirror.
+#
+# Until BACKUP_REMOTE_URL is set, this workflow is a no-op (step skipped).
+
+name: backup-mirror
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to backup remote
+        if: ${{ secrets.BACKUP_REMOTE_URL != '' }}
+        run: |
+          git remote add backup "${{ secrets.BACKUP_REMOTE_URL }}"
+          git push backup main --force-with-lease
+        env:
+          BACKUP_REMOTE_URL: ${{ secrets.BACKUP_REMOTE_URL }}
+
+      - name: Skip notice (no backup configured)
+        if: ${{ secrets.BACKUP_REMOTE_URL == '' }}
+        run: |
+          echo "ℹ️  BACKUP_REMOTE_URL secret not set — mirror skipped."
+          echo "   See scripts/backup_push.py for setup instructions."
