@@ -14,13 +14,13 @@
 
 | Phase | 草案位置 | 阻塞於 |
 |---|---|---|
-| P70.4 | 待建立 | OpenAI fallback；候選，尚未正式計畫書 |
 | P70.6 | 待建立 | llm_cache LRU / TTL；候選，尚未正式計畫書 |
 
 ## ✅ 已收官
 
 | Phase | 收官日 | 備註 |
 |---|---|---|
+| P70.4 | 2026-05-16 | Gemini primary / OpenAI fallback；新增 fallback wrapper、OpenAI schema/cache 介面與 5 個 mock tests；全套 124 passed |
 | P75 / R-014 | 2026-05-16 | 回填 P63/P64/P69/P70.3 blindspots；新增 B-011~B-022；M4 status 缺漏數 0；R-014 關閉 |
 | P70.2 | 2026-05-16 | 新增 daily report health checker；workflow fallback push 後檢查 canonical report / metadata / landing / git clean；全套 119 passed |
 | P74 / R-015 | 2026-05-16 | `test_dynamic_focus.py` 三處改 `asyncio.run`；單檔 5 passed，全套 112 passed；R-015 關閉 |
