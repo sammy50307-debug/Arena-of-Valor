@@ -157,21 +157,20 @@
 
 ---
 
+## 已關閉風險（Closed）
+
 ### R-015：test_dynamic_focus 3 個 pre-existing 失敗連跑 5 Phase 積欠（P72 遺留）
 
 - **來源**：P72.5 收官審視（2026-05-14）/ B-008 通則化
 - **風險級**：🟡 中
-- **狀態**：Open（升級為獨立 Phase 處理）
+- **狀態**：✅ 已修補（P74，2026-05-16）
 - **描述**：`test_dynamic_focus.py` 3 個測試案例事件迴圈隔離問題（單檔跑 OK / 全套跑掛），從 P72.0 開始連續 5 個 Phase 被標為「pre-existing 不阻擋」，無人處理。違反 B-008 通則化「連 ≥ 3 個 Phase 標 pre-existing 必須升級為獨立 Phase」原則。
-- **緩解策略**：
-  - 短期：本風險記錄為「升級觸發證據」，後續 P73 或單獨 sub-phase 處理
-  - 中期：開獨立 Phase（暫名 P72.6 或 P73.0）專責修復事件迴圈隔離
-- **觸發升級**：若再被 ≥ 1 個 Phase 標為 pre-existing 放行 → 升 🔴，主公拍板強制下一 Phase 開工前先解
-- **關閉條件**：3 個測試案例全綠（單檔 / 全套皆通過）
-
----
-
-## 已關閉風險（Closed）
+- **根因**：測試使用 `asyncio.get_event_loop().run_until_complete(...)`。單檔執行時 Python 仍會建立預設 loop，但全套測試前序 case 使 event loop policy 進入「已 set_called、目前無 current loop」狀態，導致三個 case 在主執行緒丟 `RuntimeError: There is no current event loop`。
+- **修補**：P74 將三處測試執行改為 `asyncio.run(...)`，讓每個 async case 自行建立並關閉事件迴圈；未修改 `analyzer/dynamic_focus.py` production code。
+- **驗證**：
+  - `py -m pytest tests/test_dynamic_focus.py -q` → 5 passed
+  - `py -m pytest -q` → 112 passed
+- **關閉條件**：3 個測試案例全綠（單檔 / 全套皆通過）已達成。
 
 ### R-009：smart-task-router SKILL.md `deployed_to` 欄位為空（P71.8 遺留）
 
@@ -199,3 +198,4 @@
 - **2026-05-08**：P70.3 收官登記 R-004（UI/UX LINE 迴歸盲區）+ R-005（webkit deprecated 屬性 90 天 review）。P70.3.1 審計追加 R-006（舊報告同步風險）+ R-007（mobile blur fix，已關閉）+ R-008（a11y fix，已關閉）。
 - **2026-05-14**：P71.10 收官登記 R-009（deployed_to 空，已關閉）+ R-010（ui-ux-pro-max 無 test，已關閉）+ R-011（orphan lint warning，豁免觀察中）。
 - **2026-05-14**：P72.5 收官登記 R-012（metrics JSONL retention）+ R-013（M4 sync-rules anchor heuristic 召回率低）+ R-014（4 個歷史 Phase 缺 blindspot）+ R-015（test_dynamic_focus 積欠升級獨立 Phase）。
+- **2026-05-16**：P74 關閉 R-015；`test_dynamic_focus.py` 三個 async case 改用 `asyncio.run(...)`，單檔 5 passed，全套 112 passed。

@@ -5871,3 +5871,192 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 - ✅ P73 計畫書已凍結
 - ✅ OpenAI / Codex 模型選擇分支已寫入主檔、模板、AGENTS、handoff
 - ✅ `git diff --check` 與關鍵字驗收完成（僅 Windows LF→CRLF 提示，無 whitespace error）
+
+---
+
+### P74 — R-015 `test_dynamic_focus` 事件迴圈隔離修復（2026-05-16）
+
+**目標**：
+- 關閉 R-015：`tests/test_dynamic_focus.py` 3 個 pre-existing 失敗連跑 5 Phase 積欠。
+- 驗證 `test_dynamic_focus` 單檔與全套測試都通過，避免後續 Phase 再以 pre-existing 放行。
+
+**觸發**：
+- 主公要求先處理待辦 1/2/3，並明確指定「先做 P74 / R-015」。
+- P72.5 已將 `test_dynamic_focus` 三個失敗登記為 R-015，且 B-008 通則化要求：連續 >= 3 個 Phase 的 pre-existing failing test 必須升級為獨立 Phase。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 只改 `tests/test_dynamic_focus.py` 三行 async 執行方式，不動 production code |
+| Logic (S) | ✅ | 根因屬測試事件迴圈取得方式，不是 `analyzer/dynamic_focus.py` 業務邏輯錯誤 |
+| Testing (S) | ✅ | 單檔 5 passed；全套 112 passed；原 3 failed 歸零 |
+| Security (S) | ✅ | 測試仍使用 `news_history_indexer.load_index` mock 與 fake LLM，不觸發外部 API / secrets |
+| Documentation (A) | ✅ | `docs/PHASE_74_PLAN.md` 凍結並收官；`docs/RISK_REGISTRY.md` 關閉 R-015；handoff 更新下一步 |
+| Process (A) | ✅ | 先凍結 P74 計畫書，再重現、定位、修復、驗證、收官 |
+
+**根因**：
+```python
+asyncio.get_event_loop().run_until_complete(...)
+```
+
+在單檔執行時，Python 3.10 仍會替主執行緒建立預設 event loop，因此 `tests/test_dynamic_focus.py` 單檔表現為 5 passed，但會出現 3 個 `DeprecationWarning: There is no current event loop`。
+
+在全套測試中，前序測試讓 `WindowsProactorEventLoopPolicy` 進入「`_set_called` 已為 true，但 `_local._loop is None`」狀態；此時再呼叫 `asyncio.get_event_loop()` 會直接丟：
+
+```text
+RuntimeError: There is no current event loop in thread 'MainThread'.
+```
+
+**物理真相**：
+- 修改 `tests/test_dynamic_focus.py` 三處：
+```python
+result = asyncio.run(
+    build_dynamic_alerts(...)
+)
+```
+- 未修改 `analyzer/dynamic_focus.py`。
+- 未刪除任何原測試斷言；5 個 case 語意全部保留：
+  - 無資料保底
+  - 僅 D：芽芽篇數首日
+  - 僅 E：平台熱度
+  - 滿三條 + 溢位
+  - AI 失敗 fallback
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests/test_dynamic_focus.py -q
+# 5 passed in 0.07s
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
+# 112 passed in 2.20s
+```
+
+**風險處置**:
+- R-015 已移至 `docs/RISK_REGISTRY.md` Closed。
+- `NEXT_SESSION_HANDOFF.md` 下一步優先順序改為 P70.2 / R-014；P70.4 與 P70.6 保留為候選但註明尚未正式計畫書。
+
+**狀態**：
+- ✅ P74 收官
+- ✅ R-015 關閉
+- ✅ 單檔與全套測試全綠
+
+---
+
+### P70.2 — GHA 每日健康巡檢與無報告根因排查（2026-05-16）
+
+**目標**：
+- 釐清 2026-05-07 / 2026-05-08 「每日 GHA 無報告」遺留問題在本機可見的物理證據。
+- 補上可在本機與 GitHub Actions 執行的每日報告健康檢查，讓未來排程若沒有產出 canonical 報告、metadata 不可信、landing page 沒更新，workflow 會明確紅燈。
+
+**觸發**：
+- P74 / R-015 已關閉，測試基線恢復可信。
+- 主公詢問下一步後核准 P70.2 草案並指示「請繼續所有工作」。
+- `NEXT_SESSION_HANDOFF.md` 明列 P70.2 為優先候選：5/7、5/8 連 2 天 GHA 無報告原因尚未排完。
+
+**S0 證據盤點**：
+
+| 日期 | canonical report | metadata mode | landing main button | git 物理證據 | workflow run 證據 |
+|---|---|---|---|---|---|
+| 2026-05-07 | `data/reports/aov_report_2026-05-07.html` 目前存在 | `showcase` | 目前 `index.html` 主按鈕仍指 `aov_report_2026-05-06.html` | 檔案由 `a2a6d39`（2026-05-08 21:27 +08，P70.3/P70.3.1）後補，不是 5/7 daily cron commit | 本機 repo 無 GHA run URL；需 GitHub UI 才能補證 |
+| 2026-05-08 | `data/reports/aov_report_2026-05-08.html` 目前存在 | `test` | 目前 `index.html` 主按鈕仍指 `aov_report_2026-05-06.html` | 檔案同樣由 `a2a6d39` 後補；5/6 的最後自動同步 commit 為 `5ff8a62`（mode:showcase） | 本機 repo 無 GHA run URL；需 GitHub UI 才能補證 |
+
+**判斷**：
+- 5/7、5/8 的「報告檔現在存在」不能證明 daily cron 當天健康，因為兩份檔案的 git 來源是 5/8 晚間 P70.3/P70.3.1 修補 commit。
+- 主公體感的「無報告」至少包含兩個可機械化抓出的狀態：
+  - canonical report 缺失或非 production mode
+  - landing page 主按鈕仍指舊日期
+- 本機無法取得 GitHub Actions run URL / logs，不能假裝已證明 GHA 當天真根因；因此 P70.2 改為「證據可得部分寫實 + health checker 防復發」。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 新增單一職責 `scripts/check_daily_report_health.py`；不改產報主流程 |
+| Logic (S) | ✅ | health checker 檢查 report / metadata / landing / optional git clean 四項，不把檔案存在誤當完整健康 |
+| Testing (S) | ✅ | 新增 7 個單測；全套 `119 passed` |
+| Security (S) | ✅ | checker 不讀 secret 值、不 echo env、不呼叫外部 API |
+| Architecture (A) | ✅ | 產報與健康檢查分離；workflow 在 fallback push 後檢查產物 |
+| Data (A) | ✅ | 只讀 canonical report / index，不修改 data/reports 既有檔案 |
+| Observability (A) | ✅ | CLI 輸出短表：check / status / detail |
+| Resilience (A) | ✅ | workflow `if: always()` 下仍可輸出健康診斷；health step exit code 反映失敗 |
+| Maintainability (A) | ✅ | Python 3.8 相容；使用 pathlib / argparse / dataclass / stdlib |
+| Documentation (A) | ✅ | `docs/PHASE_70_2_PLAN.md` 凍結並收官；handoff / WIP 同步 |
+| Process (A) | ✅ | 未混入 P70.4 OpenAI fallback 或 P70.6 cache TTL |
+| DevOps (B) | ✅ | `.github/workflows/daily_report.yml` fallback push 後新增 Daily Report Health Check |
+| Cost (B) | ✅ | checker 不呼叫 LLM/API；workflow_dispatch 真跑仍需主公另行確認 |
+| Privacy (B) | ✅ | 不輸出 secrets、不 dump env |
+| i18n (B) | ✅ | workflow 用 `TZ=Asia/Taipei date +'%Y-%m-%d'` 對齊台北每日報告日期 |
+
+**物理真相**：
+- 新增 `docs/PHASE_70_2_PLAN.md`
+  - v1.0 frozen，採「診斷 + 最小健康檢查」方案。
+  - Exit Criteria 已全部勾選。
+- 新增 `scripts/check_daily_report_health.py`
+  - CLI：
+    ```powershell
+    py scripts/check_daily_report_health.py --date 2026-05-08 --expected-mode any
+    ```
+  - 核心檢查：
+    ```text
+    canonical report
+    metadata mode
+    landing main link
+    git clean（--check-git-clean 時啟用）
+    ```
+  - Python 3.8 相容：避免 `zoneinfo` 與 `X | Y` union syntax。
+- 新增 `tests/test_daily_report_health.py`
+  - 7 cases：
+    - valid report passes
+    - missing report fails
+    - non-production mode fails by default
+    - expected-mode any accepts showcase
+    - landing must point to same date
+    - invalid date rejected
+    - CLI returns failure for missing report
+- 修改 `.github/workflows/daily_report.yml`
+  - Fallback Push 後新增：
+    ```yaml
+      - name: 🩺 Daily Report Health Check
+        if: always()
+        run: |
+          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
+          python scripts/check_daily_report_health.py \
+            --date "$REPORT_DATE" \
+            --expected-mode production \
+            --check-git-clean
+    ```
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests/test_daily_report_health.py -q
+# 7 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
+# 119 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts/lint_phase_plan.py docs/PHASE_70_2_PLAN.md
+# PASS
+```
+
+**本機 health checker 實測（證明能抓到舊狀態）**：
+```powershell
+py scripts/check_daily_report_health.py --date 2026-05-08 --expected-mode any
+```
+
+輸出重點：
+```text
+canonical report | PASS | ...aov_report_2026-05-08.html
+metadata mode | PASS | mode=test
+landing main link | FAIL | href=data/reports/aov_report_2026-05-06.html, expected=data/reports/aov_report_2026-05-08.html
+```
+
+**風險與限制**：
+- 本機 repo 沒有 GitHub Actions run URL / logs，因此不能追溯證明 5/7、5/8 當天 cron 的完整雲端錯誤鏈；已如實標記為「需 GitHub UI 補證」。
+- 新 workflow step 尚未經真實 `workflow_dispatch` 驗證；真跑會消耗 API quota 並可能產生 commit，需主公另行核准。
+- 當日若 API quota 造成 `showcase_forced`，health check 會因 expected mode 非 production 而 fail，這是設計選擇：排程存在但非真實 production 報告，應紅燈提醒。
+
+**狀態**：
+- ✅ P70.2 收官
+- ✅ Daily Report Health Check 已接入 GHA
+- ✅ 全套測試 119 passed

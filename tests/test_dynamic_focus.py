@@ -60,7 +60,7 @@ class _FailLLM:
 def test_case1_no_data():
     """無 B/D/E 時，build_dynamic_alerts 補保底一句，不回傳空列表。"""
     with patch("analyzer.news_history_indexer.load_index", return_value=_EMPTY_INDEX):
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             build_dynamic_alerts(
                 summary=_summary_with_pb({}),
                 analyzed_posts=[],
@@ -125,7 +125,7 @@ def test_case4_overflow():
     pb = {"facebook": {"post_count": 8}, "dcard": {"post_count": 4}}
 
     with patch("analyzer.news_history_indexer.load_index", return_value=_EMPTY_INDEX):
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             build_dynamic_alerts(
                 summary=_summary_with_pb(pb),
                 analyzed_posts=posts,
@@ -146,7 +146,7 @@ def test_case5_ai_failure_fallback():
     pb = {"facebook": {"post_count": 6}}
 
     with patch("analyzer.news_history_indexer.load_index", return_value=_EMPTY_INDEX):
-        result = asyncio.get_event_loop().run_until_complete(
+        result = asyncio.run(
             build_dynamic_alerts(
                 summary=_summary_with_pb(pb),
                 analyzed_posts=posts,

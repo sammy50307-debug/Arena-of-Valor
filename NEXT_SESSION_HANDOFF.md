@@ -1,9 +1,60 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-15（**PHASE_TEMPLATE v1.2 + Persona Overlay + P73 模型指引 v1.2 落地**）
-- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新**
-- **下個視窗第一動作**：從候選 Phase 擇一；優先建議 R-015（test_dynamic_focus 獨立 Phase）或 P70.2（GHA 每日健康巡檢）
+- **更新日期**：2026-05-16（**P74 / R-015 + P70.2 GHA health 已收官**）
+- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新** + ✅ **P74 關閉 R-015** + ✅ **P70.2 每日健康檢查已接入 GHA**；最新已推 commit 仍為 `a78a796`
+- **下個視窗第一動作**：讀本檔頂部 → `git status -sb` → 主公從候選 Phase 擇一；優先建議 **R-014 歷史 4 Phase blindspot 回填**
+
+---
+
+## 🚦 新視窗開局指南（2026-05-16）
+
+### 目前物理狀態
+
+- 最新已推 commit：`a78a796 docs: 升級 PHASE_TEMPLATE 與模型選擇指引`
+- 推送狀態：`main -> origin/main` 已完成；P74 + P70.2 尚待主公確認是否 commit / push
+- tracked 變更：P74/P70.2 收官後預期會看到 `docs/PHASE_74_PLAN.md`、`tests/test_dynamic_focus.py`、`docs/RISK_REGISTRY.md`、`docs/PHASE_70_2_PLAN.md`、`scripts/check_daily_report_health.py`、`tests/test_daily_report_health.py`、`.github/workflows/daily_report.yml`、`TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`memory/history_lookup/WIP_PHASES.md` dirty；若除此之外有 tracked dirty，先查來源
+- untracked 檔案：仍有 `.agents/skills/source-command-*`、`.claude/.rule_decay_last_run`、`.codex/`、`backups/`、`data/reports/*.html`、`scratch/` 等既有未追蹤檔；本視窗沒有納入 commit，下一窗不要誤 stage
+
+### 本視窗最新完成事項
+
+1. **P74 / R-015 test_dynamic_focus 事件迴圈隔離修復**
+   - 根因：`tests/test_dynamic_focus.py` 三個 async case 使用 `asyncio.get_event_loop().run_until_complete(...)`，全套測試前序 case 使 current event loop 不存在，導致 `RuntimeError: There is no current event loop in thread 'MainThread'`
+   - 修法：三處改為 `asyncio.run(...)`
+   - 驗證：`py -m pytest tests/test_dynamic_focus.py -q` → 5 passed；`py -m pytest -q` → 112 passed
+   - RISK_REGISTRY：R-015 已移至 Closed
+2. **P70.2 / GHA 每日健康巡檢與無報告根因排查**
+   - S0 證據：5/7、5/8 canonical 報告目前存在，但由 `a2a6d39`（P70.3，2026-05-08 21:27 +08）後補；當前 `index.html` 主按鈕仍指 `aov_report_2026-05-06.html`
+   - 新增：`scripts/check_daily_report_health.py`，檢查 canonical report、metadata mode、landing main link、可選 git clean
+   - 測試：`tests/test_daily_report_health.py` 7 cases；全套 `py -m pytest -q` → 119 passed
+   - Workflow：`.github/workflows/daily_report.yml` fallback push 後新增 `Daily Report Health Check`
+
+### 前一視窗完成事項
+
+1. **P72.5 補遺**：`docs/PHASE_TEMPLATE.md` 升 v1.2
+   - X4-A 升級為「世界頂尖駭客 / 紅隊攻擊者」
+   - 新增 X4-K「使用者端審查官 / Patric 型人格」
+   - 新增 M1.5「八人格顧問團觸發檢查」
+   - M4 驗收：`py scripts/m4_track_blindspots.py --sync-rules` → 9/10 規則涵蓋；B-007 留待 CLAUDE.md / 鐵律 v0.5
+2. **P73**：`docs/MODEL_SELECTION_GUIDE.md` 升 v1.2
+   - 新增 OpenAI / ChatGPT / Codex 分支
+   - 核心口訣：想清楚用 GPT-5.5，動工省錢用 GPT-5.3-Codex，小事用 Mini，卡住升高/超高
+   - 新增凍結計畫書：`docs/PHASE_73_PLAN.md`
+
+### 新視窗建議路線
+
+| 優先 | 任務 | 為什麼 |
+|---|---|---|
+| 1 | **R-014 / 歷史 4 Phase blindspot 回填** | 補 P63/P64/P69/P70.3 的 M4 結構化盲點，提升 cross_phase_review 覆蓋 |
+| 2 | **P70.4 / OpenAI fallback** | Gemini 失敗退路，降低單一 LLM 供應商風險；目前只是候選，尚未正式計畫書 |
+| 3 | **P70.6 / llm_cache LRU/TTL** | 預防 cache 無限增長，屬韌性/成本優化；目前只是候選，尚未正式計畫書 |
+
+### 開工注意
+
+- 不要全讀 `TASK_HISTORY.md`；查歷史先 `rg -n "^### " TASK_HISTORY.md` 或讀尾端。
+- 下一個 Phase 必須用 `docs/PHASE_TEMPLATE.md` v1.2：含 X4-A 紅隊、X4-K 使用者端審查、M1.5 八人格 Persona Overlay。
+- 模型選擇依 P73 新規則：策略/治理用 GPT-5.5，高風險動工或 repo patch 用 GPT-5.3-Codex。
+- Push 前仍須主公確認；不要自動 stage untracked 報告檔。
 
 ---
 
@@ -110,11 +161,11 @@
 ### 後續候選 Phase
 
 寫完 v1.2 後，主公可選：
-- P70.2 GHA 每日健康巡檢
+- ✅ P70.2 GHA 每日健康巡檢已於 2026-05-16 收官
 - P70.4 OpenAI fallback
 - P70.6 llm_cache LRU / TTL
 - R-014 歷史 4 Phase blindspot 回填（P63/P64/P69/P70.3）
-- R-015 升級為獨立 Phase 處理 test_dynamic_focus
+- ✅ R-015 已於 P74 收官關閉（2026-05-16）
 
 ---
 
@@ -122,8 +173,8 @@
 
 ## 🚀 下個視窗候選動工選項（主公擇一）
 
-### 選項 A：P70.2 — GHA 每日健康巡檢
-排查 5/7、5/8 連 2 天 GHA 無報告原因，補健康巡檢機制。
+### 已完成：P70.2 — GHA 每日健康巡檢
+P70.2 已新增 `scripts/check_daily_report_health.py` 並接入 `.github/workflows/daily_report.yml`。
 
 ### 選項 B：P70.4 — OpenAI fallback
 Gemini 失敗時的退路，避免單一 LLM 供應商風險。
@@ -134,8 +185,8 @@ Gemini 失敗時的退路，避免單一 LLM 供應商風險。
 ### 選項 D：R-014 收尾 — 4 個歷史 Phase blindspot 回填
 對 P63/P64/P69/P70.3 逐一 `py scripts/m4_track_blindspots.py --scaffold pXX` 後填寫。
 
-### 選項 E：R-015 升級 — test_dynamic_focus 獨立 Phase
-連跑 5 個 Phase 積欠的事件迴圈隔離問題，本 Phase 已升級為獨立 Phase 處理候選。
+### 已完成：R-015 — test_dynamic_focus 獨立 Phase
+P74 已完成修復並關閉 R-015；下個視窗不需再排此項。
 
 ---
 
@@ -168,13 +219,14 @@ Gemini 失敗時的退路，避免單一 LLM 供應商風險。
 | **P72.3** | `ce904f5` | M4 時效追溯自動化：`scripts/m4_track_blindspots.py`（--status / --scaffold / --sync-rules）+ 21 單測，**不可逆動作隔離**（不自動寫 PHASE_TEMPLATE.md）|
 
 ### 累積測試成績
-- **全套**：109 passed / 3 failed（3 failed 為 pre-existing test_dynamic_focus 事件迴圈隔離，全 P72 系列無回歸）
+- **P72 當時全套**：109 passed / 3 failed（3 failed 為 pre-existing test_dynamic_focus 事件迴圈隔離，全 P72 系列無回歸）
+- **P74 後全套**：112 passed，R-015 已關閉
 - **P72.0**：16 單測
 - **P72.3**：21 單測
 
 ### 已知遺留問題（P72.5 候選盲點素材）
 
-1. **test_dynamic_focus 3 個 pre-existing 失敗**：跑單檔 OK、跑全套會掛，事件迴圈共用問題。連跑 5 個 Phase 都沒處理，已成積欠。
+1. ✅ **test_dynamic_focus 3 個 pre-existing 失敗**：已於 P74 關閉；三處改 `asyncio.run(...)`，單檔 5 passed，全套 112 passed。
 2. **`--sync-rules` anchor heuristic 召回率低**：實測 PHASE_TEMPLATE v1.1 已含 B-001/003/005 規則但 anchor 沒匹配上。文件已標「主公人工審核」但仍是粗糙設計。
 3. **metrics JSONL 無 size cap**：`~/.claude/skill_metrics.jsonl` append-only，跑久會無限長。
 4. **P72 commits 尚未 push**：本視窗收尾時主公決定。
@@ -330,7 +382,7 @@ pre-commit install                              # 安裝 hook（首次）
 ### P70 系列動工順序
 
 ```
-P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ⏳ → P70.2 → P70.4 → P70.6
+P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ✅ → P70.2 ✅ → R-014 / P70.4 / P70.6
 ```
 
 ### ✅ P71.3 收官（2026-05-09）
@@ -385,7 +437,7 @@ pre-commit install                                 # 安裝 hook（首次）
 | **P70.3** | LINE 滑動失靈排查 + 根治 | ✅ 收官 | `a2a6d39` |
 | **P70.3.1** | 報告頁「← 回戰略門戶」按鈕 | ✅ 收官 | `a2a6d39` |
 | **P70.5'** | test_429_retry P69.1 技術債（R20/R23/R24 已於 P61.1 落地）| ✅ 收官 | 待 commit |
-| **P70.2** | GHA 每日健康巡檢 | ⏳ 待動工 | — |
+| **P70.2** | GHA 每日健康巡檢 | ✅ 收官 | 待 commit |
 | **P70.4** | OpenAI fallback | ⏳ 待動工 | — |
 | **P70.6** | llm_cache LRU / TTL 機制（預防性）| ⏳ 待動工 | — |
 
@@ -461,7 +513,7 @@ P69.1 修改了 `gemini_client.py`，導致 `GeminiClient._cm` 屬性缺失，�
 | `test_429_retry.py` 2 cases | `GeminiClient._cm` 屬性缺失（P69.1 改 gemini_client.py 後測試未跟上）| ✅ P70.5' 已修，75/75 全綠 |
 | R20/R23/R24 | history-trend-query cache 邏輯瑕疵 | ✅ P61.1 已落地（renderer.py / time_series_loader.py） |
 | Skill 75% 孤兒率 | 20 個 skill 中 15 個無入口無代碼引用 | ⏳ P71 全面治理 |
-| GHA 連 2 天（5/7、5/8）無報告 | 原因未排查完（本機無 API key 無法 E-C/E-D 測試）| ⏳ P70.2 排查 |
+| GHA 連 2 天（5/7、5/8）無報告 | P70.2 已完成本機證據盤點；5/7、5/8 報告由 `a2a6d39` 後補，首頁主按鈕曾停在 5/6；已新增 health checker 防復發 | ✅ P70.2 收官 |
 
 ---
 

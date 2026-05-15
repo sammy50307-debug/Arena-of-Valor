@@ -1,25 +1,37 @@
 # 進行中 / 待動工 Phase 清單
 
+> 更新日期：2026-05-16
+> 來源：TASK_HISTORY.md 尾段 + NEXT_SESSION_HANDOFF.md + docs/RISK_REGISTRY.md
+> 備註：本檔是索引，不是權威歷史；若與 TASK_HISTORY.md 衝突，以 TASK_HISTORY.md 為準。
+
 ## ⏳ 進行中
 
 | Phase | 卡點 | 下一步 | 阻塞於 |
 |---|---|---|---|
-| 63.1.0 | landing page 結構未動 | index.html 3→5 個 history-item | 主公令下 |
-| 63.2 | LINE 滑不動 | 主公手機原生瀏覽器對照測試 | 主公測試 |
+| — | 目前無進行中 Phase | 從待動工清單擇一 | 主公拍板 |
 
 ## 📋 凍結待動工
 
 | Phase | 草案位置 | 阻塞於 |
 |---|---|---|
-| 63.3 | docs/PHASE_63_PLAN.md | 中長期 |
-| 65 | docs/PHASE_65_PLAN.md | 配額充足 + 主公令下 |
+| R-014 | 待建立 | 回填 P63/P64/P69/P70.3 blindspots |
+| P70.4 | 待建立 | OpenAI fallback；候選，尚未正式計畫書 |
+| P70.6 | 待建立 | llm_cache LRU / TTL；候選，尚未正式計畫書 |
 
 ## ✅ 已收官
 
 | Phase | 收官日 | 備註 |
 |---|---|---|
+| P70.2 | 2026-05-16 | 新增 daily report health checker；workflow fallback push 後檢查 canonical report / metadata / landing / git clean；全套 119 passed |
+| P74 / R-015 | 2026-05-16 | `test_dynamic_focus.py` 三處改 `asyncio.run`；單檔 5 passed，全套 112 passed；R-015 關閉 |
+| P73 | 2026-05-15 | 模型選擇指引 v1.2 OpenAI / Codex 分支 |
+| P72.0~P72.5 | 2026-05-14 | Skill metrics / backup / M3 / M4 / postmortem + RISK_REGISTRY |
+| P71.2~P71.9 | 2026-05-09~2026-05-11 | Skill 永續化主線分段落地 |
+| P70.3 | 2026-05-08 | LINE 滑動失靈修補；R-004 仍以人工 SOP 觀察 |
+| P65 | 2026-05-07 | Top-5 News Cards 收官 |
 | **61.1**（R20/R23/R24 根治）| 2026-05-03 | commit f697853，已 push |
 | **63.1.0/1.1/1.2**（Landing Page 自動更新）| 2026-05-03 | commits 220f6ae / 714750b，已 push |
+| **63.3 / 63.3.1**（Landing UI/UX 統一 + 補遺）| 2026-05-03 | TASK_HISTORY 已記錄收官 |
 | 64（Cache 架構）| 2026-05-03 | E-C/E-D 明日驗收 |
 | 64.1（Token 防線補強）| 2026-05-03 | 7 項直接落地，無動工期 |
 | 64（Token 優化 v0.4）| 2026-05-01 | 四層防線 + 13 元件 |
