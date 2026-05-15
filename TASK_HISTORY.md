@@ -6060,3 +6060,89 @@ landing main link | FAIL | href=data/reports/aov_report_2026-05-06.html, expecte
 - ✅ P70.2 收官
 - ✅ Daily Report Health Check 已接入 GHA
 - ✅ 全套測試 119 passed
+
+---
+
+### P75 — R-014 歷史 Phase Blindspot 回填（2026-05-16）
+
+**目標**：
+- 關閉 `docs/RISK_REGISTRY.md` 的 R-014：P63/P64/P69/P70.3 已有 postmortem 但缺 M4 blindspot 檔。
+- 將 4 個歷史 Phase 的教訓轉成 B-NNN 結構化規則，讓 `scripts/cross_phase_review.py` 能在新 Phase pre-flight 自動召回。
+- 不全讀 `TASK_HISTORY.md`，以既有 postmortem 作為主要物理證據來源。
+
+**觸發**：
+- P72.3 `py scripts/m4_track_blindspots.py --status` 發現 P63/P64/P69/P70.3 缺 blindspot。
+- P72.5 將此登記為 R-014。
+- P74 / R-015 與 P70.2 已收官並推至 `72cbb25`，主公指示「把剩下的東西做一做」。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 不改 runtime code；只使用既有 `scripts/m4_track_blindspots.py` / `scripts/cross_phase_review.py` 驗證 |
+| Logic (S) | ✅ | 每條 blindspot 均回扣 postmortem 物理事實，不把今天推論偽裝成當時根因 |
+| Testing (S) | ✅ | M4 status 缺漏數歸零；M3 cross_phase_review 可讀 B-011~B-022；`git diff --check` 通過 |
+| Security (S) | ✅ | 不讀 secrets、不呼叫外部 API、不碰 `data/reports/` 既有 untracked 報告檔 |
+| Architecture (A) | ✅ | 沿用 `docs/postmortems/YYYY-MM-DD-phase-*-blindspots.md` M4 檔案結構 |
+| Data (A) | ✅ | B-NNN 從既有最高 B-010 往後連續新增 B-011~B-022，無重複 |
+| Observability (A) | ✅ | `cross_phase_review.py` 新增召回 12 條歷史規則，最近 5 個 postmortem 產生 19 條 checklist |
+| Resilience (A) | ✅ | 補齊跨環境 API、fallback、cache、WebView、dirty working tree 等歷史防線 |
+| Documentation (A) | ✅ | 新增 P75 計畫書與 4 份 blindspot，RISK_REGISTRY / handoff / WIP 同步 |
+| Process (A) | ✅ | 先凍結 P75 計畫書，再 scaffold、回填、驗證、關閉 R-014 |
+| Cost (B) | ✅ | 純文件與本機腳本，不消耗 LLM/API quota |
+
+**物理真相**：
+- 新增 `docs/PHASE_75_PLAN.md`
+  - 版本：v1.0 frozen
+  - 狀態：`✅ 已收官（2026-05-16）`
+  - Exit Criteria 全勾選。
+- 新增 `docs/postmortems/2026-05-16-phase-63-blindspots.md`
+  - B-011：本機 API 成功不等於 GHA 目標環境安全
+  - B-012：workflow step 順序不能只按語意分組審查
+  - B-013：persistent state 必須同時檢查 commit 範圍與 ignore 規則
+- 新增 `docs/postmortems/2026-05-16-phase-64-blindspots.md`
+  - B-014：重要規則不能只靠文字記得，必須機械化觸發
+  - B-015：規則防線也會腐爛，退化監控與 ADR 不能事後才補
+  - B-016：cache key 與 no-write policy 必須在計畫書明列
+- 新增 `docs/postmortems/2026-05-16-phase-69-blindspots.md`
+  - B-017：fallback 狀態必須攜帶原因，而不是只標「已 fallback」
+  - B-018：配額耗盡後，下游流程不得繼續呼叫同一供應商
+  - B-019：catch-all exception 不能寫死成特定業務模式
+- 新增 `docs/postmortems/2026-05-16-phase-70.3-blindspots.md`
+  - B-020：報告模板的目標瀏覽器矩陣必須包含 LINE WebView
+  - B-021：template 結構性改動不會自動回補已生成報告
+  - B-022：動已 modified 檔案前必須先看初始 diff
+- 修改 `docs/RISK_REGISTRY.md`
+  - R-014 從 Open 移至 Closed。
+  - 關閉狀態：`✅ 已回填（P75，2026-05-16）`。
+  - 變更紀錄新增 P75 關閉 R-014。
+- 修改 `memory/history_lookup/WIP_PHASES.md`
+  - 待動工移除 R-014。
+  - 已收官新增 `P75 / R-014`。
+- 修改 `NEXT_SESSION_HANDOFF.md`
+  - 下個建議路線改為 P70.4 OpenAI fallback，其次 P70.6 llm_cache LRU / TTL。
+  - 明確提醒 latest pushed commit 仍為 `72cbb25`，P75 push 前須主公確認。
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts/m4_track_blindspots.py --status
+# P63 / P64 / P69 / P70.3 / P71 / P72 全部「✅ 已配對」
+# 共 6 個 Phase / 缺 blindspot：0 個
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts/cross_phase_review.py | Select-Object -First 160
+# B-011~B-022 可被抽出；最近 5 個 postmortem 共 19 條歷史教訓
+
+rg -n "^### B-" docs/postmortems | Sort-Object
+# B-001~B-022 連續，未發現重複編號
+```
+
+**風險與限制**：
+- P75 只回填 blindspot 文件，不直接升版 PHASE_TEMPLATE v1.3；B-011~B-022 的「待加入」項目需另開模板升版 Phase 由主公核准。
+- `cross_phase_review.py` 只取最近 5 個 postmortem，因此 P71 早期規則可能在最近視窗中被擠出；這是 P72.3 已知工具邊界，不屬 P75 新增缺陷。
+- 本 Phase 沒碰既有 untracked `data/reports/*.html`，避免誤 stage 報告檔。
+
+**狀態**：
+- ✅ P75 收官
+- ✅ R-014 關閉
+- ✅ P63/P64/P69/P70.3 blindspot 全配對
+- ⏳ 剩餘候選：P70.4 OpenAI fallback、P70.6 llm_cache LRU / TTL
