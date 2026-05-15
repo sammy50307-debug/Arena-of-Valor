@@ -66,3 +66,12 @@ jobs:
           git add data/reports/ data/llm_cache.json index.html || true
           git diff --cached --quiet || git commit -m "docs: 戰略報告自動同步 (Fallback) $(date +'%Y-%m-%d')"
           git push || true
+
+      - name: 🩺 Daily Report Health Check
+        if: always()
+        run: |
+          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
+          python scripts/check_daily_report_health.py \
+            --date "$REPORT_DATE" \
+            --expected-mode production \
+            --check-git-clean
