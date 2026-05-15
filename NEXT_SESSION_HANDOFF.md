@@ -1,9 +1,9 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-16（**P74 / R-015 + P70.2 GHA health 已收官**）
-- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新** + ✅ **P74 關閉 R-015** + ✅ **P70.2 每日健康檢查已接入 GHA**；最新已推 commit 仍為 `a78a796`
-- **下個視窗第一動作**：讀本檔頂部 → `git status -sb` → 主公從候選 Phase 擇一；優先建議 **R-014 歷史 4 Phase blindspot 回填**
+- **更新日期**：2026-05-16（**P75 / R-014 歷史 blindspot 回填已收官**）
+- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新** + ✅ **P74 關閉 R-015** + ✅ **P70.2 每日健康檢查已接入 GHA** + ✅ **P75 關閉 R-014**；最新已推 commit 為 `72cbb25`
+- **下個視窗第一動作**：讀本檔頂部 → `git status -sb` → 主公從候選 Phase 擇一；優先建議 **P70.4 OpenAI fallback**，其次 **P70.6 llm_cache LRU / TTL**
 
 ---
 
@@ -11,19 +11,24 @@
 
 ### 目前物理狀態
 
-- 最新已推 commit：`a78a796 docs: 升級 PHASE_TEMPLATE 與模型選擇指引`
-- 推送狀態：`main -> origin/main` 已完成；P74 + P70.2 尚待主公確認是否 commit / push
-- tracked 變更：P74/P70.2 收官後預期會看到 `docs/PHASE_74_PLAN.md`、`tests/test_dynamic_focus.py`、`docs/RISK_REGISTRY.md`、`docs/PHASE_70_2_PLAN.md`、`scripts/check_daily_report_health.py`、`tests/test_daily_report_health.py`、`.github/workflows/daily_report.yml`、`TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`memory/history_lookup/WIP_PHASES.md` dirty；若除此之外有 tracked dirty，先查來源
+- 最新已推 commit：`72cbb25 chore: 收官 P74 與 P70.2 健康巡檢`
+- 推送狀態：`main -> origin/main` 已完成到 `72cbb25`；P75 / R-014 若已本地 commit，仍需主公確認後才能 push
+- tracked 變更：P75 預期包含 `docs/PHASE_75_PLAN.md`、4 份 `docs/postmortems/2026-05-16-phase-*-blindspots.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`memory/history_lookup/WIP_PHASES.md`；若除此之外有 tracked dirty，先查來源
 - untracked 檔案：仍有 `.agents/skills/source-command-*`、`.claude/.rule_decay_last_run`、`.codex/`、`backups/`、`data/reports/*.html`、`scratch/` 等既有未追蹤檔；本視窗沒有納入 commit，下一窗不要誤 stage
 
 ### 本視窗最新完成事項
 
-1. **P74 / R-015 test_dynamic_focus 事件迴圈隔離修復**
+1. **P75 / R-014 歷史 Phase blindspot 回填**
+   - 新增 4 份 M4 blindspot：P63 / P64 / P69 / P70.3
+   - 新增 B-011~B-022 共 12 條通則化盲點
+   - 驗證：`py scripts/m4_track_blindspots.py --status` → 缺 blindspot 0；`py scripts/cross_phase_review.py` 可讀到新增規則
+   - RISK_REGISTRY：R-014 已移至 Closed
+2. **P74 / R-015 test_dynamic_focus 事件迴圈隔離修復**
    - 根因：`tests/test_dynamic_focus.py` 三個 async case 使用 `asyncio.get_event_loop().run_until_complete(...)`，全套測試前序 case 使 current event loop 不存在，導致 `RuntimeError: There is no current event loop in thread 'MainThread'`
    - 修法：三處改為 `asyncio.run(...)`
    - 驗證：`py -m pytest tests/test_dynamic_focus.py -q` → 5 passed；`py -m pytest -q` → 112 passed
    - RISK_REGISTRY：R-015 已移至 Closed
-2. **P70.2 / GHA 每日健康巡檢與無報告根因排查**
+3. **P70.2 / GHA 每日健康巡檢與無報告根因排查**
    - S0 證據：5/7、5/8 canonical 報告目前存在，但由 `a2a6d39`（P70.3，2026-05-08 21:27 +08）後補；當前 `index.html` 主按鈕仍指 `aov_report_2026-05-06.html`
    - 新增：`scripts/check_daily_report_health.py`，檢查 canonical report、metadata mode、landing main link、可選 git clean
    - 測試：`tests/test_daily_report_health.py` 7 cases；全套 `py -m pytest -q` → 119 passed
@@ -45,9 +50,8 @@
 
 | 優先 | 任務 | 為什麼 |
 |---|---|---|
-| 1 | **R-014 / 歷史 4 Phase blindspot 回填** | 補 P63/P64/P69/P70.3 的 M4 結構化盲點，提升 cross_phase_review 覆蓋 |
-| 2 | **P70.4 / OpenAI fallback** | Gemini 失敗退路，降低單一 LLM 供應商風險；目前只是候選，尚未正式計畫書 |
-| 3 | **P70.6 / llm_cache LRU/TTL** | 預防 cache 無限增長，屬韌性/成本優化；目前只是候選，尚未正式計畫書 |
+| 1 | **P70.4 / OpenAI fallback** | Gemini 失敗退路，降低單一 LLM 供應商風險；目前只是候選，尚未正式計畫書 |
+| 2 | **P70.6 / llm_cache LRU/TTL** | 預防 cache 無限增長，屬韌性/成本優化；目前只是候選，尚未正式計畫書 |
 
 ### 開工注意
 
@@ -164,7 +168,7 @@
 - ✅ P70.2 GHA 每日健康巡檢已於 2026-05-16 收官
 - P70.4 OpenAI fallback
 - P70.6 llm_cache LRU / TTL
-- R-014 歷史 4 Phase blindspot 回填（P63/P64/P69/P70.3）
+- ✅ R-014 歷史 4 Phase blindspot 回填（P63/P64/P69/P70.3）已於 P75 收官
 - ✅ R-015 已於 P74 收官關閉（2026-05-16）
 
 ---
@@ -182,8 +186,8 @@ Gemini 失敗時的退路，避免單一 LLM 供應商風險。
 ### 選項 C：P70.6 — llm_cache LRU / TTL 機制（預防性）
 為避免 cache 無限增長的預防性改造。
 
-### 選項 D：R-014 收尾 — 4 個歷史 Phase blindspot 回填
-對 P63/P64/P69/P70.3 逐一 `py scripts/m4_track_blindspots.py --scaffold pXX` 後填寫。
+### 已完成：R-014 收尾 — 4 個歷史 Phase blindspot 回填
+P75 已補齊 P63/P64/P69/P70.3 blindspots，新增 B-011~B-022，`m4_track_blindspots.py --status` 缺漏數 0。
 
 ### 已完成：R-015 — test_dynamic_focus 獨立 Phase
 P74 已完成修復並關閉 R-015；下個視窗不需再排此項。
@@ -382,7 +386,7 @@ pre-commit install                              # 安裝 hook（首次）
 ### P70 系列動工順序
 
 ```
-P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ✅ → P70.2 ✅ → R-014 / P70.4 / P70.6
+P70.7 ✅ → P70.1 ✅ → P70.3 ✅ → P70.3.1 ✅ → P70.5' ✅ → P71 ✅ → P70.2 ✅ → P75/R-014 ✅ → P70.4 / P70.6
 ```
 
 ### ✅ P71.3 收官（2026-05-09）
@@ -437,7 +441,7 @@ pre-commit install                                 # 安裝 hook（首次）
 | **P70.3** | LINE 滑動失靈排查 + 根治 | ✅ 收官 | `a2a6d39` |
 | **P70.3.1** | 報告頁「← 回戰略門戶」按鈕 | ✅ 收官 | `a2a6d39` |
 | **P70.5'** | test_429_retry P69.1 技術債（R20/R23/R24 已於 P61.1 落地）| ✅ 收官 | 待 commit |
-| **P70.2** | GHA 每日健康巡檢 | ✅ 收官 | 待 commit |
+| **P70.2** | GHA 每日健康巡檢 | ✅ 收官 | `72cbb25` |
 | **P70.4** | OpenAI fallback | ⏳ 待動工 | — |
 | **P70.6** | llm_cache LRU / TTL 機制（預防性）| ⏳ 待動工 | — |
 

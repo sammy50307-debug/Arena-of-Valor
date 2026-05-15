@@ -144,20 +144,25 @@
 
 ---
 
+## 已關閉風險（Closed）
+
 ### R-014：4 個歷史 Phase（P63/P64/P69/P70.3）缺 blindspot（M4 偵測）
 
 - **來源**：P72.3 M4 `--status` 偵測（2026-05-14）
 - **風險級**：🟢 低
-- **狀態**：Open（待回填）
-- **描述**：M4 協議於 P71.1（2026-05-09）才落地，先前 4 個 Phase（P63/P64/P69/P70.3）的 postmortem 已寫但無對應 blindspots 檔。雖然當時的 postmortem 多少有涵蓋「以為清單」「教訓」，但未按 B-NNN 結構化，造成 `cross_phase_review.py` 無法自動撈取通則化規則，新 Phase 計畫書 §M3 段落只看得到 P71/P72 規則。
-- **緩解策略**：
-  - 短期：本風險即記錄事實本身（M4 是 P71.1 後協議，先前 Phase 不溯及既往）
-  - 中期：主公或 AI 視時間每次回填 1 個（`py scripts/m4_track_blindspots.py --scaffold p63` 等），不強制一次處理完
-- **觸發升級**：若 `cross_phase_review.py` 召回率因此低於 80% → 升 🟡，排獨立 Phase 一次回填
+- **狀態**：✅ 已回填（P75，2026-05-16）
+- **描述**：M4 協議於 P71.1（2026-05-09）才落地，先前 4 個 Phase（P63/P64/P69/P70.3）的 postmortem 已寫但無對應 blindspots 檔。雖然當時的 postmortem 多少有涵蓋「以為清單」「教訓」，但未按 B-NNN 結構化，造成 `cross_phase_review.py` 無法自動撈取通則化規則。
+- **修補**：P75 新增 4 份 blindspot 檔：
+  - `docs/postmortems/2026-05-16-phase-63-blindspots.md`（B-011~B-013）
+  - `docs/postmortems/2026-05-16-phase-64-blindspots.md`（B-014~B-016）
+  - `docs/postmortems/2026-05-16-phase-69-blindspots.md`（B-017~B-019）
+  - `docs/postmortems/2026-05-16-phase-70.3-blindspots.md`（B-020~B-022）
+- **驗證**：
+  - `py scripts/m4_track_blindspots.py --status` → P63/P64/P69/P70.3 全部 `✅ 已配對`
+  - `py scripts/cross_phase_review.py` → 可讀到 B-011~B-022，最近 5 個 postmortem 產生 19 條 checklist
+- **關閉條件**：4 個缺漏 Phase 均已配對，且新增規則能被 M3 工具召回。
 
 ---
-
-## 已關閉風險（Closed）
 
 ### R-015：test_dynamic_focus 3 個 pre-existing 失敗連跑 5 Phase 積欠（P72 遺留）
 
@@ -199,3 +204,4 @@
 - **2026-05-14**：P71.10 收官登記 R-009（deployed_to 空，已關閉）+ R-010（ui-ux-pro-max 無 test，已關閉）+ R-011（orphan lint warning，豁免觀察中）。
 - **2026-05-14**：P72.5 收官登記 R-012（metrics JSONL retention）+ R-013（M4 sync-rules anchor heuristic 召回率低）+ R-014（4 個歷史 Phase 缺 blindspot）+ R-015（test_dynamic_focus 積欠升級獨立 Phase）。
 - **2026-05-16**：P74 關閉 R-015；`test_dynamic_focus.py` 三個 async case 改用 `asyncio.run(...)`，單檔 5 passed，全套 112 passed。
+- **2026-05-16**：P75 關閉 R-014；回填 P63/P64/P69/P70.3 共 4 份 blindspot，新增 B-011~B-022，M4 status 缺漏數歸零。
