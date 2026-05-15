@@ -1,9 +1,36 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-14（**AGENTS.md 建立** + P72 遺留 commit 清理）
-- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線；⏳ **PHASE_TEMPLATE v1.2 升版待寫入**
-- **下個視窗第一動作**：寫入 PHASE_TEMPLATE v1.2（已全核可的 6 條，B-007 跳過）
+- **更新日期**：2026-05-15（**PHASE_TEMPLATE v1.2 + Persona Overlay + P73 模型指引 v1.2 落地**）
+- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新**
+- **下個視窗第一動作**：從候選 Phase 擇一；優先建議 R-015（test_dynamic_focus 獨立 Phase）或 P70.2（GHA 每日健康巡檢）
+
+---
+
+## ✅ 本視窗已完成：P73 模型選擇指引 v1.2 OpenAI / Codex 分支
+
+**背景**：主公回鍋 ChatGPT / Codex 後，實際可用模型集中在 GPT-5.5 與 GPT-5.3-Codex。原 P69 `docs/MODEL_SELECTION_GUIDE.md` v1.1 仍以 Sonnet / Opus / Gemini 為主，會讓未來 Phase 的「負責模型」欄與現況漂移。
+
+**凍結計畫書**：`docs/PHASE_73_PLAN.md`
+
+**核心規則**：
+- 想清楚 / 計畫 / 治理規則 / 重大決策 → **GPT-5.5 + 高**
+- 進 repo 動工 / 改檔 / 跑測試 / 修 bug → **GPT-5.3-Codex + 中/高**
+- 小任務 / 摘要 / 翻譯 / 表格 / 語氣 → **GPT-5.4-Mini + 低/中**
+- 卡住 → 升高 / 超高，或在 GPT-5.5 與 GPT-5.3-Codex 之間切換視角
+
+**修改檔案**：
+- `docs/PHASE_73_PLAN.md`：P73 凍結計畫書
+- `docs/MODEL_SELECTION_GUIDE.md`：升 v1.2，新增 OpenAI / ChatGPT / Codex 分支
+- `docs/PHASE_TEMPLATE.md`：負責模型欄補 GPT-5.5 / GPT-5.3-Codex / GPT-5.4-Mini
+- `AGENTS.md`：Codex 新視窗縮版模型規則同步
+- `TASK_HISTORY.md`：追加 P73 無損紀錄
+
+**官方查證來源**：
+- OpenAI Codex rate card
+- OpenAI API pricing
+- GPT-5.5 in ChatGPT Help Center
+- Introducing GPT-5.3-Codex
 
 ---
 
@@ -42,13 +69,13 @@
 
 ---
 
-## 🚨 下個視窗開局第一動作：寫入 PHASE_TEMPLATE v1.2
+## ✅ 本視窗已完成：PHASE_TEMPLATE v1.2 寫入
 
-**背景**：P72.5 收官時 `--sync-rules` 暴露 R-013 anchor heuristic 召回率低，主公決定（選項 C）先消化 B-NNN 通則化規則升版 PHASE_TEMPLATE.md。草案 7 條主公已**全核可**，但本視窗 token 將盡，暫不寫入，留下視窗開工。
+**背景**：P72.5 收官時 `--sync-rules` 暴露 R-013 anchor heuristic 召回率低，主公決定（選項 C）先消化 B-NNN 通則化規則升版 PHASE_TEMPLATE.md。2026-05-15 主公再次確認採「方案 C」：原 v1.2 六條 + 八人格 Persona Overlay 一起落地。
 
-### v1.2 升版內容（**全核可，可直接寫入**）
+### v1.2 升版內容（**已寫入**）
 
-> **X1 不可逆動作**：PHASE_TEMPLATE.md 是凍結文件。本次升版已獲主公親口「全核可」確認（2026-05-14 對話紀錄），下個視窗 AI **可直接寫入**，無需再次請示。
+> **X1 不可逆動作**：PHASE_TEMPLATE.md 是凍結文件。本次升版已獲主公 2026-05-14「全核可」與 2026-05-15「方案 C」確認，已依流程寫入。
 
 | # | 來源 | 動作 | 插入位置 |
 |---|---|---|---|
@@ -59,6 +86,7 @@
 | **5** | B-008 (P72) | **§M2 紅藍對抗表格加必填欄位「pre-existing 失敗計次」**：每條 pre-existing failing test 記錄已被多少 Phase 跳過，≥ 3 須升為獨立 Phase | §M2 表格加一欄 |
 | **6** | B-009 (P72) | **§6 A 級可觀察性層加備註**：「本 Phase 若引入 append-only 檔案（log/metrics/audit trail），必須明列 size cap / rolling policy / retention SOP 三項中至少一項」 | §6 可觀察性層 |
 | **7** | B-010 (P72) | **§11 Postmortem 預埋點加備註框**：「下個 B-NNN / R-NNN 編號查詢命令：`grep -h '^### [BR]-' docs/**.md \| sort -u \| tail`；B-NNN/R-NNN 全域連續，禁止 Phase 內局部編號」 | §11 之後加備註框 |
+| **8** | 2026-05-15 主公新增 | **方案 C：Persona Overlay**：X4-A 升級為世界頂尖駭客 / 紅隊攻擊者；新增 X4-K 使用者端審查官；新增 §M1.5 八人格顧問團觸發檢查 | §7 X4 / §M1 / §M1.5 |
 
 ### 版本戳記更新（必做）
 
@@ -69,29 +97,15 @@
 
 **新**：
 ```
-*樣板版本：v1.2（2026-05-14 P72.5 新增 6 項升版：§0.5 狀態轉換清單 / STR9 lint 強化備註 / X4-J 自動化工具邊界 / M2 pre-existing 計次 / §6 retention 備註 / §11 B-NNN 查詢備註）*
+*樣板版本：v1.2（2026-05-15 P72.5 補遺寫入：Exit Criteria 錨點 / §0.5 狀態轉換清單 / STR9 lint 強化備註 / X4-A 紅隊升級 / X4-J 自動化工具邊界 / X4-K 使用者端審查官 / M1.5 八人格 Persona Overlay / M2 pre-existing 計次 / §6 retention 備註 / §11 B-NNN 查詢備註 / 主公裁決錨點）*
 ```
 
-### 額外連帶更新（寫入後一併處理）
+### 額外連帶更新（本視窗處理）
 
-1. **P71 blindspots 體檢清單升版摘要表格**：v1.2 欄從「待議」改「**已落地（2026-05-14 P72.5 寫入）**」（檔案 `docs/postmortems/2026-05-14-phase-71-blindspots.md` 第 86 行附近）
-2. **P72 blindspots 體檢清單升版摘要表格**：v1.2 欄從「待議」改「**已落地（2026-05-14 P72.5 寫入）**」（檔案 `docs/postmortems/2026-05-14-phase-72-blindspots.md`）
-3. **跑 `py scripts/m4_track_blindspots.py --sync-rules`** 驗收 — 此時應該看到 anchor heuristic 對部分規則命中（不會 100%，因為 R-013 已記錄此 heuristic 召回率本身就低）
-4. **TASK_HISTORY 追加 P72.5 補遺段落**：記錄 v1.2 寫入動作 + commit 訊息草稿（cat >> heredoc，不用 Edit）
-5. **更新 handoff** 標 v1.2 已落地
-
-### 動工順序（下個視窗）
-
-```
-1. Read docs/PHASE_TEMPLATE.md（特別是 §0、§STR9、§7 X4、§M2、§6、§11）
-2. 用 Edit 工具依「插入位置」逐條插入 6 條升版內容
-3. 更新版本戳記（第 234 行附近）
-4. Edit 兩份 blindspots 把「v1.2 待議」改「已落地」
-5. py scripts/m4_track_blindspots.py --sync-rules 驗收
-6. cat >> TASK_HISTORY.md 寫 P72.5 補遺段落
-7. 更新本 handoff 移除「下個視窗第一動作」段
-8. （主公拍板才 commit / push）
-```
+1. **P71 blindspots 體檢清單升版摘要表格**：v1.2 欄已從「待議」改「已落地（2026-05-15 P72.5 補遺寫入）」。
+2. **P72 blindspots 體檢清單升版摘要表格**：v1.2 欄已從「待議」改「已落地（2026-05-15 P72.5 補遺寫入）」；B-007 標為 CLAUDE.md 鐵律範圍，未塞入 PHASE_TEMPLATE。
+3. **TASK_HISTORY 追加 P72.5 補遺段落**：記錄 v1.2 + Persona Overlay 寫入動作。
+4. **驗收**：`py scripts/m4_track_blindspots.py --sync-rules` 已跑通；9/10 條 B-NNN 規則被 PHASE_TEMPLATE 涵蓋，唯一剩餘 B-007 屬 CLAUDE.md / 鐵律 v0.5 範圍，刻意不塞入模板。
 
 ### 後續候選 Phase
 
@@ -133,11 +147,11 @@ Gemini 失敗時的退路，避免單一 LLM 供應商風險。
 | `docs/postmortems/2026-05-14-phase-72-metrics-and-m3m4-stitching.md` | P72 系列 postmortem，4 條核心教訓 + 6 條「以為」清單 |
 | `docs/postmortems/2026-05-14-phase-72-blindspots.md` | B-006~B-010 共 5 條盲點（含通則化；B-010 為本 Phase 自踩編號衝突）|
 | `docs/RISK_REGISTRY.md` | 新增 R-012/R-013/R-014/R-015（4 條開放風險）|
-| `TASK_HISTORY.md` | 追加 P72.0~P72.5 共 6 段收官紀錄（+108 行）|
+| `TASK_HISTORY.md` | 追加 P72.0~P72.5 共 6 段收官紀錄（+108 行）+ 2026-05-15 P72.5 補遺 |
 
 **驗收**：`py scripts/m4_track_blindspots.py --status` → P72 顯示「✅ 已配對」
 
-**X1 不可逆動作隔離**：PHASE_TEMPLATE.md v1.2 升版項記為「待議」，本 Phase 依「先草案後寫入」流程處理（B-006~B-010 + P71 待議 B-002/B-004 對應規則待主公逐條核可後另行升版）。
+**X1 不可逆動作隔離**：P72.5 收官當下 PHASE_TEMPLATE.md v1.2 升版項曾記為「待議」；2026-05-15 主公確認方案 C 後，已於 P72.5 補遺寫入 PHASE_TEMPLATE v1.2 + Persona Overlay。
 
 **待 commit**：本視窗收尾時主公拍板（守則「push 必問」）。
 

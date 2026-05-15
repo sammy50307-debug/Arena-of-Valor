@@ -20,7 +20,7 @@
 **通則化**：
 > 任何「字面比對啟發式」自動化工具，必須在 design phase 明文標注「召回率僅供參考、人工審核仍必要」的免責邊界，並在 CLI 輸出最後一行印出該邊界。
 
-**待加入**：PHASE_TEMPLATE STR9 「自動化建議性工具」段落，要求列出 false-negative 已知模式（同義改寫 / 結構性改寫 / 規則拆分）。
+**已加入（模板部分）**：PHASE_TEMPLATE v1.2 X4-J「自動化建議性工具邊界」，要求列出 false-negative 已知模式（同義改寫 / 結構性改寫 / 規則拆分），並標注「召回率僅供參考，人工審核仍必要」。
 
 ---
 
@@ -46,7 +46,9 @@
 **通則化**：
 > 任何測試失敗連續被 ≥ 3 個 Phase 標為「pre-existing 不阻擋」時，**必須**強制升級為獨立 Phase 處理；Phase 計畫書若再次嘗試以「pre-existing」放行，lint 須阻擋。
 
-**待加入**：PHASE_TEMPLATE M2 紅藍對抗段加「pre-existing 失敗計次」欄位；`lint_phase_plan.py` 加 P-PRE-3 規則（同一 failing test 名稱連 3 個 Phase 出現則 fail）。
+**已加入（模板部分）**：PHASE_TEMPLATE v1.2 M2 紅藍對抗段新增「pre-existing 失敗計次」欄位；同一 failing test 連續 ≥ 3 個 Phase 被標為 pre-existing 時，必須升級為獨立 Phase。
+
+**仍待後續**：`lint_phase_plan.py` 的 P-PRE-3 機械化阻擋規則尚未實作。
 
 ---
 
@@ -59,7 +61,7 @@
 **通則化**：
 > 任何 append-only 觀察性檔案（log / metrics / audit trail）落地當 Phase **必須**同時規劃 size cap / rolling policy / retention SOP 三項中至少一項，不能延後。
 
-**待加入**：PHASE_TEMPLATE 「可觀察性層」段加「append-only 檔案 retention 政策」必填欄位。
+**已加入**：PHASE_TEMPLATE v1.2「可觀察性層」段新增 append-only 檔案 retention 備註，要求 size cap / rolling policy / retention SOP 三項中至少一項。
 
 ---
 
@@ -72,8 +74,10 @@
 **通則化**：
 > 任何「全域連續編號」的標識（B-NNN / R-NNN / D-NNN 等）必須：(a) 在協議文件明示「全域連續，禁止 Phase 內局部編號」；(b) 提供「下個編號」查詢命令（`grep -h '^### [BR]-' docs/**.md | sort -u | tail`）；(c) blindspots scaffold 工具在生成 B-XXX 占位符時，預先填入下個可用編號（而非 X X X）。
 
-**待加入**：
-- PHASE_TEMPLATE「Postmortem 預埋點 §11」加「B-NNN / R-NNN 編號查詢命令」備註
+**已加入（模板部分）**：
+- PHASE_TEMPLATE v1.2「Postmortem 預埋點 §11」新增「B-NNN / R-NNN 編號查詢命令」備註
+
+**仍待後續**：
 - `m4_track_blindspots.py --scaffold` 升級：自動掃描現有最大 B-NNN，預填 `### B-NNN：` 的 NNN（而非 XXX）
 
 ---
@@ -82,9 +86,9 @@
 
 | 版本 | 升版內容 | 驅動 Phase |
 |---|---|---|
-| v1.2（待議）| STR9 自動化工具免責邊界（B-006）/ CLAUDE.md heredoc shell 標注（B-007）/ PHASE_TEMPLATE pre-existing 失敗計次（B-008）/ 可觀察性層 retention 政策（B-009）+ P71 待議：deployed_to lint 強制（B-004）/ Orphan 狀態定義（B-002）+ B-NNN 編號衝突防範（B-010）| **P72** |
+| **v1.2** | PHASE_TEMPLATE 自動化工具免責邊界（B-006）/ pre-existing 失敗計次（B-008）/ 可觀察性層 retention 政策（B-009）/ B-NNN 編號衝突防範（B-010）+ P71 待議：deployed_to lint 強制（B-004）/ Orphan 狀態定義（B-002）+ Persona Overlay（X4-A 紅隊升級、X4-K 使用者端審查官、M1.5 八人格顧問團）。B-007 屬 CLAUDE.md 鐵律範圍，留待鐵律 v0.5 升版。 | **已落地（2026-05-15 P72.5 補遺寫入）** |
 
-> ⚠️ 本表為「待議」狀態。X1 不可逆動作隔離原則下，PHASE_TEMPLATE.md 升版需主公人工核可，本 Phase 不自動寫入。
+> ✅ PHASE_TEMPLATE v1.2 已依主公 2026-05-15 確認「方案 C」落地；未納入的程式化 lint / scaffold 升級保留為後續 Phase 候選。
 
 ---
 

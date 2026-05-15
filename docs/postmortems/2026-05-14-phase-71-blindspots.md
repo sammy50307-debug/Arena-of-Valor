@@ -83,7 +83,7 @@
 |---|---|---|
 | v1.0 | 初版（63 維度框架 + 17 層稽核 + M1 九視角 + M2 紅藍對抗）| P71.0 之前 |
 | **v1.1** | + STR9（Skill 收官 entry_points 機械化 checklist）+ STR10 Pre-flight 體檢 + X4-I「主公可見性」視角 | **P71.1（2026-05-09）** |
-| v1.2（待議）| + `deployed_to` lint 強制 + Orphan 狀態定義章節 | 計畫中（P72+）|
+| **v1.2** | + 雙端 diff Exit Criteria / `test_skill.py` Exit Criteria / `deployed_to` lint 強制 / Orphan 狀態轉換定義 / 主公裁決成本錨點 + P72 retention / pre-existing / B-NNN 編號規則 + Persona Overlay（X4-A 紅隊升級、X4-K 使用者端審查官、M1.5 八人格顧問團） | **已落地（2026-05-15 P72.5 補遺寫入）** |
 
 ---
 

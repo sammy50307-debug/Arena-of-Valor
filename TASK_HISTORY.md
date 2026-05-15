@@ -5735,3 +5735,139 @@ P61.1（2026-05-03）已將三項 cache 邏輯 bug 由「文件警示」升格�
 **可逆性 X1**：postmortem/blindspots 新檔 = 完全可逆；RISK_REGISTRY 追加 = 半可逆；**不動 PHASE_TEMPLATE.md**（凍結文件，遵 P72.3 設計）
 
 **狀態**：✅ P72.5 完成；P72 系列（P72.0~P72.5）全收官；commit 待主公拍板
+
+---
+
+### P72.5 補遺 — PHASE_TEMPLATE v1.2 + Persona Overlay 落地（2026-05-15）
+
+**目標**：
+- 將 P72.5 收官時已核可但尚未寫入的 `PHASE_TEMPLATE.md` v1.2 升版正式落地。
+- 依主公 2026-05-15 新決策採「方案 C」：原 v1.2 六條治理補強 + 八人格 Persona Overlay 一次寫入，避免後續 Phase 開工模板再拆一次治理升版。
+
+**觸發**：
+- `NEXT_SESSION_HANDOFF.md` 明確標示下個視窗第一動作為寫入 PHASE_TEMPLATE v1.2。
+- 主公於 2026-05-15 討論老師提供的 Jarvis Team 八人物工作流後，確認要吸收其優點，但不採「八人全固定欄位」；最終拍板「固定核心視角 + 條件觸發顧問團」的方案 C。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 本補遺只改 Markdown 治理文件，不動 runtime code；格式靠 `rg` 與後續 diff 驗證 |
+| Logic (S) | ✅ | Persona Overlay 採固定必看（Jarvis / Ken / Patric）+ 條件觸發（Jimmy / Marcus / Oliver / Penny / Jason），避免每個微 Phase 被八個固定欄位拖慢 |
+| Testing (S) | ✅ | `py scripts/m4_track_blindspots.py --sync-rules` 跑通；9/10 條 B-NNN 規則被 PHASE_TEMPLATE 涵蓋，唯一剩餘 B-007 屬 CLAUDE.md / 鐵律 v0.5 範圍 |
+| Security (S) | ✅ | X4-A 從一般攻擊者升級為「世界頂尖駭客 / 紅隊攻擊者」，明列 injection / auth / secrets / dependency / PII / deploy / error handling / rate limit / prompt injection / CI/CD / 不可逆操作 |
+| Architecture (A) | ✅ | 沒新增框架，嵌入既有 STR10 / X4 / M1 結構 |
+| Data (A) | ✅ | 不動資料檔；`TASK_HISTORY.md` 僅 append 本補遺 |
+| Observability (A) | ✅ | §6 新增 append-only log / metrics / audit trail 必填 retention 備註 |
+| Resilience (A) | ✅ | M2 新增 pre-existing 失敗計次，連 ≥ 3 Phase 必須升獨立 Phase |
+| Maintainability (A) | ✅ | 八人格以條件觸發方式保留老師流程優點，但不把模板變成低價值形式填空 |
+| Documentation (A) | ✅ | 同步 `PHASE_TEMPLATE.md`、P71/P72 blindspots、handoff、本補遺 |
+| Process (A) | ✅ | 保留 X1 凍結文件人工核可路徑；本次依 2026-05-14 全核可與 2026-05-15 方案 C 決策寫入 |
+
+**物理真相**：
+- `docs/PHASE_TEMPLATE.md`
+  - 標題升為「混合版 v1.2」
+  - Exit Criteria 新增雙端 diff = 0 與 `test_skill.py` 驗收錨點
+  - 新增 `## 0.5 狀態轉換清單`
+  - §6 可觀察性層新增 append-only retention 備註
+  - §7 X4 將攻擊者升級為「世界頂尖駭客 / 紅隊攻擊者」
+  - §7 X4 新增 X4-J「自動化建議性工具邊界」
+  - §7 X4 / M1 新增 X4-K「使用者端審查官 / Patric 型人格」
+  - §11 Postmortem 預埋點新增 B-NNN / R-NNN 全域連續編號查詢命令
+  - M1 從九視角升為十一視角
+  - M1 新增「主公人工裁決」成本估算錨點
+  - 新增 `### M1.5 八人格顧問團觸發檢查 ─ Persona Overlay ─ v1.2`
+  - M2 紅藍對抗表新增 `pre-existing 失敗計次`
+  - STR9 新增 schema lint 語意檢查備註：`deployed_to: []` 對 in-use skill 視為 warning
+  - 版本戳記改為：`v1.2（2026-05-15 P72.5 補遺寫入：Exit Criteria 錨點 / §0.5 狀態轉換清單 / STR9 lint 強化備註 / X4-A 紅隊升級 / X4-J 自動化工具邊界 / X4-K 使用者端審查官 / M1.5 八人格 Persona Overlay / M2 pre-existing 計次 / §6 retention 備註 / §11 B-NNN 查詢備註 / 主公裁決錨點）`
+- `docs/postmortems/2026-05-14-phase-71-blindspots.md`
+  - v1.2 從「待議」改為「已落地（2026-05-15 P72.5 補遺寫入）」
+- `docs/postmortems/2026-05-14-phase-72-blindspots.md`
+  - B-006 / B-008 / B-009 / B-010 對應的 PHASE_TEMPLATE 部分改為已加入
+  - B-007 保持不納入本次模板，留待 CLAUDE.md / 鐵律 v0.5 升版
+  - 註明 `lint_phase_plan.py` P-PRE-3 與 `m4_track_blindspots.py --scaffold` 自動編號仍待後續 Phase
+- `NEXT_SESSION_HANDOFF.md`
+  - 狀態改為 PHASE_TEMPLATE v1.2 已寫入
+  - 下個視窗第一動作改為從候選 Phase 擇一
+
+**風險**：
+- R-013 仍存在：`--sync-rules` 是字面比對啟發式，可能低估已涵蓋規則；本次以 X4-J 把「召回率僅供參考」寫入模板，但工具本身尚未升級。
+- B-008 的 lint 機械化阻擋尚未實作：模板已要求 pre-existing 失敗計次，但 `lint_phase_plan.py` 尚未加入 P-PRE-3。
+- B-010 的 scaffold 自動編號尚未實作：模板已加入查詢命令，但 `m4_track_blindspots.py --scaffold` 尚未自動填下一個 B-NNN。
+
+**狀態**：
+- ✅ PHASE_TEMPLATE v1.2 + Persona Overlay 已落地
+- ✅ `py scripts/m4_track_blindspots.py --sync-rules` 驗收：9/10 規則已涵蓋；B-007 留待 CLAUDE.md / 鐵律 v0.5 升版
+
+---
+
+### P73 — 模型選擇指引 v1.2 OpenAI / Codex 分支（2026-05-15）
+
+**目標**：
+- 將 P69 時期以 Claude / Gemini 為主的 `docs/MODEL_SELECTION_GUIDE.md` v1.1 升級為 v1.2，補上主公目前實際使用的 OpenAI / ChatGPT / Codex 分支。
+- 建立主公日常可用的雙主力規則：**想清楚用 GPT-5.5；進 repo 動工用 GPT-5.3-Codex；小任務用 GPT-5.4-Mini；卡住升高 / 超高或切換視角**。
+
+**觸發**：
+- 主公詢問 GPT-5.3-Codex 與 GPT-5.5 的用途、更新時間、token / credit 成本差異。
+- 盤點後發現 P69 `docs/MODEL_SELECTION_GUIDE.md` 仍是 Claude / Gemini 時代的 v1.1，`docs/PHASE_TEMPLATE.md` 的「負責模型」欄也只列 Opus / Sonnet / Haiku，與 Codex app 當前模型選單不一致。
+- 主公明確授權：「規劃完草案並且凍結之後就可以先繼續剛才的作業了」。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 只改 Markdown 文件，不動 runtime code |
+| Logic (S) | ✅ | OpenAI 分支以「新增分支」方式加入，不取代 Claude / Gemini 舊規則 |
+| Testing (S) | ✅ | `git diff --check` 無 whitespace error；`rg GPT-5.5` / `rg GPT-5.3-Codex` 已確認主檔、模板、AGENTS、handoff、history 均有同步 |
+| Security (S) | ✅ | 明定安全審查 / secrets / CI/CD / 不可逆操作不得使用 Mini |
+| Architecture (A) | ✅ | 主檔 + PHASE_TEMPLATE + AGENTS + handoff + history 同步，降低 P69 R-001 三檔漂移風險 |
+| Data (A) | ✅ | 不動資料檔；只追加 TASK_HISTORY |
+| Observability (A) | ✅ | 本段記錄官方查證來源與模型規則原因 |
+| Resilience (A) | ✅ | 新增 OpenAI 卡住判定：GPT-5.3-Codex 修 3 次同錯 → GPT-5.5 高重新審根因；GPT-5.5 抽象化 → GPT-5.3-Codex 實測 repo |
+| Maintainability (A) | ✅ | TL;DR 先給 OpenAI 30 秒版，再保留 Claude / Gemini 原跨助理版 |
+| Documentation (A) | ✅ | 新增 `docs/PHASE_73_PLAN.md` 凍結計畫書，主檔升 v1.2 |
+| Process (A) | ✅ | 依 PHASE_TEMPLATE v1.2 流程先凍結 P73 計畫書再動工 |
+| Cost (B) | ✅ | 補 Codex rate card：GPT-5.5 125/12.5/750 credits vs GPT-5.3-Codex 43.75/4.375/350 credits |
+
+**物理真相**：
+- `docs/PHASE_73_PLAN.md`
+  - 新增 P73 凍結計畫書。
+  - 影響半徑：標準；預估投入 0.8h；負責模型 GPT-5.3-Codex。
+  - M1.5 八人格中觸發 Jimmy（文件）、Marcus（價格數據）、Penny（成本）、Jason（驗收）。
+- `docs/MODEL_SELECTION_GUIDE.md`
+  - 標題升為 `模型選擇指引 v1.2（跨 AI 助理通用 + OpenAI/Codex 分支）`。
+  - TL;DR 新增 OpenAI / ChatGPT / Codex 現行主公版：
+    - 不知道用什麼 → GPT-5.5 + 中
+    - 想清楚 / 計畫 / 治理規則 / 重大決策 → GPT-5.5 + 高
+    - 進 repo 動工 / 改檔 / 跑測試 / 修 bug → GPT-5.3-Codex + 中/高
+    - 小任務 / 摘要 / 翻譯 / 表格 / 語氣 → GPT-5.4-Mini + 低/中
+  - 新增 §1.5 OpenAI / ChatGPT / Codex 模型總表。
+  - 新增 GPT-5.5 vs GPT-5.3-Codex Codex rate card 對照：
+    - GPT-5.5：125 / 12.5 / 750 credits（input / cached input / output per 1M）
+    - GPT-5.3-Codex：43.75 / 4.375 / 350 credits
+  - 新增 §3.6 OpenAI / Codex 怎麼選。
+  - §6 AOV 專案特化情境新增 ChatGPT/Codex 行。
+  - §7 使用協議新增 OpenAI / Codex 分工。
+  - §8 治理與運維把 `AGENTS.md` 納入同步範圍，新增 OpenAI 新模型 / Codex rate card 重大調整作為強制升版觸發。
+- `docs/PHASE_TEMPLATE.md`
+  - 「負責模型」欄新增 GPT-5.5 / GPT-5.3-Codex / GPT-5.4-Mini。
+- `AGENTS.md`
+  - 模型選擇縮版升 v1.2。
+  - 新增 OpenAI 30 秒落點與口訣：「想清楚用 GPT-5.5，動工省錢用 GPT-5.3-Codex，小事用 Mini，卡住升高/超高。」
+- `NEXT_SESSION_HANDOFF.md`
+  - 新增 P73 完成區塊，記錄 OpenAI/Codex 分支已落地。
+
+**官方查證來源（2026-05-15）**：
+- OpenAI Codex rate card：`https://help.openai.com/en/articles/20001106-codex-rate-card`
+- OpenAI API pricing：`https://openai.com/api/pricing/`
+- GPT-5.5 in ChatGPT：`https://help.openai.com/en/articles/11909943-gpt-53-and-gpt-54-in-chatgpt`
+- Introducing GPT-5.3-Codex：`https://openai.com/index/introducing-gpt-5-3-codex/`
+
+**風險**：
+- OpenAI 模型與 Codex rate card 可能很快更新；已在 `docs/MODEL_SELECTION_GUIDE.md` 標註查證日期與升版觸發。
+- P73 疊在 P72.5 未 commit 變更上；本次 final 必須明確列出 tracked 變更範圍，不碰 untracked 檔。
+
+**狀態**：
+- ✅ P73 計畫書已凍結
+- ✅ OpenAI / Codex 模型選擇分支已寫入主檔、模板、AGENTS、handoff
+- ✅ `git diff --check` 與關鍵字驗收完成（僅 Windows LF→CRLF 提示，無 whitespace error）
