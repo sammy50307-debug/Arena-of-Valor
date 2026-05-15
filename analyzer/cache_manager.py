@@ -1,11 +1,18 @@
 """
 CacheManager — 雙層快取（L1 hero-level / L2 prompt-level）。
 
-schema v2:
+schema v3:
   {
-    "schema_version": 2,
+    "schema_version": 3,
     "result_schema_version": <int>,
-    "entries": { <key>: {"result": ..., "stored_at": <iso>, "ttl_days": <int>} },
+    "entries": {
+      <key>: {
+        "result": ...,
+        "stored_at": <iso>,
+        "last_accessed": <iso>,
+        "ttl_days": <int>
+      }
+    },
     "stats": {"total_l1_hits": 0, "total_l2_hits": 0, "total_apify_hits": 0, "total_misses": 0}
   }
 
@@ -27,7 +34,7 @@ import config
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 _EMPTY_STORE = lambda: {
     "schema_version": SCHEMA_VERSION,
     "result_schema_version": config.RESULT_SCHEMA_VERSION,
@@ -59,9 +66,17 @@ class CacheManager:
     讀寫均為同步（GeminiClient 的 asyncio lock 在上層處理）。
     """
 
-    def __init__(self, cache_file: Optional[Path] = None, ttl_days: Optional[int] = None):
+    def __init__(
+        self,
+        cache_file: Optional[Path] = None,
+        ttl_days: Optional[int] = None,
+        max_entries: Optional[int] = None,
+    ):
         self._file = cache_file or config.CACHE_FILE
         self._ttl_days = ttl_days if ttl_days is not None else config.CACHE_TTL_DAYS
+        self._max_entries = (
+            max_entries if max_entries is not None else config.CACHE_MAX_ENTRIES
+        )
         self._store = self._load()
 
     # ── 載入 / 遷移 ──────────────────────────────────────────────────────────
@@ -79,6 +94,8 @@ class CacheManager:
         version = raw.get("schema_version")
         if version == SCHEMA_VERSION:
             store = raw
+        elif version == 2:
+            store = self._migrate_v2(raw)
         elif version is None:
             store = self._migrate_v1(raw)
         else:
@@ -86,6 +103,7 @@ class CacheManager:
             store = _EMPTY_STORE()
 
         self._evict_expired(store)
+        self._enforce_max_entries(store)
         return store
 
     def _migrate_v1(self, old: dict) -> dict:
@@ -105,9 +123,32 @@ class CacheManager:
             store["entries"][new_key] = {
                 "result": v,
                 "stored_at": now,
+                "last_accessed": now,
                 "ttl_days": self._ttl_days,
             }
         logger.info(f"migration 完成，{len(store['entries'])} 筆已遷移")
+        return store
+
+    def _migrate_v2(self, old: dict) -> dict:
+        """把 v2 entry 補上 last_accessed，升為 v3。"""
+        entries = old.get("entries", {})
+        logger.info(f"偵測到 v2 快取，開始 v3 migration（{len(entries)} 筆）")
+        store = _EMPTY_STORE()
+        store["result_schema_version"] = old.get(
+            "result_schema_version", config.RESULT_SCHEMA_VERSION
+        )
+        store["stats"].update(old.get("stats", {}))
+        for key, value in entries.items():
+            if not isinstance(value, dict):
+                continue
+            stored_at = value.get("stored_at") or _now_iso()
+            store["entries"][key] = {
+                "result": value.get("result"),
+                "stored_at": stored_at,
+                "last_accessed": value.get("last_accessed") or stored_at,
+                "ttl_days": value.get("ttl_days", self._ttl_days),
+            }
+        logger.info(f"v3 migration 完成，{len(store['entries'])} 筆已遷移")
         return store
 
     def _evict_expired(self, store: dict) -> None:
@@ -121,6 +162,24 @@ class CacheManager:
         if expired_keys:
             logger.info(f"TTL 清理：移除 {len(expired_keys)} 筆過期 entry")
 
+    def _enforce_max_entries(self, store: dict) -> None:
+        entries = store.get("entries", {})
+        if self._max_entries is None or self._max_entries <= 0:
+            return
+        overflow = len(entries) - self._max_entries
+        if overflow <= 0:
+            return
+
+        def lru_sort_key(item):
+            key, value = item
+            marker = value.get("last_accessed") or value.get("stored_at") or ""
+            return (marker, key)
+
+        victims = [key for key, _ in sorted(entries.items(), key=lru_sort_key)[:overflow]]
+        for key in victims:
+            del entries[key]
+        logger.info(f"LRU 清理：移除 {len(victims)} 筆最久未使用 entry")
+
     # ── 公開 API ─────────────────────────────────────────────────────────────
 
     def get(self, key: str) -> Optional[Any]:
@@ -130,14 +189,18 @@ class CacheManager:
         if _is_expired(entry.get("stored_at", ""), entry.get("ttl_days", self._ttl_days)):
             del self._store["entries"][key]
             return None
+        entry["last_accessed"] = _now_iso()
         return entry["result"]
 
     def set(self, key: str, value: Any, ttl_days: Optional[int] = None) -> None:
+        now = _now_iso()
         self._store["entries"][key] = {
             "result": value,
-            "stored_at": _now_iso(),
+            "stored_at": now,
+            "last_accessed": now,
             "ttl_days": ttl_days if ttl_days is not None else self._ttl_days,
         }
+        self._enforce_max_entries(self._store)
 
     def increment_stat(self, stat: str) -> None:
         if stat in self._store["stats"]:
@@ -148,6 +211,8 @@ class CacheManager:
 
     def save(self) -> None:
         try:
+            self._evict_expired(self._store)
+            self._enforce_max_entries(self._store)
             with open(self._file, "w", encoding="utf-8") as f:
                 json.dump(self._store, f, ensure_ascii=False, indent=2)
         except Exception as e:

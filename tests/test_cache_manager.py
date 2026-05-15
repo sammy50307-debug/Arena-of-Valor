@@ -12,6 +12,8 @@ P64-S5 單元測試：CacheManager
   T8  stats increment
   T9  save / reload 持久化
   T10 Lockfile 冷卻（模擬）
+  T11 get 命中更新 last_accessed
+  T12 max_entries LRU 淘汰最久未使用 entry
 """
 
 import json
@@ -90,8 +92,8 @@ def test_t5_v1_migration(tmp_path):
 
     cm = CacheManager(cache_file=f, ttl_days=7)
 
-    # schema_version 應升為 2
-    assert cm._store["schema_version"] == 2
+    # schema_version 應升為 3
+    assert cm._store["schema_version"] == 3
     # 舊 key 應加上 prompt: prefix
     assert cm.get("prompt:aabbccdd") == "result_a"
     assert cm.get("prompt:11223344") == "result_b"
@@ -121,8 +123,10 @@ def test_t6_ttl_eviction_on_load(tmp_path):
 
     cm = CacheManager(cache_file=f, ttl_days=7)
 
+    assert cm._store["schema_version"] == 3
     assert "prompt:expired" not in cm._store["entries"]   # 清掉
     assert cm.get("prompt:fresh") == "new"                # 保留
+    assert "last_accessed" in cm._store["entries"]["prompt:fresh"]
 
 
 # ── T7：429 不污染 L1（showcase 不寫）───────────────────────────────────────
@@ -193,3 +197,43 @@ def test_t10_lockfile_cooldown(tmp_path):
     should_skip2 = age_min2 < 30
 
     assert should_skip2 is False
+
+
+# ── T11：get 命中更新 last_accessed ───────────────────────────────────────
+
+def test_t11_get_updates_last_accessed(tmp_cache):
+    key = CacheManager.prompt_key("touch")
+    tmp_cache.set(key, "value")
+    old_accessed = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    tmp_cache._store["entries"][key]["last_accessed"] = old_accessed
+
+    assert tmp_cache.get(key) == "value"
+
+    assert tmp_cache._store["entries"][key]["last_accessed"] != old_accessed
+
+
+# ── T12：max_entries LRU 淘汰最久未使用 entry ─────────────────────────────
+
+def test_t12_max_entries_lru_eviction(tmp_path):
+    f = tmp_path / "cache.json"
+    cm = CacheManager(cache_file=f, ttl_days=7, max_entries=2)
+    key_a = CacheManager.prompt_key("a")
+    key_b = CacheManager.prompt_key("b")
+    key_c = CacheManager.prompt_key("c")
+
+    cm.set(key_a, "a")
+    cm.set(key_b, "b")
+
+    old = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+    older = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()
+    cm._store["entries"][key_a]["last_accessed"] = old
+    cm._store["entries"][key_b]["last_accessed"] = older
+
+    # key_a 被 touch 後變成熱資料；新增 key_c 時應淘汰 key_b。
+    assert cm.get(key_a) == "a"
+    cm.set(key_c, "c")
+
+    assert key_a in cm._store["entries"]
+    assert key_b not in cm._store["entries"]
+    assert key_c in cm._store["entries"]
+    assert len(cm._store["entries"]) == 2

@@ -75,6 +75,7 @@ DB_PATH = DATA_DIR / "aov_monitor.db"
 # ── 快取設定 (P64) ────────────────────────────────────
 CACHE_FILE = DATA_DIR / "llm_cache.json"
 CACHE_TTL_DAYS = 7
+CACHE_MAX_ENTRIES = int(os.getenv("CACHE_MAX_ENTRIES", "500"))
 LOCKFILE_PATH = DATA_DIR / ".last_successful_run"
 LOCKFILE_COOLDOWN_MINUTES = 30
 RESULT_SCHEMA_VERSION = 1

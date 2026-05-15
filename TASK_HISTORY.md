@@ -6254,3 +6254,97 @@ $env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
 - ✅ OpenAI fallback wrapper 已落地
 - ✅ 全套測試 124 passed
 - ⏳ 剩餘候選：P70.6 llm_cache LRU / TTL
+
+---
+
+### P70.6 — llm_cache LRU / TTL 機制（2026-05-16）
+
+**目標**：
+- 補上 `data/llm_cache.json` 的 retention 上限，避免 Gemini / OpenAI 共用 cache 長期無界增長。
+- 保留既有 TTL 行為，再新增 `last_accessed` 與 max entries LRU eviction。
+- 不直接修改或 stage 真實 `data/llm_cache.json`，只讓 `CacheManager` 在 runtime 自動 migration。
+
+**觸發**：
+- P64 cache 架構已降低 LLM 呼叫，但 P75 / B-016 補回通則：「cache key、TTL、no-write policy 必須在計畫書明列」。
+- P70.4 OpenAI fallback 讓 Gemini / OpenAI 共用 CacheManager，cache retention 的重要性提高。
+- WIP 清單剩餘候選包含 P70.6。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 只改 `CacheManager` / config / cache tests，不改 LLM 呼叫流程 |
+| Logic (S) | ✅ | TTL eviction 先執行，再依 `last_accessed` 做 max entries LRU |
+| Testing (S) | ✅ | cache 單測 12 passed；全套 126 passed |
+| Security (S) | ✅ | 不輸出 cache 內容、不讀 secrets、不 stage 真實 cache 檔 |
+| Architecture (A) | ✅ | 保留 JSON CacheManager，不引入 SQLite 大重構 |
+| Data (A) | ✅ | schema v2 → v3 migration：每筆 entry 補 `last_accessed`，預設等於 `stored_at` |
+| Observability (A) | ✅ | TTL / LRU 清除都以 logger.info 記錄清除筆數 |
+| Resilience (A) | ✅ | 舊 v2 cache 可自動遷移；未知 schema 仍走既有重建空 cache 保護 |
+| Maintainability (A) | ✅ | retention 邏輯集中於 `CacheManager._evict_expired()` / `_enforce_max_entries()` |
+| Performance (B) | ✅ | 預設 `CACHE_MAX_ENTRIES=500`，sort 成本對目前 cache 規模可接受 |
+| Cost (B) | ✅ | 預設保守，避免過度 aggressive eviction 造成 API 成本回升 |
+
+**物理真相**：
+- 新增 `docs/PHASE_70_6_PLAN.md`
+  - v1.0 frozen；Exit Criteria 全勾選。
+- 修改 `config.py`
+  - 新增：
+    ```python
+    CACHE_MAX_ENTRIES = int(os.getenv("CACHE_MAX_ENTRIES", "500"))
+    ```
+- 修改 `analyzer/cache_manager.py`
+  - schema 升級：
+    ```python
+    SCHEMA_VERSION = 3
+    ```
+  - v3 entry 結構新增：
+    ```json
+    "last_accessed": "<iso timestamp>"
+    ```
+  - `__init__` 新增 `max_entries` 參數，預設讀 `config.CACHE_MAX_ENTRIES`。
+  - `_load()` 新增 v2 migration 分支：
+    ```python
+    elif version == 2:
+        store = self._migrate_v2(raw)
+    ```
+  - `_migrate_v2()` 將舊 entry 補：
+    ```python
+    "last_accessed": value.get("last_accessed") or stored_at
+    ```
+  - `get()` 命中未過期 entry 時更新 in-memory `last_accessed`。
+  - `set()` 寫入 `stored_at` + `last_accessed`，並立即 `_enforce_max_entries()`。
+  - `save()` 前先跑 TTL eviction + LRU enforcement。
+  - `_enforce_max_entries()`：以 `last_accessed`（缺失時 fallback `stored_at`）排序，刪除最久未使用 entries。
+- 修改 `tests/test_cache_manager.py`
+  - T5 期望 schema_version 從 2 改 3。
+  - T6 v2 fixture 會自動 migration 到 v3 並補 `last_accessed`。
+  - 新增 T11：`get()` 命中更新 `last_accessed`。
+  - 新增 T12：`max_entries=2` 時淘汰最久未使用 entry。
+- 明確未修改：
+  - `data/llm_cache.json`
+  - `data/reports/*.html`
+  - `~/.claude/skill_metrics.jsonl`（R-012，不屬 P70.6）
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts/lint_phase_plan.py docs/PHASE_70_6_PLAN.md
+# ✅ 通過 Pre-flight 體檢（M1 + M2）
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests/test_cache_manager.py -q
+# 12 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
+# 126 passed in 2.54s
+```
+
+**風險與限制**：
+- P70.6 不處理 R-012 metrics JSONL retention；那是 `~/.claude/skill_metrics.jsonl` 的另一條風險。
+- 真實 `data/llm_cache.json` 會在下次 runtime save 時由 v2 遷移到 v3；本 Phase 未在本地直接落盤改真 cache，因此沒有驗證真檔寫入後的 git diff。
+- `CACHE_MAX_ENTRIES=500` 是保守預設；若 90 天後 cache 仍過大，可降低或改 SQLite。
+
+**狀態**：
+- ✅ P70.6 收官
+- ✅ cache schema v3 / LRU / max entries 已落地
+- ✅ 全套測試 126 passed
+- ✅ 本輪主線待辦（R-014 / P70.4 / P70.6）已清空
