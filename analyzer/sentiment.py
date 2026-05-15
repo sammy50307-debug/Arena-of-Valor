@@ -13,6 +13,7 @@ from typing import List, Optional, Dict, Any
 
 import config
 from scrapers.tavily_searcher import SearchResult
+from analyzer.fallback_llm_client import FallbackLLMClient
 from analyzer.gemini_client import GeminiClient
 from analyzer.nlp import analyze_keywords
 from analyzer.prompts import (
@@ -128,8 +129,8 @@ class SentimentAnalyzer:
     最終產出每日彙總報告。
     """
 
-    def __init__(self, llm_client: Optional[GeminiClient] = None):
-        self.llm = llm_client or GeminiClient()
+    def __init__(self, llm_client: Optional[Any] = None):
+        self.llm = llm_client or FallbackLLMClient()
         self.logger = logging.getLogger(f"{__name__}.SentimentAnalyzer")
 
     def _compress_content(self, text: str, target_heroes: List[str]) -> str:
@@ -199,7 +200,7 @@ class SentimentAnalyzer:
                 system_prompt=SYSTEM_SINGLE_POST,
                 user_prompts=user_prompts,
                 json_mode=True,
-                concurrency=GeminiClient.CONCURRENCY_LIMIT,
+                concurrency=getattr(self.llm, "CONCURRENCY_LIMIT", GeminiClient.CONCURRENCY_LIMIT),
                 response_schema=SINGLE_POST_SCHEMA
             )
         except httpx.HTTPStatusError as e:

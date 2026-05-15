@@ -6146,3 +6146,111 @@ rg -n "^### B-" docs/postmortems | Sort-Object
 - ✅ R-014 關閉
 - ✅ P63/P64/P69/P70.3 blindspot 全配對
 - ⏳ 剩餘候選：P70.4 OpenAI fallback、P70.6 llm_cache LRU / TTL
+
+---
+
+### P70.4 — OpenAI Fallback（2026-05-16）
+
+**目標**：
+- 在 Gemini 429 / provider down 時，自動嘗試 OpenAI 作為 secondary provider，降低每日報告被迫進入 showcase_forced 的機率。
+- 保持正常路徑 Gemini primary，不把既有模型品質、成本與 cache 行為一次性改大。
+- 若 `OPENAI_API_KEY` 未設定，維持既有 P69 降級語意：Gemini 429 仍會回到 `quota_error=True` / `showcase_forced`。
+
+**觸發**：
+- P63 / P69 多次證明 Gemini 免費配額 429 會導致 production 報告降級。
+- P70.2 已補每日健康巡檢，能抓出非 production 報告。
+- P75 補回 B-017~B-019 後，fallback reason、provider short-circuit、catch-all metadata 邊界已被結構化記錄。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 新增 fallback wrapper，少量修改 `SentimentAnalyzer` 預設 client；不改 prompt 與報告模板 |
+| Logic (S) | ✅ | 只對 provider-level failure fallback；OpenAI key 不存在時 re-raise，保留 P69 showcase_forced |
+| Testing (S) | ✅ | 新增 5 個 mock tests；全套 124 passed；未呼叫真 API |
+| Security (S) | ✅ | 不輸出 API key、不 dump env、不在 log 中寫 URL key；workflow secret 名稱沿用 |
+| Architecture (A) | ✅ | Provider selection 集中在 `analyzer/fallback_llm_client.py`，不散落進 sentiment 業務邏輯 |
+| Data (A) | ✅ | OpenAI client 與 Gemini 共用 CacheManager；只 cache 成功 JSON 結果 |
+| Observability (A) | ✅ | fallback wrapper 會 log provider 切換；報告 metadata provider 留後續候選 |
+| Resilience (A) | ✅ | Gemini 429 / 5xx / request error → OpenAI；OpenAI 也失敗則回既有降級 |
+| Performance (B) | ✅ | OpenAI fallback concurrency=1，避免把成本與 burst 風險轉移到第二供應商 |
+| Cost (B) | ✅ | fallback-only；不做 OpenAI preflight，不在測試打真 API |
+| Privacy (B) | ✅ | OpenAI fallback 僅在 `OPENAI_API_KEY` 已設定時啟用；送出的內容與既有 LLM 分析內容同型 |
+
+**官方文件查證（2026-05-16）**：
+- OpenAI Chat Completions API：官方仍提供 Chat Completions `create` endpoint，但也建議新專案可考慮 Responses API。
+- OpenAI Structured Outputs：官方說 Structured Outputs 比 JSON mode 更能保證 schema adherence，且 `gpt-4o-mini` 支援 `json_schema` response format。
+- 本 repo 鎖 Python 3.8 與 `openai>=1.12.0,<1.56.0`，因此 P70.4 採保守方案：Chat Completions + `response_format`，不升級 SDK / 不切 Responses API。
+
+**物理真相**：
+- 新增 `docs/PHASE_70_4_PLAN.md`
+  - v1.0 frozen，採 Gemini primary / OpenAI secondary wrapper。
+  - Exit Criteria 全勾選。
+- 修改 `config.py`
+  - 新增：
+    ```python
+    OPENAI_FALLBACK_ENABLED = os.getenv("OPENAI_FALLBACK_ENABLED", "true").lower() == "true"
+    OPENAI_FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini")
+    ```
+- 重寫 / 升級 `analyzer/llm_client.py`
+  - 保留 class `LLMClient`，但補齊與 `GeminiClient` 相容的：
+    ```python
+    chat(..., response_schema: Optional[dict] = None)
+    batch_chat(..., response_schema: Optional[dict] = None)
+    cache_manager
+    ```
+  - 新增 `_to_openai_json_schema()`：將 Gemini-style uppercase schema type（`OBJECT` / `STRING` / `BOOLEAN`）轉成 OpenAI JSON Schema lowercase（`object` / `string` / `boolean`）。
+  - 有 `response_schema` 時使用：
+    ```python
+    response_format = {
+        "type": "json_schema",
+        "json_schema": {"name": "aov_response", "schema": ..., "strict": False},
+    }
+    ```
+  - 無 schema 時退回 `{"type": "json_object"}`。
+  - 共用 `CacheManager`，支援 prompt-level L2 cache 與 stats。
+- 新增 `analyzer/fallback_llm_client.py`
+  - `FallbackLLMClient(primary=GeminiClient, fallback=LLMClient)`。
+  - fallback 條件：
+    - `httpx.HTTPStatusError` 且 status 429 或 >=500
+    - `httpx.RequestError`
+    - OpenAI provider 型錯誤：`RateLimitError` / `APITimeoutError` / `APIConnectionError` / retryable `APIStatusError`
+  - `fallback is None` 時不吞錯，直接 re-raise。
+- 修改 `analyzer/sentiment.py`
+  - `SentimentAnalyzer()` 預設：
+    ```python
+    self.llm = llm_client or FallbackLLMClient()
+    ```
+  - 批次 concurrency 改用 `getattr(self.llm, "CONCURRENCY_LIMIT", GeminiClient.CONCURRENCY_LIMIT)`，讓 wrapper 能維持 Gemini 降載策略。
+- 新增 `tests/test_openai_fallback.py`
+  - `test_fallback_batch_chat_uses_openai_after_gemini_429`
+  - `test_sentiment_analyze_posts_stays_production_after_openai_fallback`
+  - `test_fallback_batch_chat_reraises_without_openai_key`
+  - `test_openai_client_uses_json_schema_response_format`
+  - `test_sentiment_analyzer_defaults_to_fallback_client`
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts/lint_phase_plan.py docs/PHASE_70_4_PLAN.md
+# ✅ 通過 Pre-flight 體檢（M1 + M2）
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests/test_openai_fallback.py -q
+# 5 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests/test_showcase_modes.py tests/test_429_retry.py tests/test_dynamic_focus.py -q
+# 11 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
+# 124 passed in 2.50s
+```
+
+**風險與限制**：
+- 本 Phase 沒有呼叫真 OpenAI API，也沒有跑 GHA `workflow_dispatch`；mock tests 只證明 wiring 與 request shape，不證明 secret / 帳號 / quota 一定健康。
+- 報告 metadata 暫未新增 `provider=openai_fallback`，主公只能從 log 看 provider 切換；若需要報告頂部可見 provider，可另開 P70.4.1。
+- OpenAI 與 Gemini 產物共用 prompt cache；目前只 cache 成功 JSON 結果，provider-aware cache key 留待 P70.6 或後續 cache Phase 評估。
+
+**狀態**：
+- ✅ P70.4 收官
+- ✅ OpenAI fallback wrapper 已落地
+- ✅ 全套測試 124 passed
+- ⏳ 剩餘候選：P70.6 llm_cache LRU / TTL
