@@ -14,12 +14,13 @@
 
 | Phase | 草案位置 | 阻塞於 |
 |---|---|---|
-| P70.6 | 待建立 | llm_cache LRU / TTL；候選，尚未正式計畫書 |
+| — | 目前無凍結待動工 Phase | 主公拍板下一個 open risk / enhancement |
 
 ## ✅ 已收官
 
 | Phase | 收官日 | 備註 |
 |---|---|---|
+| P70.6 | 2026-05-16 | `llm_cache.json` schema v3；新增 `last_accessed`、`CACHE_MAX_ENTRIES`、max entries LRU eviction；cache 單測 12 passed，全套 126 passed |
 | P70.4 | 2026-05-16 | Gemini primary / OpenAI fallback；新增 fallback wrapper、OpenAI schema/cache 介面與 5 個 mock tests；全套 124 passed |
 | P75 / R-014 | 2026-05-16 | 回填 P63/P64/P69/P70.3 blindspots；新增 B-011~B-022；M4 status 缺漏數 0；R-014 關閉 |
 | P70.2 | 2026-05-16 | 新增 daily report health checker；workflow fallback push 後檢查 canonical report / metadata / landing / git clean；全套 119 passed |
