@@ -1,12 +1,28 @@
-# 模型選擇指引 v1.1（跨 AI 助理通用 / 已定稿）
+# 模型選擇指引 v1.2（跨 AI 助理通用 + OpenAI/Codex 分支）
 
-> **適用對象**：Claude Code（Anthropic）、Gemini CLI / Antigravity（Google）、其他副駕助理。
+> **適用對象**：ChatGPT / Codex（OpenAI）、Claude Code（Anthropic）、Gemini CLI / Antigravity（Google）、其他副駕助理。
 > **三檔同步協議**：本檔（專案特化主檔）→ `~/.claude/CLAUDE.md` 全域章節（縮版）→ `~/.gemini/GEMINI.md` 全域章節（縮版）。
-> **更新日期**：2026-05-07
+> **更新日期**：2026-05-15
+> **OpenAI 查證來源**：OpenAI Help Center / Platform docs / API pricing / Codex rate card（查證日：2026-05-15）
 
 ---
 
 ## 🎯 TL;DR（30 秒版）
+
+### OpenAI / ChatGPT / Codex 現行主公版
+
+| 情境 | 用什麼 |
+|---|---|
+| **不知道用什麼** | **GPT-5.5 + 中** |
+| 想清楚 / 計畫 / 治理規則 / 重大決策 | **GPT-5.5 + 高** |
+| 進 repo 動工 / 改檔 / 跑測試 / 修 bug | **GPT-5.3-Codex + 中/高** |
+| 跨多檔、詭異 bug、安全審查、不可逆操作 | **GPT-5.3-Codex 高** → 卡住切 **GPT-5.5 高/超高** |
+| 小任務 / 摘要 / 翻譯 / 表格 / 語氣 | **GPT-5.4-Mini + 低/中** |
+| GPT-5.5 額度或成本壓力 | **GPT-5.4** 作為日常 fallback |
+
+**OpenAI 口訣**：想清楚用 **GPT-5.5**，動工省錢用 **GPT-5.3-Codex**，小事用 **Mini**，卡住升 **高/超高**。
+
+### Claude / Gemini 原跨助理版
 
 | 情境 | 用什麼 |
 |---|---|
@@ -18,13 +34,16 @@
 | 一次塞 >200K context | **Gemini**（1M context）|
 | 大量便宜跑 | **Gemini 3 Flash**（$0.50/$3）|
 
-**升級階梯**：`Sonnet → Opus → Gemini 3.1 Pro (High) → 主公拍板`
+**Claude/Gemini 升級階梯**：`Sonnet → Opus → Gemini 3.1 Pro (High) → 主公拍板`
+
+**OpenAI 升級階梯**：`GPT-5.4-Mini（小事）→ GPT-5.3-Codex（動工）/ GPT-5.5（思考）→ 高/超高 → 主公拍板`
 
 ---
 
 ## 目錄
 
-- [§1 6 模型總表](#1-6-模型總表)
+- [§1 Claude / Gemini 模型總表](#1-claude--gemini-模型總表)
+- [§1.5 OpenAI / ChatGPT / Codex 模型總表](#15-openai--chatgpt--codex-模型總表)
 - [§2 快速決策表（任務 × 影響半徑）](#2-快速決策表)
 - [§3 決策樹](#3-決策樹)
   - 3.1 升 Opus / Pro High 的 5 連問
@@ -39,7 +58,7 @@
 
 ---
 
-## 1. 6 模型總表
+## 1. Claude / Gemini 模型總表
 
 | 模型 | 提供商 | 最佳 use case（一句話）| 速度 | 成本 (in/out per 1M, USD) | Context | 知識截止 |
 |---|---|---|---|---|---|---|
@@ -53,6 +72,60 @@
 > ⚠️ **Gemini Pro 實務劣化警告**：社群實測指出 **200K+ tokens 開始出錯增多**，500-600K+ 明顯失準；Vertex API 路徑曾回 131,072 tokens rate limit error。重要任務建議控在 200K 內，1M 是上限不是常用區。
 
 > 註：Anthropic 為公開定價；Gemini 抓自 [官方 pricing](https://ai.google.dev/gemini-api/docs/pricing)（2026-05-07）。Google 從未公開 Gemini knowledge cutoff（已多方查證無果）。
+
+---
+
+## 1.5 OpenAI / ChatGPT / Codex 模型總表
+
+> 本節為 2026-05-15 新增的 OpenAI 分支。價格與可用性高度時間敏感，採 OpenAI 官方 API pricing / Codex rate card / Help Center 作為查證來源；ChatGPT 訂閱制實際限制以當下帳號顯示為準。
+
+### 1.5.1 快速定位
+
+| 模型 | 最佳 use case（一句話）| 速度 | 成本 / 消耗傾向 | 主公用法 |
+|---|---|---|---|---|
+| **GPT-5.5** | 最強通用推理、規劃、治理、複雜決策 | 中 | 高；API 約 $5 input / $30 output per 1M tokens；Codex rate card 約 125 / 12.5 / 750 credits（input / cached input / output）| 想清楚、做決策、寫規則、重大風險分析 |
+| **GPT-5.3-Codex** | Codex 內 agentic coding、repo 修改、測試、bug 修復 | 中快 | 中；Codex rate card 約 43.75 / 4.375 / 350 credits | 進 repo 動工、讀檔、patch、跑測試 |
+| **GPT-5.4** | 日常 fallback，介於 5.5 與 Mini 之間 | 快 | 中 | 5.5 額度壓力或一般任務 |
+| **GPT-5.4-Mini** | 小任務、摘要、翻譯、格式整理 | 很快 | 低 | 不碰安全 / 架構 / 不可逆決策 |
+| **GPT-5.2** | 舊一代穩定 fallback | 中 | 視帳號 / API 而定 | 非首選；必要時保守 fallback |
+
+### 1.5.2 GPT-5.5 vs GPT-5.3-Codex 成本判斷
+
+| 比較 | GPT-5.5 | GPT-5.3-Codex | 結論 |
+|---|---:|---:|---|
+| Codex input credits / 1M | 125 | 43.75 | GPT-5.5 約 2.86 倍 |
+| Codex cached input credits / 1M | 12.5 | 4.375 | GPT-5.5 約 2.86 倍 |
+| Codex output credits / 1M | 750 | 350 | GPT-5.5 約 2.14 倍 |
+| 適合任務 | 高價值思考與決策 | 大量 repo 讀寫與動工 | 大量檔案操作優先 GPT-5.3-Codex |
+
+**成本口訣**：討論方向用 GPT-5.5；大量讀檔、改檔、跑測試用 GPT-5.3-Codex；不要用 GPT-5.5 做可被 Codex 高效完成的機械 repo 工作。
+
+### 1.5.3 OpenAI 切換規則
+
+| 當前狀況 | 動作 |
+|---|---|
+| 只是問概念 / 做規劃 / 討論治理 | GPT-5.5 + 中 |
+| 計畫書、17 層稽核、Persona Overlay、風險取捨 | GPT-5.5 + 高 |
+| 已決定要改 repo / 跑命令 / patch / 驗收 | GPT-5.3-Codex + 中 |
+| 跨很多檔、bug 根因模糊、安全審查、不可逆操作 | GPT-5.3-Codex + 高；卡住切 GPT-5.5 高/超高重新審題 |
+| 小任務、翻譯、摘要、表格、語氣微調 | GPT-5.4-Mini + 低/中 |
+| 同一 error trace 修 3 次仍復發 | 停止硬撐，切到另一主力模型或升 reasoning effort |
+
+**OpenAI 卡住判定**（任一達成 = 主動提醒主公切換）：
+- GPT-5.3-Codex 連 3 輪修同一 bug 仍失敗
+- GPT-5.5 的規劃反覆抽象化，沒有落到可執行步驟
+- 主公明確說「卡住」「換思路」「沒用」
+- 同一個錯誤 trace / 測試失敗連續出現 3 次
+
+**提醒模板**：
+> 主公，這題已達卡住判定（具體症狀：___）。建議切換到 ___，原因是 ___；若主公要維持目前模型，我會改用拆任務 / 查官方文件 / 最小重現的路線。
+
+### 1.5.4 官方來源
+
+- OpenAI Codex rate card：`https://help.openai.com/en/articles/20001106-codex-rate-card`
+- OpenAI API pricing：`https://openai.com/api/pricing/`
+- GPT-5.5 in ChatGPT：`https://help.openai.com/en/articles/11909943-gpt-53-and-gpt-54-in-chatgpt`
+- Introducing GPT-5.3-Codex：`https://openai.com/index/introducing-gpt-5-3-codex/`
 
 ---
 
@@ -147,6 +220,23 @@ Gemini 3.1 Pro (High)（換廠牌、換思路、長 context）
 | 大量批次便宜跑 | Gemini 3 Flash 最便宜 |
 | Opus 卡住的換腦 fallback | Gemini 3.1 Pro (High)（不同推理路徑）|
 
+### 3.6 OpenAI / Codex 怎麼選？
+
+| 情境 | 建議 |
+|---|---|
+| ChatGPT 對話、規劃、策略、概念教學 | GPT-5.5 |
+| Codex app 內改 repo、跑測試、修 bug | GPT-5.3-Codex |
+| 需要同時思考治理規則與程式落地 | 先 GPT-5.5 定方向，再 GPT-5.3-Codex 動工 |
+| 大量讀檔 / 多輪 patch / 長時間 agentic coding | GPT-5.3-Codex（成本較省）|
+| 安全、不可逆、跨系統高風險 | GPT-5.5 高 或 GPT-5.3-Codex 高；不使用 Mini |
+| 小型文字任務 | GPT-5.4-Mini |
+
+**切換判斷**：
+- 想「方向」卡住 → GPT-5.5 高 / 超高
+- 動「repo」卡住 → GPT-5.3-Codex 高
+- GPT-5.3-Codex 修 3 次同錯 → GPT-5.5 高重新審根因
+- GPT-5.5 只給抽象建議 → GPT-5.3-Codex 實測檔案與命令
+
 ---
 
 ## 4. 6 維度權重對照
@@ -187,6 +277,10 @@ Gemini 3.1 Pro (High)（換廠牌、換思路、長 context）
 
 | 場景 | 建議模型 | 理由 |
 |---|---|---|
+| **ChatGPT / Codex 預設日常** | **GPT-5.5 + 中** | 主公目前回鍋 ChatGPT 後的日常主力 |
+| **AOV repo 內實作 / patch / 驗收** | **GPT-5.3-Codex + 中/高** | Codex 針對 agentic coding 與 repo 工作最佳化，成本低於 GPT-5.5 |
+| **Phase 開工前策略討論 / 17 層稽核設計** | **GPT-5.5 + 高** | 多維權衡、治理規則與風險取捨 |
+| **P73 之後的小型文件整理 / 翻譯 / 表格** | GPT-5.4-Mini | 低成本快速完成，不碰高風險決策 |
 | 預設日常 Phase 動工 | **Sonnet 4.6** | 平衡 + 速度 + 成本 |
 | Phase 開工的 17 層稽核草案討論 | **Opus 4.7** | 多維權衡 |
 | jieba / 詞庫 / template 等純工程 | Sonnet 4.6 | 標準工程實作 |
@@ -202,9 +296,10 @@ Gemini 3.1 Pro (High)（換廠牌、換思路、長 context）
 ## 7. 使用協議
 
 1. **Phase 計畫書**：在「動工模型」欄填本指引推薦的模型 + 理由（一句話）
-2. **動工中切模型**：依 §3.4 判斷；任務性質改變 → 主公手動切換並在對話中註明
-3. **AI 行為強制條款**：達 §3.3 卡住判定 → AI **必須主動提醒**升級，不可隱忍硬撐
-4. **本指引版本鎖**：v1.x 為小幅修訂；新增層級 / 重大改動需走 17 層框架 META6 版本鎖流程
+2. **OpenAI / Codex 分工**：ChatGPT 對話與治理規劃優先 GPT-5.5；repo 動工優先 GPT-5.3-Codex；小任務才用 GPT-5.4-Mini
+3. **動工中切模型**：依 §3.4 / §3.6 判斷；任務性質改變 → 主公手動切換並在對話中註明
+4. **AI 行為強制條款**：達 §3.3 或 §1.5.3 卡住判定 → AI **必須主動提醒**升級或切換，不可隱忍硬撐
+5. **本指引版本鎖**：v1.x 為小幅修訂；新增層級 / 重大改動需走 17 層框架 META6 版本鎖流程
 
 ---
 
@@ -215,12 +310,13 @@ Gemini 3.1 Pro (High)（換廠牌、換思路、長 context）
 | 檔案 | 角色 | 變更時連帶 |
 |---|---|---|
 | `docs/MODEL_SELECTION_GUIDE.md` | 主檔（完整版）| TASK_HISTORY 補段 + 變更紀錄 |
+| `AGENTS.md` | Codex 專用縮版 | 與 OpenAI / Codex 分支同步 |
 | `~/.claude/CLAUDE.md`（全域章節）| 跨專案縮版（Claude）| 與主檔縮版同步 |
 | `~/.gemini/GEMINI.md`（全域章節）| 跨專案縮版（Gemini）| 與主檔縮版同步 + thinkingLevel 對應表 |
 | `memory/reference_model_guide.md` | AOV 記憶索引 | 30 秒速查更新 |
 | `memory/feedback_workflow.md` | Phase 工作流 | Co-Authored-By 模型欄聯動 |
 
-**規模**：5 檔 = 標準級影響半徑。
+**規模**：6 檔 = 標準級影響半徑。
 
 ### 8.2 X4 三角審紀錄（2026-05-07）
 
@@ -235,6 +331,7 @@ Gemini 3.1 Pro (High)（換廠牌、換思路、長 context）
 - **預設回顧週期**：90 天（下次回顧：**2026-08-05**）
 - **強制升版觸發**（任一達成）：
   - Gemini / Anthropic 任一廠商發布**新模型大版本**（例：Gemini 4 / Claude 5）
+  - OpenAI 發布 GPT-5.6 / GPT-6 / 新 Codex 主力，或 Codex rate card 重大調整
   - 主公**連 3 次**對某情境的選擇與本指引建議不符
   - 任一條規則被發現**已 stale**（如 deprecation、價格變動）
 - **G5-1 沒人用偵測**：本指引若 **180 天內** TASK_HISTORY 無任何 Phase 引用 → 主公檢視是否已被冷落 / 框架失靈
@@ -272,6 +369,7 @@ rm memory/reference_model_guide.md
 
 ## 變更紀錄
 
+- **v1.2（2026-05-15）**：新增 OpenAI / ChatGPT / Codex 分支。確立主公現行雙主力：GPT-5.5 負責思考、規劃、治理與高風險決策；GPT-5.3-Codex 負責 repo 動工、patch、測試與 bug 修復；GPT-5.4-Mini 限小任務。補 Codex rate card 成本倍率、OpenAI 卡住判定、§3.6 OpenAI/Codex 切換規則，並將 AGENTS.md 納入同步範圍。
 - **v1.1（2026-05-07）**：跑 63 維度 + 3 Patch 完整稽核後修補 14 項。決策表加「資料分析 / 教學解釋」、「批次 1-2 檔」格改 N/A；§3.1/§3.4 卡住用詞統一；新增 §8 治理與運維（影響半徑表 / X4 三角審紀錄 / 回顧週期 / 回退協議 / deprecation 政策）。命中率從 ~65% 推到 ~93%。
 - **v1.0（2026-05-07）**：定稿。新增 TL;DR、目錄、§3.4 對話中切換、§5 thinkingLevel 對應表、決策表 ⭐ 高頻標記、最佳 use case 一句話欄。卡住判定從「30 分鐘」改為「連 3 輪 / 自相矛盾 / 主公明確表達」更可執行。刪除已過期的 §8 拍板項。
 - **v0.3（2026-05-07）**：主公拍板 4 題回收。新增「報告爬蟲修 bug」場景；新增 §3.3 升級階梯；不納入 Batch 價；確認 (High)/(Low) = thinkingLevel。
