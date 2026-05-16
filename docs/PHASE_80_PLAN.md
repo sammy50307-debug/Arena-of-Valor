@@ -1,8 +1,8 @@
-# Phase P80 計畫書 — Promotion / Atomic Write（執行中）
+# Phase P80 計畫書 — Promotion / Atomic Write（已收官）
 
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
-> 狀態：IN_PROGRESS（P80.1 已落地，待 CI 實跑驗證）
+> 狀態：CLOSED（2026-05-17：P80.1 已落地，CI workflow_dispatch 實跑通過）
 
 ## 0. Phase 元資料
 
@@ -43,7 +43,7 @@
 - [x] promotion 前需通過 doctor/health gate（以既有訊號為準）
 - [x] promotion 寫入路徑採原子化
 - [x] landing/index 只指向 promote 後目標
-- [ ] 至少 1 組成功 promote + 1 組被 gate 擋下的測試證據
+- [x] 至少 1 組成功 promote + 1 組被 gate 擋下的測試證據
 
 ## 4.1 已落地（P80.1）
 
@@ -61,7 +61,12 @@
 - 測試
   - `tests/test_daily_report_health.py` 新增 pre-promotion gate 測試
   - `tests/test_report_generator_landing.py` 新增 `promote_candidate` 測試
-  - 全套 `pytest`：`154 passed`
+  - `tests/test_python38_annotation_compat.py` 新增 Python 3.8 annotation guard，避免 CI runtime 再被型別註解炸掉
+  - 全套 `pytest`：`155 passed`
+- CI 實跑證據
+  - GitHub Actions `daily_report.yml` / `workflow_dispatch`
+  - `run-pipeline`：succeeded（42s，主公截圖確認）
+  - 最新驗證 commit：`5a3c25d fix: 補齊主鏈路 Python 3.8 型別註解防護`
 
 ## 5. 17 層稽核表
 
@@ -117,4 +122,4 @@
 
 `FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`IN_PROGRESS`（已完成 P80.1 程式落地，待 CI 實跑驗證）。
+目前狀態：`CLOSED`（P80.1 已完成程式落地、本地測試與 CI workflow_dispatch 實跑驗證）。

@@ -7,17 +7,17 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
-| **Current Phase** | P80（Promotion / Atomic Write） |
-| **Current Step** | P80.1 已落地：candidate/promote 分離 + pre-promotion gate，待 CI 實跑驗證 |
-| **Mode** | IN_PROGRESS |
-| **Latest Verified Commit** | `dccee5b fix: 修正 news_history_indexer 在 Python 3.8 型別註解崩潰` |
+| **Current Phase** | P82（Idempotency / Timezone） |
+| **Current Step** | 建立並凍結 `docs/PHASE_82_PLAN.md`；尚未核准前不可改程式碼 |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `5a3c25d fix: 補齊主鏈路 Python 3.8 型別註解防護` |
 | **Updated At** | 2026-05-17 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 讀 `docs/PHASE_80_PLAN.md`，接續 P80.1 驗證與收官證據補齊
+3. 若 `docs/PHASE_82_PLAN.md` 尚未存在，讀 `docs/PHASE_TEMPLATE.md` + `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` 的 P82 段落起草
 
 ## Current Source Of Truth
 
@@ -26,18 +26,18 @@
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
 | L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
-| L4 | `docs/PHASE_80_PLAN.md` | 當前實作計畫 |
+| L4 | `docs/PHASE_82_PLAN.md` | 當前計畫（尚未建立前先用 template 起草） |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P80（IN_PROGRESS） |
-| **Current Step** | 驗證 P80.1 在 CI 的 promote / non-promote 行為，補收官證據 |
-| **Allowed Files** | `main.py`, `reporter/generator.py`, `scripts/check_daily_report_health.py`, `tests/test_daily_report_health.py`, `tests/test_report_generator_landing.py`, `docs/PHASE_80_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不跳做 P80/P82+ 大改 |
-| **Exit Criteria** | 至少取得 1 次 CI 實跑證據，確認 P80.1 行為與計畫一致後再評估收官 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；依 P80 計畫續做 |
+| **Current Phase** | P82（DRAFT） |
+| **Current Step** | 起草 `docs/PHASE_82_PLAN.md`，聚焦 idempotency / timezone，不進入程式動工 |
+| **Allowed Files** | `docs/PHASE_82_PLAN.md`, `docs/PHASE_TEMPLATE.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不改程式碼；不跳做 P83/P84 |
+| **Exit Criteria** | P82 計畫書完成 17 層稽核、M1/M2、Entry/Exit Criteria，並等待主公核准 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；依 P82 草案流程續做 |
 
 ## Required Verification Commands
 
@@ -51,8 +51,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- 不要跳做 P82+。
-- 不要跳出 P80 範圍，提前改其他 Phase 架構。
+- 不要跳做 P83/P84。
+- 不要在 P82 計畫核准前改程式碼。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
