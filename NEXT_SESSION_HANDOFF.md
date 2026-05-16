@@ -1,9 +1,9 @@
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
-- **更新日期**：2026-05-16（**P70.6 llm_cache LRU / TTL 已收官**）
-- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新** + ✅ **P74 關閉 R-015** + ✅ **P70.2 每日健康檢查已接入 GHA** + ✅ **P75 關閉 R-014** + ✅ **P70.4 OpenAI fallback 已落地** + ✅ **P70.6 cache retention 已落地**；最新已推 commit 仍為 `72cbb25`
-- **下個視窗第一動作**：讀本檔頂部 → `git status -sb` → 若主公確認先 push 本地 commits；目前主線待動工清單已清空
+- **更新日期**：2026-05-16（**P76 RISK_REGISTRY / HANDOFF 狀態清理已收官**）
+- **狀態**：✅ P72.0~P72.5 全收官 + AGENTS.md 已上線 + **PHASE_TEMPLATE v1.2 已寫入** + **P73 OpenAI/Codex 模型選擇指引已更新** + ✅ **P74 關閉 R-015** + ✅ **P70.2 每日健康檢查已接入 GHA** + ✅ **P75 關閉 R-014** + ✅ **P70.4 OpenAI fallback 已落地** + ✅ **P70.6 cache retention 已落地** + ✅ **P76 狀態帳本清理**；最新已推 commit 為 `614dc13`
+- **下個視窗第一動作**：讀本檔頂部 → `git status -sb` → 若看到 P76 本地 commit ahead，先詢問主公是否 push；目前主線待動工清單已清空
 
 ---
 
@@ -11,34 +11,38 @@
 
 ### 目前物理狀態
 
-- 最新已推 commit：`72cbb25 chore: 收官 P74 與 P70.2 健康巡檢`
-- 推送狀態：`main -> origin/main` 已完成到 `72cbb25`；P75 / P70.4 / P70.6 本地 commits 仍需主公確認後才能 push
-- tracked 變更：P75 / P70.4 收官後理想狀態應只有本地 ahead commits，無 tracked dirty；若有 tracked dirty，先查來源
+- 最新已推 commit：`614dc13 feat: 補上 llm cache LRU`
+- 推送狀態：`main -> origin/main` 已完成到 `614dc13`；P76 若已本地 commit，仍需主公確認後才能 push
+- tracked 變更：P76 收官後理想狀態應只有本地 ahead commit，無 tracked dirty；若有 tracked dirty，先查來源
 - untracked 檔案：仍有 `.agents/skills/source-command-*`、`.claude/.rule_decay_last_run`、`.codex/`、`backups/`、`data/reports/*.html`、`scratch/` 等既有未追蹤檔；本視窗沒有納入 commit，下一窗不要誤 stage
 
 ### 本視窗最新完成事項
 
-1. **P70.6 / llm_cache LRU / TTL**
+1. **P76 / RISK_REGISTRY + HANDOFF 狀態清理**
+   - R-007 / R-008 從 Open 區移至 Closed 區；LINE WebView 長期觀察仍由 R-004 承接
+   - handoff 頂部最新已推 commit 修正為 `614dc13`
+   - 清除「P75/P70.4/P70.6 本地 commits 待 push」的過期描述
+2. **P70.6 / llm_cache LRU / TTL**
    - `CacheManager` schema 升 v3，v2 load 自動補 `last_accessed`
    - 新增 `CACHE_MAX_ENTRIES`（預設 500），`get()` 命中更新 last_accessed，`set()` / `save()` / `_load()` 執行 LRU eviction
    - 明確未 stage `data/llm_cache.json`；只改程式與測試
    - 驗證：`tests/test_cache_manager.py` 12 passed；全套 `py -m pytest -q` → 126 passed
-2. **P70.4 / OpenAI fallback**
+3. **P70.4 / OpenAI fallback**
    - 新增 `analyzer/fallback_llm_client.py`：Gemini primary / OpenAI secondary wrapper
    - 升級 `analyzer/llm_client.py`：支援 `cache_manager`、`response_schema`、Gemini uppercase schema → OpenAI lowercase JSON Schema
    - `SentimentAnalyzer()` 預設改用 fallback wrapper；OpenAI key 未設時維持既有 showcase_forced 路徑
    - 驗證：`tests/test_openai_fallback.py` 5 passed；全套 `py -m pytest -q` → 124 passed
-3. **P75 / R-014 歷史 Phase blindspot 回填**
+4. **P75 / R-014 歷史 Phase blindspot 回填**
    - 新增 4 份 M4 blindspot：P63 / P64 / P69 / P70.3
    - 新增 B-011~B-022 共 12 條通則化盲點
    - 驗證：`py scripts/m4_track_blindspots.py --status` → 缺 blindspot 0；`py scripts/cross_phase_review.py` 可讀到新增規則
    - RISK_REGISTRY：R-014 已移至 Closed
-4. **P74 / R-015 test_dynamic_focus 事件迴圈隔離修復**
+5. **P74 / R-015 test_dynamic_focus 事件迴圈隔離修復**
    - 根因：`tests/test_dynamic_focus.py` 三個 async case 使用 `asyncio.get_event_loop().run_until_complete(...)`，全套測試前序 case 使 current event loop 不存在，導致 `RuntimeError: There is no current event loop in thread 'MainThread'`
    - 修法：三處改為 `asyncio.run(...)`
    - 驗證：`py -m pytest tests/test_dynamic_focus.py -q` → 5 passed；`py -m pytest -q` → 112 passed
    - RISK_REGISTRY：R-015 已移至 Closed
-5. **P70.2 / GHA 每日健康巡檢與無報告根因排查**
+6. **P70.2 / GHA 每日健康巡檢與無報告根因排查**
    - S0 證據：5/7、5/8 canonical 報告目前存在，但由 `a2a6d39`（P70.3，2026-05-08 21:27 +08）後補；當前 `index.html` 主按鈕仍指 `aov_report_2026-05-06.html`
    - 新增：`scripts/check_daily_report_health.py`，檢查 canonical report、metadata mode、landing main link、可選 git clean
    - 測試：`tests/test_daily_report_health.py` 7 cases；全套 `py -m pytest -q` → 119 passed
@@ -60,7 +64,7 @@
 
 | 優先 | 任務 | 為什麼 |
 |---|---|---|
-| 1 | **主線待辦已清空** | P75 / P70.4 / P70.6 均已本地 commit，待主公確認 push |
+| 1 | **主線待辦已清空** | P75 / P70.4 / P70.6 均已推送；P76 若為本地 ahead，等主公確認 push |
 | 2 | **Open risks 盤點** | R-001/R-002/R-003/R-004/R-005/R-006/R-011/R-012/R-013 仍屬觀察或後續增強 |
 
 ### 開工注意
@@ -452,8 +456,8 @@ pre-commit install                                 # 安裝 hook（首次）
 | **P70.3.1** | 報告頁「← 回戰略門戶」按鈕 | ✅ 收官 | `a2a6d39` |
 | **P70.5'** | test_429_retry P69.1 技術債（R20/R23/R24 已於 P61.1 落地）| ✅ 收官 | 待 commit |
 | **P70.2** | GHA 每日健康巡檢 | ✅ 收官 | `72cbb25` |
-| **P70.4** | OpenAI fallback | ✅ 收官 | 本地 commit 待 push |
-| **P70.6** | llm_cache LRU / TTL 機制（預防性）| ✅ 收官 | 本地 commit 待 push |
+| **P70.4** | OpenAI fallback | ✅ 收官 | `089119f` |
+| **P70.6** | llm_cache LRU / TTL 機制（預防性）| ✅ 收官 | `614dc13` |
 
 ---
 
