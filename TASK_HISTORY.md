@@ -6410,3 +6410,693 @@ rg -n "72cbb25|本地 commits|待 push|本地 commit" NEXT_SESSION_HANDOFF.md
 - ✅ R-007/R-008 已移至 Closed
 - ✅ handoff 最新已推 commit 對齊 `614dc13`
 - ⏳ P76 commit 若完成，仍需主公確認後才能 push
+
+---
+
+### P76.1 — Handoff Rule Unification（2026-05-16）
+
+**目標**：
+- 統一跨視窗交接規則，解決 `NEXT_SESSION_HANDOFF.md` 頂部新指令與尾端舊「下個視窗」文字並存造成的偏航風險。
+- 建立 4 層入口：L1 active bootstrap、L2 active operation、L3 P77-P84 總戰役、L4 P77 當前 Phase 計畫。
+- 讓新視窗在不全讀 `TASK_HISTORY.md`、不讀完整總戰役的情況下，也能知道下一步與禁止事項。
+
+**觸發**：
+- 主公指出過去 Claude 流程似乎多把筆記寫在最下面，詢問是否需要統一下規則。
+- 實查 `NEXT_SESSION_HANDOFF.md` 後確認：頂部已有新視窗第一動作，但尾端仍保留舊「下個視窗讀完此檔即可直接動工 P70.5'」文字。
+- 主公核准採用「歷史往下寫，指令往上鎖」方案，建立 P76.1 前置小 Phase，只改文件規則與入口，不修程式碼。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 不改 runtime code；未修改 `analyzer/`、`reporter/`、`main.py`、`.github/`、`tests/`、`index.html` |
+| Logic (S) | ✅ | 仲裁順序凍結為 `ACTIVE_BOOTSTRAP` → `ACTIVE_OPERATION` → 當前 Phase plan → 總計畫 → TASK_HISTORY 證據 |
+| Testing (S) | ✅ | `git diff --check` 無 whitespace error；`rg` 驗證 active/archive markers 存在 |
+| Security (S) | ✅ | 不讀 secrets、不碰 `.env`、不納入 raw data 或 token |
+| Architecture (A) | ✅ | 建立 L1-L4 文件分層，降低新視窗讀檔成本 |
+| Documentation (A) | ✅ | 新增 P76.1 計畫、P77-P84 總計畫、P77 計畫、ACTIVE_OPERATION，並更新 handoff |
+| Process (A) | ✅ | P77 狀態標為 `FROZEN_PENDING_APPROVAL`，未經主公核准不得動工 |
+| Cost (B) | ✅ | 新視窗只需讀 L1 + 當前 Phase，大幅降低 token 成本 |
+
+**物理真相**：
+- 新增 `docs/PHASE_76_1_PLAN.md`
+  - 狀態：`CLOSED`
+  - 明列 6 個防偏航欄位：Current Phase / Current Step / Allowed Files / Forbidden Work / Exit Criteria / Resume Rule。
+  - Exit Criteria 已勾選完成：active/archive markers、L2/L3/L4 文件、`git diff --check`、`rg` 驗證。
+- 新增 `docs/ACTIVE_OPERATION.md`
+  - L2 短版狀態真相。
+  - 目前狀態：P77 `FROZEN_PENDING_APPROVAL`。
+  - 明確規定 P77 未核准前不得修改 `analyzer/`, `reporter/`, `main.py`, `.github/workflows/`, `tests/`, `index.html`。
+- 新增 `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - L3 總戰役計畫，凍結 P77-P84 路線：
+    - P77 止血
+    - P78 合約 / Manifest
+    - P79 Doctor
+    - P80 Promotion / Atomic Write
+    - P81 Replay / Quarantine / Backfill
+    - P82 Idempotency / Timezone
+    - P83 Data Quality / Security
+    - P84 Long-Term Governance
+- 新增 `docs/PHASE_77_PLAN.md`
+  - L4 當前 Phase 計畫。
+  - 狀態：`FROZEN_PENDING_APPROVAL`。
+  - P77 子階段：P77.0 HistoryResolver、P77.1 fallback 分級、P77.2 report health / landing、P77.3 repo-state smoke。
+- 修改 `NEXT_SESSION_HANDOFF.md`
+  - 檔案最頂部新增：
+    - `<!-- ACTIVE_BOOTSTRAP_START -->`
+    - `<!-- ACTIVE_BOOTSTRAP_END -->`
+    - `<!-- ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION -->`
+  - active bootstrap 明定：新視窗只用頂部區塊決定下一步；archive 以下舊段落不可作為當前指令。
+  - 最新已驗證 commit 修正為實際 `c0de129 docs: 清理風險與交接狀態`。
+
+**驗收命令**：
+```powershell
+git diff --check
+# PASS（僅 Windows LF/CRLF warning，無 whitespace error）
+
+rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
+# PASS：三個 marker 均存在
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts\lint_phase_plan.py docs\PHASE_76_1_PLAN.md
+# ✅ 通過 Pre-flight 體檢（M1 + M2）
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts\lint_phase_plan.py docs\PHASE_77_PLAN.md
+# ✅ 通過 Pre-flight 體檢（M1 + M2）
+```
+
+**風險與限制**：
+- P76.1 只統一 handoff / planning entry，不修每日報告 runtime bug。
+- P77 雖已寫成凍結待核准計畫，但尚未獲主公明確動工核准；下一視窗不得直接改程式碼。
+- 舊 handoff 內容仍保留在 archive 區，供歷史參考；不得再用 archive 舊「下個視窗」文字決定下一步。
+
+**狀態**：
+- ✅ P76.1 收官
+- ✅ L1-L4 入口建立
+- ✅ P77-P84 總戰役路線凍結
+- ⏳ 下一步：等待主公核准 P77 止血，核准後從 P77.0 開始
+
+---
+
+### P77.0 / P77.1 — 主鏈路止血首批落地（2026-05-16）
+
+**目標**：
+- P77.0：修復 `HistoryResolver.resolve_trends(..., showcase=False)` 的 runtime 問題，避免 `archives` 未定義。
+- P77.1：移除 `main.py` 歷史趨勢失敗時的固定假數據 fallback，改為「可預期降級 + 不可預期錯誤 fail loud」。
+
+**觸發**：
+- 主公核准「開始動工」後，依 P77 計畫先做 P77.0 與 P77.1。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | `analyzer/history.py` 補 `archives = self._load_recent_archives()`；`main.py` 歷史趨勢錯誤處理重寫 |
+| Logic (S) | ✅ | 可預期讀取異常降級為今日基線；不可預期程式錯誤改為 `logger.exception` 後 `raise` |
+| Testing (S) | ✅ | 新增 `tests/test_history_resolver.py` 4 cases；全套 pytest 通過 |
+| Security (S) | ✅ | 不新增外部攻擊面；未改 secrets / workflow |
+| Documentation (A) | ✅ | handoff / ACTIVE_OPERATION / P77 計畫狀態同步為 `IN_PROGRESS` |
+| Process (A) | ✅ | 依 P77.0 → P77.1 順序落地，未跳 Phase |
+
+**物理真相**：
+- 修改 `analyzer/history.py`
+  - 在 `resolve_trends()` 非 showcase 分支補上 `archives` 初始化。
+- 新增 `tests/test_history_resolver.py`
+  - Case1：無 archives 時回傳 fallback 結構。
+  - Case2：有 archives 時能計算 volume 與 hero sentiment delta。
+  - Case3：壞 JSON archive 會被跳過，不會炸流程。
+  - Case4：showcase 模式仍回傳 7 天序列。
+- 修改 `main.py`
+  - Step 2.2 歷史趨勢邏輯改為三段：
+    - 成功：`_meta["history_status"] = "ok"`。
+    - `(OSError, ValueError)`：回傳今日基線降級結果 + `diagnostics`。
+    - 其他例外：`logger.exception(...)` 後 `raise`，避免靜默掩蓋。
+  - 移除固定 showcase 假趨勢數列（45/52/...）注入。
+- 修改 `docs/PHASE_77_PLAN.md`
+  - 狀態改為 `IN_PROGRESS`，註記已完成 P77.0 + P77.1。
+- 修改 `docs/ACTIVE_OPERATION.md` / `NEXT_SESSION_HANDOFF.md`
+  - 同步目前步驟為 P77.2，Mode 改為 `IN_PROGRESS`。
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests\test_history_resolver.py -q
+# 4 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
+# 130 passed
+```
+
+**風險與限制**：
+- P77.2 / P77.3 尚未執行，landing link 與 repo-state smoke 仍待完成。
+- 目前只處理 history runtime 與 fallback 誠實性，未導入 P78 manifest/schema。
+
+**狀態**：
+- ✅ P77.0 完成
+- ✅ P77.1 完成
+- ⏳ 下一步：P77.2（report health / landing link）
+
+---
+
+### P77.2 / P77.3 — landing production 判定 + repo-state smoke（2026-05-16）
+
+**目標**：
+- P77.2：Landing 更新規則改為只選 `canonical + mode=production`，避免 preview/showcase 報告進主入口。
+- P77.3：健康檢查加入 production 判定強化與 repo-state smoke 模式，讓「測試綠但發布面壞」可被機械抓出。
+
+**觸發**：
+- 主公指令：直接接著做 P77.2，然後做 P77.3。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | `reporter/generator.py` 新增 production 過濾；`check_daily_report_health.py` 新增 latest-production 與 landing target mode 判定 |
+| Logic (S) | ✅ | landing 不再用「最新日期檔」，改用「最新 production canonical」 |
+| Testing (S) | ✅ | 新增/調整 14 個測試案例，覆蓋新判定；全套 135 passed |
+| Security (S) | ✅ | 健康檢查新增 mode 檢查，避免非 production 報告誤導主入口 |
+| Observability (A) | ✅ | `--use-latest-production` 可直接暴露 repo 無 production canonical 的真相 |
+| Process (A) | ✅ | 依 P77.2 → P77.3 順序完成，未跳 Phase |
+
+**物理真相**：
+- 修改 `reporter/generator.py`
+  - 新增 `CANONICAL_REPORT_RE`、`META_MODE_RE`。
+  - 新增 `_extract_report_mode()`。
+  - 新增 `_select_production_canonical_reports()`。
+  - `_update_landing_page()` 改為只選 production canonical；若不存在 production，維持現況並 warning。
+  - `_update_landing_page()` 支援注入 `index_file`，便於測試。
+- 修改 `scripts/check_daily_report_health.py`
+  - 新增 `CANONICAL_REPORT_RE` 與 `latest_production_report()`。
+  - `run_checks()` 新增 `use_latest_production` 模式。
+  - 新增 `landing target mode` 檢查：landing 指向目標若非 production 直接 FAIL。
+  - CLI 新增 `--use-latest-production` 旗標。
+- 修改 `tests/test_daily_report_health.py`
+  - 新增 latest-production 模式測試與 landing target mode 測試。
+- 新增 `tests/test_report_generator_landing.py`
+  - 驗證 landing 只選 latest production、無 production 時保持不動。
+- 修改 `tests/test_generator_landing.py`
+  - 舊測試資料補 metadata mode，對齊新 production 規則。
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest tests\test_daily_report_health.py tests\test_generator_landing.py tests\test_report_generator_landing.py -q
+# 14 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
+# 135 passed
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts\check_daily_report_health.py --repo-root . --date 2026-05-16 --expected-mode any
+# FAIL：canonical report 缺失（2026-05-16）+ landing 仍指 2026-05-06
+
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts\check_daily_report_health.py --repo-root . --date 2026-05-16 --use-latest-production
+# FAIL：no production canonical report found
+```
+
+**風險與限制**：
+- repo 目前無任何 metadata `mode=production` 的 canonical report；因此新 smoke 會穩定 fail，這是正確告警，不是工具故障。
+- P77.2/3 完成的是「規則與檢查機制」，不是自動補出 production 報告；補報與資料治理需 P78/P81 承接。
+
+**狀態**：
+- ✅ P77.2 完成
+- ✅ P77.3 完成
+- ⏳ 待主公裁示：P77 先收官，或延伸處理 production/backfill 後再收官
+
+---
+
+### P77 — production/backfill 實跑阻塞紀錄（2026-05-16）
+
+**目標**：
+- 依主公指令先做一次 production/backfill 產出，並讓 smoke 轉綠後收官 P77。
+
+**實跑結果**：
+- 執行 2 次：
+  - `py main.py --run-now --dry-run --force`
+  - `py main.py --run-now --dry-run --force`（重試）
+- 兩次都在 `GeminiClient` pre-flight 階段回 `HTTP 429`，觸發 `showcase_forced`。
+- 產物：
+  - `data/reports/aov_report_2026-05-16.html`
+  - `data/reports/aov_report_2026-05-16_v2.html`
+  - metadata 首行皆為 `mode: showcase_forced`
+
+**smoke 驗證**：
+```powershell
+py scripts\check_daily_report_health.py --repo-root . --date 2026-05-16 --expected-mode any
+# canonical PASS；metadata PASS(showcase_forced)；landing FAIL（仍指 2026-05-06）
+
+py scripts\check_daily_report_health.py --repo-root . --date 2026-05-16
+# metadata FAIL（expected=production）
+# landing main link FAIL
+# landing target mode FAIL
+
+py scripts\check_daily_report_health.py --repo-root . --date 2026-05-16 --use-latest-production
+# FAIL：no production canonical report found
+```
+
+**根因判定**：
+- 阻塞不是程式邏輯錯誤，而是外部配額：Gemini pre-flight 連續 429。
+- `OPENAI_API_KEY` 當前未設定（`len=0`），因此 P70.4 fallback 無法接手 production。
+
+**狀態**：
+- ✅ P77.0~P77.3 代碼與測試面完成
+- ⏳ production/backfill 受外部配額阻塞；待主公決策配額/金鑰方案
+
+---
+
+### P77 收官裁示 + P78/P81 啟動（2026-05-16）
+
+**主公裁示**：
+- 「等 Gemini 配額恢復，用同一套命令重跑直到出 production」。
+- 「先以外部配額阻塞收官 P77，直接進 P78/P81 做 backfill/replay 治理」。
+
+**P77 收官口徑**：
+- P77 以「external dependency blocked」收官。
+- 轉交項目：
+  - P78：run manifest 合約化
+  - P81：replay/backfill 治理
+
+**P78.0 已落地**：
+- 新增 `analyzer/run_manifest.py`
+  - `build_manifest()`
+  - `manifest_path()`
+  - `write_manifest()`
+- `main.py` 流程新增 Step 4.5：每次 run 寫入
+  - `data/runs/YYYY-MM-DD/run_manifest.json`
+- 實跑驗證：
+  - `py main.py --run-now --dry-run --force` 後，成功寫入 `data/runs/2026-05-16/run_manifest.json`
+
+**P81.0 已落地**：
+- 新增 `scripts/replay_run.py`
+  - `--date YYYY-MM-DD`
+  - 由既有 `analysis_YYYYMMDD.json` 重建報告
+  - 同步寫入 run manifest（`replay_source=analysis_json`）
+  - 可選 `--check-health`
+- 修正跨目錄執行 import 問題（加入 repo-root `sys.path`）
+
+**測試與驗證**：
+```powershell
+py -m pytest tests\test_run_manifest.py tests\test_replay_run.py -q
+# 4 passed
+
+py -m pytest -q
+# 139 passed
+
+py main.py --run-now --dry-run --force
+# 成功產報 + 成功寫 run manifest；Gemini 仍 429 → mode=showcase_forced
+
+py scripts\replay_run.py --date 2026-05-16 --check-health --expected-mode any
+# replay 成功；health 仍 FAIL（landing 未轉 production，符合當前阻塞現況）
+```
+
+**文件同步**：
+- `docs/PHASE_77_PLAN.md` 狀態改為 CLOSED（external dependency blocked）。
+- 新增 `docs/PHASE_78_PLAN.md`、`docs/PHASE_81_PLAN.md`。
+- `docs/ACTIVE_OPERATION.md`、`NEXT_SESSION_HANDOFF.md` 主線切換為 P78/P81。
+- `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` 狀態更新：
+  - P77 = CLOSED（外部配額阻塞）
+  - P78 = IN_PROGRESS（P78.0）
+  - P81 = IN_PROGRESS（P81.0）
+
+**狀態**：
+- ✅ P77 收官（external blocked）
+- ✅ P78.0 完成
+- ✅ P81.0 完成
+- ⏳ 待 Gemini 配額恢復後，按既有命令重跑取得 production，再推進 P78.1 / P81.1
+
+---
+
+### P78.1 + P81.1/P81.2 — manifest contract + replay quarantine/backfill（2026-05-16）
+
+**目標**：
+- P78.1：補齊 run manifest 的 schema contract，避免欄位漂移後無法被 doctor/CI 信任。
+- P81.1：replay 遇到壞 analysis 要隔離，不讓壞資料反覆污染補跑。
+- P81.2：replay 產物要明確標記 backfill 與來源，避免與日常 production 混淆。
+
+**觸發**：
+- 主公裁示 P77 以外部配額阻塞收官，主線改為直接推進 P78/P81 治理。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | `analyzer/run_manifest.py` 增加 `validate_manifest()` 與強制寫前驗證；`scripts/replay_run.py` 增加 quarantine 與 backfill 標記 |
+| Logic (S) | ✅ | `publish_eligible` 必須與 `(mode=production and status=ok)` 一致；壞 JSON / schema violation 一律 quarantine + fail |
+| Testing (S) | ✅ | `tests/test_run_manifest.py`、`tests/test_replay_run.py` 新增 contract/quarantine/backfill case |
+| Security (S) | ✅ | quarantine sidecar 僅記錄路徑/原因，不寫 secret；manifest 仍只存統計與路徑，不存 raw 內容 |
+| Observability (A) | ✅ | replay 產物 metadata comment 與 run manifest 皆帶 `replay_source` / `is_backfill` |
+| Documentation (A) | ✅ | `PHASE_78_PLAN`、`PHASE_81_PLAN`、`ACTIVE_OPERATION`、`NEXT_SESSION_HANDOFF` 同步狀態 |
+
+**物理真相**：
+- 修改 `analyzer/run_manifest.py`
+  - 新增常數：`MANIFEST_SCHEMA_VERSION`、`ALLOWED_MODES`、`ALLOWED_STATUS`。
+  - 新增 `validate_manifest(manifest)`：檢查頂層欄位、型別、`run_date` 格式、`publish_eligible` 一致性、`paths/metrics/history` 結構。
+  - `write_manifest()` 先驗證再寫檔；不合約直接 `ValueError`。
+  - `build_manifest()` 新增：
+    - `history.source_dates` / `history.missing_dates`
+    - `replay_source`
+    - `is_backfill`
+- 修改 `scripts/replay_run.py`
+  - 新增 `validate_analysis_summary()`，最低契約要求 `overall` 與 `sentiment_distribution`。
+  - 新增 `quarantine_analysis_file()`：
+    - invalid JSON → `data/quarantine/invalid_json/`
+    - schema violation → `data/quarantine/analysis_schema_violation/`
+    - 產生 `.meta.json`（original_path / reason / detail / time）
+  - replay 注入 `_meta`：
+    - `replay=true`
+    - `replay_source=analysis_json`
+    - `is_backfill=true`
+- 修改 `reporter/generator.py`
+  - metadata comment 新增 backfill 註記：
+    - `backfill: true | replay_source: analysis_json`
+- 修改測試：
+  - `tests/test_run_manifest.py`：新增 contract 正反向測試與 history dates 正規化測試。
+  - `tests/test_replay_run.py`：新增 invalid JSON quarantine 與 schema violation quarantine 測試。
+
+**驗收命令**：
+```powershell
+py -m pytest -q tests\test_run_manifest.py
+# 4 passed
+
+py -m pytest -q tests\test_replay_run.py
+# 4 passed
+
+py -m pytest -q
+# 143 passed
+
+py scripts\replay_run.py --date 2026-05-16 --check-health --expected-mode any
+# replay 與 manifest 寫入成功；health 因 landing 未指向 production 而 FAIL（符合外部配額阻塞現況）
+```
+
+**風險**：
+- `scripts/replay_run.py` 現在對 analysis schema 更嚴格，舊格式缺 `sentiment_distribution` 會被 quarantine；若要兼容更舊歷史，需在 P81.3 補 migrator。
+- `landing` 仍受 production gate 保護，當前無 production canonical 時健康檢查仍會 FAIL，這是設計上的誠實告警。
+
+**狀態**：
+- ✅ P78.1 完成（manifest contract）
+- ✅ P81.1 完成（quarantine）
+- ✅ P81.2 完成（backfill/replay 標記）
+- ⏳ 下一步：P81.3 debug bundle；P78.3 eligibility shadow->blocking 規則
+
+---
+
+### P81.3 + P78.3 — debug bundle + eligibility gate（2026-05-16）
+
+**目標**：
+- P81.3：讓 replay 在成功/失敗都能產出可攜帶的診斷包，降低「卡住時只能翻 log」。
+- P78.3：把 publish eligibility 從單一 mode 判定升級成可配置 gate（off/shadow/blocking）。
+
+**觸發**：
+- 主公指令：「下一步按照你的建議來執行」。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 新增 `scripts/debug_bundle.py`；`scripts/replay_run.py` 接上 debug bundle；`main.py` 接上 eligibility gate |
+| Logic (S) | ✅ | gate 以 `mode/status/health checks` 判定；`blocking` 才阻擋發布，`shadow` 僅告警 |
+| Testing (S) | ✅ | 測試擴到 146 passed，新增 debug bundle 與 eligibility 契約 case |
+| Security (S) | ✅ | debug bundle 不寫 raw 原文，只收 paths / checks / manifest snapshot |
+| Observability (A) | ✅ | replay 失敗（缺檔/壞檔/health fail）都會自動吐 debug bundle |
+| Process (A) | ✅ | handoff/operation/phase 文件同步；不跨到 P80/P82+ |
+
+**物理真相**：
+- 新增 `scripts/debug_bundle.py`
+  - 輸出 `data/debug_bundles/YYYY-MM-DD/debug_bundle_<timestamp>.json`
+  - 內容：`status/error/paths/health checks/manifest snapshot/extra`
+- 修改 `scripts/replay_run.py`
+  - 新增 `--debug-bundle`（成功時可強制輸出診斷包）
+  - 失敗情境自動輸出 debug bundle：
+    - missing analysis
+    - invalid JSON quarantine
+    - schema violation quarantine
+    - health checks fail
+- 修改 `analyzer/run_manifest.py`
+  - 新增 `eligibility` 區塊：
+    - `gate_mode`、`decision`、`reasons`
+    - `blocking_enforced`、`shadow_blocked`
+  - `publish_eligible` 改成：`mode/status/eligibility.reasons` 綜合判定
+  - `validate_manifest()` 同步驗證 eligibility 契約
+- 修改 `config.py`
+  - 新增 `PUBLISH_GATE_MODE`（`off|shadow|blocking`，預設 `shadow`）
+- 修改 `main.py`
+  - 新增 `evaluate_publish_gate()`，production 會跑 health checks 作 gate 判斷
+  - `shadow`：告警但不阻擋
+  - `blocking`：不合格時跳過 `github_backup_job`
+- 測試更新：
+  - `tests/test_run_manifest.py`：新增 eligibility gate 契約測試
+  - `tests/test_replay_run.py`：新增 debug bundle 輸出測試
+
+**驗收命令**：
+```powershell
+py -m pytest -q tests\test_run_manifest.py
+# 6 passed
+
+py -m pytest -q tests\test_replay_run.py
+# 5 passed
+
+py -m pytest -q
+# 146 passed
+
+py scripts\replay_run.py --date 2026-05-16 --check-health --expected-mode any --debug-bundle
+# replay + manifest 成功，health 因 landing 仍非 production FAIL，並輸出 debug bundle
+```
+
+**風險**：
+- 目前 `PUBLISH_GATE_MODE=shadow` 預設不阻擋發布；切 `blocking` 前需先確認 production smoke 長期穩定。
+- P78.2（history source dates 實際填值）未完成，doctor 仍缺一塊來源追溯證據。
+
+**狀態**：
+- ✅ P81.3 完成（debug bundle）
+- ✅ P78.3 完成（eligibility gate）
+- ⏳ 下一步：P78.2（history source dates）→ P79（system doctor）
+
+---
+
+### AGENTS.md 新規則回檢 — P76/P77/P78/P81 計畫書與新 reports（2026-05-16）
+
+**目標**：
+- 依主公提醒，確認 `AGENTS.md` 新增/強化的代碼撰寫規則，回頭檢視 P76/P77/P78/P81 計畫書與新產報是否符合新規則。
+
+**觸發**：
+- 主公指出：「新規則在agent.md裡面大約有新增50多行你確認一下」。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 修正 `scripts/lint_phase_plan.py`，避免 17 層表格被誤判為 M2 紅隊表格 |
+| Logic (S) | ✅ | M2 lint 現在只掃 M2 章節，符合新規則下 17 層表格與 M2 同時存在的格式 |
+| Testing (S) | ✅ | 新增 `tests/test_lint_phase_plan.py` regression；全套 pytest 通過 |
+| Security (S) | ✅ | 掃描新 reports/debug bundles，未發現 API key/secret 字樣 |
+| Documentation (A) | ✅ | P78/P81 補 Entry Criteria 與 17 層稽核表；P76/P76.1/P77 已符合 |
+| Process (A) | ✅ | 五份 Phase plan 皆通過 `lint_phase_plan.py` |
+
+**物理真相**：
+- `AGENTS.md` 目前與 `HEAD` 無 diff，行數同為 422；新規則已是目前版本的一部分。
+- 已確認新規則重點：
+  - 密涅瓦四大類思考框架。
+  - 寫程式行為準則。
+  - Phase 計畫書必含 Entry/Exit、17 層稽核表、M1/M2。
+  - 不適用層級需明列 N/A 理由。
+- 計畫書檢視：
+  - `docs/PHASE_76_PLAN.md`：已有 Entry Criteria、Exit Criteria、17 層、M1/M2。
+  - `docs/PHASE_76_1_PLAN.md`：已有 Entry Criteria、Exit Criteria、17 層、M1/M2。
+  - `docs/PHASE_77_PLAN.md`：已有 Entry Criteria、Exit Criteria、17 層、M1/M2。
+  - `docs/PHASE_78_PLAN.md`：補上 Entry Criteria 與 17 層稽核表。
+  - `docs/PHASE_81_PLAN.md`：補上 Entry Criteria 與 17 層稽核表。
+- 新 reports 檢視：
+  - `data/reports/aov_report_2026-05-16*.html` 皆標示 `mode: showcase_forced`，未偽裝 production。
+  - replay 產物 `v5/v6` 含 `backfill: true | replay_source: analysis_json`。
+  - 未掃到 `OPENAI_API_KEY` / `GEMINI_API_KEY` / `TAVILY_API_KEY` / `APIFY_TOKEN` / bot token / key pattern。
+
+**驗收命令**：
+```powershell
+py scripts\lint_phase_plan.py docs\PHASE_76_PLAN.md
+# PASS
+
+py scripts\lint_phase_plan.py docs\PHASE_76_1_PLAN.md
+# PASS
+
+py scripts\lint_phase_plan.py docs\PHASE_77_PLAN.md
+# PASS
+
+py scripts\lint_phase_plan.py docs\PHASE_78_PLAN.md
+# PASS
+
+py scripts\lint_phase_plan.py docs\PHASE_81_PLAN.md
+# PASS
+
+py -m pytest -q
+# 147 passed
+
+py scripts\check_daily_report_health.py --repo-root . --date 2026-05-16 --use-latest-production
+# FAIL：no production canonical report found（符合外部配額阻塞現況）
+```
+
+**狀態**：
+- ✅ AGENTS.md 新規則已確認。
+- ✅ P78/P81 計畫書已補齊新規則缺口。
+- ✅ lint false positive 已修正並補測試。
+- ✅ 新 reports 誠實標記 showcase/backfill，未發現 secret 泄漏。
+
+---
+
+### P78.2 + P79.0 — history source traceability + system doctor baseline（2026-05-16）
+
+**目標**：
+- P78.2：讓 `history.source_dates/missing_dates` 不再只是欄位，必須由 runtime 真實填值。
+- P79.0：建立 `system_doctor.py` 統一診斷入口，提供 local/ci 可用的分級訊號。
+
+**觸發**：
+- 主公核准「按照建議往下做」，接續 P78.2 與 P79。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | `analyzer/history.py` 新增 diagnostics 日期追蹤；新增 `scripts/system_doctor.py` |
+| Logic (S) | ✅ | history 缺檔/壞檔會進 `missing_dates`；doctor 依 profile 轉 exit code |
+| Testing (S) | ✅ | `tests/test_history_resolver.py`、`tests/test_system_doctor.py` 全通過 |
+| Security (S) | ✅ | doctor 只讀本地產物，不讀 secret；僅輸出狀態訊息 |
+| Observability (A) | ✅ | manifest 現在有可追溯 history 日期；doctor 可直接輸出 severity table |
+| Process (A) | ✅ | 更新 P78/P79/ACTIVE/HANDOFF 狀態，明確主線切換到 P79 |
+
+**物理真相**：
+- 修改 `analyzer/history.py`
+  - 新增 `_load_recent_archives_with_dates()` 與 `_expected_history_targets()`。
+  - `resolve_trends()` 新增 `diagnostics`：
+    - `status`: `ok` / `partial` / `degraded` / `showcase`
+    - `source_dates`: 成功讀檔日期
+    - `missing_dates`: 缺檔或壞檔日期
+- 修改 `tests/test_history_resolver.py`
+  - 補 diagnostics 斷言（無檔、部分檔、壞檔、showcase）。
+- 新增 `scripts/system_doctor.py`
+  - 聚合 manifest contract + health checks。
+  - 分級：`BLOCKING / DEGRADED / ADVISORY`
+  - `--profile local|ci`、`--require-production`
+  - `local`: 只因 BLOCKING 失敗；`ci`: DEGRADED/BLOCKING 皆失敗。
+- 新增 `tests/test_system_doctor.py`
+  - 覆蓋 production pass、manifest missing、local degraded、ci degraded fail。
+- 實跑：
+  - `py main.py --run-now --dry-run --force` 後，`run_manifest.json` 的 `history.missing_dates` 已實際填值。
+  - `py scripts/system_doctor.py --profile local` 會回報目前外部配額阻塞下的 degraded/advisory 訊號。
+
+**驗收命令**：
+```powershell
+py -m pytest -q tests\test_history_resolver.py
+# 4 passed
+
+py -m pytest -q tests\test_system_doctor.py
+# 4 passed
+
+py -m pytest -q
+# 151 passed
+
+py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile local
+# local：exit 0，顯示 advisory/degraded
+
+py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --require-production
+# ci：exit 1，顯示 degraded（符合目前阻塞現況）
+```
+
+**狀態**：
+- ✅ P78.2 完成（history source 可追溯）
+- ✅ P78 收官（P78.0~P78.3）
+- ✅ P79.0 完成（system doctor baseline）
+- ⏳ 下一步：P79.1（debug bundle 聯動）與 P79.2（runbook issue code）
+
+### P79.1 + P79.2 + P79.3 — doctor debug bundle 聯動 + issue code runbook + CI advisory 接線（2026-05-16）
+
+**目標**：
+- P79.1：doctor 失敗時自動關聯最新 debug bundle，縮短定位路徑。
+- P79.2：給每個 doctor issue 穩定 code，並映射到 runbook 可機械化處置。
+- P79.3：先以 advisory 方式接 CI，再保留可手動開 strict gate 的路徑。
+
+**觸發**：
+- 主公指令：「做 P79.1 / P79.2 / P79.3」。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | `scripts/system_doctor.py` 新增 issue catalog / runbook link / debug bundle 自動關聯 |
+| Logic (S) | ✅ | 只在 doctor 失敗條件下關聯 debug bundle；保留 local/ci 既有失敗語意 |
+| Testing (S) | ✅ | `tests/test_system_doctor.py` 新增 debug bundle 聯動測試，合計 5 passed |
+| Security (S) | ✅ | runbook 與 doctor 只用本地檔案路徑，不新增 secret 暴露面 |
+| Observability (A) | ✅ | doctor 表格新增 `code`/`runbook` 欄，故障可直跳處置手冊 |
+| Process (A) | ✅ | handoff/active/phase79 狀態同步到 VERIFYING |
+| DevOps (B) | ✅ | `.github/workflows/daily_report.yml` 加 advisory doctor + workflow_dispatch strict gate |
+
+**物理真相**：
+- `scripts/system_doctor.py`
+  - 新增 `ISSUE_CATALOG`（DOC001~DOC012）。
+  - `DoctorIssue` 擴充 `code`、`runbook`。
+  - doctor 判定會失敗時（blocking，或 ci+degraded）自動找：
+    - `data/debug_bundles/<date>/debug_bundle_*.json` 最新檔
+  - 若找到，追加 `DOC011`（linked bundle）；找不到追加 `DOC012`（bundle missing）。
+  - 表格輸出改為：`severity | code | check | detail | runbook`。
+- `docs/OPERATIONS_RUNBOOK.md`（新增）
+  - 建立 `DOC000~DOC012` 對照與處置步驟。
+  - 使用 `<a id="docxxx"></a>` 錨點給 doctor 直接連結。
+- `.github/workflows/daily_report.yml`
+  - `workflow_dispatch` 新增 `strict_doctor` input。
+  - 原 health check 改 advisory（`continue-on-error: true` + `--expected-mode any`）。
+  - 新增 `System Doctor (Advisory)`（永遠跑、不中斷）。
+  - 新增 `System Doctor (Strict Gate)`（僅手動 dispatch + strict_doctor=true 觸發）。
+- `tests/test_system_doctor.py`
+  - 新增 `test_system_doctor_failure_links_latest_debug_bundle`。
+  - 既有測試補 code/runbook 斷言。
+
+**驗收命令**：
+```powershell
+py -m pytest -q tests\test_system_doctor.py
+# 5 passed
+
+py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --require-production
+# exit 1（符合當前 degraded 現況），並顯示 DOC011 linked debug bundle
+```
+
+**狀態**：
+- ✅ P79.1 完成（debug bundle 聯動）
+- ✅ P79.2 完成（issue code + runbook）
+- ✅ P79.3 完成（CI advisory 接線 + 手動 strict gate）
+- ⏳ P79 進入 VERIFYING，待 CI 跑出第一輪實證後收官
+
+### P79 VERIFYING 補錄 — 本地等價驗證完成 / 遠端 dispatch 權限阻塞（2026-05-16）
+
+**物理真相**：
+- 此環境缺少 `gh` CLI，且未注入 GitHub token，無法由本地直接觸發 `workflow_dispatch`。
+- 已完成本地等價驗證：
+  - `py -m pytest -q tests/test_system_doctor.py` → 5 passed
+  - `py scripts/system_doctor.py --repo-root . --date 2026-05-16 --profile local` → advisory 路徑 exit 0
+  - `py scripts/system_doctor.py --repo-root . --date 2026-05-16 --profile ci --require-production` → strict gate exit 1
+- 狀態檔已更新：
+  - `docs/PHASE_79_PLAN.md`
+  - `docs/ACTIVE_OPERATION.md`
+  - `NEXT_SESSION_HANDOFF.md`
+
+**下一步（需主公動作）**：
+- 到 GitHub Actions 手動執行 `AoV Daily Monitor`，`strict_doctor=false`，取得第一筆 advisory run 證據。
+- 該證據到位後可收官 P79，進 P80。
+
+### P79 收官 + P80 凍結切換（2026-05-17）
+
+**目標**：
+- 以 GitHub Actions 實跑證據完成 P79 收官。
+- 將主線切換到 P80，維持動工前凍結狀態，避免跨 Phase 偏航。
+
+**物理真相**：
+- GitHub Actions（2026-05-17）證據：
+  - `run-pipeline`：succeeded
+  - `Execute AoV Pipeline`：PASS
+  - `Daily Report Health Check`：PASS
+  - `System Doctor (Advisory)`：PASS
+  - `System Doctor (Strict Gate)`：SKIPPED（`strict_doctor=false` 預期）
+- 文件同步：
+  - `docs/PHASE_79_PLAN.md`：狀態改 `CLOSED`，補收官結論
+  - `docs/PHASE_80_PLAN.md`：新建，狀態 `FROZEN`
+  - `docs/ACTIVE_OPERATION.md`：主線改為 P80/FROZEN
+  - `NEXT_SESSION_HANDOFF.md`：L1 bootstrap 改為 P80/FROZEN
+  - `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`：P79->CLOSED，P80->FROZEN
+
+**狀態**：
+- ✅ P79 正式收官
+- ✅ P80 計畫已凍結
+- ⏳ 下一步：待主公核准 P80 後，狀態轉 `APPROVED` 再動工

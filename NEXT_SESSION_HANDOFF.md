@@ -1,3 +1,64 @@
+<!-- ACTIVE_BOOTSTRAP_START -->
+# ACTIVE_BOOTSTRAP — READ THIS FIRST
+
+> 本區塊是新視窗唯一當前指令來源。`ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION` 以下只作歷史參考，不可用來決定下一步。
+
+| 欄位 | 內容 |
+|---|---|
+| **Status** | ACTIVE |
+| **Program** | P77-P84 Daily Monitoring Reliability Program |
+| **Current Phase** | P80（Promotion / Atomic Write） |
+| **Current Step** | P79 已收官；P80 計畫書已凍結，等待主公核准動工 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `dccee5b fix: 修正 news_history_indexer 在 Python 3.8 型別註解崩潰` |
+| **Updated At** | 2026-05-17 Asia/Taipei |
+
+## Required Minimal Reads
+
+1. 本區塊：`ACTIVE_BOOTSTRAP`
+2. `docs/ACTIVE_OPERATION.md`
+3. 讀 `docs/PHASE_80_PLAN.md`，確認凍結範疇與動工邊界
+
+## Current Source Of Truth
+
+| 層級 | 檔案 | 用途 |
+|---|---|---|
+| L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
+| L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
+| L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
+| L4 | `docs/PHASE_80_PLAN.md` | 當前實作計畫 |
+
+## Six Anti-Drift Fields
+
+| 欄位 | 內容 |
+|---|---|
+| **Current Phase** | P80（FROZEN） |
+| **Current Step** | 僅允許 P80 計畫凍結與範疇確認，不可改程式碼 |
+| **Allowed Files** | `docs/PHASE_80_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不跳做 P80/P82+ 大改 |
+| **Exit Criteria** | 主公核准 P80 計畫書後，狀態可轉 APPROVED 再動工 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；依 P80 計畫續做 |
+
+## Required Verification Commands
+
+```powershell
+git status -sb
+git diff --check
+rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
+```
+
+## Do Not
+
+- 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
+- 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
+- 不要跳做 P82+。
+- 不要跳出 P80 範圍，提前改其他 Phase 架構。
+- 不要 git push，除非主公明確確認。
+
+<!-- ACTIVE_BOOTSTRAP_END -->
+
+<!-- ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION -->
+
 # 🛎️ 下個視窗開局交接筆記
 
 - **建立日期**：2026-04-27（原版）
