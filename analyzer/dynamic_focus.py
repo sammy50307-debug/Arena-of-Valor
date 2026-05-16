@@ -11,6 +11,8 @@ P68 — 動態今日焦點生成器
 AI 失敗時直接用模板組句（不空）。
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timedelta
 from typing import Optional

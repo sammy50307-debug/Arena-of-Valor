@@ -13,6 +13,8 @@ AoV 自動化輿情監測系統 — 主程式入口
   python main.py --dry-run   # 立即執行但不推播
 """
 
+from __future__ import annotations
+
 import argparse
 import asyncio
 import io
