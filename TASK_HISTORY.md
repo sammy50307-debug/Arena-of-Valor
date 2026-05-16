@@ -6348,3 +6348,65 @@ $env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py -m pytest -q
 - ✅ cache schema v3 / LRU / max entries 已落地
 - ✅ 全套測試 126 passed
 - ✅ 本輪主線待辦（R-014 / P70.4 / P70.6）已清空
+
+---
+
+### P76 — RISK_REGISTRY / HANDOFF 狀態清理（2026-05-16）
+
+**目標**：
+- 修正狀態帳本漂移：R-007/R-008 已修補卻仍放在 Open 區。
+- 修正 `NEXT_SESSION_HANDOFF.md` 頂部仍停在推送前狀態（`72cbb25` / 本地 commits 待 push）的過期資訊。
+- 保持 WIP 清單與風險登記簿一致：主線待辦清空，剩餘為 open risks / 觀察項。
+
+**觸發**：
+- 主公詢問「現在還剩下哪些舊有的任務」。
+- 檢查後發現 WIP 無進行中 / 無凍結待動工 Phase，但 `docs/RISK_REGISTRY.md` 與 `NEXT_SESSION_HANDOFF.md` 有狀態漂移。
+- P75 / P70.4 / P70.6 已於上一輪推送到 `614dc13`。
+
+**稽核表**：
+
+| 層 | 結果 | 物理判斷 |
+|---|---|---|
+| Code (S) | ✅ | 不改 runtime code，純 markdown 狀態修正 |
+| Logic (S) | ✅ | 只移動已標示修補完成的 R-007/R-008；其他 open risks 保留 |
+| Testing (S) | ✅ | `lint_phase_plan.py` PASS；`git diff --check` PASS；rg 檢查 stale push 字樣 |
+| Security (S) | ✅ | 不讀 secrets、不碰 `data/reports/`、不 stage 既有 untracked 檔 |
+| Documentation (A) | ✅ | RISK_REGISTRY / HANDOFF / WIP / TASK_HISTORY 同步 |
+| Process (A) | ✅ | 小 Phase 計畫書先行，收官 commit，push 仍待主公確認 |
+
+**物理真相**：
+- 新增 `docs/PHASE_76_PLAN.md`
+  - v1.0 frozen；Pre-flight M1/M2 lint 通過。
+- 修改 `docs/RISK_REGISTRY.md`
+  - R-007 從 Open 區移至 Closed 區。
+  - R-008 從 Open 區移至 Closed 區。
+  - R-007 關閉條件更新：具體 selector 修補已完成；LINE WebView 長期觀察仍由 R-004 承接。
+  - 變更紀錄新增 P76 狀態清理。
+- 修改 `NEXT_SESSION_HANDOFF.md`
+  - 最新已推 commit 修正為：`614dc13 feat: 補上 llm cache LRU`。
+  - 移除 P75/P70.4/P70.6 仍待 push 的過期描述。
+  - 新增 P76 最新完成事項。
+- 修改 `memory/history_lookup/WIP_PHASES.md`
+  - 已收官新增 P76。
+- 未修改：
+  - `data/reports/*.html`
+  - `.agents/skills/source-command-*`
+  - `scratch/`
+
+**驗收命令**：
+```powershell
+$env:PYTHONIOENCODING='utf-8'; $env:PYTHONUTF8='1'; py scripts/lint_phase_plan.py docs/PHASE_76_PLAN.md
+# ✅ 通過 Pre-flight 體檢（M1 + M2）
+
+git diff --check
+# PASS（僅 line-ending warning，無 whitespace error）
+
+rg -n "72cbb25|本地 commits|待 push|本地 commit" NEXT_SESSION_HANDOFF.md
+# 頂部現況已不再誤稱 P75/P70.4/P70.6 待 push；舊歷史段落仍保留原始脈絡
+```
+
+**狀態**：
+- ✅ P76 收官
+- ✅ R-007/R-008 已移至 Closed
+- ✅ handoff 最新已推 commit 對齊 `614dc13`
+- ⏳ P76 commit 若完成，仍需主公確認後才能 push

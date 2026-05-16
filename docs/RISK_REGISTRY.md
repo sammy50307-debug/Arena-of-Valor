@@ -70,28 +70,6 @@
 
 ---
 
-### R-007：`.back-to-landing` 未列入 mobile backdrop-filter 停用清單（P70.3.1 審計）
-
-- **來源**：P70.3.1 63 維度審計（2026-05-08）
-- **風險級**：🟢 低
-- **狀態**：✅ 已修補（2026-05-08）
-- **描述**：行動版（`@media max-width 768px`）停用 `backdrop-filter` 的 selector 清單未含 `.back-to-landing`，導致按鈕在 mobile 仍觸發模糊效果 → 滑動卡頓風險。
-- **緩解策略**：已將 `.back-to-landing` 加入 selector；template + 10 舊報告同步修補。
-- **關閉條件**：已修補，觀察下次 LINE 實機驗收結果。
-
----
-
-### R-008：`.back-to-landing` 缺少 :focus 樣式與 aria-label（P70.3.1 審計）
-
-- **來源**：P70.3.1 63 維度審計（2026-05-08）
-- **風險級**：🟢 低
-- **狀態**：✅ 已修補（2026-05-08）
-- **描述**：按鈕缺少 `:focus` 可見輪廓（無障礙 a11y 標準），且無 `aria-label`（螢幕閱讀器無法正確識別）。
-- **緩解策略**：已補 `.back-to-landing:focus { outline: 2px solid #f472b6; outline-offset: 3px; }` 及 `aria-label="返回戰略門戶首頁"`；template + 10 舊報告同步修補。
-- **關閉條件**：已修補，無需進一步觀察。
-
----
-
 ### R-005：`-webkit-overflow-scrolling: touch` 已 deprecated（G5-1 退化偵測）
 
 - **來源**：P70.3 收官（2026-05-08）
@@ -145,6 +123,28 @@
 ---
 
 ## 已關閉風險（Closed）
+
+### R-007：`.back-to-landing` 未列入 mobile backdrop-filter 停用清單（P70.3.1 審計）
+
+- **來源**：P70.3.1 63 維度審計（2026-05-08）
+- **風險級**：🟢 低
+- **狀態**：✅ 已修補（2026-05-08；P76 於 2026-05-16 移至 Closed）
+- **描述**：行動版（`@media max-width 768px`）停用 `backdrop-filter` 的 selector 清單未含 `.back-to-landing`，導致按鈕在 mobile 仍觸發模糊效果 → 滑動卡頓風險。
+- **修補**：已將 `.back-to-landing` 加入 selector；template + 10 舊報告同步修補。
+- **關閉條件**：具體 selector 修補已完成；LINE WebView 長期觀察由 R-004 承接。
+
+---
+
+### R-008：`.back-to-landing` 缺少 :focus 樣式與 aria-label（P70.3.1 審計）
+
+- **來源**：P70.3.1 63 維度審計（2026-05-08）
+- **風險級**：🟢 低
+- **狀態**：✅ 已修補（2026-05-08；P76 於 2026-05-16 移至 Closed）
+- **描述**：按鈕缺少 `:focus` 可見輪廓（無障礙 a11y 標準），且無 `aria-label`（螢幕閱讀器無法正確識別）。
+- **修補**：已補 `.back-to-landing:focus { outline: 2px solid #f472b6; outline-offset: 3px; }` 及 `aria-label="返回戰略門戶首頁"`；template + 10 舊報告同步修補。
+- **關閉條件**：已修補，無需進一步觀察。
+
+---
 
 ### R-014：4 個歷史 Phase（P63/P64/P69/P70.3）缺 blindspot（M4 偵測）
 
@@ -205,3 +205,4 @@
 - **2026-05-14**：P72.5 收官登記 R-012（metrics JSONL retention）+ R-013（M4 sync-rules anchor heuristic 召回率低）+ R-014（4 個歷史 Phase 缺 blindspot）+ R-015（test_dynamic_focus 積欠升級獨立 Phase）。
 - **2026-05-16**：P74 關閉 R-015；`test_dynamic_focus.py` 三個 async case 改用 `asyncio.run(...)`，單檔 5 passed，全套 112 passed。
 - **2026-05-16**：P75 關閉 R-014；回填 P63/P64/P69/P70.3 共 4 份 blindspot，新增 B-011~B-022，M4 status 缺漏數歸零。
+- **2026-05-16**：P76 狀態清理；R-007/R-008 從 Open 區移至 Closed 區，長期 LINE WebView 觀察仍由 R-004 承接。
