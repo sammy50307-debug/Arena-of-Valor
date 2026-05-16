@@ -11,6 +11,8 @@ atomic write + .bak 備份，防損毀 (R12)。
 14 天滾動視窗後自動 prune (D2)。
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os
