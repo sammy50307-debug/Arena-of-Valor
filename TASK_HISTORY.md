@@ -7183,3 +7183,44 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P80 正式收官
 - ✅ P80.1 CI 實跑證據齊備
 - ⏳ 下一步：起草 `docs/PHASE_82_PLAN.md`，處理 Idempotency / Timezone；計畫核准前不可改程式碼
+
+### P82 計畫凍結 — Idempotency / Timezone（2026-05-17）
+
+**目標**：
+- 建立 P82 凍結版計畫書，讓下一步不再停留於口頭草案。
+- 將新視窗入口更新為 P82 FROZEN：只能審核/討論，主公核准前不可改程式碼。
+- 明確定義 P82 的核心邊界：Asia/Taipei 日期真相來源、run_id/source_hash、same-day rerun 語義、GHA UTC 對映。
+
+**觸發背景**：
+- P80 已由 GitHub Actions workflow_dispatch 實跑通過並收官。
+- 總戰役計畫中 P82 原本標記為下一階段，但尚未有 `docs/PHASE_82_PLAN.md`。
+- 若新視窗只讀 handoff，可能知道「要做 P82」但不知道具體範圍、禁止事項與退出條件。
+
+**物理真相**：
+- 新增：
+  - `docs/PHASE_82_PLAN.md`
+- 更新：
+  - `NEXT_SESSION_HANDOFF.md`
+  - `docs/ACTIVE_OPERATION.md`
+  - `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - `TASK_HISTORY.md`
+- P82 計畫狀態：
+  - `FROZEN`
+  - 待主公核准後才可切 `APPROVED`
+
+**P82 凍結範圍**：
+- 建立唯一 run date resolver，daily report date 以 Asia/Taipei 為準。
+- 建立 `run_id = run_date + mode + source_hash` 契約。
+- 同日 rerun 行為可預期：相同 source hash 不產生矛盾狀態，不同 source hash 保留候選版本。
+- GHA UTC schedule 與台北日期對映需測試或明確驗證。
+- P82 不做 P83 data quality/security，不做 P84 retention/SLO，不改 UI layout。
+
+**Pre-flight 稽核**：
+- 17 層稽核表已填。
+- M1 X4-A~K 多視角已填。
+- M1.5 八人格顧問團已填。
+- M2 紅藍對抗 6 條，含 4 條 S 級質疑。
+
+**狀態**：
+- ✅ P82 計畫已凍結
+- ⏳ 等待主公核准；未核准前不得改 production code 或 workflow
