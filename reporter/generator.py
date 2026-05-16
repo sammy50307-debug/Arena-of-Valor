@@ -13,7 +13,7 @@ import re
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -379,7 +379,7 @@ class ReportGenerator:
             return None
         return match.group(1).strip()
 
-    def _select_production_canonical_reports(self, reports_dir: Path) -> list[Path]:
+    def _select_production_canonical_reports(self, reports_dir: Path) -> List[Path]:
         """Return canonical reports with metadata mode=production, newest first."""
         canonical_reports = [f for f in reports_dir.glob("aov_report_*.html") if CANONICAL_REPORT_RE.match(f.name)]
         canonical_reports.sort(key=lambda x: x.name, reverse=True)
