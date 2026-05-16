@@ -14,9 +14,13 @@ import pytest
 from reporter.generator import ReportGenerator
 
 
-def _make_report(reports_dir: Path, date_str: str) -> Path:
+def _make_report(reports_dir: Path, date_str: str, mode: str = "production") -> Path:
     p = reports_dir / f"aov_report_{date_str}.html"
-    p.write_text(f"<html>fake report {date_str}</html>", encoding="utf-8")
+    p.write_text(
+        f"<!-- cache_hit: 0/1 (0%) | llm_calls: 1 | mode: {mode} -->\n"
+        f"<html>fake report {date_str}</html>",
+        encoding="utf-8",
+    )
     return p
 
 

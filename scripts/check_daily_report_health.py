@@ -19,6 +19,7 @@ from typing import Iterable, List, Optional
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 META_MODE_RE = re.compile(r"mode:\s*([a-zA-Z0-9_:-]+)")
 MAIN_BTN_RE = re.compile(r'<a\s+href="([^"]+)"\s+class="main-btn"', re.IGNORECASE)
+CANONICAL_REPORT_RE = re.compile(r"^aov_report_\d{4}-\d{2}-\d{2}\.html$")
 
 
 @dataclass
@@ -73,6 +74,16 @@ def extract_landing_main_href(index_file: Path) -> Optional[str]:
     return match.group(1).strip()
 
 
+def latest_production_report(repo_root: Path) -> Optional[Path]:
+    reports_dir = repo_root / "data" / "reports"
+    candidates = [p for p in reports_dir.glob("aov_report_*.html") if CANONICAL_REPORT_RE.match(p.name)]
+    candidates.sort(key=lambda p: p.name, reverse=True)
+    for report in candidates:
+        if extract_metadata_mode(report) == "production":
+            return report
+    return None
+
+
 def git_dirty_for_paths(repo_root: Path, paths: Iterable[str]) -> str:
     cmd = ["git", "status", "--porcelain", "--"] + list(paths)
     proc = subprocess.run(
@@ -93,13 +104,26 @@ def run_checks(
     date_str: str,
     expected_mode: str = "production",
     check_git_clean: bool = False,
+    use_latest_production: bool = False,
 ) -> List[CheckResult]:
     """Run health checks and return structured results."""
-    normalized_date = validate_date(date_str)
     repo_root = repo_root.resolve()
-    expected_report = report_path(repo_root, normalized_date)
+    normalized_date: Optional[str] = None
+    expected_report: Optional[Path] = None
+    rel_report: Optional[str] = None
+
+    if use_latest_production:
+        expected_report = latest_production_report(repo_root)
+        if expected_report is None:
+            return [CheckResult("latest production report", "FAIL", "no production canonical report found")]
+        normalized_date = expected_report.name.replace("aov_report_", "").replace(".html", "")
+        rel_report = "data/reports/%s" % expected_report.name
+    else:
+        normalized_date = validate_date(date_str)
+        expected_report = report_path(repo_root, normalized_date)
+        rel_report = "data/reports/aov_report_%s.html" % normalized_date
+
     landing = index_path(repo_root)
-    rel_report = "data/reports/aov_report_%s.html" % normalized_date
     results: List[CheckResult] = []
 
     if expected_report.exists():
@@ -136,6 +160,27 @@ def run_checks(
             )
     else:
         results.append(CheckResult("landing main link", "FAIL", "missing %s" % landing))
+
+    if landing.exists() and rel_report and expected_mode == "production":
+        href = extract_landing_main_href(landing)
+        if href:
+            landing_report = (repo_root / href).resolve()
+            if landing_report.exists():
+                landing_mode = extract_metadata_mode(landing_report)
+                if landing_mode != "production":
+                    results.append(
+                        CheckResult(
+                            "landing target mode",
+                            "FAIL",
+                            "mode=%s for %s, expected=production" % ((landing_mode or "<missing>"), href),
+                        )
+                    )
+                else:
+                    results.append(CheckResult("landing target mode", "PASS", "mode=production"))
+            else:
+                results.append(CheckResult("landing target mode", "FAIL", "landing target missing: %s" % href))
+        else:
+            results.append(CheckResult("landing target mode", "FAIL", "landing main-btn href missing"))
 
     if check_git_clean:
         dirty = git_dirty_for_paths(
@@ -175,6 +220,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Fail if report/index/cache still have uncommitted changes.",
     )
+    parser.add_argument(
+        "--use-latest-production",
+        action="store_true",
+        help="Use the latest canonical report with metadata mode=production as target.",
+    )
     return parser
 
 
@@ -192,6 +242,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         date_str,
         expected_mode=args.expected_mode,
         check_git_clean=args.check_git_clean,
+        use_latest_production=args.use_latest_production,
     )
     print_results(date_str, Path(args.repo_root), results)
     return 1 if any(result.failed for result in results) else 0

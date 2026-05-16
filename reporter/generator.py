@@ -7,6 +7,7 @@
 
 import logging
 import shutil
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -22,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 # 模板目錄
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
+CANONICAL_REPORT_RE = re.compile(r"^aov_report_\d{4}-\d{2}-\d{2}\.html$")
+META_MODE_RE = re.compile(r"mode:\s*([a-zA-Z0-9_:-]+)")
 
 
 class ReportGenerator:
@@ -273,6 +276,8 @@ class ReportGenerator:
         _total = _meta.get("total_calls", 0)
         _llm_calls = _meta.get("llm_calls", 0)
         _pct = int(_hits / _total * 100) if _total > 0 else 0
+        _replay_source = _meta.get("replay_source", "")
+        _is_backfill = bool(_meta.get("is_backfill", False))
         # P69 B9：mode 四態視覺標示
         _mode_label = {
             "production":      "✅ 真實輿情",
@@ -280,8 +285,12 @@ class ReportGenerator:
             "showcase_forced": "⚠️ 配額耗盡被迫展演（API 429）",
             "error_fallback":  "❌ 系統錯誤備援",
         }.get(_mode, f"❓ {_mode}")
+        _backfill_meta = ""
+        if _is_backfill:
+            _src = _replay_source if isinstance(_replay_source, str) and _replay_source else "unknown"
+            _backfill_meta = f" | backfill: true | replay_source: {_src}"
         html_content = (
-            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode} | {_mode_label} -->\n"
+            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode}{_backfill_meta} | {_mode_label} -->\n"
             + html_content
         )
 
@@ -344,24 +353,35 @@ class ReportGenerator:
         self.logger.info(f"報告已生成: {output_path}")
         return output_path
 
-    def _update_landing_page(self, reports_dir: Path):
+    def _extract_report_mode(self, report_file: Path) -> Optional[str]:
+        """Extract mode from metadata comment on the first line."""
+        try:
+            first_line = report_file.read_text(encoding="utf-8", errors="replace").splitlines()[0]
+        except IndexError:
+            return None
+        match = META_MODE_RE.search(first_line)
+        if not match:
+            return None
+        return match.group(1).strip()
+
+    def _select_production_canonical_reports(self, reports_dir: Path) -> list[Path]:
+        """Return canonical reports with metadata mode=production, newest first."""
+        canonical_reports = [f for f in reports_dir.glob("aov_report_*.html") if CANONICAL_REPORT_RE.match(f.name)]
+        canonical_reports.sort(key=lambda x: x.name, reverse=True)
+        return [f for f in canonical_reports if self._extract_report_mode(f) == "production"]
+
+    def _update_landing_page(self, reports_dir: Path, index_file: Optional[Path] = None):
         """Phase 63.1: 更新 root index.html 的 5 份戰報連結"""
-        import re
         try:
             root_dir = Path(__file__).resolve().parent.parent
-            index_path = root_dir / "index.html"
+            index_path = index_file or (root_dir / "index.html")
             if not index_path.exists():
                 self.logger.warning("  [!] 找不到 index.html，跳過 Landing Page 更新")
                 return
 
-            html_files = []
-            for f in reports_dir.glob("aov_report_*.html"):
-                if re.match(r"^aov_report_\d{4}-\d{2}-\d{2}\.html$", f.name):
-                    html_files.append(f)
-            
-            html_files.sort(key=lambda x: x.name, reverse=True)
-
+            html_files = self._select_production_canonical_reports(reports_dir)
             if not html_files:
+                self.logger.warning("  [!] 找不到 production canonical report，維持現有 Landing Page 連結")
                 return
 
             content = index_path.read_text(encoding="utf-8")
