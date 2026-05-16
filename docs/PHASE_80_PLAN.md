@@ -1,8 +1,8 @@
-# Phase P80 計畫書 — Promotion / Atomic Write（凍結版）
+# Phase P80 計畫書 — Promotion / Atomic Write（執行中）
 
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
-> 狀態：FROZEN（待主公核准後動工）
+> 狀態：IN_PROGRESS（P80.1 已落地，待 CI 實跑驗證）
 
 ## 0. Phase 元資料
 
@@ -39,11 +39,29 @@
 
 ## 4. Exit Criteria（預先凍結）
 
-- [ ] candidate 生成不會直接覆蓋 production canonical report
-- [ ] promotion 前需通過 doctor/health gate（以既有訊號為準）
-- [ ] promotion 寫入路徑採原子化
-- [ ] landing/index 只指向 promote 後目標
+- [x] candidate 生成不會直接覆蓋 production canonical report
+- [x] promotion 前需通過 doctor/health gate（以既有訊號為準）
+- [x] promotion 寫入路徑採原子化
+- [x] landing/index 只指向 promote 後目標
 - [ ] 至少 1 組成功 promote + 1 組被 gate 擋下的測試證據
+
+## 4.1 已落地（P80.1）
+
+- `reporter/generator.py`
+  - `generate(..., promote=False)` 支援僅產 candidate，不觸發 canonical/landing 更新
+  - 新增 `promote_candidate(...)`，以 `.tmp -> os.replace()` 原子覆蓋 canonical，並在 promote 後更新 landing
+- `scripts/check_daily_report_health.py`
+  - `run_checks()` 新增 `check_landing` 與 `expected_report_path`
+  - 支援 pre-promotion gate 只驗 candidate 本身，不把 landing 當前置條件
+- `main.py`
+  - 主鏈路改為：先 `generate(promote=False)` 產 candidate
+  - `evaluate_publish_gate(..., candidate_report_path=...)` 做 pre-promotion gate
+  - 僅在 `mode=production` 且 gate 無理由時 promote
+  - 僅在 promote 成功後才進入 `github_backup_job`
+- 測試
+  - `tests/test_daily_report_health.py` 新增 pre-promotion gate 測試
+  - `tests/test_report_generator_landing.py` 新增 `promote_candidate` 測試
+  - 全套 `pytest`：`154 passed`
 
 ## 5. 17 層稽核表
 
@@ -99,4 +117,4 @@
 
 `FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`FROZEN`（僅允許討論/補計畫，不動程式碼）。
+目前狀態：`IN_PROGRESS`（已完成 P80.1 程式落地，待 CI 實跑驗證）。

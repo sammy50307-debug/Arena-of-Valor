@@ -7100,3 +7100,37 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P79 正式收官
 - ✅ P80 計畫已凍結
 - ⏳ 下一步：待主公核准 P80 後，狀態轉 `APPROVED` 再動工
+
+### P80.1 — candidate/promote 分離 + pre-promotion gate（2026-05-17）
+
+**目標**：
+- 把「生成報告」與「正式發布」拆開。
+- 讓 gate 在 promote 前驗 candidate 本身，不被「landing 尚未更新」卡住。
+- 僅在 production 且 gate 通過時才 promote + push。
+
+**物理真相**：
+- `reporter/generator.py`
+  - `generate(..., promote=False)`：只生成 candidate，不觸發 canonical sync 或 landing 更新。
+  - 新增 `promote_candidate(...)`：`.tmp -> os.replace()` 原子覆蓋 canonical，然後更新 landing。
+- `scripts/check_daily_report_health.py`
+  - `run_checks()` 新增：
+    - `check_landing`：可關閉 landing 相關檢查
+    - `expected_report_path`：可直接驗證 candidate 檔
+- `main.py`
+  - Step 3 改為先 `generate(promote=False)` 產 candidate。
+  - `evaluate_publish_gate(..., candidate_report_path=...)` 採 pre-promotion 驗證。
+  - 只有 `mode=production` 且 `gate_reasons=0` 才執行 `promote_candidate(...)`。
+  - 只有 promote 成功才允許 `github_backup_job`。
+
+**測試**：
+- `tests/test_daily_report_health.py`
+  - 新增 `test_pre_promotion_gate_can_skip_landing`。
+- `tests/test_report_generator_landing.py`
+  - 新增 `test_promote_candidate_updates_canonical_and_landing`。
+- 全套驗證：
+  - `py -m pytest -q tests/test_daily_report_health.py tests/test_report_generator_landing.py` → 14 passed
+  - `py -m pytest -q` → 154 passed
+
+**狀態**：
+- ✅ P80.1 已落地（程式與測試）
+- ⏳ 待 CI 實跑證據後，再評估 P80 收官

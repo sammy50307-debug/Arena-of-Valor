@@ -59,3 +59,24 @@ def test_update_landing_keeps_content_when_no_production(tmp_path: Path):
 
     after = index_file.read_text(encoding="utf-8")
     assert after == before
+
+
+def test_promote_candidate_updates_canonical_and_landing(tmp_path: Path):
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    candidate = reports / "aov_report_2026-05-16_v2.html"
+    _write_report(candidate, mode="production")
+    _write_report(reports / "aov_report_2026-05-15.html", mode="production")
+
+    index_file = tmp_path / "index.html"
+    _write_index(index_file, main_date="2026-05-06")
+
+    gen = ReportGenerator()
+    promoted = gen.promote_candidate(candidate, "2026-05-16", output_dir=reports, index_file=index_file)
+
+    assert promoted == reports / "aov_report_2026-05-16.html"
+    assert promoted.exists()
+    assert promoted.read_text(encoding="utf-8") == candidate.read_text(encoding="utf-8")
+
+    updated = index_file.read_text(encoding="utf-8")
+    assert 'href="data/reports/aov_report_2026-05-16.html" class="main-btn"' in updated

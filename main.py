@@ -89,7 +89,12 @@ def setup_logging():
 logger = logging.getLogger("aov_monitor")
 
 
-def evaluate_publish_gate(run_date: str, mode: str, gate_mode: str = "shadow") -> tuple[list[str], list]:
+def evaluate_publish_gate(
+    run_date: str,
+    mode: str,
+    gate_mode: str = "shadow",
+    candidate_report_path: Path = None,
+) -> tuple[list[str], list]:
     """Evaluate publish gate reasons using report health checks."""
     reasons: list[str] = []
     checks = []
@@ -110,6 +115,8 @@ def evaluate_publish_gate(run_date: str, mode: str, gate_mode: str = "shadow") -
             run_date,
             expected_mode="production",
             check_git_clean=False,
+            check_landing=False,
+            expected_report_path=candidate_report_path,
         )
         failed_checks = [c for c in checks if c.failed]
         for c in failed_checks:
@@ -236,6 +243,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     raw_data_path = None
     analysis_path = None
     report_path = None
+    report_candidate_path = None
+    report_promoted_path = None
     report_error = ""
 
     # ── Step 1：情報搜集 ────────────────────────────────
@@ -442,10 +451,11 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     # ── Step 3：產出報告 ──────────────────────────────
     logger.info(" Step 3/4: 產出視覺化報告...")
 
+    generator = ReportGenerator()
     try:
-        generator = ReportGenerator()
-        report_path = generator.generate(daily_summary, analyzed_posts)
-        logger.info(f"  [OK] 報告已生成: {report_path}")
+        report_candidate_path = generator.generate(daily_summary, analyzed_posts, promote=False)
+        report_path = report_candidate_path
+        logger.info(f"  [OK] 候選報告已生成: {report_candidate_path}")
     except Exception as e:
         report_error = str(e)
         logger.error(f"  [FAIL] 報告生成失敗: {e}")
@@ -493,7 +503,24 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
         daily_summary.get("_meta", {}).get("mode", "unknown"),
         gate_mode=gate_mode,
+        candidate_report_path=report_candidate_path,
     )
+    mode = daily_summary.get("_meta", {}).get("mode", "unknown")
+    should_promote = bool(report_candidate_path) and (mode == "production") and (len(gate_reasons) == 0)
+    if should_promote:
+        try:
+            report_promoted_path = generator.promote_candidate(
+                report_candidate_path,
+                daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
+                output_dir=config.REPORTS_DIR,
+            )
+            report_path = report_promoted_path
+            logger.info(f"   [PROMOTE] 已發布 canonical 報告: {report_promoted_path}")
+        except Exception as pe:
+            gate_reasons.append("promotion error: %s: %s" % (type(pe).__name__, pe))
+            logger.error("  [FAIL] promote 失敗：%s", pe)
+    else:
+        logger.info("   [PROMOTE] 跳過：mode=%s, gate_reasons=%d", mode, len(gate_reasons))
     try:
         _meta = daily_summary.get("_meta", {})
         manifest = build_manifest(
@@ -535,13 +562,13 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             logger.warning(f"Lockfile 寫入失敗: {_le}")
 
     # ────── 雲端即時部署 ──────────────────────────────────────
-    should_publish = True
+    should_publish = bool(report_promoted_path)
     if gate_reasons and str(gate_mode).lower() == "blocking":
         should_publish = False
     if not dry_run and should_publish:
         await github_backup_job(is_manual=False, meta=_meta)
     elif not dry_run and not should_publish:
-        logger.error("  [BLOCKED] publish gate=blocking，不符合發布條件，略過 GitHub 同步。")
+        logger.error("  [BLOCKED] 未 promote 成功，略過 GitHub 同步。")
 
 
 # ── CLI 與排程 ────────────────────────────────────────

@@ -105,6 +105,8 @@ def run_checks(
     expected_mode: str = "production",
     check_git_clean: bool = False,
     use_latest_production: bool = False,
+    check_landing: bool = True,
+    expected_report_path: Optional[Path] = None,
 ) -> List[CheckResult]:
     """Run health checks and return structured results."""
     repo_root = repo_root.resolve()
@@ -112,7 +114,14 @@ def run_checks(
     expected_report: Optional[Path] = None
     rel_report: Optional[str] = None
 
-    if use_latest_production:
+    if expected_report_path is not None:
+        expected_report = expected_report_path.resolve()
+        try:
+            rel_report = str(expected_report.relative_to(repo_root)).replace("\\", "/")
+        except ValueError:
+            rel_report = str(expected_report)
+        normalized_date = expected_report.stem.replace("aov_report_", "")
+    elif use_latest_production:
         expected_report = latest_production_report(repo_root)
         if expected_report is None:
             return [CheckResult("latest production report", "FAIL", "no production canonical report found")]
@@ -146,7 +155,7 @@ def run_checks(
         else:
             results.append(CheckResult("metadata mode", "PASS", "mode=%s" % mode))
 
-    if landing.exists():
+    if check_landing and landing.exists():
         href = extract_landing_main_href(landing)
         if href == rel_report:
             results.append(CheckResult("landing main link", "PASS", href))
@@ -158,10 +167,10 @@ def run_checks(
                     "href=%s, expected=%s" % (href or "<missing>", rel_report),
                 )
             )
-    else:
+    elif check_landing:
         results.append(CheckResult("landing main link", "FAIL", "missing %s" % landing))
 
-    if landing.exists() and rel_report and expected_mode == "production":
+    if check_landing and landing.exists() and rel_report and expected_mode == "production":
         href = extract_landing_main_href(landing)
         if href:
             landing_report = (repo_root / href).resolve()

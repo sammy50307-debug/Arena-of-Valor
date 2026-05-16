@@ -26,7 +26,7 @@
 | **P77** | 止血 | 修主鏈路已知 bug：history、fallback、landing、report health | CLOSED（外部配額阻塞） |
 | **P78** | 合約 / Manifest | 建 run manifest、schema、publish eligibility，先 shadow mode | CLOSED（P78.2 已落地） |
 | **P79** | Doctor | 建 `system_doctor.py`，統一本地與 CI 診斷 | CLOSED（2026-05-17：CI advisory 實跑驗證完成） |
-| **P80** | Promotion / Atomic Write | candidate 通過驗證才 promote，寫檔原子化 | FROZEN（待核准動工） |
+| **P80** | Promotion / Atomic Write | candidate 通過驗證才 promote，寫檔原子化 | IN_PROGRESS（P80.1 已落地，待 CI 實跑驗證） |
 | **P81** | Replay / Quarantine / Backfill | 支援單日回放、壞資料隔離、缺日補跑 | CLOSED（P81.3 已落地） |
 | **P82** | Idempotency / Timezone | 同日重跑不污染，日期統一 Asia/Taipei | PLANNED |
 | **P83** | Data Quality / Security | 資料品質 gate、HTML escape、LLM output contract | PLANNED |
