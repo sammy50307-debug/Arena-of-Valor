@@ -7134,3 +7134,52 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P80.1 已落地（程式與測試）
 - ⏳ 待 CI 實跑證據後，再評估 P80 收官
+
+### P80 收官 — CI workflow_dispatch 實跑驗證通過（2026-05-17）
+
+**目標**：
+- 將 P80.1 的 candidate/promote 分離與 pre-promotion gate 從本地測試推進到 GitHub Actions 實跑證據。
+- 確認 Python 3.8 production workflow 不再因 runtime annotation 評估在 import 階段崩潰。
+- 將 P80 狀態從 IN_PROGRESS 推進到 CLOSED，下一步只允許進入 P82 草案期。
+
+**物理真相**：
+- 最新驗證 commit：
+  - `5a3c25d fix: 補齊主鏈路 Python 3.8 型別註解防護`
+- GitHub Actions 證據（主公截圖確認）：
+  - workflow：`daily_report.yml`
+  - event：`workflow_dispatch`
+  - job：`run-pipeline`
+  - result：succeeded
+  - duration：42s
+- 本地驗證：
+  - `py -m pytest -q` → 155 passed
+  - `py -3.8 -c "import main; print('main import ok on py38')"` → 通過
+
+**Python 3.8 annotation 補強背景**：
+- CI `daily_report.yml` 明確使用 Python 3.8。
+- P80.1 落地後，Actions 曾在 import 階段連續遇到 `TypeError: 'type' object is not subscriptable`。
+- 根因不是單一函式壞掉，而是 production workflow 仍用 Python 3.8，但主鏈路已混用 Python 3.9/3.10 型別註解。
+- 修補：
+  - `reporter/generator.py`：`list[Path]` 改成 `List[Path]`
+  - `main.py`：補 `from __future__ import annotations`
+  - `analyzer/dynamic_focus.py`：補 `from __future__ import annotations`
+  - `tests/test_python38_annotation_compat.py`：新增 production path annotation guard，避免未來主鏈路再漏掉 Python 3.8 防護
+
+**收官文件同步**：
+- `docs/PHASE_80_PLAN.md`
+  - 狀態改為 CLOSED
+  - 補 CI workflow_dispatch 實跑證據
+  - Exit Criteria 最後一項改為完成
+- `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - P80 狀態改為 CLOSED
+- `docs/ACTIVE_OPERATION.md`
+  - Current Phase 切到 P82 DRAFT
+  - Current Step 改為建立/凍結 `docs/PHASE_82_PLAN.md`
+- `NEXT_SESSION_HANDOFF.md`
+  - L1 bootstrap 切到 P82 DRAFT
+  - 新視窗只准起草 P82，不可直接改程式碼
+
+**狀態**：
+- ✅ P80 正式收官
+- ✅ P80.1 CI 實跑證據齊備
+- ⏳ 下一步：起草 `docs/PHASE_82_PLAN.md`，處理 Idempotency / Timezone；計畫核准前不可改程式碼
