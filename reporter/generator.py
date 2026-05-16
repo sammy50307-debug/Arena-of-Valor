@@ -8,6 +8,7 @@
 import logging
 import shutil
 import re
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -42,6 +43,7 @@ class ReportGenerator:
         daily_summary: dict,
         analyzed_posts: list,
         output_dir: Optional[Path] = None,
+        promote: bool = True,
     ) -> Path:
         """
         產出 HTML 報告檔案。
@@ -305,23 +307,15 @@ class ReportGenerator:
         
         output_path.write_text(html_content, encoding="utf-8")
         
-        # ── 🏮 Phase 40.21：同步至主戰線 (Canonical Sync) 🏮 ──
-        # 這是為了解決 Line 連結與本地差異的問題。Line 傳送的通常是固定的主日期檔。
-        # P63.1.2 修補：output_path == canonical_path 時跳過 copy（避免 SameFileError）
-        try:
-            canonical_path = output_dir / f"{base_filename}.html"
-            if output_path != canonical_path:
-                shutil.copy2(output_path, canonical_path)
-            self.logger.info(f"  [⚡] 主線更新：已覆寫推播連結至最新版本 {output_path.name}")
-        except Exception as ce:
-            self.logger.warning(f"  [!] 主線更新失敗: {ce}")
-
-        # ── 🏮 Phase 63.1：更新 Landing Page 戰報連結 🏮 ──
-        # P63.1.2 修補：拆出獨立 try，不被 canonical sync 失敗連帶 block
-        try:
-            self._update_landing_page(output_dir)
-        except Exception as le:
-            self.logger.warning(f"  [!] Landing Page 更新失敗: {le}")
+        if promote:
+            try:
+                promoted_path = self.promote_candidate(output_path, report_date, output_dir=output_dir)
+                self.logger.info(f"  [⚡] 主線更新：已 promote 至 {promoted_path.name}")
+                output_path = promoted_path
+            except Exception as pe:
+                self.logger.warning(f"  [!] 主線 promote 失敗: {pe}")
+        else:
+            self.logger.info(f"  [CANDIDATE] 僅生成候選報告（未 promote）: {output_path.name}")
 
         # ── 資源同步：解決背景圖片失聯問題 ──
         try:
@@ -352,6 +346,25 @@ class ReportGenerator:
 
         self.logger.info(f"報告已生成: {output_path}")
         return output_path
+
+    def promote_candidate(
+        self,
+        candidate_path: Path,
+        report_date: str,
+        *,
+        output_dir: Optional[Path] = None,
+        index_file: Optional[Path] = None,
+    ) -> Path:
+        """Promote a candidate report to canonical path with atomic replace."""
+        output_dir = output_dir or config.REPORTS_DIR
+        canonical_path = output_dir / f"aov_report_{report_date}.html"
+
+        if candidate_path.resolve() != canonical_path.resolve():
+            tmp_path = canonical_path.with_suffix(canonical_path.suffix + ".tmp")
+            tmp_path.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
+            os.replace(tmp_path, canonical_path)
+        self._update_landing_page(output_dir, index_file=index_file)
+        return canonical_path
 
     def _extract_report_mode(self, report_file: Path) -> Optional[str]:
         """Extract mode from metadata comment on the first line."""

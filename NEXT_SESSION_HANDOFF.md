@@ -8,8 +8,8 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P80（Promotion / Atomic Write） |
-| **Current Step** | P79 已收官；P80 計畫書已凍結，等待主公核准動工 |
-| **Mode** | FROZEN |
+| **Current Step** | P80.1 已落地：candidate/promote 分離 + pre-promotion gate，待 CI 實跑驗證 |
+| **Mode** | IN_PROGRESS |
 | **Latest Verified Commit** | `dccee5b fix: 修正 news_history_indexer 在 Python 3.8 型別註解崩潰` |
 | **Updated At** | 2026-05-17 Asia/Taipei |
 
@@ -17,7 +17,7 @@
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 讀 `docs/PHASE_80_PLAN.md`，確認凍結範疇與動工邊界
+3. 讀 `docs/PHASE_80_PLAN.md`，接續 P80.1 驗證與收官證據補齊
 
 ## Current Source Of Truth
 
@@ -32,11 +32,11 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P80（FROZEN） |
-| **Current Step** | 僅允許 P80 計畫凍結與範疇確認，不可改程式碼 |
-| **Allowed Files** | `docs/PHASE_80_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
+| **Current Phase** | P80（IN_PROGRESS） |
+| **Current Step** | 驗證 P80.1 在 CI 的 promote / non-promote 行為，補收官證據 |
+| **Allowed Files** | `main.py`, `reporter/generator.py`, `scripts/check_daily_report_health.py`, `tests/test_daily_report_health.py`, `tests/test_report_generator_landing.py`, `docs/PHASE_80_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不跳做 P80/P82+ 大改 |
-| **Exit Criteria** | 主公核准 P80 計畫書後，狀態可轉 APPROVED 再動工 |
+| **Exit Criteria** | 至少取得 1 次 CI 實跑證據，確認 P80.1 行為與計畫一致後再評估收官 |
 | **Resume Rule** | 新視窗只用本區塊決定下一步；依 P80 計畫續做 |
 
 ## Required Verification Commands

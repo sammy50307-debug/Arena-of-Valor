@@ -122,6 +122,27 @@ def test_use_latest_production_fails_when_none(tmp_path: Path):
     assert results[0].status == "FAIL"
 
 
+def test_pre_promotion_gate_can_skip_landing(tmp_path: Path):
+    _write_repo(tmp_path, mode="production", landing_date="2026-05-15")
+    candidate = tmp_path / "data" / "reports" / "aov_report_2026-05-16_v2.html"
+    candidate.write_text(
+        "<!-- cache_hit: 2/3 (66%) | llm_calls: 1 | mode: production -->\n<html></html>\n",
+        encoding="utf-8",
+    )
+    results = health.run_checks(
+        tmp_path,
+        DATE,
+        expected_mode="production",
+        check_landing=False,
+        expected_report_path=candidate,
+    )
+    status = _status_map(results)
+    assert status["canonical report"] == "PASS"
+    assert status["metadata mode"] == "PASS"
+    assert "landing main link" not in status
+    assert "landing target mode" not in status
+
+
 def test_invalid_date_rejected():
     with pytest.raises(ValueError):
         health.validate_date("20260516")
