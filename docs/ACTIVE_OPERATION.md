@@ -8,8 +8,8 @@
 |---|---|
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P82（Idempotency / Timezone） |
-| **Current Step** | 建立並凍結 `docs/PHASE_82_PLAN.md`；尚未核准前不可改程式碼 |
-| **Mode** | DRAFT |
+| **Current Step** | `docs/PHASE_82_PLAN.md` 已凍結；等待主公核准後才可動工 |
+| **Mode** | FROZEN |
 | **Latest Verified Commit** | `5a3c25d fix: 補齊主鏈路 Python 3.8 型別註解防護` |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-17 |
@@ -20,7 +20,7 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_82_PLAN.md`（尚未建立前，以 `docs/PHASE_TEMPLATE.md` + 總戰役 P82 段落起草）
+3. 當前 Phase 計畫：`docs/PHASE_82_PLAN.md`
 4. 總戰役計畫：`docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
 5. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
 
@@ -28,12 +28,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P82（DRAFT） |
-| **Current Step** | 起草 `docs/PHASE_82_PLAN.md`，聚焦 idempotency / timezone，不進入程式動工 |
+| **Current Phase** | P82（FROZEN） |
+| **Current Step** | 審核 `docs/PHASE_82_PLAN.md`，等待主公核准 |
 | **Allowed Files** | `docs/PHASE_82_PLAN.md`, `docs/PHASE_TEMPLATE.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不改程式碼；不跳做 P83/P84 |
-| **Exit Criteria** | P82 計畫書完成 17 層稽核、M1/M2、Entry/Exit Criteria，並等待主公核准 |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap，再起草/審核 P82 計畫 |
+| **Exit Criteria** | 主公核准 P82 後，才可把狀態切 APPROVED 並開始 P82.0 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap，再讀 P82 凍結計畫並等待主公核准 |
 
 ## State Machine
 
@@ -64,4 +64,4 @@ P80 已收官：2026-05-17 GitHub Actions `daily_report.yml` / `workflow_dispatc
 
 ## Next Decision
 
-下一步進入 P82 草案期。先建立/凍結 `docs/PHASE_82_PLAN.md`，在主公核准前不可改程式碼。
+P82 計畫已凍結。下一步是主公審核；核准後才可將狀態切為 APPROVED 並開始 P82.0。
