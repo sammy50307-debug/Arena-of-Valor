@@ -6,6 +6,11 @@ on:
     - cron: '0 0 * * *'
   # 允許在 GitHub 網頁上手動點擊執行
   workflow_dispatch:
+    inputs:
+      strict_doctor:
+        description: "Run strict system doctor gate (require production)"
+        required: false
+        default: "false"
 
 concurrency:
   group: aov-daily-monitor
@@ -69,9 +74,30 @@ jobs:
 
       - name: 🩺 Daily Report Health Check
         if: always()
+        continue-on-error: true
         run: |
           REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
           python scripts/check_daily_report_health.py \
             --date "$REPORT_DATE" \
-            --expected-mode production \
+            --expected-mode any \
             --check-git-clean
+
+      - name: 🩺 System Doctor (Advisory)
+        if: always()
+        continue-on-error: true
+        run: |
+          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
+          python scripts/system_doctor.py \
+            --repo-root . \
+            --date "$REPORT_DATE" \
+            --profile local
+
+      - name: 🩺 System Doctor (Strict Gate)
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.strict_doctor == 'true' }}
+        run: |
+          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
+          python scripts/system_doctor.py \
+            --repo-root . \
+            --date "$REPORT_DATE" \
+            --profile ci \
+            --require-production

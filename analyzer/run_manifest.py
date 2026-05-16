@@ -1,0 +1,246 @@
+"""Run manifest helpers (P78 baseline)."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+from analyzer.data_writer import atomic_write_json
+
+MANIFEST_SCHEMA_VERSION = 1
+ALLOWED_MODES = {
+    "production",
+    "showcase",
+    "showcase_forced",
+    "error_fallback",
+    "unknown",
+}
+ALLOWED_STATUS = {"ok", "failed"}
+ALLOWED_GATE_MODES = {"off", "shadow", "blocking"}
+
+
+def _normalize_date_list(values: Any) -> List[str]:
+    if not isinstance(values, list):
+        return []
+    normalized: List[str] = []
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        try:
+            normalized.append(datetime.strptime(value, "%Y-%m-%d").strftime("%Y-%m-%d"))
+        except ValueError:
+            continue
+    return normalized
+
+
+def build_manifest(
+    *,
+    run_date: str,
+    mode: str,
+    raw_path: Optional[Path],
+    analysis_path: Optional[Path],
+    report_path: Optional[Path],
+    meta: Optional[Dict[str, Any]] = None,
+    history_delta: Optional[Dict[str, Any]] = None,
+    status: str = "ok",
+    error: str = "",
+    dry_run: bool = False,
+    showcase_flag: bool = False,
+    replay_source: str = "",
+    is_backfill: bool = False,
+    gate_mode: str = "shadow",
+    eligibility_reasons: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Build a normalized run manifest payload."""
+    meta = meta or {}
+    history_delta = history_delta or {}
+    pulse = history_delta.get("weekly_vol_pulse", {})
+    volumes = pulse.get("volumes", []) if isinstance(pulse, dict) else []
+    diagnostics = history_delta.get("diagnostics", {}) if isinstance(history_delta, dict) else {}
+    source_dates = _normalize_date_list(diagnostics.get("source_dates", []))
+    missing_dates = _normalize_date_list(diagnostics.get("missing_dates", []))
+
+    gate_mode = str(gate_mode or "shadow").lower()
+    if gate_mode not in ALLOWED_GATE_MODES:
+        gate_mode = "shadow"
+    eligibility_reasons = [str(x) for x in (eligibility_reasons or []) if str(x).strip()]
+    base_eligible = mode == "production" and status == "ok"
+
+    return {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "run_date": run_date,
+        "status": status,
+        "error": error,
+        "mode": mode,
+        "publish_eligible": base_eligible and (len(eligibility_reasons) == 0),
+        "dry_run": bool(dry_run),
+        "showcase_flag": bool(showcase_flag),
+        "paths": {
+            "raw": str(raw_path) if raw_path else "",
+            "analysis": str(analysis_path) if analysis_path else "",
+            "report": str(report_path) if report_path else "",
+        },
+        "metrics": {
+            "cache_hit": int(meta.get("cache_hit", 0)),
+            "l1_hits": int(meta.get("l1_hits", 0)),
+            "l2_hits": int(meta.get("l2_hits", 0)),
+            "apify_hits": int(meta.get("apify_hits", 0)),
+            "llm_calls": int(meta.get("llm_calls", 0)),
+            "total_calls": int(meta.get("total_calls", 0)),
+        },
+        "history": {
+            "status": str(meta.get("history_status", "unknown")),
+            "weekly_points": len(volumes),
+            "source_dates": source_dates,
+            "missing_dates": missing_dates,
+        },
+        "replay_source": replay_source,
+        "is_backfill": bool(is_backfill),
+        "eligibility": {
+            "gate_mode": gate_mode,
+            "decision": "eligible" if (base_eligible and (len(eligibility_reasons) == 0)) else "ineligible",
+            "reasons": eligibility_reasons,
+            "blocking_enforced": gate_mode == "blocking",
+            "shadow_blocked": gate_mode == "shadow" and len(eligibility_reasons) > 0,
+        },
+    }
+
+
+def manifest_path(data_dir: Path, run_date: str) -> Path:
+    """Return manifest path under data/runs/YYYY-MM-DD/run_manifest.json."""
+    return Path(data_dir) / "runs" / run_date / "run_manifest.json"
+
+
+def write_manifest(data_dir: Path, manifest: Dict[str, Any]) -> Path:
+    """Persist manifest atomically and return its path."""
+    ok, errors = validate_manifest(manifest)
+    if not ok:
+        raise ValueError("invalid run manifest: %s" % "; ".join(errors))
+    run_date = manifest.get("run_date", datetime.utcnow().strftime("%Y-%m-%d"))
+    out = manifest_path(Path(data_dir), str(run_date))
+    atomic_write_json(out, manifest)
+    return out
+
+
+def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """Validate run manifest contract and return (ok, error_messages)."""
+    errors: List[str] = []
+    if not isinstance(manifest, dict):
+        return False, ["manifest must be an object"]
+
+    required = {
+        "schema_version",
+        "generated_at",
+        "run_date",
+        "status",
+        "error",
+        "mode",
+        "publish_eligible",
+        "dry_run",
+        "showcase_flag",
+        "paths",
+        "metrics",
+        "history",
+        "replay_source",
+        "is_backfill",
+        "eligibility",
+    }
+    for key in sorted(required):
+        if key not in manifest:
+            errors.append("missing field: %s" % key)
+
+    if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
+        errors.append("schema_version must be %s" % MANIFEST_SCHEMA_VERSION)
+
+    run_date = manifest.get("run_date")
+    if isinstance(run_date, str):
+        try:
+            datetime.strptime(run_date, "%Y-%m-%d")
+        except ValueError:
+            errors.append("run_date must be YYYY-MM-DD")
+    else:
+        errors.append("run_date must be string")
+
+    status = manifest.get("status")
+    if status not in ALLOWED_STATUS:
+        errors.append("status must be one of: %s" % ", ".join(sorted(ALLOWED_STATUS)))
+
+    mode = manifest.get("mode")
+    if not isinstance(mode, str) or not mode:
+        errors.append("mode must be non-empty string")
+    elif mode not in ALLOWED_MODES:
+        errors.append("mode must be one of: %s" % ", ".join(sorted(ALLOWED_MODES)))
+
+    eligibility = manifest.get("eligibility", {})
+    eligibility_reasons = []
+    if isinstance(eligibility, dict):
+        reasons = eligibility.get("reasons", [])
+        if isinstance(reasons, list):
+            eligibility_reasons = [r for r in reasons if isinstance(r, str) and r.strip()]
+
+    expected_eligible = mode == "production" and status == "ok" and len(eligibility_reasons) == 0
+    if manifest.get("publish_eligible") is not expected_eligible:
+        errors.append(
+            "publish_eligible must equal (mode == 'production' and status == 'ok' and no eligibility.reasons)"
+        )
+
+    for bool_key in ("dry_run", "showcase_flag", "is_backfill"):
+        if not isinstance(manifest.get(bool_key), bool):
+            errors.append("%s must be boolean" % bool_key)
+
+    if not isinstance(manifest.get("replay_source"), str):
+        errors.append("replay_source must be string")
+
+    eligibility = manifest.get("eligibility")
+    if not isinstance(eligibility, dict):
+        errors.append("eligibility must be object")
+    else:
+        gate_mode = eligibility.get("gate_mode")
+        if gate_mode not in ALLOWED_GATE_MODES:
+            errors.append("eligibility.gate_mode must be one of: %s" % ", ".join(sorted(ALLOWED_GATE_MODES)))
+        decision = eligibility.get("decision")
+        if decision not in {"eligible", "ineligible"}:
+            errors.append("eligibility.decision must be 'eligible' or 'ineligible'")
+        reasons = eligibility.get("reasons")
+        if not isinstance(reasons, list) or any(not isinstance(v, str) for v in reasons):
+            errors.append("eligibility.reasons must be string list")
+        for key in ("blocking_enforced", "shadow_blocked"):
+            if not isinstance(eligibility.get(key), bool):
+                errors.append("eligibility.%s must be boolean" % key)
+
+    paths = manifest.get("paths")
+    if not isinstance(paths, dict):
+        errors.append("paths must be object")
+    else:
+        for key in ("raw", "analysis", "report"):
+            if key not in paths:
+                errors.append("paths.%s is required" % key)
+            elif not isinstance(paths.get(key), str):
+                errors.append("paths.%s must be string" % key)
+
+    metrics = manifest.get("metrics")
+    if not isinstance(metrics, dict):
+        errors.append("metrics must be object")
+    else:
+        for key in ("cache_hit", "l1_hits", "l2_hits", "apify_hits", "llm_calls", "total_calls"):
+            value = metrics.get(key)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                errors.append("metrics.%s must be non-negative integer" % key)
+
+    history = manifest.get("history")
+    if not isinstance(history, dict):
+        errors.append("history must be object")
+    else:
+        if not isinstance(history.get("status"), str):
+            errors.append("history.status must be string")
+        weekly_points = history.get("weekly_points")
+        if not isinstance(weekly_points, int) or isinstance(weekly_points, bool) or weekly_points < 0:
+            errors.append("history.weekly_points must be non-negative integer")
+        for key in ("source_dates", "missing_dates"):
+            values = history.get(key, [])
+            if not isinstance(values, list) or any(not isinstance(v, str) for v in values):
+                errors.append("history.%s must be string list" % key)
+
+    return len(errors) == 0, errors
