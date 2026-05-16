@@ -3,6 +3,8 @@
 掃描存檔資料，計算輿情數值與勝率的時序變動 (Today vs. Avg)，並產出漲跌指標。
 """
 
+from __future__ import annotations
+
 import os
 import json
 import logging
