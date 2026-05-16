@@ -15,6 +15,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENAI_FALLBACK_ENABLED = os.getenv("OPENAI_FALLBACK_ENABLED", "true").lower() == "true"
 OPENAI_FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini")
+PUBLISH_GATE_MODE = os.getenv("PUBLISH_GATE_MODE", "shadow").lower()
 
 # ── 搜尋 ────────────────────────────────────────────
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")

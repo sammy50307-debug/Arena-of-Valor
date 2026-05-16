@@ -53,6 +53,7 @@ from analyzer.sentiment import SentimentAnalyzer
 from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
+from analyzer.run_manifest import build_manifest, write_manifest
 from reporter.generator import ReportGenerator
 from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
@@ -86,6 +87,44 @@ def setup_logging():
 
 
 logger = logging.getLogger("aov_monitor")
+
+
+def evaluate_publish_gate(run_date: str, mode: str, gate_mode: str = "shadow") -> tuple[list[str], list]:
+    """Evaluate publish gate reasons using report health checks."""
+    reasons: list[str] = []
+    checks = []
+    normalized_gate = str(gate_mode or "shadow").lower()
+
+    if mode != "production":
+        reasons.append("mode is %s (not production)" % mode)
+        return reasons, checks
+
+    try:
+        script_dir = Path(__file__).resolve().parent / "scripts"
+        if str(script_dir) not in sys.path:
+            sys.path.insert(0, str(script_dir))
+        from check_daily_report_health import run_checks
+
+        checks = run_checks(
+            Path(__file__).resolve().parent,
+            run_date,
+            expected_mode="production",
+            check_git_clean=False,
+        )
+        failed_checks = [c for c in checks if c.failed]
+        for c in failed_checks:
+            reasons.append("%s: %s" % (c.name, c.detail))
+    except Exception as ge:
+        reasons.append("gate evaluation error: %s: %s" % (type(ge).__name__, ge))
+
+    if reasons and normalized_gate == "shadow":
+        logger.warning("  [GATE][shadow] 發現 %d 項不合格條件（不阻擋本次同步）。", len(reasons))
+    elif reasons and normalized_gate == "blocking":
+        logger.error("  [GATE][blocking] 發現 %d 項不合格條件（將阻擋本次同步）。", len(reasons))
+    else:
+        logger.info("  [GATE][%s] publish eligibility 通過。", normalized_gate)
+
+    return reasons, checks
 
 
 async def github_backup_job(is_manual: bool = False, meta: dict = None):
@@ -193,6 +232,11 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     logger.info(f"   關鍵字: {config.SEARCH_KEYWORDS}")
     logger.info(f"   模式: {'演示模式 (Showcase)' if showcase else ('乾跑 (不推播)' if dry_run else '完整流程')}")
     logger.info("=" * 60)
+
+    raw_data_path = None
+    analysis_path = None
+    report_path = None
+    report_error = ""
 
     # ── Step 1：情報搜集 ────────────────────────────────
     all_results = []
@@ -322,17 +366,30 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         try:
             history_gen = HistoryResolver()
             daily_summary["history_delta"] = history_gen.resolve_trends(daily_summary, showcase=showcase)
-        except Exception as he:
-            logger.warning(f"  [!] 歷史趨勢計算失敗: {he} (使用 Showcase 備援數據)")
+            daily_summary["_meta"]["history_status"] = "ok"
+        except (OSError, ValueError) as he:
+            # 可預期的資料讀取問題：保留流程但標記 degraded，避免注入假趨勢數據。
+            logger.warning(f"  [!] 歷史趨勢讀取異常: {he} (使用今日基線降級結果)")
+            today_vol = daily_summary.get("total_posts", 0)
             daily_summary["history_delta"] = {
-                "overall": {"volume_pct": 15.5, "avg_baseline": 65.0, "is_red_alert": False},
+                "overall": {"volume_pct": 0.0, "avg_baseline": today_vol, "is_red_alert": False},
+                "heroes": {},
                 "weekly_vol_pulse": {
-                    "volumes": [45, 52, 48, 70, 85, 62, 78],
-                    "labels": ["03/24", "03/25", "03/26", "03/27", "03/28", "03/29", "03/30"],
-                    "average": 62.8
+                    "volumes": [today_vol],
+                    "labels": [datetime.now().strftime("%m/%d")],
+                    "average": today_vol,
                 },
-                "alerts": []
+                "alerts": [],
+                "diagnostics": {
+                    "status": "degraded",
+                    "reason": f"{type(he).__name__}: {he}",
+                },
             }
+            daily_summary["_meta"]["history_status"] = "degraded"
+        except Exception:
+            # 不可預期的程式錯誤必須 fail loud，交給外層錯誤處理，不可靜默掩蓋。
+            logger.exception("  [FAIL] 歷史趨勢計算發生程式錯誤，終止本輪分析流程。")
+            raise
         
         # 將專屬網頁連結注入到 summary 中
         if getattr(config, "GITHUB_PAGES_URL", None):
@@ -390,6 +447,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         report_path = generator.generate(daily_summary, analyzed_posts)
         logger.info(f"  [OK] 報告已生成: {report_path}")
     except Exception as e:
+        report_error = str(e)
         logger.error(f"  [FAIL] 報告生成失敗: {e}")
 
     # ── Step 4：推播通知 ──────────────────────────────
@@ -429,6 +487,42 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     logger.info(f"   搜集: {len(all_results)} 筆 | 分析: {len(analyzed_posts)} 筆")
     logger.info("=" * 60)
 
+    # ── Step 4.5：寫入 Run Manifest (P78) ──────────────
+    gate_mode = getattr(config, "PUBLISH_GATE_MODE", "shadow")
+    gate_reasons, gate_checks = evaluate_publish_gate(
+        daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
+        daily_summary.get("_meta", {}).get("mode", "unknown"),
+        gate_mode=gate_mode,
+    )
+    try:
+        _meta = daily_summary.get("_meta", {})
+        manifest = build_manifest(
+            run_date=daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
+            mode=_meta.get("mode", "unknown"),
+            raw_path=raw_data_path,
+            analysis_path=analysis_path,
+            report_path=report_path,
+            meta=_meta,
+            history_delta=daily_summary.get("history_delta"),
+            status="ok" if report_path else "failed",
+            error=report_error,
+            dry_run=dry_run,
+            showcase_flag=showcase,
+            gate_mode=gate_mode,
+            eligibility_reasons=gate_reasons,
+        )
+        manifest_out = write_manifest(config.DATA_DIR, manifest)
+        logger.info(f"   run manifest 已儲存: {manifest_out}")
+        if gate_checks:
+            failed = [c for c in gate_checks if c.failed]
+            logger.info(
+                "   gate checks: %d total / %d failed",
+                len(gate_checks),
+                len(failed),
+            )
+    except Exception as me:
+        logger.warning(f"  [!] run manifest 寫入失敗: {me}")
+
     # Lockfile 寫入：production 模式成功才記錄
     _meta = daily_summary.get("_meta", {})
     if not dry_run and not showcase and _meta.get("mode") == "production":
@@ -441,8 +535,13 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             logger.warning(f"Lockfile 寫入失敗: {_le}")
 
     # ────── 雲端即時部署 ──────────────────────────────────────
-    if not dry_run:
+    should_publish = True
+    if gate_reasons and str(gate_mode).lower() == "blocking":
+        should_publish = False
+    if not dry_run and should_publish:
         await github_backup_job(is_manual=False, meta=_meta)
+    elif not dry_run and not should_publish:
+        logger.error("  [BLOCKED] publish gate=blocking，不符合發布條件，略過 GitHub 同步。")
 
 
 # ── CLI 與排程 ────────────────────────────────────────

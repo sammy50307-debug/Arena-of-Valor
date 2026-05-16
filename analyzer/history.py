@@ -46,8 +46,16 @@ class HistoryResolver:
                     "labels": labels,
                     "average": sum(volumes) / len(volumes)
                 },
-                "alerts": []
+                "alerts": [],
+                "diagnostics": {
+                    "status": "showcase",
+                    "reason": "showcase mode synthetic history",
+                    "source_dates": [],
+                    "missing_dates": [],
+                },
             }
+
+        archives, source_dates, missing_dates = self._load_recent_archives_with_dates()
 
         if not archives:
             self.logger.info("  [!] 無法找到過往數據，提供備援 Delta 結構。")
@@ -60,7 +68,13 @@ class HistoryResolver:
                     "labels": [datetime.now().strftime("%m/%d")], 
                     "average": today_vol
                 },
-                "alerts": []
+                "alerts": [],
+                "diagnostics": {
+                    "status": "degraded",
+                    "reason": "no valid history archives found",
+                    "source_dates": source_dates,
+                    "missing_dates": missing_dates,
+                },
             }
 
         results = {
@@ -71,6 +85,12 @@ class HistoryResolver:
         
         # ── 智慧警報判定 (Phase 30) ──
         results["alerts"] = self._detect_alerts(results, today_summary)
+        results["diagnostics"] = {
+            "status": "ok" if not missing_dates else "partial",
+            "reason": "" if not missing_dates else "partial history archives missing or unreadable",
+            "source_dates": source_dates,
+            "missing_dates": missing_dates,
+        }
         
         return results
 
@@ -166,28 +186,47 @@ class HistoryResolver:
 
     def _load_recent_archives(self) -> List[Dict[str, Any]]:
         """加載過去 7 天的分析報告 JSON。"""
-        archives = []
-        now = datetime.now()
-        
-        for i in range(1, self.history_days + 1):
-            target_date = (now - timedelta(days=i)).strftime("%Y%m%d")
-            file_path = self.data_dir / f"analysis_{target_date}.json"
-            
-            if file_path.exists():
-                try:
-                    data = json.loads(file_path.read_text(encoding="utf-8"))
-                    
-                    # ── 數據正規化：確保舊版 Schema 向下兼容 ──
-                    if "total_posts" not in data and "total_mention_count" in data:
-                        data["total_posts"] = data["total_mention_count"]
-                    if "total_posts" not in data:
-                        data["total_posts"] = 0
-                        
-                    archives.append(data)
-                except Exception as e:
-                    self.logger.error(f"  [!] 加載歷史檔失敗 {file_path.name}: {e}")
-        
+        archives, _, _ = self._load_recent_archives_with_dates()
         return archives
+
+    def _expected_history_targets(self) -> List[tuple[str, str]]:
+        """Return [(compact, iso)] for past N days, newest -> oldest."""
+        targets = []
+        now = datetime.now()
+        for i in range(1, self.history_days + 1):
+            dt = now - timedelta(days=i)
+            targets.append((dt.strftime("%Y%m%d"), dt.strftime("%Y-%m-%d")))
+        return targets
+
+    def _load_recent_archives_with_dates(self) -> tuple[List[Dict[str, Any]], List[str], List[str]]:
+        """Load recent archives and track source/missing ISO dates."""
+        archives = []
+        source_dates: List[str] = []
+        missing_dates: List[str] = []
+
+        for target_date, iso_date in self._expected_history_targets():
+            file_path = self.data_dir / f"analysis_{target_date}.json"
+
+            if not file_path.exists():
+                missing_dates.append(iso_date)
+                continue
+
+            try:
+                data = json.loads(file_path.read_text(encoding="utf-8"))
+
+                # ── 數據正規化：確保舊版 Schema 向下兼容 ──
+                if "total_posts" not in data and "total_mention_count" in data:
+                    data["total_posts"] = data["total_mention_count"]
+                if "total_posts" not in data:
+                    data["total_posts"] = 0
+
+                archives.append(data)
+                source_dates.append(iso_date)
+            except Exception as e:
+                self.logger.error(f"  [!] 加載歷史檔失敗 {file_path.name}: {e}")
+                missing_dates.append(iso_date)
+
+        return archives, source_dates, missing_dates
 
     def _calculate_overall_delta(self, today: Dict[str, Any], archives: List[Dict[str, Any]]) -> Dict[str, Any]:
         """計算總聲量變動 (對比過去 7 天平均值)。"""

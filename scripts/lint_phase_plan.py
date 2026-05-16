@@ -122,13 +122,14 @@ def lint_preflight_m1(content: str):
 
 def lint_red_team_m2(content: str):
     """M2 紅藍對抗驗證"""
-    has_redteam = "紅隊" in content or "🔴" in content or "Red Team" in content
+    m2_content = extract_m2_section(content)
+    has_redteam = "紅隊" in m2_content or "🔴" in m2_content or "Red Team" in m2_content
     if not has_redteam:
         err("找不到紅藍對抗章節（M2）— 計畫書缺少此區塊")
         return
 
-    # 找表格行（含「|」且非標題行）
-    table_rows = re.findall(r"\|\s*\d+\s*\|.*\|", content)
+    # 找 M2 章節內的表格行；避免 17 層稽核表的編號列被誤判成 M2 質疑。
+    table_rows = re.findall(r"\|\s*\d+\s*\|.*\|", m2_content)
     if len(table_rows) < MIN_RED_TEAM_ROWS:
         err(f"M2 紅藍對抗行數不足：找到 {len(table_rows)} 條，需 ≥ {MIN_RED_TEAM_ROWS} 條")
         return
@@ -147,6 +148,20 @@ def lint_red_team_m2(content: str):
     ]
     if unresolved:
         warn(f"M2 有 {len(unresolved)} 條質疑未明確標示處置（應標『入計畫範圍』或『入 RISK_REGISTRY』）")
+
+
+def extract_m2_section(content: str) -> str:
+    """Return the M2 section only, scoped to the next markdown heading."""
+    anchor = re.search(r"^(#{2,6})\s*.*M2.*(?:紅藍|Red Team|對抗).*$", content, re.MULTILINE)
+    if not anchor:
+        return ""
+
+    level = len(anchor.group(1))
+    start = anchor.start()
+    next_heading = re.search(rf"^#{{2,{level}}}\s+", content[anchor.end():], re.MULTILINE)
+    if not next_heading:
+        return content[start:]
+    return content[start:anchor.end() + next_heading.start()]
 
 
 def append_to_risk_registry(plan_path: Path):
