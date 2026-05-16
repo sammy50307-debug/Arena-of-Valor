@@ -5,6 +5,8 @@
 產出可直接用瀏覽器開啟的精美網頁報告。
 """
 
+from __future__ import annotations
+
 import logging
 import shutil
 import re
