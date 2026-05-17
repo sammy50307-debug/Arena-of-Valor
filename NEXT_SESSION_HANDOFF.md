@@ -8,16 +8,16 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.0 DRAFT：建立 `docs/PHASE_84_PLAN.md`，只能起草/凍結計畫 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `HEAD feat: 完成 P83 data quality security`（本地 commit，待主公確認 push） |
+| **Current Step** | P84.0 FROZEN：`docs/PHASE_84_PLAN.md` 已建立並凍結，等待主公核准 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `3c80129 feat: 完成 P83 data quality security`（已推送到 `origin/main`） |
 | **Updated At** | 2026-05-17 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 建立/審核 `docs/PHASE_84_PLAN.md`；P84 還在 DRAFT，不可改程式碼
+3. 審核 `docs/PHASE_84_PLAN.md`；P84 已 FROZEN，未核准前不可改程式碼
 
 ## Current Source Of Truth
 
@@ -26,18 +26,18 @@
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
 | L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
-| L4 | `docs/PHASE_84_PLAN.md` | 下一個 Phase 計畫（尚未建立，需先起草） |
+| L4 | `docs/PHASE_84_PLAN.md` | 當前 Phase 凍結計畫，等待主公核准 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P84（DRAFT） |
-| **Current Step** | P84.0 起草 `docs/PHASE_84_PLAN.md` |
+| **Current Phase** | P84（FROZEN） |
+| **Current Step** | P84.0 `docs/PHASE_84_PLAN.md` 已凍結，等待主公核准 |
 | **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不直接改程式碼；不跳過 P84 計畫凍結；不做 P84 實作 |
-| **Exit Criteria** | P84 計畫完成 17 層/M1/M2 後切 FROZEN，等待主公核准 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；P84 DRAFT 只能起草/審核計畫，不可改 production code |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不直接改程式碼；不跳過主公核准；不做 P84 實作 |
+| **Exit Criteria** | 主公明確核准 P84 後，才可從 FROZEN 切 APPROVED 並依 `docs/PHASE_84_PLAN.md` 動工 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；P84 FROZEN 只能審核/修訂計畫，不可改 production code |
 
 ## Required Verification Commands
 
@@ -51,7 +51,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- P84 仍是 DRAFT，不要直接做 P84 實作。
+- P84 仍是 FROZEN，不要直接做 P84 實作。
 - 不要重寫 P80 promotion 架構。
 - 不要更換 LLM provider 或大改 prompt 架構。
 - 不要 git push，除非主公明確確認。

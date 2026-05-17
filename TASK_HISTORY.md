@@ -7707,3 +7707,50 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ 本地 commit：`HEAD feat: 完成 P83 data quality security`（最終 hash 以 `git log -1` 為準）。
 - ⏳ 下一步：建立 `docs/PHASE_84_PLAN.md`，完成 17 層/M1/M2 後切 FROZEN，等待主公核准。
 - ⏳ 本地 commit 待 push；push 前需主公確認。
+
+### P84.0 計畫凍結 — Long-Term Governance FROZEN（2026-05-17）
+
+**目標**：
+- 建立 P84 Long-Term Governance 的完整計畫書。
+- 將 P84 從 DRAFT 切為 FROZEN，等待主公核准後才可動工。
+- 統一新視窗入口，避免後續視窗在未讀大量歷史的情況下誤做 P84 production code。
+
+**觸發**：
+- P83 已完成並推上遠端：`3c80129 feat: 完成 P83 data quality security`。
+- P77-P83 已收成 CLOSED；剩餘戰役目標是長期治理，而不是再修單點 runtime bug。
+- 主公要求「好繼續」，依當前狀態機只能做 P84 計畫凍結，不能直接實作。
+
+**稽核表**：
+- S 級代碼層：本步不改 production code，只新增/更新文件狀態。
+- S 級邏輯層：P84 邊界鎖定 retention、SLO、handoff truth、risk/runbook governance、cost/cache governance。
+- S 級測試層：計畫要求後續 P84 必補 retention dry-run、SLO、handoff truth、issue-code mapping 測試。
+- S 級安全層：計畫明列 retention 預設 dry-run、raw/debug/secret 不外洩、不可逆刪除需主公另行核准。
+- A 級文件/流程層：`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` 與本節同步 P84 FROZEN。
+
+**物理真相**：
+- 新增 `docs/PHASE_84_PLAN.md`
+  - 狀態：`FROZEN（等待主公核准；核准前不可改 production code）`。
+  - Entry Criteria 明確標記 P83 已推送：`3c80129 feat: 完成 P83 data quality security`。
+  - Exit Criteria 包含 retention policy、SLO/escalation、handoff truth check、runbook/risk governance、LLM cost/cache hit governance、測試與總收官同步。
+  - 完整填入 17 層稽核表、X1-X4、M1、M1.5、M2。
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Step 改為 P84.0 FROZEN。
+  - Mode 改為 FROZEN。
+  - Latest Verified Commit 改為 `3c80129` 已推送。
+  - L4 改為當前 Phase 凍結計畫。
+  - Resume Rule 明確禁止未核准前改 production code。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - Handoff Arbitration Order 的當前 Phase plan 改為 `docs/PHASE_84_PLAN.md`。
+  - Current Step / Mode / Six Anti-Drift Fields 同步 P84 FROZEN。
+- 更新 `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - P84 狀態從 DRAFT 改為 FROZEN。
+
+**風險**：
+- R-P84.0-1：P84 影響半徑預估 10+ 檔，核准後不可一次做太多；需按 P84.1-P84.6 小步交付。
+- R-P84.0-2：retention governance 若未來變成實刪，有誤刪可追溯資料風險；目前計畫鎖定 dry-run，實刪需另行主公核准。
+- R-P84.0-3：handoff truth checker 未來若過度僵硬，可能阻礙合理文件演進；計畫要求只驗 active bootstrap 必備欄位，不解析 archive。
+
+**狀態**：
+- ✅ P84 計畫已凍結。
+- ✅ P84 仍不可動工，等待主公核准從 FROZEN 切 APPROVED。
+- ⏳ 下一步：主公若核准 P84，才能開始 P84.1 Retention policy / dry-run inventory。
