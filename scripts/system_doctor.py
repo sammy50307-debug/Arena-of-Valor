@@ -40,6 +40,8 @@ ISSUE_CATALOG = {
     "health_generic": {"code": "DOC010", "name": "health:generic"},
     "debug_bundle_linked": {"code": "DOC011", "name": "debug bundle"},
     "debug_bundle_missing": {"code": "DOC012", "name": "debug bundle"},
+    "quality_no_posts": {"code": "DOC013", "name": "quality:no posts"},
+    "quality_source_health": {"code": "DOC014", "name": "quality:source health"},
 }
 
 
@@ -167,6 +169,7 @@ def run_doctor(
         mode = manifest.get("mode", "unknown")
         eligibility = manifest.get("eligibility", {})
         history = manifest.get("history", {})
+        quality = manifest.get("quality", {})
 
         if status != "ok":
             _add_issue(issues, "run_status", SEV_BLOCKING, "status=%s" % status)
@@ -195,6 +198,23 @@ def run_doctor(
                     SEV_ADVISORY,
                     "source_dates empty; missing=%d" % len(missing_dates),
                 )
+
+        if isinstance(quality, dict):
+            source_health = quality.get("source_health", {})
+            if isinstance(source_health, dict):
+                health_status = source_health.get("status", "unknown")
+                reasons = source_health.get("reasons", [])
+                total_posts = source_health.get("total_posts", 0)
+                platform_count = source_health.get("platform_count", 0)
+                source_count = source_health.get("source_count", 0)
+                detail = (
+                    "status=%s total_posts=%s platform_count=%s source_count=%s reasons=%s"
+                    % (health_status, total_posts, platform_count, source_count, reasons)
+                )
+                if health_status == "failed" or "no_posts" in reasons:
+                    _add_issue(issues, "quality_no_posts", SEV_BLOCKING, detail)
+                elif health_status == "degraded":
+                    _add_issue(issues, "quality_source_health", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
     for check in run_checks(repo_root, date_str, expected_mode=health_expected, check_git_clean=False):

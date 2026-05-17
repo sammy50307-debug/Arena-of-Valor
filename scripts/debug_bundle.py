@@ -7,6 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
+SAFE_EXTRA_KEYS = {"quarantine_path", "expected_mode", "checked_health"}
+
 
 def _load_json_if_exists(path: Optional[Path]) -> dict:
     if path is None or (not path.exists()):
@@ -27,6 +29,19 @@ def _serialize_checks(checks: Optional[Iterable[Any]]) -> list[dict]:
         detail = getattr(check, "detail", "")
         out.append({"name": str(name), "status": str(status), "detail": str(detail)})
     return out
+
+
+def _sanitize_extra(extra: Optional[dict]) -> dict:
+    if not isinstance(extra, dict):
+        return {}
+    safe = {}
+    for key in SAFE_EXTRA_KEYS:
+        if key not in extra:
+            continue
+        value = extra[key]
+        if value is None or isinstance(value, (str, int, float, bool)):
+            safe[key] = value
+    return safe
 
 
 def write_debug_bundle(
@@ -68,7 +83,7 @@ def write_debug_bundle(
             "checks": checks,
         },
         "manifest": _load_json_if_exists(manifest_path),
-        "extra": extra or {},
+        "extra": _sanitize_extra(extra),
     }
     out_path.write_text(json.dumps(bundle, ensure_ascii=False, indent=2), encoding="utf-8")
     return out_path

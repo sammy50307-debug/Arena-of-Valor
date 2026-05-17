@@ -56,7 +56,7 @@ from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
 from analyzer.run_context import build_run_context, build_source_hash
-from analyzer.run_manifest import build_manifest, write_manifest
+from analyzer.run_manifest import build_manifest, build_source_quality, write_manifest
 from reporter.generator import ReportGenerator
 from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
@@ -317,8 +317,34 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
     if not all_results:
         logger.warning("[!] 沒有搜集到任何資料，流程提前結束。")
+        source_quality = build_source_quality(all_results)
+        try:
+            manifest = build_manifest(
+                run_date=run_date,
+                mode="unknown",
+                raw_path=None,
+                analysis_path=None,
+                report_path=None,
+                meta={"history_status": "not_run"},
+                history_delta={},
+                status="failed",
+                error="no source results",
+                dry_run=dry_run,
+                showcase_flag=showcase,
+                gate_mode=getattr(config, "PUBLISH_GATE_MODE", "shadow"),
+                eligibility_reasons=source_quality["reasons"],
+                source_hash=source_hash,
+                timezone_name=run_context.timezone_name,
+                scheduled_utc=run_context.started_at_utc,
+                source_quality=source_quality,
+            )
+            manifest_out = write_manifest(config.DATA_DIR, manifest)
+            logger.info(f"   run manifest 已儲存: {manifest_out}")
+        except Exception as me:
+            logger.warning(f"  [!] 0 posts run manifest 寫入失敗: {me}")
         return
 
+    source_quality = build_source_quality(all_results)
     source_hash = build_source_hash([r.to_dict() for r in all_results])
     logger.info(f"   source_hash: {source_hash[:12]}")
 
@@ -552,6 +578,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             source_hash=source_hash,
             timezone_name=run_context.timezone_name,
             scheduled_utc=run_context.started_at_utc,
+            source_quality=source_quality,
         )
         manifest_out = write_manifest(config.DATA_DIR, manifest)
         logger.info(f"   run manifest 已儲存: {manifest_out}")

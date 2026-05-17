@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
-| **Current Phase** | P83（Data Quality / Security） |
-| **Current Step** | P83.0 inventory：盤點 source/LLM/report/manifest/debug bundle 的 raw/sanitized 邊界 |
-| **Mode** | APPROVED |
-| **Latest Verified Commit** | `88f9ba5 docs: 凍結 P83 data quality security 計畫` |
+| **Current Phase** | P84（Long-Term Governance） |
+| **Current Step** | P84.0 DRAFT：建立 `docs/PHASE_84_PLAN.md`，只能起草/凍結計畫 |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `HEAD feat: 完成 P83 data quality security`（本地 commit，待主公確認 push） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-17 |
 
@@ -28,12 +28,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P83（APPROVED） |
-| **Current Step** | P83.0 inventory：source/LLM/report/manifest/debug bundle raw/sanitized 邊界 |
-| **Allowed Files** | `analyzer/run_manifest.py`, `analyzer/data_writer.py`, `analyzer/sentiment.py`, `reporter/generator.py`, `reporter/templates/*`, `scripts/system_doctor.py`, `scripts/debug_bundle.py`, `docs/OPERATIONS_RUNBOOK.md`, `tests/*`, `docs/PHASE_83_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不跳做 P84；不重寫 P80 promotion 架構；不更換 LLM provider |
-| **Exit Criteria** | 完成 P83.0 inventory 後，再進 P83.1 source health / 0 posts anomaly |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap，再依 P83 計畫從 P83.0 接續 |
+| **Current Phase** | P84（DRAFT） |
+| **Current Step** | P84.0 起草 `docs/PHASE_84_PLAN.md` |
+| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不直接改程式碼；不跳過 P84 計畫凍結；不做 P84 實作 |
+| **Exit Criteria** | P84 計畫完成 17 層/M1/M2 後切 FROZEN，等待主公核准 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84 DRAFT 只能起草/審核計畫，不可改 production code |
 
 ## State Machine
 
@@ -64,4 +64,4 @@ P80 已收官：2026-05-17 GitHub Actions `daily_report.yml` / `workflow_dispatc
 
 ## Next Decision
 
-P83 已由主公核准。下一步從 P83.0 inventory 開始，先盤點 source/LLM/report/manifest/debug bundle 的 raw/sanitized 邊界，再進 P83.1。
+P83 已完成並切 CLOSED。下一步進 P84 DRAFT，只能建立/凍結 `docs/PHASE_84_PLAN.md`；push 前仍需主公確認。

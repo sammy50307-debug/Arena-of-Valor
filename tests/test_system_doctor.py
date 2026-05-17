@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import scripts.system_doctor as doctor
 from analyzer.run_manifest import build_manifest, write_manifest
@@ -21,7 +22,12 @@ def _write_report_and_index(repo_root: Path, date_str: str, mode: str = "product
     )
 
 
-def _write_manifest(repo_root: Path, date_str: str, mode: str = "production") -> None:
+def _write_manifest(
+    repo_root: Path,
+    date_str: str,
+    mode: str = "production",
+    source_quality: Optional[dict] = None,
+) -> None:
     data_dir = repo_root / "data"
     manifest = build_manifest(
         run_date=date_str,
@@ -35,6 +41,7 @@ def _write_manifest(repo_root: Path, date_str: str, mode: str = "production") ->
             "diagnostics": {"source_dates": ["2026-05-15"], "missing_dates": ["2026-05-14"]},
         },
         status="ok",
+        source_quality=source_quality,
     )
     write_manifest(data_dir, manifest)
 
@@ -111,3 +118,51 @@ def test_system_doctor_failure_links_latest_debug_bundle(tmp_path: Path):
     assert doctor.exit_code_for(result) == 1
     assert result.debug_bundle_path.endswith(bundle.name)
     assert any(x.code == "DOC011" for x in result.issues)
+
+
+def test_system_doctor_blocks_on_quality_no_posts(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(tmp_path, date_str, mode="production")
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality={
+            "status": "failed",
+            "total_posts": 0,
+            "platform_count": 0,
+            "platform_counts": {},
+            "source_count": 0,
+            "reasons": ["no_posts"],
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="local")
+
+    assert result.blocking_count > 0
+    assert any(x.code == "DOC013" for x in result.issues)
+    assert doctor.exit_code_for(result) == 1
+
+
+def test_system_doctor_advises_on_degraded_source_health(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(tmp_path, date_str, mode="production")
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality={
+            "status": "degraded",
+            "total_posts": 2,
+            "platform_count": 1,
+            "platform_counts": {"web": 2},
+            "source_count": 1,
+            "reasons": ["single_platform", "single_source"],
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="local")
+
+    assert result.blocking_count == 0
+    assert any(x.code == "DOC014" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert doctor.exit_code_for(result) == 0

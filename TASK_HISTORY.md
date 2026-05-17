@@ -7347,3 +7347,363 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P83 已核准
 - ⏳ 下一步：P83.0 inventory
+
+### P83.0 Inventory — Data Quality / Security raw/sanitized 邊界盤點（2026-05-17）
+
+**目標**：
+- 正式啟動 P83，完成第一步 inventory。
+- 盤點 source / LLM / report / manifest / debug bundle 的資料流與 raw/sanitized 邊界。
+- 在改 production code 前先找出必要觸點與測試目標，避免 P83.1 硬繞路或跳 scope。
+
+**觸發**：
+- 主公詢問「那我們現在可以開始了嗎」。
+- P83 已由 commit `be19f86 docs: 核准 P83 進入動工期` 推上 `origin/main`，狀態允許從 P83.0 開始。
+- `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 原本仍停在 P83.0 inventory，需把盤點結果寫成新視窗可接續的物理真相。
+
+**稽核表**：
+- S 級代碼層：本步不改 production code，只讀 `main.py`、`analyzer/*`、`reporter/*`、`scripts/*` 形成 inventory。
+- S 級邏輯層：確認 0 posts、raw JSON、LLM summary、report HTML、manifest、debug bundle 的因果流向，不把單一錯誤訊息當根因。
+- S 級測試層：列出 P83.1-P83.3 必補測試目標：0 posts、single source、multi-source、bad LLM JSON、XSS payload、URL scheme。
+- S 級安全層：確認 Jinja `autoescape=True` 存在，但 URL scheme 與 JS `innerHTML` 仍需獨立測。
+- 文件/流程層：更新 Phase plan / handoff / active / total program / TASK_HISTORY；P83 狀態切 `IN_PROGRESS`，下一步切 P83.1。
+
+**物理真相**：
+- `main.py`
+  - source ingress：`all_results = await searcher.search(...)` 後補 Dcard / 巴哈。
+  - 0 posts 現況：`if not all_results: ... return`，會提前結束；目前沒有 manifest / doctor 可見的 0 posts anomaly。
+  - raw JSON：`raw_data_path = config.DATA_DIR / f"raw_{compact_run_date}.json"`，寫入 `[r.to_dict() for r in all_results]`。
+  - manifest 呼叫：`build_manifest(... raw_path=raw_data_path, analysis_path=analysis_path, report_path=report_path, meta=_meta, history_delta=...)`。
+  - 結論：P83.1 若要把 source health 寫入 manifest，`main.py` 是必要觸點；原 allowed files 未列它，已補入計畫與 handoff。
+- `analyzer/sentiment.py`
+  - single-post：把壓縮後 `title/content` 送入 LLM，回來的 `analysis` 與 raw `post` 合併在 `analyzed_posts`。
+  - daily summary：bad summary 目前 fallback 到 `_generate_fallback_summary()`，`data_writer.validate_summary()` 只補最小 top-level 欄位。
+  - 結論：P83.2 需補 LLM contract guard；目前沒有把 contract failure 反映到 manifest/doctor。
+- `reporter/generator.py` / `reporter/templates/report.html`
+  - `Environment(... autoescape=True)` 已存在。
+  - 多數 `{{ title/content/summary }}` 會走 Jinja escape，JS 區塊使用 `tojson` 建立 `_topicToPosts` / `_postIndex`。
+  - 風險點：template 與 side panel 仍把 URL 放入 `href`；escape 不等於 URL scheme 驗證，`javascript:` 類 payload 需測。
+- `analyzer/run_manifest.py`
+  - schema v2 目前包含 paths / metrics / history / eligibility / run identity。
+  - 尚無 `quality` / `source_health` / `security` 欄位。
+- `scripts/debug_bundle.py`
+  - bundle 只寫 paths、health checks、manifest、extra；不讀 raw / analysis / report 內容。
+  - 結論：目前沒有 raw content 直接外洩；後續新增 quality snapshot 必須白名單。
+- `scripts/system_doctor.py`
+  - doctor issue code 到 DOC012；目前沒有 data quality/security code。
+
+**風險**：
+- R-P83.0-1：0 posts 現在會提前 return，可能沒有 manifest，doctor 只能看到 missing manifest，無法區分「來源全掛」與「pipeline 未跑」。
+- R-P83.0-2：`autoescape=True` 容易讓人誤以為 XSS 已全部解掉，但 URL scheme 與 JS innerHTML 還要獨立防護。
+- R-P83.0-3：debug bundle 目前安全，但若 P83.4 後續加 snapshot，不可把 raw content 塞入 `extra`。
+- R-P83.0-4：source health 需要碰 `main.py`；若堅持不列入 allowed files，P83.1 會被迫在 manifest builder 讀 raw 檔，反而增加副作用。
+
+**狀態**：
+- ✅ P83.0 inventory 完成。
+- ✅ `docs/PHASE_83_PLAN.md` 新增 `12.1 P83.0 Inventory 結論`。
+- ✅ `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 切到 P83.1。
+- ✅ `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` P83 狀態改 `IN_PROGRESS`。
+- ⏳ 下一步：P83.1 source health / 0 posts anomaly；先建立 quality snapshot，接 manifest / doctor，不重寫 P80 promotion gate。
+
+### P83.1 Source Health / 0 Posts Anomaly — Manifest + Doctor 落地（2026-05-17）
+
+**目標**：
+- 讓 source ingress 的資料品質不再只存在 log 裡。
+- 0 posts 時要有 manifest 物理證據，doctor 能分辨「來源全掛 / 0 posts anomaly」與單純 manifest missing。
+- 正常產出時，manifest 要帶 source health snapshot，供 P83/P84 後續治理使用。
+
+**觸發**：
+- P83.0 inventory 確認 `main.py` 是必要觸點：source health 必須在 `all_results` 收集後、`build_manifest()` 前形成。
+- 主公指示「請繼續吧」。
+
+**稽核表**：
+- S 級代碼層：新增小型 helper `build_source_quality()`，避免把計數與分類塞進 `main.py`。
+- S 級邏輯層：0 posts -> `failed/no_posts`；單一平台或單一來源 -> `degraded`；多平台多來源 -> `ok`。
+- S 級測試層：新增 no posts、multi-source、single-source degraded、manifest contract、doctor DOC013/DOC014 測試。
+- S 級安全層：quality snapshot 只含 count/status/reasons，不含 title/content/url/raw 原文。
+- A 級可觀察性層：doctor 新增 issue code，runbook 可直接對應處置。
+- A 級流程層：P80 promotion gate 未重寫；P83.1 只提供 quality 訊號。
+
+**物理真相**：
+- `analyzer/run_manifest.py`
+  - 新增 `ALLOWED_SOURCE_HEALTH_STATUS = {"ok", "degraded", "failed", "unknown"}`。
+  - 新增 `build_source_quality(search_results)`：
+    - `total_posts`
+    - `platform_count`
+    - `platform_counts`
+    - `source_count`
+    - `status`
+    - `reasons`
+  - `build_manifest()` 新增 `source_quality` 參數，寫入：
+    - `quality.source_health.status`
+    - `quality.source_health.total_posts`
+    - `quality.source_health.platform_count`
+    - `quality.source_health.platform_counts`
+    - `quality.source_health.source_count`
+    - `quality.source_health.reasons`
+  - `validate_manifest()` 新增 `quality.source_health` 型別驗證；缺少 `quality` 的舊 manifest 仍相容。
+- `main.py`
+  - import `build_source_quality`。
+  - `all_results` 為空時不再只有 log + return：
+    - 建立 `source_quality = build_source_quality([])`。
+    - 寫出 `status="failed"`、`error="no source results"`、`eligibility_reasons=["no_posts"]` 的 run manifest。
+    - 不產 report、不改 promotion gate。
+  - 正常 source 收集後建立 quality snapshot，傳入 `build_manifest(... source_quality=source_quality)`。
+- `scripts/system_doctor.py`
+  - 新增 `DOC013 quality:no posts`：`quality.source_health.status == failed` 或 reasons 含 `no_posts` 時 BLOCKING。
+  - 新增 `DOC014 quality:source health`：`quality.source_health.status == degraded` 時 ADVISORY。
+- `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 DOC013 / DOC014 對應處置。
+- `tests/test_run_manifest.py`
+  - 覆蓋 no posts failed、multi-source ok、single-source degraded、manifest quality 寫入與壞 status 驗證。
+- `tests/test_system_doctor.py`
+  - 覆蓋 DOC013 blocking 與 DOC014 advisory。
+
+**驗證**：
+- `py -m pytest -q tests/test_run_manifest.py tests/test_system_doctor.py` -> 22 passed
+- `py -3.8 -c "import main; import analyzer.run_manifest; import scripts.system_doctor; print('py38 import ok')"` -> passed
+- `py -m pytest -q` -> 170 passed
+
+**風險**：
+- R-P83.1-1：source health score 目前是規則型健康指標，不代表全網真實聲量完整性；已在 runbook/phase plan 用 advisory 語義標明。
+- R-P83.1-2：0 posts 會產生 failed manifest，但不產 report；這是刻意設計，避免空報告被誤讀成真實無聲量。
+- R-P83.1-3：舊 manifest 沒有 `quality` 欄位仍會被 validate 接受，避免 P79 doctor 讀歷史資料時回歸。
+
+**狀態**：
+- ✅ P83.1 source health / 0 posts anomaly 已完成。
+- ✅ manifest / doctor / runbook / tests 已落地。
+- ✅ 全套測試通過。
+- ⏳ 下一步：P83.2 LLM output contract guard；處理 daily summary / post analysis 缺欄位或型別不合格時的 fail/degrade 訊號。
+
+### P83.2 LLM Output Contract Guard — bad payload 明確降級（2026-05-17）
+
+**目標**：
+- 讓 single-post analysis 與 daily summary 的 LLM 輸出不再只靠 provider schema 約束。
+- LLM 回傳缺 required 欄位或型別錯誤時，要有明確 degrade 訊號與測試。
+- 不更換 LLM provider、不大改 prompt，不進入 P83.3 HTML/XSS 範圍。
+
+**觸發**：
+- P83.1 已完成 source health / 0 posts anomaly。
+- P83 計畫下一步為 P83.2：強化 LLM output contract guard。
+
+**稽核表**：
+- S 級代碼層：新增小型 `_validate_schema_payload()`，沿用既有 `SINGLE_POST_SCHEMA` / `DAILY_SUMMARY_SCHEMA`。
+- S 級邏輯層：single-post bad payload 降級成 `分析失敗`；daily summary bad payload 走 fallback summary。
+- S 級測試層：新增 bad/valid single-post 與 bad/valid daily-summary 測試，並保留 showcase/OpenAI fallback 測試。
+- S 級安全層：diagnostic 只記欄位錯誤，不寫 raw prompt 或 raw LLM 原文。
+- A 級維護性層：不新增 provider 或 prompt 分支，避免擴散。
+
+**物理真相**：
+- `analyzer/sentiment.py`
+  - 新增 `LLMContractError`。
+  - 新增 `_schema_type_matches()`：
+    - `OBJECT -> dict`
+    - `ARRAY -> list`
+    - `STRING -> str`
+    - `NUMBER -> int/float 且非 bool`
+    - `INTEGER -> int 且非 bool`
+    - `BOOLEAN -> bool`
+  - 新增 `_validate_schema_payload(payload, schema, label)`：
+    - 檢查 schema `required` 欄位是否存在。
+    - 檢查 required 欄位基本型別。
+  - `analyze_posts()`：
+    - valid analysis：寫入 `analysis["llm_contract"] = {"status": "ok", "errors": []}`。
+    - bad analysis：降級成既有 fallback analysis，`summary="分析失敗"`，並寫入 `llm_contract.status="degraded"`。
+    - 回傳新增 `contract_status` / `contract_errors`。
+  - `generate_daily_summary()`：
+    - LLM summary 非 dict：維持既有救難 fallback。
+    - LLM summary 缺 required 或型別錯：丟 `LLMContractError`。
+    - valid summary：寫入 `llm_contract.status="ok"`。
+    - contract error fallback：寫入 `llm_contract.status="degraded"` 與 errors。
+- `tests/test_sentiment_contract.py`
+  - 新增 bad single-post contract 測試。
+  - 新增 valid single-post contract 測試。
+  - 新增 bad daily summary contract fallback 測試。
+  - 新增 valid daily summary contract ok 測試。
+- `tests/test_showcase_modes.py`
+  - 補齊 TC2 fixture 的 `reasoning` 欄位，符合 single-post schema required。
+
+**驗證**：
+- `py -m pytest -q tests/test_sentiment_contract.py tests/test_showcase_modes.py tests/test_openai_fallback.py` -> 13 passed
+- `py -3.8 -c "import analyzer.sentiment; print('py38 sentiment import ok')"` -> passed
+
+**風險**：
+- R-P83.2-1：目前只驗 required top-level 與基本型別，未做 nested object 深層驗證；符合本 Phase surgical scope，避免一次重寫 schema validator。
+- R-P83.2-2：L1 cache 命中時仍信任既有 cached result；若未來發現舊 cache 污染，可在 P84 或後續小 Phase 補 cache contract migration。
+- R-P83.2-3：contract diagnostics 進 analysis JSON，但未接 doctor issue code；本步先滿足 fail/degrade 行為與測試，不擴張 P83.1 doctor 範圍。
+
+**狀態**：
+- ✅ P83.2 LLM output contract guard 已完成。
+- ✅ 聚焦測試與 py3.8 import 通過。
+- ⏳ 下一步：P83.3 HTML escape / XSS payload 防護驗證；測試 `<script>` title/content、quote breakout、`javascript:` URL，不改 layout。
+
+### P83.3 HTML Escape / XSS Payload — report URL 白名單與渲染測試（2026-05-17）
+
+**目標**：
+- 驗證公開 HTML report 不把玩家內容或 LLM 字串當 HTML/JS 注入。
+- 補上 URL scheme 防線，避免 `javascript:` 類危險 URL 進入 `href` 或 side-panel JS index。
+- 不改 layout、不重寫 template，只補安全前處理與測試。
+
+**觸發**：
+- P83.0 inventory 指出 `Environment(autoescape=True)` 只能處理文字 escape，不等於 URL scheme 安全。
+- P83.2 已完成 LLM output contract guard，下一步依計畫進入 P83.3。
+
+**稽核表**：
+- S 級代碼層：新增 `_safe_report_url()` / `_copy_entry_with_safe_url()`，集中於 `reporter/generator.py`。
+- S 級邏輯層：只允許 `http` / `https` 且有 netloc；空值、`N/A`、`javascript:` 均轉為 `#`。
+- S 級測試層：新增惡意 `<script>` title/content/summary/recommendation 與 `javascript:` URL 測試。
+- S 級安全層：文字靠 Jinja autoescape，URL 靠 generator 白名單；兩者分工明確。
+- B 級 UX 層：不改 layout；危險 URL 退成 `#`，使用者不會被導到惡意 scheme。
+
+**物理真相**：
+- `reporter/generator.py`
+  - 新增 `SAFE_REPORT_URL_SCHEMES = {"http", "https"}`。
+  - 新增 `_safe_report_url(value)`：
+    - 空值或 `N/A` -> `#`
+    - `http/https` 且有 `netloc` -> 原 URL
+    - 其他 -> `#`
+  - 新增 `_copy_entry_with_safe_url(entry)`：
+    - 複製 entry 與 nested `post`，只替換 `post.url`。
+    - 不 mutate 原始 `analyzed_posts`。
+  - `generate()` 開頭加入：
+    - `analyzed_posts = [_copy_entry_with_safe_url(p) for p in (analyzed_posts or [])]`
+    - 讓 Top5、fallback feed、side-panel `_postIndex` 共用 sanitized URL。
+- `tests/test_report_security.py`
+  - 新增 `test_report_escapes_post_text_and_blocks_dangerous_urls()`。
+  - payload：`"><script>alert("P83XSS")</script>`。
+  - URL：`javascript:alert('P83URL')`。
+  - 驗證：
+    - raw payload 不出現在 HTML。
+    - escaped `&lt;script&gt;alert` 出現在 HTML。
+    - `javascript:alert` 不出現在 HTML。
+    - `href="#"` 存在。
+
+**驗證**：
+- `py -m pytest -q tests/test_report_security.py tests/test_report_generator_landing.py tests/test_generator_landing.py` -> 6 passed
+- `py -3.8 -c "import reporter.generator; print('py38 generator import ok')"` -> passed
+
+**風險**：
+- R-P83.3-1：目前只處理 post URL；`audio_url` 仍由系統產生，不在玩家 raw content 流，暫不擴張。
+- R-P83.3-2：危險 URL 轉 `#` 會讓該卡片連結不可開，但比公開 dangerous scheme 安全。
+- R-P83.3-3：測試以 generator output 為準，不做瀏覽器 E2E；符合本 Phase security contract 層級。
+
+**狀態**：
+- ✅ P83.3 HTML escape / XSS payload 已完成。
+- ✅ report security 聚焦測試與 py3.8 import 通過。
+- ⏳ 下一步：P83.4 raw/sanitized analysis 邊界；debug/manifest/report 不寫 raw content，補白名單文件與測試。
+
+### P83.4 Raw / Sanitized Analysis Boundary — debug bundle 白名單（2026-05-17）
+
+**目標**：
+- 鎖住 debug bundle / manifest / report 的 raw/sanitized 邊界。
+- 防止未來把 raw player content 或 raw LLM output 塞進 debug bundle `extra`。
+- 維持 bundle 可定位問題，但只放 metadata / paths / health / manifest。
+
+**觸發**：
+- P83.0 inventory 指出 debug bundle 目前不讀 raw content，但 `extra` 是未來最容易被誤塞 raw 的入口。
+- P83.3 已完成 report HTML escape / URL scheme 防護，下一步依計畫進入 raw/sanitized 邊界。
+
+**稽核表**：
+- S 級代碼層：只改 `scripts/debug_bundle.py` 的 extra 寫入，不重寫 bundle 架構。
+- S 級邏輯層：raw file path 可寫，raw file content 不讀；extra 僅白名單 key。
+- S 級測試層：新增 debug bundle security 測試，確保 raw payload 與 unsafe extra 不入 bundle JSON。
+- S 級安全層：避免 secrets/raw content 因 debug convenience 外洩。
+- A 級可觀察性層：仍保留 manifest、health checks、paths，定位能力不消失。
+
+**物理真相**：
+- `scripts/debug_bundle.py`
+  - 新增 `SAFE_EXTRA_KEYS = {"quarantine_path", "expected_mode", "checked_health"}`。
+  - 新增 `_sanitize_extra(extra)`：
+    - 非 dict -> `{}`。
+    - 只保留白名單 key。
+    - value 只允許 `None` / `str` / `int` / `float` / `bool`。
+  - `bundle["extra"]` 改為 `_sanitize_extra(extra)`。
+  - bundle 仍只寫：
+    - `paths.analysis/raw/report/manifest`
+    - `health.failed_count/checks`
+    - `manifest`
+    - `extra`
+  - 不讀 raw file content。
+- `tests/test_debug_bundle_security.py`
+  - 建立 raw file，內容含 `RAW_SECRET_PAYLOAD_<script>alert("bundle")</script>`。
+  - 呼叫 `write_debug_bundle(... extra={"expected_mode": "any", "raw_content": payload, "nested": {"content": payload}})`。
+  - 驗證：
+    - bundle 保留 raw path。
+    - `bundle["extra"] == {"expected_mode": "any"}`。
+    - raw payload 不出現在 serialized bundle。
+    - `raw_content` key 不出現在 serialized bundle。
+
+**驗證**：
+- `py -m pytest -q tests/test_debug_bundle_security.py tests/test_system_doctor.py` -> 8 passed
+- `py -3.8 -c "import scripts.debug_bundle; print('py38 debug bundle import ok')"` -> passed
+
+**風險**：
+- R-P83.4-1：若未來需要更多 extra key，必須明確加入 allowlist；這是刻意的安全摩擦。
+- R-P83.4-2：manifest 若未來自己加入 raw 欄位，debug bundle 仍會載入 manifest；已由 manifest contract 與 P83 文件限制承接。
+- R-P83.4-3：report 仍會顯示 sanitized player snippets，這是產品功能；raw/sanitized 邊界指「不得以 HTML/JS 或 debug 原文形式外洩」。
+
+**狀態**：
+- ✅ P83.4 raw/sanitized analysis boundary 已完成。
+- ✅ debug bundle 白名單與測試已落地。
+- ⏳ 下一步：P83.5 收官驗證；全套 pytest、py3.8 import guard、diff check，然後切 P83 CLOSED / P84 DRAFT。
+
+### P83.5 收官驗證 — P83 CLOSED / P84 DRAFT（2026-05-17）
+
+**目標**：
+- 完成 P83 全 Phase 收官驗證。
+- 將 P83 狀態切為 CLOSED。
+- 將下一步切到 P84 DRAFT，並明確限制新視窗只能起草 `docs/PHASE_84_PLAN.md`，不可直接改程式碼。
+
+**觸發**：
+- P83.1-P83.4 均已完成。
+- 需在進 P84 前完成全套驗證與 handoff 狀態同步。
+
+**稽核表**：
+- S 級代碼層：已完成 P83 所有 code changes，收官階段不再新增 production 行為。
+- S 級邏輯層：P83 五個 exit criteria 均已達成。
+- S 級測試層：全套 pytest 通過。
+- S 級安全層：HTML/XSS、dangerous URL、debug bundle raw leak 測試已通過。
+- A 級文件/流程層：Phase plan / handoff / active / total program / TASK_HISTORY 同步狀態。
+
+**物理真相**：
+- `docs/PHASE_83_PLAN.md`
+  - 狀態切 `CLOSED`。
+  - Exit Criteria 全部打勾。
+  - 新增 `12.6 P83.5 收官驗證`。
+- `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 切 `P84（Long-Term Governance）`。
+  - Current Step 切 `P84.0 DRAFT：建立 docs/PHASE_84_PLAN.md`。
+  - Mode 切 `DRAFT`。
+  - Allowed Files 收斂成 P84 計畫/狀態文件。
+  - 明確禁止 P84 DRAFT 直接改 production code。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步 P84 DRAFT。
+- `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - P83 -> CLOSED。
+  - P84 -> DRAFT。
+
+**驗證**：
+- `py -m pytest -q` -> 176 passed
+- `py -3.8 -c "import main; import analyzer.run_manifest; import analyzer.sentiment; import reporter.generator; import scripts.debug_bundle; import scripts.system_doctor; print('py38 p83 import ok')"` -> passed
+- `git diff --check` -> passed（只有 CRLF working-copy warning，沒有 whitespace error）
+
+**P83 收官範圍總表**：
+- Source health / 0 posts:
+  - `quality.source_health`
+  - DOC013 / DOC014
+  - tests for no posts / degraded source
+- LLM contract:
+  - `llm_contract.status`
+  - bad single-post / bad daily summary tests
+- Report security:
+  - post URL whitelist
+  - XSS payload test
+- Raw/sanitized boundary:
+  - debug bundle extra allowlist
+  - raw payload leak test
+
+**狀態**：
+- ✅ P83 CLOSED。
+- ✅ P84 DRAFT。
+- ✅ 本地 commit：`HEAD feat: 完成 P83 data quality security`（最終 hash 以 `git log -1` 為準）。
+- ⏳ 下一步：建立 `docs/PHASE_84_PLAN.md`，完成 17 層/M1/M2 後切 FROZEN，等待主公核准。
+- ⏳ 本地 commit 待 push；push 前需主公確認。

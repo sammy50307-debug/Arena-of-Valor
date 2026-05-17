@@ -84,3 +84,17 @@
 - 處置：
   1. 先補產 bundle：`py scripts/replay_run.py --date <date> --check-health --expected-mode any --debug-bundle`
   2. 再重跑 doctor，確認可關聯最新 bundle。
+
+### <a id="doc013"></a>DOC013 — quality no posts
+- 意義：manifest `quality.source_health` 顯示當日 source ingress 抓到 0 posts。
+- 處置：
+  1. 先判斷外部來源是否全掛：Tavily、Dcard、巴哈或網路連線。
+  2. 修復來源後重跑：`py main.py --run-now --force`
+  3. 若外部來源短暫阻塞，記錄 degraded，不要把 0 posts 解讀成「社群完全無聲量」。
+
+### <a id="doc014"></a>DOC014 — quality source health
+- 意義：manifest `quality.source_health` 顯示來源覆蓋不足，例如單一平台或單一來源。
+- 處置：
+  1. 查看 manifest `quality.source_health.platform_counts` 與 `reasons`。
+  2. 若只剩單一平台，檢查其餘平台 scraper/API 是否失敗。
+  3. 修正後重跑 doctor；本代碼預設為 advisory，不直接代表報告不可發布。

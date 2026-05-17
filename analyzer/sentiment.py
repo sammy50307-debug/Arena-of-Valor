@@ -123,6 +123,45 @@ DAILY_SUMMARY_SCHEMA = {
     "required": ["date", "overview", "sentiment_distribution", "hot_topics", "detected_events", "platform_breakdown", "alerts", "recommendation"]
 }
 
+
+class LLMContractError(ValueError):
+    def __init__(self, errors: List[str]):
+        self.errors = errors
+        super().__init__("; ".join(errors))
+
+
+def _schema_type_matches(value: Any, schema_type: str) -> bool:
+    if schema_type == "OBJECT":
+        return isinstance(value, dict)
+    if schema_type == "ARRAY":
+        return isinstance(value, list)
+    if schema_type == "STRING":
+        return isinstance(value, str)
+    if schema_type == "NUMBER":
+        return (isinstance(value, (int, float)) and not isinstance(value, bool))
+    if schema_type == "INTEGER":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if schema_type == "BOOLEAN":
+        return isinstance(value, bool)
+    return True
+
+
+def _validate_schema_payload(payload: Any, schema: Dict[str, Any], label: str) -> List[str]:
+    if not isinstance(payload, dict):
+        return ["%s must be object" % label]
+
+    errors: List[str] = []
+    properties = schema.get("properties", {})
+    for field in schema.get("required", []):
+        if field not in payload:
+            errors.append("%s missing required field: %s" % (label, field))
+            continue
+        expected = properties.get(field, {}).get("type")
+        if expected and not _schema_type_matches(payload.get(field), expected):
+            errors.append("%s.%s must be %s" % (label, field, expected))
+    return errors
+
+
 class SentimentAnalyzer:
     """
     輿情分析器：將搜尋結果送入 Gemini 進行情緒分析與事件偵測，
@@ -247,11 +286,20 @@ class SentimentAnalyzer:
                     "analysis": mock_analysis
                 }
                 analyzed.append(entry)
-            return {"posts": analyzed, "is_showcase": True, "quota_error": quota_error_triggered}
+            return {
+                "posts": analyzed,
+                "is_showcase": True,
+                "quota_error": quota_error_triggered,
+                "contract_status": "ok",
+                "contract_errors": [],
+            }
 
         analyzed = []
-        for res, analysis in zip(search_results, results):
-            if isinstance(analysis, dict) and "error" not in analysis:
+        contract_errors: List[str] = []
+        for idx, (res, analysis) in enumerate(zip(search_results, results), 1):
+            analysis_errors = _validate_schema_payload(analysis, SINGLE_POST_SCHEMA, "single_post[%d]" % idx)
+            if isinstance(analysis, dict) and "error" not in analysis and not analysis_errors:
+                analysis["llm_contract"] = {"status": "ok", "errors": []}
                 # ── 英雄偵測鏈強化 (God-mode Fix) ──
                 # 從分析結果的關鍵字中二次提取關注英雄名
                 detected = [h for h in config.HERO_WATCHLIST if h in str(analysis.get("keywords", [])) or h in (res.title or "")]
@@ -274,6 +322,9 @@ class SentimentAnalyzer:
                 }
                 analyzed.append(entry)
             else:
+                if not analysis_errors:
+                    analysis_errors = ["single_post[%d] contains error response" % idx]
+                contract_errors.extend(analysis_errors)
                 analyzed.append({
                     "post": {
                         "platform": res.platform,
@@ -290,11 +341,21 @@ class SentimentAnalyzer:
                         "events": [],
                         "summary": "分析失敗",
                         "relevance_score": 0.0,
+                        "llm_contract": {
+                            "status": "degraded",
+                            "errors": analysis_errors,
+                        },
                     },
                 })
 
         self.logger.info(f"完成 {len(analyzed)} 筆結果分析 (Final Showcase Status: {showcase})")
-        result = {"posts": analyzed, "is_showcase": showcase, "quota_error": False}
+        result = {
+            "posts": analyzed,
+            "is_showcase": showcase,
+            "quota_error": False,
+            "contract_status": "degraded" if contract_errors else "ok",
+            "contract_errors": contract_errors,
+        }
 
         # L1 寫入：showcase 結果不寫，避免污染快取
         if l1_key and not showcase and analyzed:
@@ -357,8 +418,12 @@ class SentimentAnalyzer:
             )
             if not isinstance(summary, dict):
                 raise ValueError("LLM 回傳格式錯誤")
+            summary_errors = _validate_schema_payload(summary, DAILY_SUMMARY_SCHEMA, "daily_summary")
+            if summary_errors:
+                raise LLMContractError(summary_errors)
                 
             summary["global_insights"] = regional_summary_data
+            summary["llm_contract"] = {"status": "ok", "errors": []}
             
             hero_stats = {}
             for hero in config.HERO_WATCHLIST:
@@ -439,7 +504,10 @@ class SentimentAnalyzer:
 
         except Exception as e:
             self.logger.warning(f"摘要生成失敗 ({e})... 啟動救難模式")
-            return self._generate_fallback_summary(analyzed_posts, report_date, showcase)
+            fallback = self._generate_fallback_summary(analyzed_posts, report_date, showcase)
+            if isinstance(e, LLMContractError):
+                fallback["llm_contract"] = {"status": "degraded", "errors": e.errors}
+            return fallback
 
     def _format_analysis_for_summary(self, analyzed_posts: List[dict]) -> str:
         lines = []

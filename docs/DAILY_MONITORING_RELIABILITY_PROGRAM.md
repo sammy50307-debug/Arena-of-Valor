@@ -29,8 +29,8 @@
 | **P80** | Promotion / Atomic Write | candidate 通過驗證才 promote，寫檔原子化 | CLOSED（2026-05-17：P80.1 CI workflow_dispatch 實跑通過） |
 | **P81** | Replay / Quarantine / Backfill | 支援單日回放、壞資料隔離、缺日補跑 | CLOSED（P81.3 已落地） |
 | **P82** | Idempotency / Timezone | 同日重跑不污染，日期統一 Asia/Taipei | CLOSED（2026-05-17：run context + run_id/source_hash 已落地） |
-| **P83** | Data Quality / Security | 資料品質 gate、HTML escape、LLM output contract | APPROVED（2026-05-17：可開始 P83.0 inventory） |
-| **P84** | Long-Term Governance | retention、SLO、handoff truth、risk registry、runbook | PLANNED |
+| **P83** | Data Quality / Security | 資料品質 gate、HTML escape、LLM output contract | CLOSED（2026-05-17：data quality/security 已收官） |
+| **P84** | Long-Term Governance | retention、SLO、handoff truth、risk registry、runbook | DRAFT（2026-05-17：下一步起草 PHASE_84_PLAN） |
 
 ---
 
@@ -123,6 +123,7 @@ candidate report -> validate -> health pass -> atomic promote -> update index
 
 ### P83 Data Quality / Security
 
+- 狀態：CLOSED（2026-05-17：data quality/security 已收官）
 - 0 posts anomaly
 - source health score
 - LLM JSON contract
@@ -131,6 +132,7 @@ candidate report -> validate -> health pass -> atomic promote -> update index
 
 ### P84 Long-Term Governance
 
+- 狀態：DRAFT（2026-05-17：下一步起草 `docs/PHASE_84_PLAN.md`；不可直接改程式碼）
 - retention policy
 - LLM cost / cache hit 監控
 - SLO：連續 N 天無 production report 即升級

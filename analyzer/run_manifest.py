@@ -19,6 +19,105 @@ ALLOWED_MODES = {
 }
 ALLOWED_STATUS = {"ok", "failed"}
 ALLOWED_GATE_MODES = {"off", "shadow", "blocking"}
+ALLOWED_SOURCE_HEALTH_STATUS = {"ok", "degraded", "failed", "unknown"}
+
+
+def _get_source_field(item: Any, key: str) -> str:
+    if isinstance(item, dict):
+        value = item.get(key, "")
+    else:
+        value = getattr(item, key, "")
+    return str(value or "").strip()
+
+
+def _count_values(values: List[str]) -> Dict[str, int]:
+    counts: Dict[str, int] = {}
+    for value in values:
+        key = value.lower().strip() or "unknown"
+        counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def build_source_quality(search_results: Any) -> Dict[str, Any]:
+    """Build a raw-free source health snapshot for manifest/doctor."""
+    items = search_results if isinstance(search_results, list) else []
+    platforms: List[str] = []
+    sources: List[str] = []
+
+    for item in items:
+        platform = _get_source_field(item, "platform") or "unknown"
+        source = _get_source_field(item, "source") or _get_source_field(item, "author") or platform
+        platforms.append(platform)
+        sources.append(source)
+
+    platform_counts = _count_values(platforms)
+    source_count = len(set([s.lower().strip() or "unknown" for s in sources]))
+    platform_count = len(platform_counts)
+    total_posts = len(items)
+    reasons: List[str] = []
+
+    if total_posts == 0:
+        status = "failed"
+        reasons.append("no_posts")
+    else:
+        if platform_count <= 1:
+            reasons.append("single_platform")
+        if source_count <= 1:
+            reasons.append("single_source")
+        status = "degraded" if reasons else "ok"
+
+    return {
+        "status": status,
+        "total_posts": total_posts,
+        "platform_count": platform_count,
+        "platform_counts": platform_counts,
+        "source_count": source_count,
+        "reasons": reasons,
+    }
+
+
+def _normalize_source_quality(source_quality: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not isinstance(source_quality, dict):
+        return {
+            "status": "unknown",
+            "total_posts": 0,
+            "platform_count": 0,
+            "platform_counts": {},
+            "source_count": 0,
+            "reasons": [],
+        }
+
+    platform_counts = source_quality.get("platform_counts", {})
+    if not isinstance(platform_counts, dict):
+        platform_counts = {}
+    clean_platform_counts: Dict[str, int] = {}
+    for key, value in platform_counts.items():
+        if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+            clean_platform_counts[str(key)] = value
+
+    status = str(source_quality.get("status", "unknown"))
+    if status not in ALLOWED_SOURCE_HEALTH_STATUS:
+        status = "unknown"
+
+    reasons = source_quality.get("reasons", [])
+    if not isinstance(reasons, list):
+        reasons = []
+
+    def _non_negative_int(value: Any) -> int:
+        try:
+            number = int(value or 0)
+        except (TypeError, ValueError):
+            number = 0
+        return max(0, number)
+
+    return {
+        "status": status,
+        "total_posts": _non_negative_int(source_quality.get("total_posts", 0)),
+        "platform_count": _non_negative_int(source_quality.get("platform_count", 0)),
+        "platform_counts": clean_platform_counts,
+        "source_count": _non_negative_int(source_quality.get("source_count", 0)),
+        "reasons": [str(x) for x in reasons if str(x).strip()],
+    }
 
 
 def _normalize_date_list(values: Any) -> List[str]:
@@ -56,6 +155,7 @@ def build_manifest(
     run_id: str = "",
     timezone_name: str = DEFAULT_TIMEZONE_NAME,
     scheduled_utc: str = "",
+    source_quality: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Build a normalized run manifest payload."""
     meta = meta or {}
@@ -75,6 +175,7 @@ def build_manifest(
     run_id = str(run_id or build_run_id(run_date, mode, source_hash))
     timezone_name = str(timezone_name or DEFAULT_TIMEZONE_NAME)
     scheduled_utc = str(scheduled_utc or "")
+    source_quality = _normalize_source_quality(source_quality)
 
     return {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -110,6 +211,9 @@ def build_manifest(
             "weekly_points": len(volumes),
             "source_dates": source_dates,
             "missing_dates": missing_dates,
+        },
+        "quality": {
+            "source_health": source_quality,
         },
         "replay_source": replay_source,
         "is_backfill": bool(is_backfill),
@@ -273,5 +377,37 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
             values = history.get(key, [])
             if not isinstance(values, list) or any(not isinstance(v, str) for v in values):
                 errors.append("history.%s must be string list" % key)
+
+    quality = manifest.get("quality")
+    if quality is not None:
+        if not isinstance(quality, dict):
+            errors.append("quality must be object")
+        else:
+            source_health = quality.get("source_health")
+            if not isinstance(source_health, dict):
+                errors.append("quality.source_health must be object")
+            else:
+                health_status = source_health.get("status")
+                if health_status not in ALLOWED_SOURCE_HEALTH_STATUS:
+                    errors.append(
+                        "quality.source_health.status must be one of: %s"
+                        % ", ".join(sorted(ALLOWED_SOURCE_HEALTH_STATUS))
+                    )
+                for int_key in ("total_posts", "platform_count", "source_count"):
+                    value = source_health.get(int_key)
+                    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                        errors.append("quality.source_health.%s must be non-negative integer" % int_key)
+                platform_counts = source_health.get("platform_counts")
+                if not isinstance(platform_counts, dict):
+                    errors.append("quality.source_health.platform_counts must be object")
+                else:
+                    for key, value in platform_counts.items():
+                        if not isinstance(key, str):
+                            errors.append("quality.source_health.platform_counts keys must be string")
+                        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                            errors.append("quality.source_health.platform_counts values must be non-negative integer")
+                reasons = source_health.get("reasons")
+                if not isinstance(reasons, list) or any(not isinstance(v, str) for v in reasons):
+                    errors.append("quality.source_health.reasons must be string list")
 
     return len(errors) == 0, errors
