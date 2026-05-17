@@ -7787,3 +7787,62 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P84 已核准。
 - ✅ 下一步：P84.1 Retention policy / dry-run inventory。
 - ⚠️ 限制：P84.1 不得實刪任何歷史資料；只允許 policy / dry-run / 測試 / 文件治理。
+
+### P84.1 Retention policy / dry-run inventory（2026-05-17）
+
+**目標**：
+- 建立資料保留政策，涵蓋 `data/reports/`、`data/runs/`、`data/debug_bundles/`、`data/quarantine/` / `data/_quarantine/`、`data/llm_cache.json`。
+- 提供可機械驗證的 dry-run inventory。
+- 明確保證本階段不刪除、不搬移、不改寫任何歷史資料。
+
+**觸發**：
+- P84 已由主公核准。
+- 當前 handoff 指向 P84.1：Retention policy / dry-run inventory。
+
+**稽核表**：
+- S 級代碼層：新增小型 `scripts/retention_policy.py`，不修改 runtime 主鏈路。
+- S 級邏輯層：每個資料類型有明確 retention days / protected / manual review 規則。
+- S 級測試層：新增 `tests/test_retention_policy.py`，覆蓋 dry-run flags、missing directory、cache 不列刪除候選、CLI JSON。
+- S 級安全層：script 不提供 delete/move/archive 參數，輸出固定 `dry_run=true` / `will_delete=false`。
+- A 級資料層：raw / analysis snapshots 列入 protected inventory；cache 交給 CacheManager TTL/max_entries，不由 retention checker 刪除。
+- A 級文件層：新增 `docs/DATA_RETENTION_POLICY.md`。
+
+**物理真相**：
+- 新增 `docs/DATA_RETENTION_POLICY.md`
+  - 明列 8 條 policy：`reports_canonical`、`reports_variants`、`run_manifests`、`debug_bundles`、`quarantine`、`llm_cache`、`llm_cache_backup`、`raw_analysis_snapshots`。
+  - 明確寫入「本政策與 script 只做 dry-run / advisory；不刪除、不搬移、不改寫任何歷史資料」。
+- 新增 `scripts/retention_policy.py`
+  - CLI：`py scripts\retention_policy.py --repo-root .`
+  - JSON：`py scripts\retention_policy.py --repo-root . --json`
+  - 支援 `--today YYYY-MM-DD` 方便測試 deterministic inventory。
+  - 輸出 `mode=dry-run`、`dry_run=true`、`will_delete=false`。
+- 新增 `tests/test_retention_policy.py`
+  - 4 個測試覆蓋 dry-run / missing dirs / cache protected / CLI JSON。
+- 更新 `docs/PHASE_84_PLAN.md`
+  - 第一個 P84 Exit Criteria 勾選完成。
+  - P84.1 stage 標為 DONE。
+  - 新增 P84.1 實作紀錄。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_retention_policy.py` -> 4 passed
+- `py scripts\retention_policy.py --repo-root . --today 2026-05-17 --max-candidates 10` -> passed
+- `py scripts\retention_policy.py --repo-root . --today 2026-05-17 --json --max-candidates 3` -> passed
+
+**dry-run inventory 摘要（2026-05-17）**：
+- `policy_count`: 9
+- `candidate_count`: 17
+- `reports_canonical`: 23 items, 0 candidates
+- `reports_variants`: 66 items, 17 candidates
+- `run_manifests`: 1 item, 0 candidates
+- `debug_bundles`: 1 item, 0 candidates
+- `llm_cache`: 1 item, 0 candidates
+- `raw_analysis_snapshots`: 16 items, 0 candidates
+
+**風險**：
+- R-P84.1-1：17 個候選目前只是人工 archive review 候選，不可被解讀為可刪清單。
+- R-P84.1-2：`data/quarantine/` 目前 missing，但 legacy `data/_quarantine/` 存在；P84.1 同時納入兩者盤點，避免漏看舊資料。
+- R-P84.1-3：report variant retention 以檔名日期或 mtime 判定；未來若命名規則變更，需更新測試。
+
+**狀態**：
+- ✅ P84.1 CLOSED。
+- ⏳ 下一步：P84.2 SLO / escalation checker，等主公指示後再動工。

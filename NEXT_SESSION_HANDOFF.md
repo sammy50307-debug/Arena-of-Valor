@@ -8,16 +8,16 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.1 APPROVED：開始 Retention policy / dry-run inventory |
+| **Current Step** | P84.2 READY：SLO / escalation checker（等主公指示再動工） |
 | **Mode** | APPROVED |
-| **Latest Verified Commit** | `1d60208 docs: 凍結 P84 long-term governance 計畫`（已推送到 `origin/main`） |
+| **Latest Verified Commit** | `HEAD docs: 完成 P84.1 retention dry-run inventory`（本地 commit，待主公確認 push） |
 | **Updated At** | 2026-05-17 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 讀 `docs/PHASE_84_PLAN.md` 的 P84.1 範圍，開始 Retention policy / dry-run inventory
+3. 讀 `docs/PHASE_84_PLAN.md` 的 P84.2 範圍；P84.1 已完成，下一步等主公指示是否進 SLO / escalation checker
 
 ## Current Source Of Truth
 
@@ -26,18 +26,18 @@
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
 | L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
-| L4 | `docs/PHASE_84_PLAN.md` | 當前 Phase 已核准計畫，下一步 P84.1 |
+| L4 | `docs/PHASE_84_PLAN.md` | 當前 Phase 已核准計畫，下一步 P84.2 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
 | **Current Phase** | P84（APPROVED） |
-| **Current Step** | P84.1 Retention policy / dry-run inventory |
-| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, P84.1 新增的 retention policy / tests / runbook 檔 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不跳到 P84.2-P84.6；不重寫 P80 promotion/P83 security |
-| **Exit Criteria** | P84.1 完成 retention policy 與 dry-run inventory，測試通過，狀態文件與 TASK_HISTORY 同步 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；P84 已 APPROVED，只能先做 P84.1，不可跨步到後續 stage |
+| **Current Step** | P84.2 SLO / escalation checker（等主公指示） |
+| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, P84.2 新增的 SLO checker / tests / runbook 檔 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不跳到 P84.3-P84.6；不重寫 P80 promotion/P83 security |
+| **Exit Criteria** | P84.2 完成 SLO / escalation checker，測試通過，狀態文件與 TASK_HISTORY 同步 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；P84.1 已完成，等主公指示後再進 P84.2，不可跨步到 P84.3+ |
 
 ## Required Verification Commands
 
@@ -51,7 +51,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- P84 已 APPROVED，但只能先做 P84.1 retention policy / dry-run inventory。
+- P84.1 已完成；不要未經主公指示直接跳做 P84.2。
 - 不要重寫 P80 promotion 架構。
 - 不要更換 LLM provider 或大改 prompt 架構。
 - 不要 git push，除非主公明確確認。
