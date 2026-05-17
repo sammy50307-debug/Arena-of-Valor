@@ -46,7 +46,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 
 達成全部才算 P84 收官：
 
-- [ ] retention policy 明文化，涵蓋 `data/reports/`、`data/runs/`、`data/debug_bundles/`、`data/quarantine/`、LLM cache；若有清理腳本，預設必須 dry-run。
+- [x] retention policy 明文化，涵蓋 `data/reports/`、`data/runs/`、`data/debug_bundles/`、`data/quarantine/`、LLM cache；若有清理腳本，預設必須 dry-run。（P84.1）
 - [ ] SLO/escalation 明文化並可由 doctor 或獨立腳本檢查：連續 N 天無 production report、manifest 缺失、doctor blocking/degraded 達門檻時輸出明確 issue。
 - [ ] handoff truth check 可機械驗證：active bootstrap marker、Current Phase/Step/Mode、archive 禁用提示、Allowed/Forbidden/Exit/Resume 六欄位一致。
 - [ ] risk registry / runbook 更新 SOP 明文化，新增 issue code 時能找到對應 runbook anchor。
@@ -167,7 +167,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 | Stage | 內容 | 解掉的風險 | 驗收 |
 |---|---|---|---|
 | P84.0 | 凍結本計畫，等待主公核准 | R6 | `docs/PHASE_84_PLAN.md` 完成 17 層/M1/M2，狀態 FROZEN |
-| P84.1 | Retention policy / dry-run inventory | R1 | policy 明列各資料目錄；dry-run 不刪資料 |
+| P84.1 | Retention policy / dry-run inventory | R1 | DONE：policy 明列各資料目錄；dry-run 不刪資料 |
 | P84.2 | SLO / escalation checker | R2/R3 | 可檢查連續無 production report、manifest/doctor 異常 |
 | P84.3 | Handoff truth checker | R4 | active bootstrap 必備欄位與 archive 邊界可驗 |
 | P84.4 | Risk registry / runbook issue-code governance | R4/R6 | issue code 對應 runbook anchor，risk state SOP 明確 |
@@ -178,8 +178,11 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 
 **新增**：
 - `docs/PHASE_84_PLAN.md`
-- 後續可能新增：`scripts/governance_doctor.py`、`scripts/check_handoff_truth.py`、`scripts/retention_policy.py` 或同等小型 checker。
-- 後續可能新增：`tests/test_governance_*.py`、`tests/test_handoff_truth.py`、`tests/test_retention_policy.py`。
+- `docs/DATA_RETENTION_POLICY.md`（P84.1）
+- `scripts/retention_policy.py`（P84.1）
+- `tests/test_retention_policy.py`（P84.1）
+- 後續可能新增：`scripts/governance_doctor.py`、`scripts/check_handoff_truth.py` 或同等小型 checker。
+- 後續可能新增：`tests/test_governance_*.py`、`tests/test_handoff_truth.py`。
 
 **修改（主公核准後才可動）**：
 - `scripts/system_doctor.py`：可能接入 SLO/governance advisory issue。
@@ -254,4 +257,32 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`APPROVED`。下一步只能先做 P84.1 Retention policy / dry-run inventory；不可跳到 P84.2-P84.6，也不可實刪歷史資料。
+目前狀態：`APPROVED`。P84.1 已完成；下一步為 P84.2 SLO / escalation checker，待主公指示後再動工。不可實刪歷史資料。
+
+## 17. P84.1 實作紀錄
+
+**新增檔案**：
+- `docs/DATA_RETENTION_POLICY.md`
+- `scripts/retention_policy.py`
+- `tests/test_retention_policy.py`
+
+**治理邊界**：
+- `scripts/retention_policy.py` 只做 dry-run inventory。
+- CLI 明確輸出 `dry_run: true` 與 `will_delete: false`。
+- 程式不提供 delete / move / archive 執行參數。
+- `raw_*.json` / `analysis_*.json` 只列入 protected inventory，不列自動候選。
+
+**實跑結果（2026-05-17）**：
+- `policy_count`: 9
+- `candidate_count`: 17
+- 17 個候選皆為 `reports_variants`，原因是舊版/preview report 超過 30 天。
+- `reports_canonical`: 23 items, 0 candidates。
+- `run_manifests`: 1 item, 0 candidates。
+- `debug_bundles`: 1 item, 0 candidates。
+- `llm_cache`: 1 item, 0 candidates。
+- `raw_analysis_snapshots`: 16 items, 0 candidates。
+
+**驗證**：
+- `py -m pytest -q tests/test_retention_policy.py` -> 4 passed
+- `py scripts\retention_policy.py --repo-root . --today 2026-05-17 --max-candidates 10` -> passed
+- `py scripts\retention_policy.py --repo-root . --today 2026-05-17 --json --max-candidates 3` -> passed
