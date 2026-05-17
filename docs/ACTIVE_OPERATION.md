@@ -8,9 +8,9 @@
 |---|---|
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.0 FROZEN：`docs/PHASE_84_PLAN.md` 已建立並凍結，等待主公核准 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `3c80129 feat: 完成 P83 data quality security`（已推送到 `origin/main`） |
+| **Current Step** | P84.1 APPROVED：開始 Retention policy / dry-run inventory |
+| **Mode** | APPROVED |
+| **Latest Verified Commit** | `1d60208 docs: 凍結 P84 long-term governance 計畫`（已推送到 `origin/main`） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-17 |
 
@@ -28,12 +28,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P84（FROZEN） |
-| **Current Step** | P84.0 `docs/PHASE_84_PLAN.md` 已凍結，等待主公核准 |
-| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不直接改程式碼；不跳過主公核准；不做 P84 實作 |
-| **Exit Criteria** | 主公明確核准 P84 後，才可從 FROZEN 切 APPROVED 並依 `docs/PHASE_84_PLAN.md` 動工 |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84 FROZEN 只能審核/修訂計畫，不可改 production code |
+| **Current Phase** | P84（APPROVED） |
+| **Current Step** | P84.1 Retention policy / dry-run inventory |
+| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, P84.1 新增的 retention policy / tests / runbook 檔 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不跳到 P84.2-P84.6；不重寫 P80 promotion/P83 security |
+| **Exit Criteria** | P84.1 完成 retention policy 與 dry-run inventory，測試通過，狀態文件與 TASK_HISTORY 同步 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84 已 APPROVED，只能先做 P84.1，不可跨步到後續 stage |
 
 ## State Machine
 
@@ -64,4 +64,4 @@ P80 已收官：2026-05-17 GitHub Actions `daily_report.yml` / `workflow_dispatc
 
 ## Next Decision
 
-P84 計畫已建立並切 FROZEN。下一步等待主公核准 P84；核准前只能審核/修訂 `docs/PHASE_84_PLAN.md` 與狀態文件，不可改 production code；push 前仍需主公確認。
+P84 已由主公核准。下一步進 P84.1 Retention policy / dry-run inventory；不得實刪資料，不得跳到 P84.2-P84.6；push 前仍需主公確認。
