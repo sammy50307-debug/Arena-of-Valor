@@ -11,9 +11,15 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List, Optional
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from analyzer.run_context import build_run_context
 
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -34,8 +40,8 @@ class CheckResult:
 
 
 def taipei_today() -> str:
-    """Return today's date in Asia/Taipei without depending on zoneinfo."""
-    return (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d")
+    """Return today's daily-run date in Asia/Taipei."""
+    return build_run_context().run_date
 
 
 def validate_date(date_str: str) -> str:

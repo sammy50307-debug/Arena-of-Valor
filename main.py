@@ -55,6 +55,7 @@ from analyzer.sentiment import SentimentAnalyzer
 from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
+from analyzer.run_context import build_run_context, build_source_hash
 from analyzer.run_manifest import build_manifest, write_manifest
 from reporter.generator import ReportGenerator
 from reporter.obsidian_exporter import ObsidianExporter
@@ -234,10 +235,16 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             except Exception:
                 pass  # lockfile 格式異常就忽略，繼續跑
 
+    run_context = build_run_context(timezone_name=config.TIMEZONE)
+    run_date = run_context.run_date
+    compact_run_date = run_context.compact_date
+    source_hash = "unknown"
+
     start_time = datetime.now()
     logger.info("=" * 60)
     logger.info(" AoV 輿情監測流程啟動 (Tavily + Gemini)")
-    logger.info(f"   時間: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"   時間: {run_context.started_at_local}")
+    logger.info(f"   業務日期: {run_date} ({run_context.timezone_name})")
     logger.info(f"   關鍵字: {config.SEARCH_KEYWORDS}")
     logger.info(f"   模式: {'演示模式 (Showcase)' if showcase else ('乾跑 (不推播)' if dry_run else '完整流程')}")
     logger.info("=" * 60)
@@ -312,8 +319,11 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         logger.warning("[!] 沒有搜集到任何資料，流程提前結束。")
         return
 
+    source_hash = build_source_hash([r.to_dict() for r in all_results])
+    logger.info(f"   source_hash: {source_hash[:12]}")
+
     # 儲存原始資料
-    raw_data_path = config.DATA_DIR / f"raw_{datetime.now().strftime('%Y%m%d')}.json"
+    raw_data_path = config.DATA_DIR / f"raw_{compact_run_date}.json"
     raw_data_path.write_text(
         json.dumps(
             [r.to_dict() for r in all_results],
@@ -330,16 +340,16 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     stats_scraper = HeroStatsScraper()
 
     try:
-        _today = datetime.now().strftime("%Y-%m-%d")
         analysis_res = await analyzer.analyze_posts(
             all_results, showcase=showcase,
-            hero_name="combined", date_str=_today,
+            hero_name="combined", date_str=run_date,
         )
         analyzed_posts = analysis_res["posts"]
         active_showcase = analysis_res["is_showcase"] or showcase
         # P69 F2：區分 showcase 四態（production / showcase / showcase_forced / error_fallback）
         _quota_error = analysis_res.get("quota_error", False)
-        daily_summary = await analyzer.generate_daily_summary(analyzed_posts, showcase=active_showcase)
+        daily_summary = await analyzer.generate_daily_summary(analyzed_posts, date=run_date, showcase=active_showcase)
+        daily_summary["date"] = run_date
 
         # 注入 LLM cache 統計 meta，供報告檔頂 metadata comment 使用
         _stats = analyzer.llm.cache_manager.get_stats()
@@ -387,7 +397,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
                 "heroes": {},
                 "weekly_vol_pulse": {
                     "volumes": [today_vol],
-                    "labels": [datetime.now().strftime("%m/%d")],
+                    "labels": [run_context.display_date],
                     "average": today_vol,
                 },
                 "alerts": [],
@@ -405,13 +415,13 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         # 將專屬網頁連結注入到 summary 中
         if getattr(config, "GITHUB_PAGES_URL", None):
             base_url = config.GITHUB_PAGES_URL.rstrip("/")
-            date_str = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
+            date_str = daily_summary.get("date", run_date)
             daily_summary["report_url"] = f"{base_url}/data/reports/aov_report_{date_str}.html"
             
         logger.info("  [OK] AI 分析完成")
     except Exception as e:
         logger.error(f"  [FAIL] AI 分析發生嚴重錯誤: {e} (啟動旗艦演示備援)")
-        daily_summary = analyzer._empty_summary(showcase=showcase)
+        daily_summary = analyzer._empty_summary(date=run_date, showcase=showcase)
         _fb_stats = analyzer.llm.cache_manager.get_stats()
         daily_summary["_meta"] = {
             "mode": "showcase" if showcase else "error_fallback",
@@ -439,7 +449,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
     # 儲存分析結果（Phase 56.5：契約守門 + atomic write 治本 R7/R21）
     from analyzer.data_writer import atomic_write_json, validate_summary, coerce_to_schema
-    analysis_path = config.DATA_DIR / f"analysis_{datetime.now().strftime('%Y%m%d')}.json"
+    analysis_path = config.DATA_DIR / f"analysis_{compact_run_date}.json"
     ok, missing = validate_summary(daily_summary)
     if not ok:
         logger.warning(f"  [!] daily_summary 缺契約欄位 {missing}，已用安全預設值補齊")
@@ -485,7 +495,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             logger.info(f"  {'[OK]' if tg_ok else '[FAIL]'} Telegram 推播: {'成功' if tg_ok else '失敗'}")
             
             # 額外推送語音戰報 (Phase 27)
-            date_str = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
+            date_str = daily_summary.get("date", run_date)
             audio_path = config.DATA_DIR / "reports" / f"aov_briefing_{date_str}.mp3"
             if audio_path.exists():
                 await telegram_bot.send_voice_briefing(audio_path)
@@ -502,7 +512,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     # ── Step 4.5：寫入 Run Manifest (P78) ──────────────
     gate_mode = getattr(config, "PUBLISH_GATE_MODE", "shadow")
     gate_reasons, gate_checks = evaluate_publish_gate(
-        daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
+        daily_summary.get("date", run_date),
         daily_summary.get("_meta", {}).get("mode", "unknown"),
         gate_mode=gate_mode,
         candidate_report_path=report_candidate_path,
@@ -513,7 +523,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         try:
             report_promoted_path = generator.promote_candidate(
                 report_candidate_path,
-                daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
+                daily_summary.get("date", run_date),
                 output_dir=config.REPORTS_DIR,
             )
             report_path = report_promoted_path
@@ -526,7 +536,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     try:
         _meta = daily_summary.get("_meta", {})
         manifest = build_manifest(
-            run_date=daily_summary.get("date", datetime.now().strftime("%Y-%m-%d")),
+            run_date=daily_summary.get("date", run_date),
             mode=_meta.get("mode", "unknown"),
             raw_path=raw_data_path,
             analysis_path=analysis_path,
@@ -539,6 +549,9 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             showcase_flag=showcase,
             gate_mode=gate_mode,
             eligibility_reasons=gate_reasons,
+            source_hash=source_hash,
+            timezone_name=run_context.timezone_name,
+            scheduled_utc=run_context.started_at_utc,
         )
         manifest_out = write_manifest(config.DATA_DIR, manifest)
         logger.info(f"   run manifest 已儲存: {manifest_out}")
