@@ -7224,3 +7224,60 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P82 計畫已凍結
 - ⏳ 等待主公核准；未核准前不得改 production code 或 workflow
+
+### P82 實作與收官 — Run Context / Run Identity / Timezone Contract（2026-05-17）
+
+**目標**：
+- 將 P82 從凍結計畫推進到落地：每日 pipeline 只有一個台北業務日期來源。
+- 讓 manifest 寫入可追溯的 `run_id`、`source_hash`、`timezone`、`scheduled_utc`。
+- 讓同日 rerun 具備可預期 identity：相同 source hash 穩定，不同 source hash 可區分。
+
+**物理真相**：
+- 新增：
+  - `analyzer/run_context.py`
+  - `tests/test_run_context.py`
+- 修改：
+  - `main.py`
+  - `analyzer/run_manifest.py`
+  - `scripts/check_daily_report_health.py`
+  - `scripts/system_doctor.py`
+  - `tests/test_run_manifest.py`
+  - `docs/PHASE_82_PLAN.md`
+  - `NEXT_SESSION_HANDOFF.md`
+  - `docs/ACTIVE_OPERATION.md`
+  - `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - `TASK_HISTORY.md`
+
+**核心實作**：
+- `build_run_context()`
+  - 以 Asia/Taipei 推導 `run_date`、`compact_date`、`display_date`。
+  - 固定 UTC sample `2026-05-16T16:30:00Z` 會得到台北業務日 `2026-05-17`。
+- `build_source_hash()`
+  - 使用 `url/title/platform/region` 建立穩定 hash。
+  - 不把 raw content 寫入 manifest。
+- `build_run_id()`
+  - 契約：`run_date + mode + source_hash[:12]`。
+- `main.py`
+  - raw path、analysis path、daily summary date、report URL、promotion/gate date、manifest date 改用同一個 run context。
+  - log 顯示台北業務日期與 source hash prefix。
+- `run_manifest.py`
+  - schema version 升到 2。
+  - 新欄位：`run_date_taipei`、`timezone`、`scheduled_utc`、`run_id`、`source_hash`、`source_hash_version`。
+  - `validate_manifest()` 保留 schema v1 相容，避免舊 manifest 造成 doctor/replay 斷裂。
+- `check_daily_report_health.py` / `system_doctor.py`
+  - 預設台北日期改用 `build_run_context()`，避免各自重算。
+
+**測試與驗證**：
+- `py -m pytest -q tests/test_run_context.py tests/test_run_manifest.py tests/test_daily_report_health.py tests/test_system_doctor.py tests/test_python38_annotation_compat.py` → 31 passed
+- `py -m pytest -q` → 163 passed
+- `py -3.8 -c "import main; import analyzer.run_context; print('py38 import ok')"` → 通過
+- `py -3.8 -c "import scripts.check_daily_report_health as h; import scripts.system_doctor as d; print(h.taipei_today()); print(d.taipei_today())"` → 輸出台北日期 `2026-05-17`
+
+**收官狀態同步**：
+- `docs/PHASE_82_PLAN.md`：狀態改 `CLOSED`，Exit Criteria 全勾，補 `4.1 已落地`。
+- `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`：P82 -> CLOSED，P83 -> DRAFT。
+- `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`：切到 P83 DRAFT，下一步只允許起草 P83 計畫。
+
+**狀態**：
+- ✅ P82 正式收官（本地驗證）
+- ⏳ 下一步：起草 `docs/PHASE_83_PLAN.md`，進入 Data Quality / Security 草案期
