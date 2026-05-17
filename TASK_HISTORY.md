@@ -7281,3 +7281,45 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P82 正式收官（本地驗證）
 - ⏳ 下一步：起草 `docs/PHASE_83_PLAN.md`，進入 Data Quality / Security 草案期
+
+### P83 計畫凍結 — Data Quality / Security（2026-05-17）
+
+**目標**：
+- 建立 P83 凍結版計畫書，讓 data quality / security 不再停留於口頭方向。
+- 將新視窗入口更新為 P83 FROZEN：只能審核/討論，主公核准前不可改程式碼。
+- 明確定義 P83 的核心邊界：0 posts anomaly、source health score、LLM JSON contract、HTML escape、raw / sanitized analysis 邊界。
+
+**觸發背景**：
+- P77-P82 已完成主鏈路止血、manifest、doctor、promotion、replay/backfill、timezone/idempotency。
+- 下一個風險是 pipeline 即使能穩定跑，也可能因來源不足、LLM schema 漂移、HTML 注入、raw content 外洩而產出「看似成功但不可信或不安全」的報告。
+- 若新視窗只讀 handoff，必須知道 P83 還在 FROZEN，不可直接改 data quality / security gate。
+
+**物理真相**：
+- 新增：
+  - `docs/PHASE_83_PLAN.md`
+- 更新：
+  - `NEXT_SESSION_HANDOFF.md`
+  - `docs/ACTIVE_OPERATION.md`
+  - `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - `TASK_HISTORY.md`
+- P83 計畫狀態：
+  - `FROZEN`
+  - 待主公核准後才可切 `APPROVED`
+
+**P83 凍結範圍**：
+- 建立 data quality 訊號：0 posts、source count、platform coverage、source health score。
+- 將 data quality 寫入 manifest，並讓 system doctor 能讀出 issue code。
+- 強化 LLM output contract：daily summary / post analysis 缺欄位時明確分類。
+- 確認 report HTML escape 邊界，避免 title/content/url 造成 XSS。
+- 定義 raw content / sanitized analysis 邊界：公開 report、manifest、debug bundle 各自能放什麼。
+- P83 不做 P84 retention/SLO，不重寫 P80 promotion 架構，不新增爬蟲平台。
+
+**Pre-flight 稽核**：
+- 17 層稽核表已填。
+- M1 X4-A~K 多視角已填。
+- M1.5 八人格顧問團已填。
+- M2 紅藍對抗 6 條，含 3 條 S 級質疑。
+
+**狀態**：
+- ✅ P83 計畫已凍結
+- ⏳ 等待主公核准；未核准前不得改 production code 或 workflow

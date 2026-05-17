@@ -8,16 +8,16 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P83（Data Quality / Security） |
-| **Current Step** | 建立並凍結 `docs/PHASE_83_PLAN.md`；尚未核准前不可改程式碼 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `4a9f543 feat: 落地 P82 run context 與 run identity` |
+| **Current Step** | `docs/PHASE_83_PLAN.md` 已凍結；等待主公核准後才可動工 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `5e4fda0 docs: 收官 P82 並切換 P83 草案期` |
 | **Updated At** | 2026-05-17 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 若 `docs/PHASE_83_PLAN.md` 尚未存在，讀 `docs/PHASE_TEMPLATE.md` + `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` 的 P83 段落起草
+3. 讀 `docs/PHASE_83_PLAN.md`，只可審核/討論；主公核准前不可改程式碼
 
 ## Current Source Of Truth
 
@@ -26,18 +26,18 @@
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
 | L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
-| L4 | `docs/PHASE_83_PLAN.md` | 當前計畫（尚未建立前先用 template 起草） |
+| L4 | `docs/PHASE_83_PLAN.md` | 當前凍結計畫 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P83（DRAFT） |
-| **Current Step** | 起草 `docs/PHASE_83_PLAN.md`，聚焦 data quality / security，不進入程式動工 |
+| **Current Phase** | P83（FROZEN） |
+| **Current Step** | 審核 `docs/PHASE_83_PLAN.md`，等待主公核准 |
 | **Allowed Files** | `docs/PHASE_83_PLAN.md`, `docs/PHASE_TEMPLATE.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不改程式碼；不跳做 P84 |
-| **Exit Criteria** | P83 計畫書完成 17 層稽核、M1/M2、Entry/Exit Criteria，並等待主公核准 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；依 P83 草案流程續做 |
+| **Exit Criteria** | 主公核准 P83 後，才可把狀態切 APPROVED 並開始 P83.0 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；讀 P83 凍結計畫後等待主公核准 |
 
 ## Required Verification Commands
 
