@@ -8,16 +8,16 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P83（Data Quality / Security） |
-| **Current Step** | `docs/PHASE_83_PLAN.md` 已凍結；等待主公核准後才可動工 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `5e4fda0 docs: 收官 P82 並切換 P83 草案期` |
+| **Current Step** | P83.0 inventory：盤點 source/LLM/report/manifest/debug bundle 的 raw/sanitized 邊界 |
+| **Mode** | APPROVED |
+| **Latest Verified Commit** | `88f9ba5 docs: 凍結 P83 data quality security 計畫` |
 | **Updated At** | 2026-05-17 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 讀 `docs/PHASE_83_PLAN.md`，只可審核/討論；主公核准前不可改程式碼
+3. 讀 `docs/PHASE_83_PLAN.md`，依 P83.0 開始 inventory；先盤點再改碼
 
 ## Current Source Of Truth
 
@@ -32,12 +32,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P83（FROZEN） |
-| **Current Step** | 審核 `docs/PHASE_83_PLAN.md`，等待主公核准 |
-| **Allowed Files** | `docs/PHASE_83_PLAN.md`, `docs/PHASE_TEMPLATE.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不改程式碼；不跳做 P84 |
-| **Exit Criteria** | 主公核准 P83 後，才可把狀態切 APPROVED 並開始 P83.0 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；讀 P83 凍結計畫後等待主公核准 |
+| **Current Phase** | P83（APPROVED） |
+| **Current Step** | P83.0 inventory：source/LLM/report/manifest/debug bundle raw/sanitized 邊界 |
+| **Allowed Files** | `analyzer/run_manifest.py`, `analyzer/data_writer.py`, `analyzer/sentiment.py`, `reporter/generator.py`, `reporter/templates/*`, `scripts/system_doctor.py`, `scripts/debug_bundle.py`, `docs/OPERATIONS_RUNBOOK.md`, `tests/*`, `docs/PHASE_83_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不跳做 P84；不重寫 P80 promotion 架構；不更換 LLM provider |
+| **Exit Criteria** | 完成 P83.0 inventory 後，再進 P83.1 source health / 0 posts anomaly |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；依 P83 計畫從 P83.0 接續 |
 
 ## Required Verification Commands
 
@@ -52,7 +52,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
 - 不要跳做 P84。
-- 不要在 P83 計畫核准前改程式碼或 workflow。
+- 不要重寫 P80 promotion 架構。
+- 不要更換 LLM provider 或大改 prompt 架構。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

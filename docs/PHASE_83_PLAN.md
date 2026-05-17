@@ -1,8 +1,8 @@
-# Phase P83 計畫書 — Data Quality / Security（凍結版）
+# Phase P83 計畫書 — Data Quality / Security（核准版）
 
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
-> 狀態：FROZEN（待主公核准後才可動工）
+> 狀態：APPROVED（2026-05-17：主公核准，可開始 P83.0 inventory）
 
 ## 0. Phase 元資料
 
@@ -40,7 +40,7 @@ P77-P82 已處理 runtime 止血、manifest、doctor、promotion、replay/backfi
 - [x] P80 promotion gate 已存在，P83 可把 data quality 訊號接入但不重寫發布架構。
 - [x] P79 doctor 已存在，可擴充資料品質與安全 issue code。
 - [x] P78 manifest 已有 schema v2，可擴充 source health / security 欄位。
-- [ ] 主公核准 P83 計畫，狀態由 FROZEN 轉 APPROVED。
+- [x] 主公核准 P83 計畫，狀態由 FROZEN 轉 APPROVED。
 
 ## 4. Exit Criteria
 
@@ -158,7 +158,7 @@ P77-P82 已處理 runtime 止血、manifest、doctor、promotion、replay/backfi
 **高風險加權檢查（META4）**：
 - 高風險數量：3 項。
 - 加權分數：R1 1 + R2 2 + R3 2 + R4 2 + R5 1 = 8。
-- 是否 >= 5 須請示主公：是；本計畫保持 FROZEN，待主公核准後才動工。
+- 是否 >= 5 須請示主公：是；主公已於 2026-05-17 核准，後續依計畫小步動工。
 
 ## 12. 工作階段
 
@@ -251,4 +251,4 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-83-data-quality-security.
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`FROZEN`。新視窗只能討論/審核 P83 計畫，不可改 production code；待主公核准後，才可切 `APPROVED` 並開始 P83.0。
+目前狀態：`APPROVED`。新視窗可依本計畫開始 P83.0 inventory；不得跳做 P84，不得重寫 P80 promotion 架構。

@@ -7323,3 +7323,27 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P83 計畫已凍結
 - ⏳ 等待主公核准；未核准前不得改 production code 或 workflow
+
+### P83 核准切換 — APPROVED（2026-05-17）
+
+**目標**：
+- 依主公指示「推這顆 commit 核准 P83」，將 P83 從 FROZEN 切換到 APPROVED。
+- 讓新視窗可依 `docs/PHASE_83_PLAN.md` 從 P83.0 inventory 開始接續。
+
+**物理真相**：
+- P83 凍結 commit 已推上 GitHub：
+  - `88f9ba5 docs: 凍結 P83 data quality security 計畫`
+- 狀態文件更新：
+  - `docs/PHASE_83_PLAN.md`：狀態改 `APPROVED`，Entry Criteria 的主公核准打勾。
+  - `NEXT_SESSION_HANDOFF.md`：Mode 改 `APPROVED`，Current Step 改 P83.0 inventory。
+  - `docs/ACTIVE_OPERATION.md`：Mode 改 `APPROVED`，允許依 P83 計畫動工。
+  - `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`：P83 狀態改 `APPROVED`。
+
+**P83.0 下一步**：
+- 盤點 source/LLM/report/manifest/debug bundle 的 raw/sanitized 邊界。
+- 先 inventory，再決定 P83.1 source health / 0 posts anomaly 的最小實作範圍。
+- 仍禁止跳做 P84、重寫 P80 promotion 架構、或更換 LLM provider。
+
+**狀態**：
+- ✅ P83 已核准
+- ⏳ 下一步：P83.0 inventory
