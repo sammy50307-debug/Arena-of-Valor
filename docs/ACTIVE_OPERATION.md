@@ -8,9 +8,9 @@
 |---|---|
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.0 DRAFT：建立 `docs/PHASE_84_PLAN.md`，只能起草/凍結計畫 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `HEAD feat: 完成 P83 data quality security`（本地 commit，待主公確認 push） |
+| **Current Step** | P84.0 FROZEN：`docs/PHASE_84_PLAN.md` 已建立並凍結，等待主公核准 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `3c80129 feat: 完成 P83 data quality security`（已推送到 `origin/main`） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-17 |
 
@@ -20,7 +20,7 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_83_PLAN.md`
+3. 當前 Phase 計畫：`docs/PHASE_84_PLAN.md`
 4. 總戰役計畫：`docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
 5. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
 
@@ -28,12 +28,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P84（DRAFT） |
-| **Current Step** | P84.0 起草 `docs/PHASE_84_PLAN.md` |
+| **Current Phase** | P84（FROZEN） |
+| **Current Step** | P84.0 `docs/PHASE_84_PLAN.md` 已凍結，等待主公核准 |
 | **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不直接改程式碼；不跳過 P84 計畫凍結；不做 P84 實作 |
-| **Exit Criteria** | P84 計畫完成 17 層/M1/M2 後切 FROZEN，等待主公核准 |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84 DRAFT 只能起草/審核計畫，不可改 production code |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不直接改程式碼；不跳過主公核准；不做 P84 實作 |
+| **Exit Criteria** | 主公明確核准 P84 後，才可從 FROZEN 切 APPROVED 並依 `docs/PHASE_84_PLAN.md` 動工 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84 FROZEN 只能審核/修訂計畫，不可改 production code |
 
 ## State Machine
 
@@ -64,4 +64,4 @@ P80 已收官：2026-05-17 GitHub Actions `daily_report.yml` / `workflow_dispatc
 
 ## Next Decision
 
-P83 已完成並切 CLOSED。下一步進 P84 DRAFT，只能建立/凍結 `docs/PHASE_84_PLAN.md`；push 前仍需主公確認。
+P84 計畫已建立並切 FROZEN。下一步等待主公核准 P84；核准前只能審核/修訂 `docs/PHASE_84_PLAN.md` 與狀態文件，不可改 production code；push 前仍需主公確認。
