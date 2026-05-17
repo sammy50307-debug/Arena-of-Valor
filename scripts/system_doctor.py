@@ -6,7 +6,6 @@ import argparse
 import json
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -17,6 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+from analyzer.run_context import build_run_context
 from analyzer.run_manifest import validate_manifest
 from check_daily_report_health import run_checks
 
@@ -75,7 +75,7 @@ class DoctorResult:
 
 
 def taipei_today() -> str:
-    return (datetime.utcnow() + timedelta(hours=8)).strftime("%Y-%m-%d")
+    return build_run_context().run_date
 
 
 def _manifest_path(repo_root: Path, date_str: str) -> Path:

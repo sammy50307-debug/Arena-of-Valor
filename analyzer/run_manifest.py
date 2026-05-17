@@ -7,8 +7,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from analyzer.data_writer import atomic_write_json
+from analyzer.run_context import DEFAULT_TIMEZONE_NAME, SOURCE_HASH_VERSION, build_run_id
 
-MANIFEST_SCHEMA_VERSION = 1
+MANIFEST_SCHEMA_VERSION = 2
 ALLOWED_MODES = {
     "production",
     "showcase",
@@ -51,6 +52,10 @@ def build_manifest(
     is_backfill: bool = False,
     gate_mode: str = "shadow",
     eligibility_reasons: Optional[List[str]] = None,
+    source_hash: str = "unknown",
+    run_id: str = "",
+    timezone_name: str = DEFAULT_TIMEZONE_NAME,
+    scheduled_utc: str = "",
 ) -> Dict[str, Any]:
     """Build a normalized run manifest payload."""
     meta = meta or {}
@@ -66,11 +71,21 @@ def build_manifest(
         gate_mode = "shadow"
     eligibility_reasons = [str(x) for x in (eligibility_reasons or []) if str(x).strip()]
     base_eligible = mode == "production" and status == "ok"
+    source_hash = str(source_hash or "unknown")
+    run_id = str(run_id or build_run_id(run_date, mode, source_hash))
+    timezone_name = str(timezone_name or DEFAULT_TIMEZONE_NAME)
+    scheduled_utc = str(scheduled_utc or "")
 
     return {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "run_date": run_date,
+        "run_date_taipei": run_date,
+        "timezone": timezone_name,
+        "scheduled_utc": scheduled_utc,
+        "run_id": run_id,
+        "source_hash": source_hash,
+        "source_hash_version": SOURCE_HASH_VERSION,
         "status": status,
         "error": error,
         "mode": mode,
@@ -151,8 +166,9 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
         if key not in manifest:
             errors.append("missing field: %s" % key)
 
-    if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
-        errors.append("schema_version must be %s" % MANIFEST_SCHEMA_VERSION)
+    schema_version = manifest.get("schema_version")
+    if schema_version not in {1, MANIFEST_SCHEMA_VERSION}:
+        errors.append("schema_version must be 1 or %s" % MANIFEST_SCHEMA_VERSION)
 
     run_date = manifest.get("run_date")
     if isinstance(run_date, str):
@@ -162,6 +178,21 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
             errors.append("run_date must be YYYY-MM-DD")
     else:
         errors.append("run_date must be string")
+
+    if schema_version == MANIFEST_SCHEMA_VERSION:
+        for key in ("run_date_taipei", "timezone", "scheduled_utc", "run_id", "source_hash"):
+            if key not in manifest:
+                errors.append("missing field: %s" % key)
+            elif not isinstance(manifest.get(key), str):
+                errors.append("%s must be string" % key)
+        if manifest.get("run_date_taipei") != manifest.get("run_date"):
+            errors.append("run_date_taipei must equal run_date for Asia/Taipei daily runs")
+        source_hash_version = manifest.get("source_hash_version")
+        if source_hash_version != SOURCE_HASH_VERSION:
+            errors.append("source_hash_version must be %s" % SOURCE_HASH_VERSION)
+        expected_run_id = build_run_id(str(manifest.get("run_date", "")), str(manifest.get("mode", "")), str(manifest.get("source_hash", "")))
+        if manifest.get("run_id") != expected_run_id:
+            errors.append("run_id must equal run_date + mode + source_hash prefix")
 
     status = manifest.get("status")
     if status not in ALLOWED_STATUS:
