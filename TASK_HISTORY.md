@@ -7754,3 +7754,36 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P84 計畫已凍結。
 - ✅ P84 仍不可動工，等待主公核准從 FROZEN 切 APPROVED。
 - ⏳ 下一步：主公若核准 P84，才能開始 P84.1 Retention policy / dry-run inventory。
+
+### P84 Approval Gate — FROZEN -> APPROVED（2026-05-17）
+
+**目標**：
+- 推送 P84 凍結計畫 commit。
+- 記錄主公核准 P84 從 FROZEN 轉 APPROVED。
+- 讓新視窗入口直接知道下一步是 P84.1，而不是繼續等待核准。
+
+**觸發**：
+- 主公明確指示：「推這顆 commit 核准 P84」。
+
+**物理真相**：
+- `git push origin main` 已完成：
+  - `3c80129..1d60208 main -> main`
+  - 最新已推 commit：`1d60208 docs: 凍結 P84 long-term governance 計畫`
+- `NEXT_SESSION_HANDOFF.md`
+  - Mode 改為 `APPROVED`。
+  - Current Step 改為 `P84.1 APPROVED：開始 Retention policy / dry-run inventory`。
+  - Latest Verified Commit 改為 `1d60208`。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步 P84 APPROVED。
+  - Next Decision 改為 P84.1 retention policy / dry-run inventory。
+- `docs/PHASE_84_PLAN.md`
+  - 標題改為核准版。
+  - 狀態改為 `APPROVED`。
+  - Entry Criteria 的主公核准項目勾選完成。
+- `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - P84 狀態改為 APPROVED。
+
+**狀態**：
+- ✅ P84 已核准。
+- ✅ 下一步：P84.1 Retention policy / dry-run inventory。
+- ⚠️ 限制：P84.1 不得實刪任何歷史資料；只允許 policy / dry-run / 測試 / 文件治理。

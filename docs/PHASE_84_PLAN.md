@@ -1,8 +1,9 @@
-# Phase P84 計畫書 — Long-Term Governance（凍結版）
+# Phase P84 計畫書 — Long-Term Governance（核准版）
 
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
-> 狀態：FROZEN（等待主公核准；核准前不可改 production code）
+> 核准日期：2026-05-17
+> 狀態：APPROVED（主公已核准；下一步 P84.1 Retention policy / dry-run inventory）
 
 ## 0. Phase 元資料
 
@@ -21,7 +22,7 @@
 |---|---|---|---|---|---|
 | P84 計畫 | DRAFT | FROZEN | 計畫已完成並通過 pre-flight，尚不可動工 | 本文件建立、17 層/M1/M2 完成、狀態文件同步 | AI 建立，主公核准後才進 APPROVED |
 | P77-P84 program | P84 DRAFT | P84 FROZEN | 總戰役進入最後治理 Phase 的待核准狀態 | `docs/PHASE_84_PLAN.md` 凍結 | AI 更新，主公核准後動工 |
-| P84 實作 | FROZEN | APPROVED | 可依本計畫做 retention/SLO/handoff truth 等實作 | 主公明確核准 P84 | 主公核准，AI 執行 |
+| P84 實作 | FROZEN | APPROVED | 可依本計畫做 retention/SLO/handoff truth 等實作 | 主公已明確核准 P84（2026-05-17） | 主公核准，AI 執行 |
 
 ## 1. 目標
 
@@ -39,7 +40,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - [x] P77-P83 狀態在總戰役計畫中皆為 CLOSED。
 - [x] P84 目前只處於 DRAFT/FROZEN 計畫階段，不允許直接改 production code。
 - [x] 本計畫完成 17 層、X1-X4、M1/M1.5/M2。
-- [ ] 主公核准 P84 從 FROZEN 轉 APPROVED。
+- [x] 主公核准 P84 從 FROZEN 轉 APPROVED（2026-05-17）。
 
 ## 4. Exit Criteria
 
@@ -253,5 +254,4 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`FROZEN`。等待主公核准；核准前只能討論/修訂計畫，不可改 production code。
-
+目前狀態：`APPROVED`。下一步只能先做 P84.1 Retention policy / dry-run inventory；不可跳到 P84.2-P84.6，也不可實刪歷史資料。
