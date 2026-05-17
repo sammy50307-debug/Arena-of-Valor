@@ -75,7 +75,7 @@ async def test_tc2_normal_run_no_quota_error():
     """batch_chat 成功 → quota_error=False, is_showcase=False"""
     analyzer = _make_analyzer()
     analyzer.llm.batch_chat = AsyncMock(return_value=[
-        {"sentiment": "positive", "sentiment_score": 0.8, "summary": "ok",
+        {"reasoning": "ok", "sentiment": "positive", "sentiment_score": 0.8, "summary": "ok",
          "keywords": [], "relevance_score": 0.9, "category": "一般",
          "region": "TW", "original_language": "zh", "is_hero_focus": False,
          "detected_heroes": [], "translated_content": "", "events": []}

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from analyzer.run_manifest import (
     build_manifest,
+    build_source_quality,
     manifest_path,
     validate_manifest,
     write_manifest,
@@ -46,8 +47,47 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["eligibility"]["gate_mode"] == "shadow"
     assert manifest["eligibility"]["decision"] == "eligible"
     assert manifest["eligibility"]["reasons"] == []
+    assert manifest["quality"]["source_health"]["status"] == "unknown"
     ok, errors = validate_manifest(manifest)
     assert ok, errors
+
+
+def test_build_source_quality_marks_no_posts_failed():
+    quality = build_source_quality([])
+
+    assert quality["status"] == "failed"
+    assert quality["total_posts"] == 0
+    assert quality["reasons"] == ["no_posts"]
+
+
+def test_build_source_quality_counts_platforms_and_sources():
+    quality = build_source_quality(
+        [
+            {"platform": "dcard", "source": "dcard.tw"},
+            {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            {"platform": "dcard", "source": "dcard.tw"},
+        ]
+    )
+
+    assert quality["status"] == "ok"
+    assert quality["total_posts"] == 3
+    assert quality["platform_count"] == 2
+    assert quality["platform_counts"] == {"dcard": 2, "bahamut": 1}
+    assert quality["source_count"] == 2
+    assert quality["reasons"] == []
+
+
+def test_build_source_quality_marks_single_source_degraded():
+    quality = build_source_quality(
+        [
+            {"platform": "web", "source": "example.com"},
+            {"platform": "web", "source": "example.com"},
+        ]
+    )
+
+    assert quality["status"] == "degraded"
+    assert "single_platform" in quality["reasons"]
+    assert "single_source" in quality["reasons"]
 
 
 def test_write_manifest_creates_expected_path(tmp_path: Path):
@@ -88,6 +128,27 @@ def test_build_manifest_with_history_dates_and_backfill(tmp_path: Path):
     assert manifest["history"]["missing_dates"] == ["2026-05-13"]
     assert manifest["replay_source"] == "analysis_json"
     assert manifest["is_backfill"] is True
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_with_source_quality(tmp_path: Path):
+    source_quality = build_source_quality(
+        [
+            {"platform": "dcard", "source": "dcard.tw"},
+            {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+        ]
+    )
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=source_quality,
+    )
+
+    assert manifest["quality"]["source_health"] == source_quality
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 
@@ -187,6 +248,22 @@ def test_validate_manifest_rejects_invalid_publish_eligible(tmp_path: Path):
     ok, errors = validate_manifest(manifest)
     assert not ok
     assert any("publish_eligible" in msg for msg in errors)
+
+
+def test_validate_manifest_rejects_bad_source_quality(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+    )
+    manifest["quality"]["source_health"]["status"] = "maybe"
+
+    ok, errors = validate_manifest(manifest)
+
+    assert not ok
+    assert any("quality.source_health.status" in msg for msg in errors)
 
 
 def test_build_manifest_shadow_gate_with_reasons_blocks_eligibility(tmp_path: Path):

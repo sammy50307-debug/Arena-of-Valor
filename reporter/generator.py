@@ -14,6 +14,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
+from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -28,6 +29,31 @@ logger = logging.getLogger(__name__)
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
 CANONICAL_REPORT_RE = re.compile(r"^aov_report_\d{4}-\d{2}-\d{2}\.html$")
 META_MODE_RE = re.compile(r"mode:\s*([a-zA-Z0-9_:-]+)")
+SAFE_REPORT_URL_SCHEMES = {"http", "https"}
+
+
+def _safe_report_url(value) -> str:
+    text = str(value or "").strip()
+    if not text or text == "N/A":
+        return "#"
+    parsed = urlparse(text)
+    if parsed.scheme in SAFE_REPORT_URL_SCHEMES and parsed.netloc:
+        return text
+    return "#"
+
+
+def _copy_entry_with_safe_url(entry):
+    if not isinstance(entry, dict):
+        return entry
+    copied = dict(entry)
+    post = copied.get("post")
+    if isinstance(post, dict):
+        post_copy = dict(post)
+        post_copy["url"] = _safe_report_url(post_copy.get("url", "#"))
+        copied["post"] = post_copy
+    elif "url" in copied:
+        copied["url"] = _safe_report_url(copied.get("url", "#"))
+    return copied
 
 
 class ReportGenerator:
@@ -60,6 +86,7 @@ class ReportGenerator:
         """
         output_dir = output_dir or config.REPORTS_DIR
         output_dir.mkdir(parents=True, exist_ok=True)
+        analyzed_posts = [_copy_entry_with_safe_url(p) for p in (analyzed_posts or [])]
 
         report_date = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
 
