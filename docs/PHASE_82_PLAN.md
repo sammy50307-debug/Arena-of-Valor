@@ -1,8 +1,8 @@
-# Phase P82 計畫書 — Idempotency / Timezone（凍結版）
+# Phase P82 計畫書 — Idempotency / Timezone（已收官）
 
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
-> 狀態：FROZEN（待主公核准後才可動工）
+> 狀態：CLOSED（2026-05-17：run context + run_id/source_hash + timezone contract 已落地）
 
 ## 0. Phase 元資料
 
@@ -39,19 +39,40 @@ P77-P81 已完成主鏈路止血、manifest、doctor、promotion gate、replay/b
 - [x] P81 已收官：replay/backfill/debug bundle 已落地。
 - [x] run manifest 已存在，可擴充 idempotency 欄位。
 - [x] `daily_report.yml` 仍明確使用 UTC 排程，需建立台北日期轉換契約。
-- [ ] 主公核准 P82 計畫，狀態由 FROZEN 轉 APPROVED。
+- [x] 主公核准 P82 計畫，狀態由 FROZEN 轉 APPROVED。
 
 ## 4. Exit Criteria
 
 達成全部才算 P82 收官：
 
-- [ ] 建立唯一 run date resolver，所有主鏈路 report/raw/analysis/manifest 日期以 Asia/Taipei 推導。
-- [ ] `run_id = run_date + mode + source_hash` 契約落地，並寫入 manifest。
-- [ ] 同日重跑可預期：相同 source hash 不產生矛盾狀態，不同 source hash 保留候選版本且不繞過 P80 promotion gate。
-- [ ] GitHub Actions UTC 排程與台北日期對映有測試或明確驗證。
-- [ ] 新增/更新測試覆蓋 timezone、run_id、same-day rerun、manifest contract。
-- [ ] `py -m pytest -q` 通過，且 Python 3.8 import guard 不回歸。
-- [ ] handoff / active / TASK_HISTORY / 總戰役計畫同步收官狀態。
+- [x] 建立唯一 run date resolver，所有主鏈路 report/raw/analysis/manifest 日期以 Asia/Taipei 推導。
+- [x] `run_id = run_date + mode + source_hash` 契約落地，並寫入 manifest。
+- [x] 同日重跑可預期：相同 source hash 不產生矛盾狀態，不同 source hash 保留候選版本且不繞過 P80 promotion gate。
+- [x] GitHub Actions UTC 排程與台北日期對映有測試或明確驗證。
+- [x] 新增/更新測試覆蓋 timezone、run_id、same-day rerun、manifest contract。
+- [x] `py -m pytest -q` 通過，且 Python 3.8 import guard 不回歸。
+- [x] handoff / active / TASK_HISTORY / 總戰役計畫同步收官狀態。
+
+## 4.1 已落地（P82）
+
+- `analyzer/run_context.py`
+  - 新增 `build_run_context()`：以 Asia/Taipei 推導 daily run business date。
+  - 新增 `build_source_hash()`：用 URL/title/platform/region 建立穩定 hash，不把 raw content 寫入 manifest。
+  - 新增 `build_run_id()`：落地 `run_date + mode + source_hash prefix` 契約。
+- `main.py`
+  - raw / analysis / report_url / gate / manifest / promotion fallback date 改用同一份 run context。
+  - pipeline log 顯示業務日期與 source hash prefix。
+- `analyzer/run_manifest.py`
+  - schema version 升至 2。
+  - manifest 寫入 `run_date_taipei`、`timezone`、`scheduled_utc`、`run_id`、`source_hash`、`source_hash_version`。
+  - `validate_manifest()` 保留 schema v1 相容，避免舊 manifest 直接被 doctor 判壞。
+- `scripts/check_daily_report_health.py` / `scripts/system_doctor.py`
+  - 預設台北日期改用 `build_run_context()`，避免各自計算。
+- 測試
+  - 新增 `tests/test_run_context.py`。
+  - 更新 `tests/test_run_manifest.py` 覆蓋 schema v2、legacy v1、run_id、same-day rerun identity。
+  - 全套 `py -m pytest -q`：`163 passed`。
+  - Python 3.8 import smoke：`py -3.8 -c "import main; import analyzer.run_context"` 通過。
 
 ## 5. ROI 評估
 
@@ -246,4 +267,4 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-82-idempotency-timezone.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`FROZEN`。新視窗只能討論/審核 P82 計畫，不可改 production code；待主公核准後，才可切 `APPROVED` 並開始 P82.0。
+目前狀態：`CLOSED`。P82 已完成本地驗證；下一步進入 P83 Data Quality / Security 草案期。
