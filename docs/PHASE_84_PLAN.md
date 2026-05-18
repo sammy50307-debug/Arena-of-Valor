@@ -3,7 +3,7 @@
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
 > 核准日期：2026-05-17
-> 狀態：APPROVED（主公已核准；下一步 P84.1 Retention policy / dry-run inventory）
+> 狀態：APPROVED（P84.2 已完成；下一步 P84.3 Handoff truth checker）
 
 ## 0. Phase 元資料
 
@@ -47,7 +47,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 達成全部才算 P84 收官：
 
 - [x] retention policy 明文化，涵蓋 `data/reports/`、`data/runs/`、`data/debug_bundles/`、`data/quarantine/`、LLM cache；若有清理腳本，預設必須 dry-run。（P84.1）
-- [ ] SLO/escalation 明文化並可由 doctor 或獨立腳本檢查：連續 N 天無 production report、manifest 缺失、doctor blocking/degraded 達門檻時輸出明確 issue。
+- [x] SLO/escalation 明文化並可由 doctor 或獨立腳本檢查：連續 N 天無 production report、manifest 缺失、doctor blocking/degraded 達門檻時輸出明確 issue。（P84.2）
 - [ ] handoff truth check 可機械驗證：active bootstrap marker、Current Phase/Step/Mode、archive 禁用提示、Allowed/Forbidden/Exit/Resume 六欄位一致。
 - [ ] risk registry / runbook 更新 SOP 明文化，新增 issue code 時能找到對應 runbook anchor。
 - [ ] LLM cost / cache hit / run metrics 監控規則明文化，至少能從 manifest 或現有 cache stats 讀到趨勢輸入。
@@ -168,7 +168,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 |---|---|---|---|
 | P84.0 | 凍結本計畫，等待主公核准 | R6 | `docs/PHASE_84_PLAN.md` 完成 17 層/M1/M2，狀態 FROZEN |
 | P84.1 | Retention policy / dry-run inventory | R1 | DONE：policy 明列各資料目錄；dry-run 不刪資料 |
-| P84.2 | SLO / escalation checker | R2/R3 | 可檢查連續無 production report、manifest/doctor 異常 |
+| P84.2 | SLO / escalation checker | R2/R3 | DONE：可檢查連續無 production report、manifest/doctor 異常 |
 | P84.3 | Handoff truth checker | R4 | active bootstrap 必備欄位與 archive 邊界可驗 |
 | P84.4 | Risk registry / runbook issue-code governance | R4/R6 | issue code 對應 runbook anchor，risk state SOP 明確 |
 | P84.5 | Cost / cache hit governance | R5 | manifest/cache stats 可輸出 advisory 指標 |
@@ -181,6 +181,9 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - `docs/DATA_RETENTION_POLICY.md`（P84.1）
 - `scripts/retention_policy.py`（P84.1）
 - `tests/test_retention_policy.py`（P84.1）
+- `docs/SLO_POLICY.md`（P84.2）
+- `scripts/slo_checker.py`（P84.2）
+- `tests/test_slo_checker.py`（P84.2）
 - 後續可能新增：`scripts/governance_doctor.py`、`scripts/check_handoff_truth.py` 或同等小型 checker。
 - 後續可能新增：`tests/test_governance_*.py`、`tests/test_handoff_truth.py`。
 
@@ -257,7 +260,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`APPROVED`。P84.1 已完成；下一步為 P84.2 SLO / escalation checker，待主公指示後再動工。不可實刪歷史資料。
+目前狀態：`APPROVED`。P84.2 已完成；下一步為 P84.3 Handoff truth checker，待主公指示後再動工。不可實刪歷史資料。
 
 ## 17. P84.1 實作紀錄
 
@@ -286,3 +289,32 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 - `py -m pytest -q tests/test_retention_policy.py` -> 4 passed
 - `py scripts\retention_policy.py --repo-root . --today 2026-05-17 --max-candidates 10` -> passed
 - `py scripts\retention_policy.py --repo-root . --today 2026-05-17 --json --max-candidates 3` -> passed
+
+## 18. P84.2 實作紀錄
+
+**新增檔案**：
+- `docs/SLO_POLICY.md`
+- `scripts/slo_checker.py`
+- `tests/test_slo_checker.py`
+
+**修改檔案**：
+- `scripts/system_doctor.py`
+  - `run_doctor(..., check_landing=True)` 新增可選參數，預設維持舊行為。
+  - CLI 新增 `--skip-landing`，供 SLO 掃歷史日期時避免 landing false positive。
+- `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `SLO000` / `SLO001` / `SLO002` / `SLO003` runbook anchor。
+
+**SLO issue code**：
+- `SLO001`: production freshness，尾端連續無 production report 超過門檻。
+- `SLO002`: manifest gap，SLO window 內缺 manifest。
+- `SLO003`: doctor severity budget，doctor blocking/degraded 天數超過門檻。
+
+**實跑結果（2026-05-18）**：
+- `py scripts\slo_checker.py --repo-root . --date 2026-05-18 --window-days 3 --json` -> exit 1（預期，因檢出 blocking SLO）
+- 檢出 `SLO001`：`consecutive_no_production=3 threshold=1`
+- 檢出 `SLO002`：`missing_manifest_count=2 threshold=0 window=2026-05-16,2026-05-17,2026-05-18`
+- 檢出 `SLO003`：`blocking_days=2 degraded_days=2 degraded_threshold=2`
+
+**驗證**：
+- `py -m pytest -q tests/test_slo_checker.py tests/test_system_doctor.py` -> 12 passed
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile local --require-production --skip-landing` -> passed（輸出 DOC005/DOC006/DOC007/DOC010，無 landing false positive）
