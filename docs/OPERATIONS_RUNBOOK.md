@@ -1,11 +1,11 @@
-# Operations Runbook（P79.2 / P84.2 / P84.3）
+# Operations Runbook（P79.2 / P84.2 / P84.3 / P84.4）
 
 > 更新日期：2026-05-18
-> 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` / `scripts/check_handoff_truth.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
+> 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` / `scripts/check_handoff_truth.py` / `scripts/governance_doctor.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
 
 ## 使用方式
 
-執行 doctor 後，直接用輸出的 `code` 對照本檔相同代碼段落執行處置，不需再人工猜測。
+執行 doctor 後，直接用輸出的 `code` 對照本檔相同代碼段落執行處置，不需再人工猜測。新增任何 `DOC###` / `SLO###` / `HND###` / `GOV###` 時，同一個 commit 必須補對應 anchor，並跑 `py scripts\governance_doctor.py --repo-root .`。
 
 ## Issue Code 對照
 
@@ -99,6 +99,13 @@
   2. 若只剩單一平台，檢查其餘平台 scraper/API 是否失敗。
   3. 修正後重跑 doctor；本代碼預設為 advisory，不直接代表報告不可發布。
 
+### <a id="doc999"></a>DOC999 — unknown doctor issue
+- 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
+- 處置：
+  1. 檢查 `scripts/system_doctor.py` 新增的 `_add_issue(...)` key 是否漏補 `ISSUE_CATALOG`。
+  2. 若是新類型，新增正式 `DOC###` code 與本 runbook anchor。
+  3. 重跑 `py scripts\governance_doctor.py --repo-root .`。
+
 ### <a id="slo000"></a>SLO000 — no SLO issue
 - 意義：SLO checker 未檢出 freshness / manifest / doctor severity 異常。
 - 處置：無需動作。
@@ -170,3 +177,35 @@
 - 處置：
   1. 先以 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 為準。
   2. 同步 `docs/ACTIVE_OPERATION.md` 的 Current State 與 Six Anti-Drift Fields。
+
+### <a id="gov000"></a>GOV000 — governance verified
+- 意義：runbook issue-code mapping 與 risk registry section/status 檢查通過。
+- 處置：無需動作。
+
+### <a id="gov001"></a>GOV001 — runbook missing anchor
+- 意義：治理腳本中出現 `DOC###` / `SLO###` / `HND###` / `GOV###`，但 `docs/OPERATIONS_RUNBOOK.md` 沒有對應 anchor。
+- 處置：
+  1. 確認該 issue code 是否真的會輸出給操作者。
+  2. 若會輸出，在本檔新增該 code 的 lowercase anchor 段落與處置步驟。
+  3. 重跑 `py scripts\governance_doctor.py --repo-root .`。
+
+### <a id="gov002"></a>GOV002 — runbook duplicate anchor
+- 意義：同一個 runbook anchor 被定義超過一次，可能讓 issue code 對應到錯誤處置段落。
+- 處置：
+  1. 搜尋重複的 `<a id="..."></a>`。
+  2. 保留唯一權威段落，合併或移除重複段落。
+  3. 重跑 governance doctor。
+
+### <a id="gov003"></a>GOV003 — risk registry state mismatch
+- 意義：`docs/RISK_REGISTRY.md` 的風險條目所在 section 與 `狀態` 欄位不一致。
+- 處置：
+  1. 若仍需觀察，放在 `開放風險（Open）` 並讓狀態包含 `Open`。
+  2. 若已修補或已關閉，放在 `已關閉風險（Closed）` 並讓狀態包含 `已` 或 `Closed`。
+  3. 重跑 governance doctor。
+
+### <a id="gov004"></a>GOV004 — risk registry duplicate id
+- 意義：`docs/RISK_REGISTRY.md` 重複使用同一個 `R-###`，會讓跨 Phase 風險追蹤失真。
+- 處置：
+  1. 找出重複的 `R-###` heading。
+  2. 若是同一風險，合併成一筆；若是不同風險，重新編號較新的條目。
+  3. 重跑 governance doctor。
