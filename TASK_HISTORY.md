@@ -7846,3 +7846,76 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P84.1 CLOSED。
 - ⏳ 下一步：P84.2 SLO / escalation checker，等主公指示後再動工。
+
+### P84.2 SLO / escalation checker（2026-05-18）
+
+**目標**：
+- 建立 SLO / escalation checker，避免 daily pipeline 連續無 production report、manifest 缺失、doctor degraded/blocking 時沉默失敗。
+- 將 SLO issue code 寫入 runbook，讓新視窗能直接對照處置。
+- 保持 advisory-first，不接 CI blocking，不改 production runtime 主鏈路。
+
+**觸發**：
+- 主公指示「請完整的細心地處理好」。
+- P84.1 已完成並 push；目前 P84 下一步為 P84.2。
+
+**取捨**：
+- 方案 A：只把 SLO 寫文件。
+  - 優點：快。
+  - 缺點：長期會退化，無法機械驗證沉默失敗。
+- 方案 B：新增獨立 SLO checker，重用 `system_doctor`。
+  - 優點：可測、可 CLI、可 JSON、可被未來 CI advisory 使用。
+  - 缺點：多一個腳本與測試檔。
+- 決策：採方案 B；P84 目標是長期治理，不能只靠文字。
+
+**稽核表**：
+- S 級代碼層：新增小型 `scripts/slo_checker.py`，不重寫 doctor / promotion / runtime。
+- S 級邏輯層：明確定義 `SLO001` production freshness、`SLO002` manifest gap、`SLO003` doctor severity budget。
+- S 級測試層：新增 `tests/test_slo_checker.py`，覆蓋 pass、manifest gap、consecutive no production、doctor degraded budget、CLI JSON。
+- S 級安全層：SLO checker 只讀 repo，不刪、不搬、不改寫資料。
+- A 級可觀察性層：輸出 issue code、severity、detail、runbook anchor 與每日狀態表。
+- A 級文件層：新增 `docs/SLO_POLICY.md`，更新 `docs/OPERATIONS_RUNBOOK.md`。
+
+**物理真相**：
+- 新增 `docs/SLO_POLICY.md`
+  - SLO 目標：production freshness、manifest completeness、doctor severity budget。
+  - 指令：`py scripts\slo_checker.py --repo-root . --date <date>` 與 JSON 模式。
+  - 邊界：advisory-first，不接 CI blocking gate。
+- 新增 `scripts/slo_checker.py`
+  - `evaluate_slo(repo_root, date_str, window_days=7, ...)`。
+  - `SLO001`：尾端連續無 production report 超過門檻。
+  - `SLO002`：SLO window 內缺 manifest。
+  - `SLO003`：doctor blocking day > 0 或 degraded day 超過門檻。
+  - CLI 支援 `--json`、`--window-days`、`--max-consecutive-no-production`、`--max-missing-manifests`、`--max-doctor-degraded-days`。
+- 新增 `tests/test_slo_checker.py`
+  - 5 個測試覆蓋 SLO 正常與三類異常。
+- 修改 `scripts/system_doctor.py`
+  - `run_doctor(..., check_landing=True)` 新增可選參數，預設保持舊行為。
+  - CLI 新增 `--skip-landing`。
+  - SLO 掃歷史日期時用 `check_landing=False`，避免舊日期因首頁只指最新報告而誤報。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `SLO000` / `SLO001` / `SLO002` / `SLO003`。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - 下一步切為 P84.3 Handoff truth checker。
+- 更新 `docs/PHASE_84_PLAN.md`
+  - 第二個 P84 Exit Criteria 勾選完成。
+  - P84.2 stage 標為 DONE。
+  - 新增 P84.2 實作紀錄。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py` -> 12 passed
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile local --require-production --skip-landing` -> passed
+- `py scripts\slo_checker.py --repo-root . --date 2026-05-18 --window-days 3 --json` -> exit 1（預期，因檢出 blocking SLO）
+
+**目前真實 repo SLO 輸出（2026-05-18 / window=3）**：
+- `SLO001 BLOCKING`: `consecutive_no_production=3 threshold=1`
+- `SLO002 BLOCKING`: `missing_manifest_count=2 threshold=0 window=2026-05-16,2026-05-17,2026-05-18`
+- `SLO003 BLOCKING`: `blocking_days=2 degraded_days=2 degraded_threshold=2`
+
+**風險**：
+- R-P84.2-1：目前 SLO checker 對真實 repo 會回 exit 1，這是正確訊號，不是測試失敗；代表 5/17-5/18 缺 manifest / production。
+- R-P84.2-2：SLO checker 掃歷史日期時關閉 landing 檢查，避免 false positive；若要驗最新 landing，仍用 `system_doctor` 預設或 daily health check。
+- R-P84.2-3：若未來 production cadence 不是每日，需調整 `--max-consecutive-no-production` 或 window policy。
+
+**狀態**：
+- ✅ P84.2 CLOSED。
+- ⏳ 下一步：P84.3 Handoff truth checker，等主公指示後再動工。

@@ -1,7 +1,7 @@
-# Operations Runbook（P79.2）
+# Operations Runbook（P79.2 / P84.2）
 
-> 更新日期：2026-05-16  
-> 用途：提供 `scripts/system_doctor.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
+> 更新日期：2026-05-18
+> 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
 
 ## 使用方式
 
@@ -98,3 +98,29 @@
   1. 查看 manifest `quality.source_health.platform_counts` 與 `reasons`。
   2. 若只剩單一平台，檢查其餘平台 scraper/API 是否失敗。
   3. 修正後重跑 doctor；本代碼預設為 advisory，不直接代表報告不可發布。
+
+### <a id="slo000"></a>SLO000 — no SLO issue
+- 意義：SLO checker 未檢出 freshness / manifest / doctor severity 異常。
+- 處置：無需動作。
+
+### <a id="slo001"></a>SLO001 — production freshness
+- 意義：尾端連續無 `production` canonical report 超過門檻。
+- 處置：
+  1. 先確認當日 workflow 是否有成功 run。
+  2. 執行：`py scripts\slo_checker.py --repo-root . --date <date> --json`
+  3. 若最新 run 是 showcase / error fallback，依 `DOC005` / `DOC006` 修復來源或配額問題。
+  4. 修復後用 replay/backfill 補 production report，再重跑 SLO checker。
+
+### <a id="slo002"></a>SLO002 — manifest gap
+- 意義：SLO window 內缺少 `data/runs/<date>/run_manifest.json`。
+- 處置：
+  1. 檢查缺失日期的 GitHub Actions log 或本地 run log。
+  2. 若該日有 analysis/report，可用 replay 重建：`py scripts\replay_run.py --date <date> --check-health --expected-mode any --debug-bundle`
+  3. 重跑：`py scripts\slo_checker.py --repo-root . --date <date> --json`
+
+### <a id="slo003"></a>SLO003 — doctor severity budget
+- 意義：SLO window 內 doctor blocking day > 0，或 degraded day 超過門檻。
+- 處置：
+  1. 查看 SLO JSON 的 `days[]`，找出 `doctor_blocking` / `doctor_degraded` 非 0 的日期。
+  2. 對那些日期跑：`py scripts\system_doctor.py --repo-root . --date <date> --profile local --require-production --skip-landing`
+  3. 依 doctor 輸出的 `DOCxxx` code 回到本 runbook 處理。

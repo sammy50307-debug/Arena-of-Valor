@@ -141,6 +141,7 @@ def run_doctor(
     date_str: str,
     profile: str = "local",
     require_production: bool = False,
+    check_landing: bool = True,
 ) -> DoctorResult:
     repo_root = repo_root.resolve()
     issues: List[DoctorIssue] = []
@@ -217,7 +218,13 @@ def run_doctor(
                     _add_issue(issues, "quality_source_health", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
-    for check in run_checks(repo_root, date_str, expected_mode=health_expected, check_git_clean=False):
+    for check in run_checks(
+        repo_root,
+        date_str,
+        expected_mode=health_expected,
+        check_git_clean=False,
+        check_landing=check_landing,
+    ):
         if not check.failed:
             continue
         if check.name == "canonical report":
@@ -292,6 +299,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Treat non-production mode as degraded and use production health expectation.",
     )
+    parser.add_argument(
+        "--skip-landing",
+        action="store_true",
+        help="Skip landing link checks; useful for historical SLO windows.",
+    )
     return parser
 
 
@@ -303,6 +315,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         args.date,
         profile=args.profile,
         require_production=args.require_production,
+        check_landing=not args.skip_landing,
     )
     print_result(result)
     return exit_code_for(result)
