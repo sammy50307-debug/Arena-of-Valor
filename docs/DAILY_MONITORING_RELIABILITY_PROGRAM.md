@@ -1,6 +1,6 @@
 # P77-P84 Daily Monitoring Reliability Program（總戰役計畫）
 
-> 狀態：FROZEN STRATEGY
+> 狀態：CLOSED WITH KNOWN OPERATIONAL RISK（2026-05-18；R-016 production SLO blocking / landing stale 保留 Open）
 > 凍結日期：2026-05-16
 > 目的：讓每日監測系統不只「現在能跑」，而是長期可用、壞了能定位、發布不誤導、資料可追溯。
 
@@ -30,7 +30,7 @@
 | **P81** | Replay / Quarantine / Backfill | 支援單日回放、壞資料隔離、缺日補跑 | CLOSED（P81.3 已落地） |
 | **P82** | Idempotency / Timezone | 同日重跑不污染，日期統一 Asia/Taipei | CLOSED（2026-05-17：run context + run_id/source_hash 已落地） |
 | **P83** | Data Quality / Security | 資料品質 gate、HTML escape、LLM output contract | CLOSED（2026-05-17：data quality/security 已收官） |
-| **P84** | Long-Term Governance | retention、SLO、handoff truth、risk registry、runbook | APPROVED（2026-05-18：P84.5 cost/cache governance 已完成，下一步 P84.6 closeout） |
+| **P84** | Long-Term Governance | retention、SLO、handoff truth、risk registry、runbook | CLOSED（2026-05-18：P84.6 總收官完成；R-016 保留 Open） |
 
 ---
 
@@ -132,7 +132,7 @@ candidate report -> validate -> health pass -> atomic promote -> update index
 
 ### P84 Long-Term Governance
 
-- 狀態：APPROVED（2026-05-18：P84.5 Cost / cache hit governance 已完成；下一步 P84.6 P77-P84 總收官驗證）
+- 狀態：CLOSED（2026-05-18：P84.6 P77-P84 總收官完成；R-016 production SLO blocking / landing stale 保留為 Open operational risk）
 - retention policy
 - LLM cost / cache hit 監控
 - SLO：連續 N 天無 production report 即升級
@@ -171,3 +171,13 @@ candidate report -> validate -> health pass -> atomic promote -> update index
 - 所有風險登記
 
 若需要查歷史，只能 anchor search，不全讀。
+
+---
+
+## 8. 總收官與維護規則（P84.6 / 2026-05-18）
+
+- P77-P84 reliability/governance 戰役已收官，收官報告為 `docs/P77_P84_CLOSEOUT_REPORT.md`。
+- 收官狀態不是「production 已恢復」；`R-016` 仍為 Open operational risk，內容是 production SLO blocking 與 landing stale。
+- 新視窗不得自動開 P85；若主公要修 R-016，應另依 production/backfill/recovery 範圍處理。
+- 任一 retention 實刪、資料搬移、production overwrite 仍需主公明確確認。
+- `TASK_HISTORY.md` 仍禁止全讀；總戰役查證優先讀本檔、P84 closeout report、active bootstrap。

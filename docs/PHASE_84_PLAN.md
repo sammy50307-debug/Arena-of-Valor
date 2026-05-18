@@ -3,7 +3,7 @@
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
 > 核准日期：2026-05-17
-> 狀態：APPROVED（P84.5 已完成；下一步 P84.6 P77-P84 總收官驗證）
+> 狀態：CLOSED（2026-05-18：P84.6 / P77-P84 總收官完成；R-016 保留為 Open operational risk）
 
 ## 0. Phase 元資料
 
@@ -52,8 +52,8 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - [x] risk registry / runbook 更新 SOP 明文化，新增 issue code 時能找到對應 runbook anchor。（P84.4）
 - [x] LLM cost / cache hit / run metrics 監控規則明文化，至少能從 manifest 或現有 cache stats 讀到趨勢輸入。（P84.5）
 - [x] P84 新增/更新測試覆蓋 retention dry-run、SLO 判定、handoff truth、runbook issue-code mapping。
-- [ ] `py -m pytest -q` 通過，Python 3.8 import guard 不回歸。
-- [ ] handoff / active / TASK_HISTORY / 總戰役計畫同步 P84 CLOSED，並給出 P77-P84 總收官狀態。
+- [x] `py -m pytest -q` 通過，Python 3.8 import guard 不回歸。（P84.6）
+- [x] handoff / active / TASK_HISTORY / 總戰役計畫同步 P84 CLOSED，並給出 P77-P84 總收官狀態。（P84.6）
 
 ## 5. ROI 評估
 
@@ -172,7 +172,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 | P84.3 | Handoff truth checker | R4 | DONE：active bootstrap 必備欄位與 archive 邊界可驗 |
 | P84.4 | Risk registry / runbook issue-code governance | R4/R6 | DONE：issue code 對應 runbook anchor，risk state SOP 可驗 |
 | P84.5 | Cost / cache hit governance | R5 | DONE：manifest/report metadata/cache stats 可輸出 advisory 指標 |
-| P84.6 | P77-P84 總收官驗證 | 全部 | pytest / diff check / TASK_HISTORY / handoff / total program 全同步 |
+| P84.6 | P77-P84 總收官驗證 | 全部 | DONE：pytest / diff check / TASK_HISTORY / handoff / total program 全同步；R-016 已登記為 Open operational risk |
 
 ## 13. 影響檔案清單
 
@@ -193,6 +193,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - `docs/COST_CACHE_GOVERNANCE_POLICY.md`（P84.5）
 - `scripts/cost_cache_governance.py`（P84.5）
 - `tests/test_cost_cache_governance.py`（P84.5）
+- `docs/P77_P84_CLOSEOUT_REPORT.md`（P84.6）
 
 **修改（主公核准後才可動）**：
 - `scripts/system_doctor.py`：可能接入 SLO/governance advisory issue。
@@ -267,7 +268,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`APPROVED`。P84.5 已完成；下一步為 P84.6 P77-P84 總收官驗證，待主公指示後再動工。不可實刪歷史資料。
+目前狀態：`CLOSED`。P84.6 已完成 P77-P84 總收官驗證；後續不自動開新 Phase。R-016（production SLO blocking / landing stale）保留為 Open operational risk，需等主公另行指示 production/backfill/recovery 才能動工。
 
 ## 17. P84.1 實作紀錄
 
@@ -419,3 +420,38 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 - `py -m pytest -q tests/test_cost_cache_governance.py tests/test_governance_doctor.py` -> 13 passed
 - `py scripts\governance_doctor.py --repo-root .` -> passed，輸出 `GOV000`
 - `py -3.8 -c "import scripts.cost_cache_governance; print('py38 cost/cache import ok')"` -> passed
+
+## 22. P84.6 實作紀錄
+
+**新增檔案**：
+- `docs/P77_P84_CLOSEOUT_REPORT.md`
+
+**修改檔案**：
+- `docs/RISK_REGISTRY.md`
+  - 新增 `R-016：production SLO blocking / landing stale（P84.6 收官揭露）`，狀態為 Open。
+- `docs/PHASE_84_PLAN.md`
+  - P84 狀態改為 CLOSED，並保留 R-016 作為後續營運風險。
+- `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - P77-P84 總戰役狀態改為 CLOSED WITH KNOWN OPERATIONAL RISK。
+- `NEXT_SESSION_HANDOFF.md`, `docs/ACTIVE_OPERATION.md`
+  - active bootstrap / L2 狀態改為 P84.6 CLOSED，不自動開 P85。
+- `TASK_HISTORY.md`
+  - 追加 P84.6 無損收官紀錄。
+
+**收官判讀**：
+- P77-P84 reliability/governance 戰役已收官。
+- P84.6 不修 runtime、不更新 landing、不重跑 production；此階段只做總驗證與真相凍結。
+- `R-016` 是已揭露的營運風險，不是 P84 checker 失敗；治理層已成功把 production SLO 與 landing stale 狀態顯示出來。
+
+**實跑結果（2026-05-18）**：
+- `py -m pytest -q` -> `204 passed`
+- `py scripts\retention_policy.py --repo-root . --today 2026-05-18 --max-candidates 5` -> passed，`dry_run=true`、`will_delete=false`、17 個 report variant candidates。
+- `py scripts\slo_checker.py --repo-root . --date 2026-05-18 --window-days 3` -> exit 1（預期），檢出 `SLO001` / `SLO002` / `SLO003` BLOCKING。
+- `py scripts\check_daily_report_health.py --date 2026-05-18 --expected-mode any` -> exit 1（預期），canonical report 與 metadata mode PASS，但 landing main link 仍指向 `data/reports/aov_report_2026-05-16.html`。
+- `py scripts\check_daily_report_health.py --date 2026-05-16 --expected-mode any` -> passed，確認現有 landing 指向的報告本身健康。
+- `py scripts\check_handoff_truth.py --repo-root .` -> passed，輸出 `HND000`。
+- `py scripts\governance_doctor.py --repo-root .` -> passed，輸出 `GOV000`。
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3` -> exit 0，輸出 `CCG003 ADVISORY`。
+- `py scripts\lint_phase_plan.py docs\PHASE_84_PLAN.md` -> passed。
+- Python 3.8 import guard -> passed。
+- `git diff --check` -> passed。

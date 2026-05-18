@@ -7,17 +7,17 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
-| **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.6 READY：P77-P84 總收官驗證（等主公指示再動工） |
-| **Mode** | APPROVED |
-| **Latest Verified Commit** | `HEAD feat: 完成 P84.5 cost cache governance`（本地 commit，待主公確認 push） |
+| **Current Phase** | P84（Long-Term Governance / CLOSED） |
+| **Current Step** | P84.6 CLOSED：P77-P84 總收官完成；R-016 保留 Open operational risk |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | `HEAD docs: 完成 P84.6 P77-P84 closeout`（本地 commit，待主公確認 push） |
 | **Updated At** | 2026-05-18 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 讀 `docs/PHASE_84_PLAN.md` 的 P84.6 範圍；P84.5 已完成，下一步等主公指示是否進 P77-P84 總收官驗證
+3. 若需要收官細節，讀 `docs/P77_P84_CLOSEOUT_REPORT.md`；目前沒有自動開啟的新 Phase
 
 ## Current Source Of Truth
 
@@ -26,18 +26,18 @@
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
 | L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
-| L4 | `docs/PHASE_84_PLAN.md` | 當前 Phase 已核准計畫，下一步 P84.6 |
+| L4 | `docs/PHASE_84_PLAN.md` / `docs/P77_P84_CLOSEOUT_REPORT.md` | P84 已收官計畫與 P77-P84 總收官報告 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P84（APPROVED） |
-| **Current Step** | P84.6 P77-P84 總收官驗證（等主公指示） |
-| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, `docs/OPERATIONS_RUNBOOK.md`, P84.6 收官狀態與必要驗證文件 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不新增 P85；不重寫 P80 promotion/P83 security；不把 cache 指標誤稱供應商帳單 |
-| **Exit Criteria** | P84.6 完成 P77-P84 總收官驗證，測試通過，狀態文件與 TASK_HISTORY 同步，P84/P77-P84 狀態明確 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；P84.5 已完成，等主公指示後再進 P84.6，不可開新 Phase |
+| **Current Phase** | P84（CLOSED） |
+| **Current Step** | P84.6 CLOSED：P77-P84 總收官完成；R-016 保留 Open operational risk |
+| **Allowed Files** | 預設不可動工；若主公要求維護 R-016，可讀 `docs/P77_P84_CLOSEOUT_REPORT.md`, `docs/RISK_REGISTRY.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`（append only）與必要的 production/backfill 檔案 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不自動開 P85；不把 P84 CLOSED 解讀成 production SLO 已恢復；不重寫 P80 promotion/P83 security |
+| **Exit Criteria** | P84.6 已完成；P77-P84 總戰役 CLOSED WITH KNOWN OPERATIONAL RISK；R-016 留待主公另行指示 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；若主公要修 R-016，依 closeout report 的 production/backfill/recovery 順序處理；否則等待明確任務 |
 
 ## Required Verification Commands
 
@@ -51,7 +51,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- P84.5 已完成；不要未經主公指示直接動工 P84.6。
+- P84.6 已完成；不要自動開 P85 或把 R-016 併回 P84 改程式碼。
+- 不要把 P84/P77-P84 CLOSED 解讀成 production SLO 已恢復。
 - 不要重寫 P80 promotion 架構。
 - 不要更換 LLM provider 或大改 prompt 架構。
 - 不要 git push，除非主公明確確認。

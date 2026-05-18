@@ -8127,3 +8127,102 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P84.5 CLOSED。
 - ⏳ 下一步：P84.6 P77-P84 總收官驗證，等主公指示後再動工。
+
+### P84.6 P77-P84 總收官驗證（2026-05-18）
+
+**目標**：
+- 對 P77-P84 reliability / governance 戰役做總收官驗證。
+- 把 P77-P84 的收官真相寫成新視窗可讀的文件入口，避免後續 AI 把「治理收官」誤讀成「production SLO 已恢復」。
+- 不在本 Phase 修 runtime、不改 landing、不重跑 production；若驗證照出營運風險，登記成 Open risk。
+
+**觸發**：
+- 主公指示：「請仔細完美的處理P84.6：P77-P84 總收官驗證。」
+- P84.1-P84.5 已完成並推上遠端，下一步為總收官。
+
+**取捨**：
+- 方案 A：在 P84.6 順手修 latest landing stale / production gap。
+  - 優點：畫面看起來更快轉綠。
+  - 缺點：會把 closeout、runtime recovery、backfill 混在同一 Phase；違反 P77-P84 scope control，也可能掩蓋 SLO checker 照出的真實營運風險。
+- 方案 B：P84.6 只做總驗證與真相凍結，把 production SLO blocking / landing stale 登記為 R-016。
+  - 優點：Phase 邊界乾淨，保留可追溯真相；後續若要 recovery 可獨立處理。
+  - 缺點：收官時仍會留下 Open operational risk。
+- 決策：採方案 B。P84/P77-P84 戰役狀態為 `CLOSED WITH KNOWN OPERATIONAL RISK`，R-016 保留 Open。
+
+**稽核表**：
+- S 級代碼層：不改 production code；只新增/更新 closeout 文件與風險登記。
+- S 級邏輯層：區分 governance closeout 與 production recovery；SLO/health fail 視為揭露風險，不視為 P84.6 checker 失敗。
+- S 級測試層：重跑 full pytest、handoff truth、governance doctor、phase lint、diff check、Python 3.8 import guard。
+- S 級安全層：不實刪資料、不 stage untracked reports、不覆寫 production；retention 仍為 dry-run。
+- A 級文件層：新增 `docs/P77_P84_CLOSEOUT_REPORT.md`，同步 P84 plan、總戰役、handoff、active operation、risk registry。
+- A 級流程層：P84 狀態轉為 CLOSED；不自動開 P85。
+
+**物理真相**：
+- 新增 `docs/P77_P84_CLOSEOUT_REPORT.md`
+  - 狀態：`CLOSED WITH KNOWN OPERATIONAL RISK`
+  - 範圍：P77 止血 -> P84 long-term governance
+  - 明確指出 R-016 是 production SLO blocking / landing stale，不是 P84.6 checker 失敗。
+- 更新 `docs/RISK_REGISTRY.md`
+  - 新增 `R-016：production SLO blocking / landing stale（P84.6 收官揭露）`
+  - 狀態：Open
+  - 風險級：高
+  - 內容：`SLO001` 連續 3 天無 production、`SLO002` 5/17 與 5/18 缺 manifest、`SLO003` doctor severity budget 超標；2026-05-18 daily health 顯示 landing main link 仍指向 `data/reports/aov_report_2026-05-16.html`。
+- 更新 `docs/PHASE_84_PLAN.md`
+  - 狀態改為 CLOSED。
+  - Exit Criteria 全部勾選。
+  - P84.6 stage 標為 DONE。
+  - 新增 P84.6 實作紀錄。
+- 更新 `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - 總戰役狀態改為 `CLOSED WITH KNOWN OPERATIONAL RISK`。
+  - P84 row 改為 CLOSED，並指出 R-016 保留 Open。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - Mode 改為 CLOSED。
+  - Current Step 改為 `P84.6 CLOSED：P77-P84 總收官完成；R-016 保留 Open operational risk`。
+  - Resume Rule 改為不自動開 P85；若主公要處理 R-016，才進 production/backfill/recovery。
+
+**實跑證據**：
+- `py -m pytest -q` -> `204 passed`
+- `py scripts\retention_policy.py --repo-root . --today 2026-05-18 --max-candidates 5`
+  - exit 0
+  - `dry_run=true`
+  - `will_delete=false`
+  - `reports_canonical=24`
+  - `reports_variants=66`
+  - `reports_variants candidates=17`
+  - `run_manifests=1`
+  - `debug_bundles=1`
+  - `llm_cache=1`
+  - `raw_analysis_snapshots=16`
+- `py scripts\slo_checker.py --repo-root . --date 2026-05-18 --window-days 3`
+  - exit 1（預期，因檢出 blocking SLO）
+  - `SLO001 BLOCKING`: `consecutive_no_production=3 threshold=1`
+  - `SLO002 BLOCKING`: `missing_manifest_count=2 threshold=0 window=2026-05-16,2026-05-17,2026-05-18`
+  - `SLO003 BLOCKING`: `blocking_days=2 degraded_days=3 degraded_threshold=2`
+- `py scripts\check_daily_report_health.py --date 2026-05-18 --expected-mode any`
+  - exit 1（預期）
+  - canonical report PASS：`data\reports\aov_report_2026-05-18.html`
+  - metadata mode PASS：`mode=showcase_forced`
+  - landing main link FAIL：`href=data/reports/aov_report_2026-05-16.html`
+- `py scripts\check_daily_report_health.py --date 2026-05-16 --expected-mode any`
+  - exit 0
+  - 現有 landing 指向的 `data/reports/aov_report_2026-05-16.html` 本身健康。
+- `py scripts\check_handoff_truth.py --repo-root .` -> passed，輸出 `HND000`
+- `py scripts\governance_doctor.py --repo-root .` -> passed，輸出 `GOV000`
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3`
+  - exit 0
+  - `CCG003 ADVISORY`: `aggregate_cache_hit_rate_pct=0 threshold=20 total_calls=3`
+- `py scripts\lint_phase_plan.py docs\PHASE_84_PLAN.md` -> passed
+- `py -3.8 -c "import scripts.retention_policy; import scripts.slo_checker; import scripts.check_handoff_truth; import scripts.governance_doctor; import scripts.cost_cache_governance; print('py38 P84 imports ok')"` -> passed
+- `git diff --check` -> passed
+
+**風險**：
+- R-016：production SLO blocking / landing stale。
+  - 目前狀態：Open。
+  - 短期緩解：不要把 P84.6 CLOSED 解讀成 production 已恢復。
+  - 後續處置：等外部配額恢復或主公核准後，重跑 production / replay backfill，補齊 5/17、5/18 manifest 與 production report，再跑 health + SLO。
+- R-P84.6-1：若未來新視窗只看到 CLOSED 兩字，可能誤判沒有問題；因此 handoff、active、closeout report 都明寫 R-016。
+- R-P84.6-2：P84.6 未修 landing stale，這是刻意邊界選擇；若主公要修，需另開 operational recovery 任務。
+
+**狀態**：
+- ✅ P84.6 CLOSED。
+- ✅ P77-P84 Daily Monitoring Reliability Program CLOSED WITH KNOWN OPERATIONAL RISK。
+- 🔴 R-016 保留 Open，等待主公另行指示是否進 production/backfill/recovery。
