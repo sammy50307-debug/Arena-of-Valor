@@ -8050,3 +8050,80 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P84.4 CLOSED。
 - ⏳ 下一步：P84.5 Cost / cache hit governance，等主公指示後再動工。
+
+### P84.5 Cost / cache hit governance（2026-05-18）
+
+**目標**：
+- 建立 cost/cache governance checker，讓 LLM call、cache hit、cache store stats 成為可觀測的 pipeline 成本代理訊號。
+- 至少能從 `run_manifest.json`、report metadata 或 `data/llm_cache.json` stats 讀到趨勢輸入。
+- 明確標示這不是供應商帳單，避免主公或 AI 把 cache 指標誤解成 OpenAI/Gemini 真實費用。
+
+**觸發**：
+- 主公指示「好的繼續」。
+- P84.4 已完成並推送；當前 P84 下一步為 P84.5。
+
+**取捨**：
+- 方案 A：只寫文件說明 cost/cache 指標。
+  - 優點：最快。
+  - 缺點：無法從真實 repo 拉出 trend input，也無法發現 metadata/manifest 指標格式壞掉。
+- 方案 B：新增 cost/cache governance checker，讀 manifest -> report metadata -> cache stats。
+  - 優點：可 CLI、可 JSON、可測；能在真實 repo 上輸出 total_llm_calls、cache hit rate、cache entry count。
+  - 缺點：仍只是 proxy，不是精準帳單。
+- 決策：採方案 B；所有輸出明確標 `pipeline proxy only; not provider billing truth`。
+
+**稽核表**：
+- S 級代碼層：新增 `scripts/cost_cache_governance.py`，不改 runtime 主鏈路。
+- S 級邏輯層：優先讀 manifest metrics，缺 manifest 時 fallback 到 report metadata，再讀 cache store stats。
+- S 級測試層：新增 `tests/test_cost_cache_governance.py`，覆蓋 manifest、report metadata fallback、低 cache hit advisory、invalid metrics、LLM call budget、cache stats 不外洩、CLI JSON。
+- S 級安全層：checker 不輸出 cache entry 的 LLM result 內容，只輸出 schema、entry count、stats。
+- A 級文件/流程層：新增 `docs/COST_CACHE_GOVERNANCE_POLICY.md`，更新 runbook `CCG###` 與 governance doctor issue code 掃描。
+
+**物理真相**：
+- 新增 `scripts/cost_cache_governance.py`
+  - CLI：`py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3`
+  - JSON：`py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3 --json`
+  - 輸出 `total_cache_hit`、`total_calls`、`total_llm_calls`、`aggregate_cache_hit_rate_pct`、`cache_entry_count`、`cache_observed_hit_rate_pct`。
+  - `CCG003` cache hit low 只屬 ADVISORY，exit code 仍為 0。
+- 新增 `tests/test_cost_cache_governance.py`
+  - 7 個測試覆蓋正常與常見漂移。
+- 新增 `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+  - 明列資料來源、`CCG001`-`CCG005`、以及不是 billing truth 的邊界。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `CCG000` / `CCG001` / `CCG002` / `CCG003` / `CCG004` / `CCG005`。
+- 更新 `scripts/governance_doctor.py`
+  - 預設掃描加入 `scripts/cost_cache_governance.py`。
+  - issue code regex 納入 `CCG###`。
+- 更新 `tests/test_governance_doctor.py`
+  - 補 CCG issue code 掃描覆蓋。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - 下一步切為 P84.6 P77-P84 總收官驗證。
+- 更新 `docs/PHASE_84_PLAN.md`
+  - LLM cost/cache exit criterion 勾選完成。
+  - P84.5 stage 標為 DONE。
+  - 新增 P84.5 實作紀錄。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_cost_cache_governance.py tests\test_governance_doctor.py` -> 13 passed
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3` -> exit 0，輸出 `CCG003 ADVISORY`
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3 --json` -> exit 0
+- `py scripts\governance_doctor.py --repo-root .` -> passed，輸出 `GOV000`
+- `py -3.8 -c "import scripts.cost_cache_governance; print('py38 cost/cache import ok')"` -> passed
+
+**目前真實 repo cost/cache 輸出（2026-05-18 / window=3）**：
+- `CCG003 ADVISORY`: `aggregate_cache_hit_rate_pct=0 threshold=20 total_calls=3`
+- `total_cache_hit=0`
+- `total_calls=3`
+- `total_llm_calls=3`
+- `aggregate_cache_hit_rate_pct=0`
+- `cache_entry_count=31`
+- `cache_observed_hit_rate_pct=0`
+- `billing_truth=pipeline proxy only; not provider billing truth`
+
+**風險**：
+- R-P84.5-1：報告 metadata parser 是 regex-based，若 generator metadata 格式改版需同步更新 checker 與測試。
+- R-P84.5-2：`total_llm_calls` 是 pipeline proxy，不包含供應商 token price、cached input discount 或人工重跑成本。
+- R-P84.5-3：目前真實 repo cache hit rate 為 0%，這是 advisory 訊號；不能直接解讀成 bug，需結合配額恢復、production cadence、資料源變動判斷。
+
+**狀態**：
+- ✅ P84.5 CLOSED。
+- ⏳ 下一步：P84.6 P77-P84 總收官驗證，等主公指示後再動工。

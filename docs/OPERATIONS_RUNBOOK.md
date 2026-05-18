@@ -183,7 +183,7 @@
 - 處置：無需動作。
 
 ### <a id="gov001"></a>GOV001 — runbook missing anchor
-- 意義：治理腳本中出現 `DOC###` / `SLO###` / `HND###` / `GOV###`，但 `docs/OPERATIONS_RUNBOOK.md` 沒有對應 anchor。
+- 意義：治理腳本中出現 `DOC###` / `SLO###` / `HND###` / `GOV###` / `CCG###`，但 `docs/OPERATIONS_RUNBOOK.md` 沒有對應 anchor。
 - 處置：
   1. 確認該 issue code 是否真的會輸出給操作者。
   2. 若會輸出，在本檔新增該 code 的 lowercase anchor 段落與處置步驟。
@@ -209,3 +209,41 @@
   1. 找出重複的 `R-###` heading。
   2. 若是同一風險，合併成一筆；若是不同風險，重新編號較新的條目。
   3. 重跑 governance doctor。
+
+### <a id="ccg000"></a>CCG000 — cost/cache governance verified
+- 意義：P84.5 cost/cache governance 檢查通過；可從 manifest、report metadata 或 cache stats 讀到成本代理訊號。
+- 處置：無需動作。
+
+### <a id="ccg001"></a>CCG001 — metrics source missing
+- 意義：指定 window 內找不到 `run_manifest.json` metrics，也找不到 report HTML metadata，無法建立成本/cache 趨勢輸入。
+- 處置：
+  1. 檢查 `data/runs/<date>/run_manifest.json` 是否產生。
+  2. 若 manifest 缺失但 report 存在，確認報告首行仍含 `cache_hit` / `llm_calls` metadata。
+  3. 若兩者都缺，先依 `SLO002` / `DOC001` 補 manifest 或重跑 replay/backfill。
+
+### <a id="ccg002"></a>CCG002 — metrics invariant
+- 意義：成本/cache 指標格式不合法，例如 `cache_hit` 或 `llm_calls` 大於 `total_calls`。
+- 處置：
+  1. 檢查 manifest `metrics` 或 report metadata 是否被手動寫壞。
+  2. 修正產生端後重跑 `py scripts\cost_cache_governance.py --repo-root . --date <date>`。
+
+### <a id="ccg003"></a>CCG003 — cache hit rate low
+- 意義：window 內 aggregate cache hit rate 低於 advisory 門檻；這是成本代理訊號，不是供應商帳單。
+- 處置：
+  1. 先確認是否為外部配額恢復後的正常冷啟動。
+  2. 若連續多日低命中，檢查 cache key dimensions、TTL、`CACHE_MAX_ENTRIES` 是否過小。
+  3. 不要只因本 issue 直接刪 cache 或更換 provider。
+
+### <a id="ccg004"></a>CCG004 — cache store stats
+- 意義：`data/llm_cache.json` 缺失、損毀或 stats 欄位不可讀。
+- 處置：
+  1. 不要輸出 cache entries 內容；只檢查 schema、entry count、stats。
+  2. 若 cache 檔損毀，保留備份後讓 `CacheManager` 重建。
+  3. 重跑 cost/cache governance。
+
+### <a id="ccg005"></a>CCG005 — llm call budget
+- 意義：window 內 LLM call proxy 超過設定門檻，可能代表成本或配額壓力升高。
+- 處置：
+  1. 先確認 `total_llm_calls` 來源是 manifest 還是 report metadata。
+  2. 對照 `CCG003` 判斷是否 cache hit 低造成。
+  3. 若真實 API 費用需確認，另查供應商帳單；本 checker 不代表 billing truth。

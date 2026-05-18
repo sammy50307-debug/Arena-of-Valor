@@ -36,8 +36,8 @@ GOOD_RISK_REGISTRY = """# 跨 Phase 風險登記簿（STR6）
 
 def _write_repo(
     tmp_path: Path,
-    source_text: str = 'ISSUE_CATALOG = {"x": {"code": "DOC001"}, "y": {"code": "GOV001"}}',
-    runbook_text: str = '<a id="doc001"></a>DOC001\n<a id="gov001"></a>GOV001\n<a id="gov000"></a>GOV000\n',
+    source_text: str = 'ISSUE_CATALOG = {"x": {"code": "DOC001"}, "y": {"code": "GOV001"}, "z": {"code": "CCG001"}}',
+    runbook_text: str = '<a id="doc001"></a>DOC001\n<a id="gov001"></a>GOV001\n<a id="gov000"></a>GOV000\n<a id="ccg001"></a>CCG001\n',
     risk_text: str = GOOD_RISK_REGISTRY,
 ) -> None:
     scripts = tmp_path / "scripts"
@@ -60,6 +60,7 @@ def test_governance_passes_when_issue_codes_have_anchors_and_risks_match(tmp_pat
 
     assert result.issues == []
     assert "DOC001" in result.issue_codes
+    assert "CCG001" in result.issue_codes
     assert "doc001" in result.runbook_anchors
     assert governance_doctor.exit_code_for(result) == 0
 

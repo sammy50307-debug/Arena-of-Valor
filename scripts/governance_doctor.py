@@ -24,6 +24,7 @@ DEFAULT_ISSUE_SOURCE_PATHS = [
     "scripts/slo_checker.py",
     "scripts/check_handoff_truth.py",
     "scripts/governance_doctor.py",
+    "scripts/cost_cache_governance.py",
 ]
 
 SEV_BLOCKING = "BLOCKING"
@@ -37,7 +38,7 @@ ISSUE_CATALOG = {
     "risk_duplicate_id": {"code": "GOV004", "name": "risk registry duplicate id"},
 }
 
-ISSUE_CODE_RE = re.compile(r"\b(?:DOC|SLO|HND|GOV)\d{3}\b")
+ISSUE_CODE_RE = re.compile(r"\b(?:DOC|SLO|HND|GOV|CCG)\d{3}\b")
 RUNBOOK_ANCHOR_RE = re.compile(r'id="([a-z]{3}\d{3})"')
 RISK_HEADING_RE = re.compile(r"^###\s+(R-\d{3})", re.MULTILINE)
 STATUS_RE = re.compile(r"^\-\s+\*\*狀態\*\*[:：]\s*(.+)$", re.MULTILINE)
