@@ -8,16 +8,16 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.5 READY：Cost / cache hit governance（等主公指示再動工） |
+| **Current Step** | P84.6 READY：P77-P84 總收官驗證（等主公指示再動工） |
 | **Mode** | APPROVED |
-| **Latest Verified Commit** | `HEAD feat: 完成 P84.4 runbook risk governance`（本地 commit，待主公確認 push） |
+| **Latest Verified Commit** | `HEAD feat: 完成 P84.5 cost cache governance`（本地 commit，待主公確認 push） |
 | **Updated At** | 2026-05-18 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 讀 `docs/PHASE_84_PLAN.md` 的 P84.5 範圍；P84.4 已完成，下一步等主公指示是否進 Cost / cache hit governance
+3. 讀 `docs/PHASE_84_PLAN.md` 的 P84.6 範圍；P84.5 已完成，下一步等主公指示是否進 P77-P84 總收官驗證
 
 ## Current Source Of Truth
 
@@ -26,18 +26,18 @@
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
 | L3 | `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md` | P77-P84 總戰役計畫 |
-| L4 | `docs/PHASE_84_PLAN.md` | 當前 Phase 已核准計畫，下一步 P84.5 |
+| L4 | `docs/PHASE_84_PLAN.md` | 當前 Phase 已核准計畫，下一步 P84.6 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
 | **Current Phase** | P84（APPROVED） |
-| **Current Step** | P84.5 Cost / cache hit governance（等主公指示） |
-| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, `docs/OPERATIONS_RUNBOOK.md`, P84.5 新增的 cost/cache governance policy / checker / tests 檔 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不跳到 P84.6；不重寫 P80 promotion/P83 security；不把 cache 指標誤稱供應商帳單 |
-| **Exit Criteria** | P84.5 完成 cost / cache hit governance，測試通過，狀態文件與 TASK_HISTORY 同步 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；P84.4 已完成，等主公指示後再進 P84.5，不可跨步到 P84.6 |
+| **Current Step** | P84.6 P77-P84 總收官驗證（等主公指示） |
+| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, `docs/OPERATIONS_RUNBOOK.md`, P84.6 收官狀態與必要驗證文件 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不新增 P85；不重寫 P80 promotion/P83 security；不把 cache 指標誤稱供應商帳單 |
+| **Exit Criteria** | P84.6 完成 P77-P84 總收官驗證，測試通過，狀態文件與 TASK_HISTORY 同步，P84/P77-P84 狀態明確 |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；P84.5 已完成，等主公指示後再進 P84.6，不可開新 Phase |
 
 ## Required Verification Commands
 
@@ -51,7 +51,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- P84.4 已完成；不要未經主公指示直接動工 P84.5。
+- P84.5 已完成；不要未經主公指示直接動工 P84.6。
 - 不要重寫 P80 promotion 架構。
 - 不要更換 LLM provider 或大改 prompt 架構。
 - 不要 git push，除非主公明確確認。

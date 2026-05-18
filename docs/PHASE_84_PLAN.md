@@ -3,7 +3,7 @@
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
 > 核准日期：2026-05-17
-> 狀態：APPROVED（P84.4 已完成；下一步 P84.5 Cost / cache hit governance）
+> 狀態：APPROVED（P84.5 已完成；下一步 P84.6 P77-P84 總收官驗證）
 
 ## 0. Phase 元資料
 
@@ -50,7 +50,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - [x] SLO/escalation 明文化並可由 doctor 或獨立腳本檢查：連續 N 天無 production report、manifest 缺失、doctor blocking/degraded 達門檻時輸出明確 issue。（P84.2）
 - [x] handoff truth check 可機械驗證：active bootstrap marker、Current Phase/Step/Mode、archive 禁用提示、Allowed/Forbidden/Exit/Resume 六欄位一致。（P84.3）
 - [x] risk registry / runbook 更新 SOP 明文化，新增 issue code 時能找到對應 runbook anchor。（P84.4）
-- [ ] LLM cost / cache hit / run metrics 監控規則明文化，至少能從 manifest 或現有 cache stats 讀到趨勢輸入。
+- [x] LLM cost / cache hit / run metrics 監控規則明文化，至少能從 manifest 或現有 cache stats 讀到趨勢輸入。（P84.5）
 - [x] P84 新增/更新測試覆蓋 retention dry-run、SLO 判定、handoff truth、runbook issue-code mapping。
 - [ ] `py -m pytest -q` 通過，Python 3.8 import guard 不回歸。
 - [ ] handoff / active / TASK_HISTORY / 總戰役計畫同步 P84 CLOSED，並給出 P77-P84 總收官狀態。
@@ -171,7 +171,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 | P84.2 | SLO / escalation checker | R2/R3 | DONE：可檢查連續無 production report、manifest/doctor 異常 |
 | P84.3 | Handoff truth checker | R4 | DONE：active bootstrap 必備欄位與 archive 邊界可驗 |
 | P84.4 | Risk registry / runbook issue-code governance | R4/R6 | DONE：issue code 對應 runbook anchor，risk state SOP 可驗 |
-| P84.5 | Cost / cache hit governance | R5 | manifest/cache stats 可輸出 advisory 指標 |
+| P84.5 | Cost / cache hit governance | R5 | DONE：manifest/report metadata/cache stats 可輸出 advisory 指標 |
 | P84.6 | P77-P84 總收官驗證 | 全部 | pytest / diff check / TASK_HISTORY / handoff / total program 全同步 |
 
 ## 13. 影響檔案清單
@@ -190,6 +190,9 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - `docs/RUNBOOK_RISK_GOVERNANCE_POLICY.md`（P84.4）
 - `scripts/governance_doctor.py`（P84.4）
 - `tests/test_governance_doctor.py`（P84.4）
+- `docs/COST_CACHE_GOVERNANCE_POLICY.md`（P84.5）
+- `scripts/cost_cache_governance.py`（P84.5）
+- `tests/test_cost_cache_governance.py`（P84.5）
 
 **修改（主公核准後才可動）**：
 - `scripts/system_doctor.py`：可能接入 SLO/governance advisory issue。
@@ -264,7 +267,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`APPROVED`。P84.4 已完成；下一步為 P84.5 Cost / cache hit governance，待主公指示後再動工。不可實刪歷史資料。
+目前狀態：`APPROVED`。P84.5 已完成；下一步為 P84.6 P77-P84 總收官驗證，待主公指示後再動工。不可實刪歷史資料。
 
 ## 17. P84.1 實作紀錄
 
@@ -378,3 +381,41 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 **驗證**：
 - `py -m pytest -q tests/test_governance_doctor.py` -> 6 passed
 - `py -3.8 -c "import scripts.governance_doctor; print('py38 governance import ok')"` -> passed
+
+## 21. P84.5 實作紀錄
+
+**新增檔案**：
+- `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+- `scripts/cost_cache_governance.py`
+- `tests/test_cost_cache_governance.py`
+
+**修改檔案**：
+- `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `CCG000` / `CCG001` / `CCG002` / `CCG003` / `CCG004` / `CCG005` runbook anchor。
+- `scripts/governance_doctor.py`
+  - issue code regex 納入 `CCG###`。
+  - 預設掃描來源加入 `scripts/cost_cache_governance.py`，讓 P84.5 新 issue code 也受 P84.4 anchor 檢查約束。
+- `tests/test_governance_doctor.py`
+  - 補 CCG issue code 掃描覆蓋。
+
+**cost/cache issue code**：
+- `CCG001`: window 內缺 manifest/report metadata 指標來源。
+- `CCG002`: 指標 invariant 不合法。
+- `CCG003`: cache hit rate 低於 advisory 門檻。
+- `CCG004`: cache store stats 缺失或不可讀。
+- `CCG005`: LLM call proxy 超過門檻。
+
+**實跑結果（2026-05-18 / window=3）**：
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3` -> exit 0，輸出 `CCG003 ADVISORY`。
+- `total_cache_hit=0`
+- `total_calls=3`
+- `total_llm_calls=3`
+- `aggregate_cache_hit_rate_pct=0`
+- `cache_entry_count=31`
+- `cache_observed_hit_rate_pct=0`
+- `billing_truth=pipeline proxy only; not provider billing truth`
+
+**驗證**：
+- `py -m pytest -q tests/test_cost_cache_governance.py tests/test_governance_doctor.py` -> 13 passed
+- `py scripts\governance_doctor.py --repo-root .` -> passed，輸出 `GOV000`
+- `py -3.8 -c "import scripts.cost_cache_governance; print('py38 cost/cache import ok')"` -> passed
