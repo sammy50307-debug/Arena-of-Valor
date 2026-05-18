@@ -30,7 +30,7 @@
 | **P81** | Replay / Quarantine / Backfill | 支援單日回放、壞資料隔離、缺日補跑 | CLOSED（P81.3 已落地） |
 | **P82** | Idempotency / Timezone | 同日重跑不污染，日期統一 Asia/Taipei | CLOSED（2026-05-17：run context + run_id/source_hash 已落地） |
 | **P83** | Data Quality / Security | 資料品質 gate、HTML escape、LLM output contract | CLOSED（2026-05-17：data quality/security 已收官） |
-| **P84** | Long-Term Governance | retention、SLO、handoff truth、risk registry、runbook | APPROVED（2026-05-18：P84.2 SLO 已完成，下一步 P84.3 handoff truth） |
+| **P84** | Long-Term Governance | retention、SLO、handoff truth、risk registry、runbook | APPROVED（2026-05-18：P84.3 handoff truth 已完成，下一步 P84.4 governance） |
 
 ---
 
@@ -132,7 +132,7 @@ candidate report -> validate -> health pass -> atomic promote -> update index
 
 ### P84 Long-Term Governance
 
-- 狀態：APPROVED（2026-05-18：P84.2 SLO / escalation checker 已完成；下一步 P84.3 Handoff truth checker）
+- 狀態：APPROVED（2026-05-18：P84.3 Handoff truth checker 已完成；下一步 P84.4 Risk registry / runbook governance）
 - retention policy
 - LLM cost / cache hit 監控
 - SLO：連續 N 天無 production report 即升級

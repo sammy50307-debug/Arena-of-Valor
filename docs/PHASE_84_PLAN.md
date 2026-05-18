@@ -3,7 +3,7 @@
 > 草案日期：2026-05-17
 > 凍結日期：2026-05-17
 > 核准日期：2026-05-17
-> 狀態：APPROVED（P84.2 已完成；下一步 P84.3 Handoff truth checker）
+> 狀態：APPROVED（P84.3 已完成；下一步 P84.4 Risk registry / runbook governance）
 
 ## 0. Phase 元資料
 
@@ -48,7 +48,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 
 - [x] retention policy 明文化，涵蓋 `data/reports/`、`data/runs/`、`data/debug_bundles/`、`data/quarantine/`、LLM cache；若有清理腳本，預設必須 dry-run。（P84.1）
 - [x] SLO/escalation 明文化並可由 doctor 或獨立腳本檢查：連續 N 天無 production report、manifest 缺失、doctor blocking/degraded 達門檻時輸出明確 issue。（P84.2）
-- [ ] handoff truth check 可機械驗證：active bootstrap marker、Current Phase/Step/Mode、archive 禁用提示、Allowed/Forbidden/Exit/Resume 六欄位一致。
+- [x] handoff truth check 可機械驗證：active bootstrap marker、Current Phase/Step/Mode、archive 禁用提示、Allowed/Forbidden/Exit/Resume 六欄位一致。（P84.3）
 - [ ] risk registry / runbook 更新 SOP 明文化，新增 issue code 時能找到對應 runbook anchor。
 - [ ] LLM cost / cache hit / run metrics 監控規則明文化，至少能從 manifest 或現有 cache stats 讀到趨勢輸入。
 - [ ] P84 新增/更新測試覆蓋 retention dry-run、SLO 判定、handoff truth、runbook issue-code mapping。
@@ -169,7 +169,7 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 | P84.0 | 凍結本計畫，等待主公核准 | R6 | `docs/PHASE_84_PLAN.md` 完成 17 層/M1/M2，狀態 FROZEN |
 | P84.1 | Retention policy / dry-run inventory | R1 | DONE：policy 明列各資料目錄；dry-run 不刪資料 |
 | P84.2 | SLO / escalation checker | R2/R3 | DONE：可檢查連續無 production report、manifest/doctor 異常 |
-| P84.3 | Handoff truth checker | R4 | active bootstrap 必備欄位與 archive 邊界可驗 |
+| P84.3 | Handoff truth checker | R4 | DONE：active bootstrap 必備欄位與 archive 邊界可驗 |
 | P84.4 | Risk registry / runbook issue-code governance | R4/R6 | issue code 對應 runbook anchor，risk state SOP 明確 |
 | P84.5 | Cost / cache hit governance | R5 | manifest/cache stats 可輸出 advisory 指標 |
 | P84.6 | P77-P84 總收官驗證 | 全部 | pytest / diff check / TASK_HISTORY / handoff / total program 全同步 |
@@ -184,8 +184,11 @@ P77-P83 已完成主鏈路止血、manifest、doctor、promotion、replay/backfi
 - `docs/SLO_POLICY.md`（P84.2）
 - `scripts/slo_checker.py`（P84.2）
 - `tests/test_slo_checker.py`（P84.2）
-- 後續可能新增：`scripts/governance_doctor.py`、`scripts/check_handoff_truth.py` 或同等小型 checker。
-- 後續可能新增：`tests/test_governance_*.py`、`tests/test_handoff_truth.py`。
+- `docs/HANDOFF_TRUTH_POLICY.md`（P84.3）
+- `scripts/check_handoff_truth.py`（P84.3）
+- `tests/test_handoff_truth.py`（P84.3）
+- 後續可能新增：`scripts/governance_doctor.py` 或同等小型 checker。
+- 後續可能新增：`tests/test_governance_*.py`。
 
 **修改（主公核准後才可動）**：
 - `scripts/system_doctor.py`：可能接入 SLO/governance advisory issue。
@@ -260,7 +263,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 
 `DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED`
 
-目前狀態：`APPROVED`。P84.2 已完成；下一步為 P84.3 Handoff truth checker，待主公指示後再動工。不可實刪歷史資料。
+目前狀態：`APPROVED`。P84.3 已完成；下一步為 P84.4 Risk registry / runbook governance，待主公指示後再動工。不可實刪歷史資料。
 
 ## 17. P84.1 實作紀錄
 
@@ -318,3 +321,30 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-84-long-term-governance.m
 **驗證**：
 - `py -m pytest -q tests/test_slo_checker.py tests/test_system_doctor.py` -> 12 passed
 - `py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile local --require-production --skip-landing` -> passed（輸出 DOC005/DOC006/DOC007/DOC010，無 landing false positive）
+
+## 19. P84.3 實作紀錄
+
+**新增檔案**：
+- `docs/HANDOFF_TRUTH_POLICY.md`
+- `scripts/check_handoff_truth.py`
+- `tests/test_handoff_truth.py`
+
+**修改檔案**：
+- `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `HND000` / `HND001` / `HND002` / `HND003` / `HND004` / `HND005` / `HND006` / `HND007` runbook anchor。
+
+**handoff issue code**：
+- `HND001`: active bootstrap marker layout。
+- `HND002`: active bootstrap required fields。
+- `HND003`: invalid Mode state。
+- `HND004`: Six Anti-Drift Fields missing。
+- `HND005`: bootstrap top table vs anti-drift consistency。
+- `HND006`: archive boundary。
+- `HND007`: `docs/ACTIVE_OPERATION.md` consistency。
+
+**實跑結果（2026-05-18）**：
+- `py scripts\check_handoff_truth.py --repo-root .` -> passed，輸出 `HND000`。
+- `py scripts\check_handoff_truth.py --repo-root . --json` -> passed，`issues=[]`。
+
+**驗證**：
+- `py -m pytest -q tests/test_handoff_truth.py` -> 6 passed

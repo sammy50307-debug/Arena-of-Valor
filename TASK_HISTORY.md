@@ -7919,3 +7919,64 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P84.2 CLOSED。
 - ⏳ 下一步：P84.3 Handoff truth checker，等主公指示後再動工。
+
+### P84.3 Handoff truth checker（2026-05-18）
+
+**目標**：
+- 建立 handoff truth checker，讓新視窗入口 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 可以被機械驗證。
+- 確保 archive 舊段落不會被用來決定下一步。
+- 確保 `NEXT_SESSION_HANDOFF.md` 與 `docs/ACTIVE_OPERATION.md` 的 Current Phase / Current Step / Mode 不漂移。
+
+**觸發**：
+- 主公指示依建議繼續。
+- P84.2 已完成並推送；當前 P84 下一步為 P84.3。
+
+**取捨**：
+- 方案 A：只人工檢查 handoff。
+  - 優點：快。
+  - 缺點：新視窗容易被 archive 舊段落誤導，無法自動驗證。
+- 方案 B：新增 handoff truth checker。
+  - 優點：可測、可 CLI、可 JSON，可驗 active marker / 六硬欄位 / active operation 一致性。
+  - 缺點：需要維護一個小型 Markdown parser。
+- 決策：採方案 B；只解析 active bootstrap，不解析 archive，以降低誤判風險。
+
+**稽核表**：
+- S 級代碼層：新增小型 `scripts/check_handoff_truth.py`，不改 runtime 主鏈路。
+- S 級邏輯層：以 marker、必要欄位、狀態機、phase/step id 一致性為檢查核心。
+- S 級測試層：新增 `tests/test_handoff_truth.py`，覆蓋正常、marker 缺失、anti-drift 缺欄位、step mismatch、active operation mismatch、CLI JSON。
+- S 級安全層：checker 只讀 Markdown，不寫檔、不執行 shell、不解析 archive 舊段落。
+- A 級文件/流程層：新增 `docs/HANDOFF_TRUTH_POLICY.md`，更新 runbook HND issue code，handoff 下一步切 P84.4。
+
+**物理真相**：
+- 新增 `docs/HANDOFF_TRUTH_POLICY.md`
+  - 明列 `HND001`-`HND007` 機械檢查項。
+  - 明確寫入 checker 只解析 active bootstrap，不解析 archive 舊段落。
+- 新增 `scripts/check_handoff_truth.py`
+  - `check_handoff_truth(handoff_path, active_operation_path)`。
+  - CLI：`py scripts\check_handoff_truth.py --repo-root .`
+  - JSON：`py scripts\check_handoff_truth.py --repo-root . --json`
+  - 檢查 marker layout、required top fields、valid Mode、Six Anti-Drift Fields、bootstrap consistency、archive boundary、ACTIVE_OPERATION consistency。
+- 新增 `tests/test_handoff_truth.py`
+  - 6 個測試覆蓋正常與常見 drift。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `HND000` / `HND001` / `HND002` / `HND003` / `HND004` / `HND005` / `HND006` / `HND007`。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - 下一步切為 P84.4 Risk registry / runbook governance。
+- 更新 `docs/PHASE_84_PLAN.md`
+  - handoff truth exit criterion 勾選完成。
+  - P84.3 stage 標為 DONE。
+  - 新增 P84.3 實作紀錄。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_handoff_truth.py` -> 6 passed
+- `py scripts\check_handoff_truth.py --repo-root .` -> passed，輸出 `HND000`
+- `py scripts\check_handoff_truth.py --repo-root . --json` -> passed，`issues=[]`
+
+**風險**：
+- R-P84.3-1：Markdown table parser 是規則式解析，若 handoff 格式大改需同步更新測試與 policy。
+- R-P84.3-2：Current Step 只用 `P##.#` step id 判定一致，允許描述不同；這是刻意避免過度僵硬。
+- R-P84.3-3：checker 不判斷下一步策略是否正確，只保證入口文件不自相矛盾。
+
+**狀態**：
+- ✅ P84.3 CLOSED。
+- ⏳ 下一步：P84.4 Risk registry / runbook governance，等主公指示後再動工。
