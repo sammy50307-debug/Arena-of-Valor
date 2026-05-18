@@ -132,6 +132,20 @@
 
 ---
 
+### R-016：production SLO blocking / landing stale（P84.6 收官揭露）
+
+- **來源**：P84.6 總收官驗證（2026-05-18）
+- **風險級**：🔴 高
+- **狀態**：Open
+- **描述**：P84.6 收官矩陣顯示 governance / handoff / runbook / pytest 全數通過，但目前 production SLO 仍阻塞：`SLO001` 連續 3 天無 production、`SLO002` 5/17 與 5/18 缺 manifest、`SLO003` doctor severity budget 超標。`check_daily_report_health --date 2026-05-18 --expected-mode any` 顯示 canonical report 與 metadata mode 存在，但 landing main link 仍指向 `data/reports/aov_report_2026-05-16.html`。
+- **緩解策略**：
+  - 短期：不要把 P84.6 CLOSED 解讀成 production SLO 已恢復；維持 `SLO###` / `DOC###` / health check 作為營運真相。
+  - 中期：等外部配額恢復或主公核准後，重跑 production / replay backfill，補齊 5/17、5/18 manifest 與 production report。
+  - 長期：若 landing stale 與 production gap 重複發生，另開獨立 operational recovery Phase，不併入 P84 governance closeout。
+- **觸發升級**：若連續無 production ≥ 7 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為獨立修復 Phase。
+
+---
+
 ## 已關閉風險（Closed）
 
 ### R-007：`.back-to-landing` 未列入 mobile backdrop-filter 停用清單（P70.3.1 審計）
