@@ -8,9 +8,9 @@
 |---|---|
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance） |
-| **Current Step** | P84.3 READY：Handoff truth checker（等主公指示再動工） |
+| **Current Step** | P84.4 READY：Risk registry / runbook governance（等主公指示再動工） |
 | **Mode** | APPROVED |
-| **Latest Verified Commit** | `HEAD feat: 完成 P84.2 SLO escalation checker`（本地 commit，待主公確認 push） |
+| **Latest Verified Commit** | `HEAD feat: 完成 P84.3 handoff truth checker`（本地 commit，待主公確認 push） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-18 |
 
@@ -29,11 +29,11 @@
 | 欄位 | 當前值 |
 |---|---|
 | **Current Phase** | P84（APPROVED） |
-| **Current Step** | P84.3 Handoff truth checker（等主公指示） |
-| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, P84.3 新增的 handoff truth checker / tests / runbook 檔 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不跳到 P84.4-P84.6；不重寫 P80 promotion/P83 security |
-| **Exit Criteria** | P84.3 完成 handoff truth checker，測試通過，狀態文件與 TASK_HISTORY 同步 |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84.2 已完成，等主公指示後再進 P84.3，不可跨步到 P84.4+ |
+| **Current Step** | P84.4 Risk registry / runbook governance（等主公指示） |
+| **Allowed Files** | `docs/PHASE_84_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`, `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/RISK_REGISTRY.md`, P84.4 新增的 governance checker / tests 檔 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不跳到 P84.5-P84.6；不重寫 P80 promotion/P83 security |
+| **Exit Criteria** | P84.4 完成 risk registry / runbook governance，測試通過，狀態文件與 TASK_HISTORY 同步 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；P84.3 已完成，等主公指示後再進 P84.4，不可跨步到 P84.5+ |
 
 ## State Machine
 
@@ -64,4 +64,4 @@ P80 已收官：2026-05-17 GitHub Actions `daily_report.yml` / `workflow_dispatc
 
 ## Next Decision
 
-P84.2 SLO / escalation checker 已完成。下一步是 P84.3 Handoff truth checker；等主公指示後再動工，push 前仍需主公確認。
+P84.3 Handoff truth checker 已完成。下一步是 P84.4 Risk registry / runbook governance；等主公指示後再動工，push 前仍需主公確認。

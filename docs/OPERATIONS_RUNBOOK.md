@@ -1,7 +1,7 @@
-# Operations Runbook（P79.2 / P84.2）
+# Operations Runbook（P79.2 / P84.2 / P84.3）
 
 > 更新日期：2026-05-18
-> 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
+> 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` / `scripts/check_handoff_truth.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
 
 ## 使用方式
 
@@ -124,3 +124,49 @@
   1. 查看 SLO JSON 的 `days[]`，找出 `doctor_blocking` / `doctor_degraded` 非 0 的日期。
   2. 對那些日期跑：`py scripts\system_doctor.py --repo-root . --date <date> --profile local --require-production --skip-landing`
   3. 依 doctor 輸出的 `DOCxxx` code 回到本 runbook 處理。
+
+### <a id="hnd000"></a>HND000 — handoff truth verified
+- 意義：`NEXT_SESSION_HANDOFF.md` active bootstrap 通過 handoff truth check。
+- 處置：無需動作。
+
+### <a id="hnd001"></a>HND001 — active bootstrap markers
+- 意義：`ACTIVE_BOOTSTRAP_START` / `ACTIVE_BOOTSTRAP_END` marker 缺失、重複或位置錯誤。
+- 處置：
+  1. 只修 `NEXT_SESSION_HANDOFF.md` 頂部 marker，不改 archive 舊段落。
+  2. 重跑：`py scripts\check_handoff_truth.py --repo-root .`
+
+### <a id="hnd002"></a>HND002 — bootstrap required fields
+- 意義：active bootstrap 頂部狀態表缺少必要欄位。
+- 處置：
+  1. 補齊 Status / Program / Current Phase / Current Step / Mode / Latest Verified Commit / Updated At。
+  2. 確認 `Mode` 與狀態機一致。
+
+### <a id="hnd003"></a>HND003 — mode state
+- 意義：`Mode` 不是允許的狀態值。
+- 處置：
+  1. 只能使用 DRAFT / FROZEN / APPROVED / IN_PROGRESS / VERIFYING / CLOSED。
+  2. 若 Phase 已完成，切到下一個合法狀態，不要自創狀態詞。
+
+### <a id="hnd004"></a>HND004 — six anti-drift fields
+- 意義：Six Anti-Drift Fields 缺少必要欄位。
+- 處置：
+  1. 補齊 Current Phase / Current Step / Allowed Files / Forbidden Work / Exit Criteria / Resume Rule。
+  2. 確認 Allowed / Forbidden 不會允許跨 Phase 或 stage。
+
+### <a id="hnd005"></a>HND005 — bootstrap field consistency
+- 意義：active bootstrap 頂部狀態表與 Six Anti-Drift Fields 的 Phase / Step / Mode 不一致。
+- 處置：
+  1. 以頂部 active bootstrap 的當前真相為準。
+  2. 同步 Six Anti-Drift Fields 後重跑 checker。
+
+### <a id="hnd006"></a>HND006 — archive boundary
+- 意義：archive marker 缺失、重複或不在 active bootstrap 之後。
+- 處置：
+  1. 確保 `ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION` 只出現一次。
+  2. 確保它位於 `ACTIVE_BOOTSTRAP_END` 後方。
+
+### <a id="hnd007"></a>HND007 — active operation consistency
+- 意義：`docs/ACTIVE_OPERATION.md` 的 Current Phase / Step / Mode 與 handoff 不一致。
+- 處置：
+  1. 先以 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 為準。
+  2. 同步 `docs/ACTIVE_OPERATION.md` 的 Current State 與 Six Anti-Drift Fields。
