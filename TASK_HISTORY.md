@@ -7980,3 +7980,73 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ P84.3 CLOSED。
 - ⏳ 下一步：P84.4 Risk registry / runbook governance，等主公指示後再動工。
+
+### P84.4 Risk registry / runbook governance（2026-05-18）
+
+**目標**：
+- 建立 runbook / risk registry governance checker，讓新增 issue code 時必須有對應 runbook anchor。
+- 讓 `docs/RISK_REGISTRY.md` 的 Open / Closed section 與每筆 `狀態` 欄位可機械驗證。
+- 明文化新增 issue code 與移動風險條目的更新 SOP。
+
+**觸發**：
+- 主公指示「請開始吧」。
+- P84.3 已完成並推送；當前 P84 下一步為 P84.4。
+
+**取捨**：
+- 方案 A：只在文件中要求人工記得補 runbook / risk registry。
+  - 優點：最快，不新增程式。
+  - 缺點：半年後最容易忘，且新增 `DOC###` / `SLO###` / `HND###` / `GOV###` 時沒有機械防線。
+- 方案 B：新增小型 governance doctor，掃既有治理腳本 issue code、runbook anchor、risk registry 狀態。
+  - 優點：可測、可 CLI、可 JSON，能在收官前直接驗證漂移。
+  - 缺點：需要維護一個小型 Markdown / regex checker。
+- 決策：採方案 B；只驗可機械判定的格式與對應關係，不判斷風險內容策略是否正確。
+
+**稽核表**：
+- S 級代碼層：新增 `scripts/governance_doctor.py`，不碰 daily runtime 主鏈路。
+- S 級邏輯層：檢查 issue code -> runbook anchor、runbook anchor duplicate、risk section/status mismatch、risk id duplicate。
+- S 級測試層：新增 `tests/test_governance_doctor.py`，覆蓋正常、缺 anchor、重複 anchor、risk 狀態錯區、risk id 重複、CLI JSON。
+- S 級安全層：checker 只讀 Markdown / Python source，不寫檔、不刪資料、不輸出 raw data。
+- A 級文件/流程層：新增 `docs/RUNBOOK_RISK_GOVERNANCE_POLICY.md`，更新 runbook GOV issue code 與 RISK_REGISTRY 更新 SOP。
+
+**物理真相**：
+- 新增 `scripts/governance_doctor.py`
+  - 預設掃描：
+    - `scripts/system_doctor.py`
+    - `scripts/slo_checker.py`
+    - `scripts/check_handoff_truth.py`
+    - `scripts/governance_doctor.py`
+  - 擷取 `DOC###` / `SLO###` / `HND###` / `GOV###`，確認 `docs/OPERATIONS_RUNBOOK.md` 有 lowercase anchor。
+  - 檢查 `docs/RISK_REGISTRY.md`：
+    - `開放風險（Open）` 內每筆狀態必須含 `Open`。
+    - `已關閉風險（Closed）` 內每筆狀態必須含 `已` 或 `Closed`。
+    - `R-###` 不得重複。
+- 新增 `tests/test_governance_doctor.py`
+  - 6 個測試覆蓋正常與常見漂移。
+- 新增 `docs/RUNBOOK_RISK_GOVERNANCE_POLICY.md`
+  - 明列 `GOV001`-`GOV004` 檢查項與更新 SOP。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `DOC999` fallback anchor。
+  - 新增 `GOV000` / `GOV001` / `GOV002` / `GOV003` / `GOV004`。
+- 更新 `docs/RISK_REGISTRY.md`
+  - 新增 P84.4 更新 SOP。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - 下一步切為 P84.5 Cost / cache hit governance。
+- 更新 `docs/PHASE_84_PLAN.md`
+  - risk registry / runbook exit criterion 勾選完成。
+  - P84.4 stage 標為 DONE。
+  - 新增 P84.4 實作紀錄。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_governance_doctor.py` -> 6 passed
+- `py scripts\governance_doctor.py --repo-root .` -> passed，輸出 `GOV000`
+- `py scripts\governance_doctor.py --repo-root . --json` -> passed，`issues=[]`
+- `py -3.8 -c "import scripts.governance_doctor; print('py38 governance import ok')"` -> passed
+
+**風險**：
+- R-P84.4-1：issue code 擷取是 regex-based，若未來 issue code 改成非 `AAA000` 格式，需同步調整 checker 與 policy。
+- R-P84.4-2：risk registry 狀態只驗 section/status 一致，不判斷風險內容是否該關閉；仍需主公與 AI 在 Phase 收官時做內容判斷。
+- R-P84.4-3：governance doctor 目前未接 CI，P84.4 先本地可驗；是否接 CI 留待 P84.6 或後續 governance 擴充。
+
+**狀態**：
+- ✅ P84.4 CLOSED。
+- ⏳ 下一步：P84.5 Cost / cache hit governance，等主公指示後再動工。

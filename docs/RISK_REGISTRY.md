@@ -6,6 +6,16 @@
 
 ---
 
+## 更新 SOP（P84.4）
+
+1. 新增風險時使用下一個未占用 `R-###`，不得重複編號。
+2. 仍需觀察或未完成緩解的風險放在 `開放風險（Open）`，且 `狀態` 欄位必須包含 `Open`。
+3. 已修補、已豁免關閉或已由其他風險承接的條目移到 `已關閉風險（Closed）`，且 `狀態` 欄位必須包含 `已` 或 `Closed`。
+4. Phase 收官前執行：`py scripts\governance_doctor.py --repo-root .`。
+5. 若 governance doctor 回報 `GOV###`，先依 `docs/OPERATIONS_RUNBOOK.md` 對應 anchor 修正後再提交。
+
+---
+
 ## 開放風險（Open）
 
 ### R-001：模型選擇指引三檔同步無自動檢測（G5-4）
