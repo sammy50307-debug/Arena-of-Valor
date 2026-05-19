@@ -49,6 +49,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: 🔐 LLM Secret Preflight (Advisory)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -n "$GEMINI_API_KEY" ]; then echo "GEMINI_API_KEY configured"; else echo "::warning::GEMINI_API_KEY missing"; fi
+          if [ -n "$OPENAI_API_KEY" ]; then echo "OPENAI_API_KEY configured"; else echo "::warning::OPENAI_API_KEY missing"; fi
+
       - name: 🚀 Execute AoV Pipeline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

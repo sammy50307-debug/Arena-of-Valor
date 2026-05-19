@@ -8304,3 +8304,75 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ R-016.1 DONE：manifest sync / report-only backfill 已完成。
 - 🔴 R-016 仍 Open：下一步需外部 API / Actions 成功產出 `mode=production`，再跑 health + SLO。
+
+### R-016.2 LLM fallback / secret diagnostics（2026-05-19）
+
+**目標**：
+- 在 Actions 已跑通但仍 `showcase_forced` 的情況下，把剩餘 no production 問題定位到 LLM/API 層。
+- 因本機無法下載 Actions raw logs（GitHub API logs endpoint 403），改為把必要診斷寫進 workflow log 與 run manifest，讓下一次 rerun 不需要猜。
+
+**觸發**：
+- 主公提供 GitHub Actions #36 成功截圖，並指示「請繼續下一步」。
+- 本機 fetch/pull 後確認 Actions 新增 `data/reports/aov_report_2026-05-19_v2.html` 並更新 `data/runs/2026-05-19/run_manifest.json`。
+- 2026-05-19 manifest 顯示 source quality 正常：19 posts、4 platforms、3 sources，但 `mode=showcase_forced`、`publish_eligible=false`。
+
+**取捨**：
+- 方案 A：直接要求主公看 Actions UI 的完整 log。
+  - 優點：最快。
+  - 缺點：不可機械化，新視窗仍會缺證據；本機 API logs endpoint 403，AI 無法自行複核。
+- 方案 B：把 fallback/secret 狀態寫成 workflow preflight + manifest provider diagnostics。
+  - 優點：之後每次 rerun 都有可機械讀取的 provider 真相；不暴露 secret 值。
+  - 缺點：需要再 rerun 一次 Actions 才能取得新欄位。
+- 決策：採方案 B。
+
+**稽核表**：
+- S 級代碼層：只加診斷欄位與 workflow advisory step，不改 provider 選擇策略。
+- S 級邏輯層：區分「OpenAI fallback 有配置」與「OpenAI fallback 有被使用」，避免只看 workflow success 誤判 production 成功。
+- S 級測試層：補 fallback diagnostics、showcase mode、manifest provider 欄位、workflow preflight 字串測試。
+- S 級安全層：workflow 只印 configured/missing，不印 secret 值；fallback warning 只印 bool。
+- A 級可觀察性層：manifest 新增 `provider.quota_error`、`provider.openai_fallback_configured`、`provider.openai_fallback_used`。
+
+**物理真相**：
+- `.github/workflows/daily_report.yml`
+  - 新增 `LLM Secret Preflight (Advisory)` step。
+  - 只輸出 `GEMINI_API_KEY configured/missing`、`OPENAI_API_KEY configured/missing`。
+- `analyzer/fallback_llm_client.py`
+  - 新增 `fallback_configured` property。
+  - 新增 `last_fallback_used` 狀態。
+  - Gemini provider failure 但 OpenAI fallback 不可用時，輸出不含 secret 值的 warning。
+- `analyzer/sentiment.py`
+  - `analyze_posts()` 回傳 `provider_diagnostics`。
+  - 避免 `MagicMock` / 未知物件被誤判成 True，只接受明確 bool。
+- `main.py`
+  - daily summary `_meta` 納入 `quota_error`、`openai_fallback_configured`、`openai_fallback_used`。
+- `analyzer/run_manifest.py`
+  - manifest 新增 `provider` 區塊。
+- tests：
+  - `tests/test_openai_fallback.py`
+  - `tests/test_showcase_modes.py`
+  - `tests/test_run_manifest.py`
+  - `tests/test_manifest_sync_contract.py`
+
+**實跑證據**：
+- GitHub API run list：
+  - `#36 / 26097882131 / workflow_dispatch / success / head=0131e13`
+  - `#264 / 26097924239 / dynamic / success / head=42a7f66`
+- GitHub logs API：
+  - `GET /actions/runs/26097882131/logs` -> 403 `Must have admin rights to Repository`
+- 2026-05-19 post-run validation：
+  - `aov_report_2026-05-19_v2.html` 第一行仍為 `mode: showcase_forced`
+  - `run_manifest.json`：`mode=showcase_forced`、`source_health.status=ok`、`total_posts=19`、`platform_count=4`
+  - `slo_checker`：`SLO001 BLOCKING` + `SLO003 DEGRADED`
+- R-016.2 tests：
+  - `py -m pytest -q tests\test_openai_fallback.py tests\test_showcase_modes.py tests\test_run_manifest.py tests\test_manifest_sync_contract.py` -> 27 passed
+  - `py -3.8 -c "import analyzer.fallback_llm_client; import analyzer.sentiment; import analyzer.run_manifest; print('py38 provider diagnostics imports ok')"` -> passed
+  - `git diff --check` -> passed
+
+**風險**：
+- R-016 仍 Open：R-016.2 是診斷強化，不是 production 恢復。
+- 若下一次 rerun 顯示 `OPENAI_API_KEY missing`，需主公在 GitHub Secrets 補 key，AI 不能替主公設定 secret。
+- 若 `OPENAI_API_KEY configured` 但 `openai_fallback_used=false` 且仍 `quota_error=true`，需追 FallbackLLMClient provider failure 判定或 OpenAI client 初始化。
+
+**狀態**：
+- ✅ R-016.2 DONE：LLM fallback / secret diagnostics 已完成。
+- 🔴 R-016 仍 Open：下一步 push R-016.2，重跑 Actions，再用 manifest `provider` 欄位與 health/SLO 判斷是否恢復 production。

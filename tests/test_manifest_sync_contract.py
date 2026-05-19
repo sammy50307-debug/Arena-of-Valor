@@ -20,3 +20,11 @@ def test_sync_paths_include_run_manifests():
 
     assert '"data/runs/"' in main_text
     assert "git add data/reports/ data/runs/ data/llm_cache.json index.html" in workflow_text
+
+
+def test_workflow_reports_llm_secret_presence_without_secret_values():
+    workflow_text = (PROJECT_ROOT / ".github" / "workflows" / "daily_report.yml").read_text(encoding="utf-8")
+
+    assert "LLM Secret Preflight (Advisory)" in workflow_text
+    assert "::warning::GEMINI_API_KEY missing" in workflow_text
+    assert "::warning::OPENAI_API_KEY missing" in workflow_text

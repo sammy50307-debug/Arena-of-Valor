@@ -376,6 +376,11 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         _quota_error = analysis_res.get("quota_error", False)
         daily_summary = await analyzer.generate_daily_summary(analyzed_posts, date=run_date, showcase=active_showcase)
         daily_summary["date"] = run_date
+        _provider_diag = dict(analysis_res.get("provider_diagnostics", {}))
+        _provider_diag["openai_fallback_used"] = bool(
+            _provider_diag.get("openai_fallback_used", False)
+            or getattr(analyzer.llm, "last_fallback_used", False)
+        )
 
         # 注入 LLM cache 統計 meta，供報告檔頂 metadata comment 使用
         _stats = analyzer.llm.cache_manager.get_stats()
@@ -397,6 +402,9 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "apify_hits": _ap,
             "llm_calls": _miss,
             "total_calls": _l1 + _l2 + _miss,
+            "quota_error": bool(_quota_error),
+            "openai_fallback_configured": bool(_provider_diag.get("openai_fallback_configured", False)),
+            "openai_fallback_used": bool(_provider_diag.get("openai_fallback_used", False)),
         }
 
         # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
