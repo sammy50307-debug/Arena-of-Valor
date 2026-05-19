@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-05-19T12:01:44.406886Z",
+  "run_date": "2026-05-19",
+  "run_date_taipei": "2026-05-19",
+  "timezone": "Asia/Taipei",
+  "scheduled_utc": "",
+  "run_id": "2026-05-19-showcase_forced-report-only-",
+  "source_hash": "report-only-2026-05-19",
+  "source_hash_version": 1,
+  "status": "ok",
+  "error": "",
+  "mode": "showcase_forced",
+  "publish_eligible": false,
+  "dry_run": true,
+  "showcase_flag": false,
+  "paths": {
+    "raw": "",
+    "analysis": "",
+    "report": "data\\reports\\aov_report_2026-05-19.html"
+  },
+  "metrics": {
+    "cache_hit": 0,
+    "l1_hits": 0,
+    "l2_hits": 0,
+    "apify_hits": 0,
+    "llm_calls": 1,
+    "total_calls": 1
+  },
+  "history": {
+    "status": "unknown",
+    "weekly_points": 0,
+    "source_dates": [],
+    "missing_dates": []
+  },
+  "quality": {
+    "source_health": {
+      "status": "unknown",
+      "total_posts": 0,
+      "platform_count": 0,
+      "platform_counts": {},
+      "source_count": 0,
+      "reasons": []
+    }
+  },
+  "replay_source": "report_metadata",
+  "is_backfill": true,
+  "eligibility": {
+    "gate_mode": "shadow",
+    "decision": "ineligible",
+    "reasons": [
+      "manifest backfilled from canonical report only",
+      "mode is showcase_forced (not production)"
+    ],
+    "blocking_enforced": false,
+    "shadow_blocked": true
+  }
+}
