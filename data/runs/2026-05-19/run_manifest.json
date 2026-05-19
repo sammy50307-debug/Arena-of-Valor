@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-19T12:01:44.406886Z",
+  "generated_at": "2026-05-19T12:43:22.503687Z",
   "run_date": "2026-05-19",
   "run_date_taipei": "2026-05-19",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "",
-  "run_id": "2026-05-19-showcase_forced-report-only-",
-  "source_hash": "report-only-2026-05-19",
+  "scheduled_utc": "2026-05-19T12:43:08.580554Z",
+  "run_id": "2026-05-19-showcase_forced-5e23df324f5e",
+  "source_hash": "5e23df324f5ed655cb7008e42f61e124e1fff8c027d0fe855c4261d4b52940f5",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
   "mode": "showcase_forced",
   "publish_eligible": false,
-  "dry_run": true,
+  "dry_run": false,
   "showcase_flag": false,
   "paths": {
-    "raw": "",
-    "analysis": "",
-    "report": "data\\reports\\aov_report_2026-05-19.html"
+    "raw": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/raw_20260519.json",
+    "analysis": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/analysis_20260519.json",
+    "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-05-19_v2.html"
   },
   "metrics": {
     "cache_hit": 0,
@@ -28,28 +28,40 @@
     "total_calls": 1
   },
   "history": {
-    "status": "unknown",
-    "weekly_points": 0,
+    "status": "ok",
+    "weekly_points": 1,
     "source_dates": [],
-    "missing_dates": []
+    "missing_dates": [
+      "2026-05-18",
+      "2026-05-17",
+      "2026-05-16",
+      "2026-05-15",
+      "2026-05-14",
+      "2026-05-13",
+      "2026-05-12"
+    ]
   },
   "quality": {
     "source_health": {
-      "status": "unknown",
-      "total_posts": 0,
-      "platform_count": 0,
-      "platform_counts": {},
-      "source_count": 0,
+      "status": "ok",
+      "total_posts": 19,
+      "platform_count": 4,
+      "platform_counts": {
+        "youtube": 2,
+        "facebook": 1,
+        "dcard": 8,
+        "bahamut": 8
+      },
+      "source_count": 3,
       "reasons": []
     }
   },
-  "replay_source": "report_metadata",
-  "is_backfill": true,
+  "replay_source": "",
+  "is_backfill": false,
   "eligibility": {
     "gate_mode": "shadow",
     "decision": "ineligible",
     "reasons": [
-      "manifest backfilled from canonical report only",
       "mode is showcase_forced (not production)"
     ],
     "blocking_enforced": false,
