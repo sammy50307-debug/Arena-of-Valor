@@ -142,9 +142,10 @@
   - 短期：不要把 P84.6 CLOSED 解讀成 production SLO 已恢復；維持 `SLO###` / `DOC###` / health check 作為營運真相。
   - 已完成：`data/runs/**/run_manifest.json` 已解除忽略，`main.py` 與 GitHub Actions fallback push 會同步 `data/runs/`；`scripts/backfill_manifest_from_report.py` 可從既有 canonical report 建立 report-only manifest。
   - 已完成：R-016.2 新增 LLM fallback/secret diagnostics；下一次 Actions 會顯示 `GEMINI_API_KEY` / `OPENAI_API_KEY` 是否配置，manifest 會記錄 `provider.quota_error`、`provider.openai_fallback_configured`、`provider.openai_fallback_used`。
-  - 中期：等外部配額恢復或主公核准後，重跑 production / replay backfill，補齊 production report，讓 landing 可由 promotion gate 指向真實 production。
-  - 長期：若 landing stale 與 production gap 重複發生，另開獨立 operational recovery Phase，不併入 P84 governance closeout。
-- **觸發升級**：若連續無 production ≥ 7 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為獨立修復 Phase。
+  - 已凍結：2026-05-19 主公明確不想增加 OpenAI API 費用，P85 已凍結 `Evidence-first + Quality-tiered Production + LLM Enrichment Queue` 作為零額外付費修復主線。
+  - 中期：P86-P95 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、doctor/SLO 重分類。
+  - 長期：免費 provider 只作 P93 disabled-by-default 插槽候選；不得在未核准前接進主鏈路。
+- **觸發升級**：若 P86-P95 完成後仍連續無可發布 production tier ≥ 3 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為 P95 closeout blocking issue，不得關閉 R-016。
 
 ---
 

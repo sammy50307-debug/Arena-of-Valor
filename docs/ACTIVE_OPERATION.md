@@ -1,4 +1,4 @@
-# ACTIVE OPERATION — Daily Monitoring Reliability Program
+# ACTIVE OPERATION — R-016 Zero-Cost Reliability Program
 
 > 本檔是 L2 短版狀態真相。新視窗一般只需讀 `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`；只有 bootstrap 要求時才讀本檔。
 
@@ -6,11 +6,11 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Program** | P77-P84 Daily Monitoring Reliability Program |
-| **Current Phase** | P84（Long-Term Governance / CLOSED） |
-| **Current Step** | R-016.2 DONE：LLM fallback/secret diagnostics 已加強；R-016 仍保留 Open（待 rerun 驗證 production） |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `HEAD fix: 加強 R-016 LLM fallback diagnostics`（本地 commit，待主公確認 push） |
+| **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
+| **Current Phase** | P85（Evidence-first + Quality-tiered Zero-Cost Reliability / FROZEN） |
+| **Current Step** | P85 FROZEN：零額外付費 R-016 修復總計畫已凍結；等待主公核准 P86 才能改程式碼 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `HEAD docs: 凍結 P85 zero-cost reliability plan`（本地 commit，待主公確認 push） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-19 |
 
@@ -20,20 +20,20 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_84_PLAN.md`
-4. 總戰役計畫：`docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+3. 當前 Phase 計畫：`docs/PHASE_85_PLAN.md`
+4. R-016 風險登記：`docs/RISK_REGISTRY.md`
 5. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P84（CLOSED） |
-| **Current Step** | R-016.2 DONE：LLM fallback/secret diagnostics 已加強；R-016 仍保留 Open（待 rerun 驗證 production） |
-| **Allowed Files** | 若主公要求繼續 R-016，可讀 `docs/RISK_REGISTRY.md`, `docs/P77_P84_CLOSEOUT_REPORT.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`（append only）、`.github/workflows/daily_report.yml`, `analyzer/fallback_llm_client.py`, `analyzer/sentiment.py`, `analyzer/run_manifest.py`, `main.py`, `data/runs/**/run_manifest.json` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不實刪歷史資料；不自動開 P85；不把 R-016.2 解讀成 production 已恢復；不重寫 P80 promotion/P83 security |
-| **Exit Criteria** | R-016.2 已讓下一次 Actions 可直接顯示 secrets presence 與 manifest provider diagnostics；R-016 仍因 `SLO001` no production 與 `SLO003` degraded budget 保持 Open |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；下一步是推送 R-016.2 後重跑 Actions，檢查 `LLM Secret Preflight` 與 manifest `provider` 欄位，再跑 health + SLO |
+| **Current Phase** | P85（FROZEN） |
+| **Current Step** | P85 FROZEN：等待主公核准 P86 Gemini Model & Schedule Modernization |
+| **Allowed Files** | FROZEN 狀態只允許讀 `docs/PHASE_85_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`；若要修正 P85 文件真相，可改 docs/handoff/history，但不可改 runtime code |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 `.github/workflows/daily_report.yml`；不改 `analyzer/**` / `main.py`；不把 R-016 標記 Closed |
+| **Exit Criteria** | P85 只凍結計畫，不關閉 R-016；P86-P95 需逐 Phase 核准與驗證後才能收斂 R-016 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；若主公說「開始」，先確認是核准 P86，再依 P86 scope 動工 |
 
 ## State Machine
 
@@ -55,13 +55,14 @@ DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED
 ```powershell
 git status -sb
 git diff --check
+py scripts/lint_phase_plan.py docs/PHASE_85_PLAN.md
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
 ## Latest Evidence
 
-R-016.2 已完成 LLM fallback/secret diagnostics：GitHub Actions 新增 `LLM Secret Preflight (Advisory)`；manifest 新增 `provider.quota_error`、`provider.openai_fallback_configured`、`provider.openai_fallback_used`；fallback client 會在 Gemini provider failure 但 OpenAI fallback 不可用時記錄不含 secret 值的警示。2026-05-19 workflow 已跑通但仍 `mode=showcase_forced`，R-016 仍 Open。
+R-016.2 已完成 LLM fallback/secret diagnostics，且 Actions 證據顯示 `GEMINI_API_KEY configured`、`OPENAI_API_KEY missing`。主公明確不想增加 OpenAI API 費用，因此 P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。R-016 仍 Open；P85 不是 production 恢復。
 
 ## Next Decision
 
-R-016 尚未關閉。下一步是 push R-016.2 後重跑 Actions，從 `LLM Secret Preflight` 與 manifest `provider` 欄位確認 OpenAI fallback 是否配置/使用，再跑 `check_daily_report_health` 與 `slo_checker`；push 前仍需主公確認。
+下一步是主公是否核准 P86。P86 的第一件事是 Gemini Model & Schedule Modernization：開工前需二次查證官方 Gemini rate limit / model availability；核准前不得改程式碼或 workflow。
