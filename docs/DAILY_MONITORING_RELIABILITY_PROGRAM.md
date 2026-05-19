@@ -178,6 +178,6 @@ candidate report -> validate -> health pass -> atomic promote -> update index
 
 - P77-P84 reliability/governance 戰役已收官，收官報告為 `docs/P77_P84_CLOSEOUT_REPORT.md`。
 - 收官狀態不是「production 已恢復」；`R-016` 仍為 Open operational risk，內容是 production SLO blocking 與 landing stale。
-- 新視窗不得自動開 P85；若主公要修 R-016，應另依 production/backfill/recovery 範圍處理。
+- 新視窗不得自動開 P85；但 2026-05-19 主公已明確要求凍結 R-016 零額外付費修復計畫，因此目前後續真相轉交 `docs/PHASE_85_PLAN.md` 與 active bootstrap。
 - 任一 retention 實刪、資料搬移、production overwrite 仍需主公明確確認。
 - `TASK_HISTORY.md` 仍禁止全讀；總戰役查證優先讀本檔、P84 closeout report、active bootstrap。

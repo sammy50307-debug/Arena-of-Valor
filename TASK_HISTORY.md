@@ -8376,3 +8376,87 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - ✅ R-016.2 DONE：LLM fallback / secret diagnostics 已完成。
 - 🔴 R-016 仍 Open：下一步 push R-016.2，重跑 Actions，再用 manifest `provider` 欄位與 health/SLO 判斷是否恢復 production。
+
+### P85 Evidence-first + Quality-tiered Zero-Cost Reliability Plan 凍結（2026-05-19）
+
+**目標**：
+- 將 R-016 的後續修復方向從「補 OpenAI paid fallback / 等 production rerun」轉成「零額外付費、Evidence-first、Quality-tiered production」。
+- 明確凍結：主公不想增加 OpenAI API 成本，因此 `OPENAI_API_KEY` 不再是 R-016 的預設修復主線。
+- 建立 P86-P95 分段路線，讓 429 / quota limit 不再把整份每日報告降成 `showcase_forced`。
+
+**觸發**：
+- R-016.2 後，GitHub Actions `LLM Secret Preflight (Advisory)` 已能顯示 `GEMINI_API_KEY configured` 與 `OPENAI_API_KEY missing`。
+- 主公詢問 OpenAI 是否付費，並明確表示「我不想多花錢」。
+- 主公要求詳細規劃根治「一直因為 429 限額導致啟動旗艦展演模式」的修復辦法。
+- 經多輪方案收斂後，主公要求「好的那來凍結吧」。
+
+**取捨**：
+- 方案 A：補 `OPENAI_API_KEY`，讓 Gemini 429 時切 OpenAI。
+  - 優點：短期最容易恢復 full production。
+  - 缺點：OpenAI API 另外按量計費，違反主公零額外成本限制。
+  - 決策：不採為主線。
+- 方案 B：接多個免費 provider（Groq / Cloudflare / GitHub Models）。
+  - 優點：可能增加備援額度。
+  - 缺點：免費額度也有限，且會增加 secrets、adapter、debug、隱私風險。
+  - 決策：只列 P93 disabled-by-default 候選，不進主鏈路。
+- 方案 C：Evidence-first + Quality-tiered Production + LLM Enrichment Queue。
+  - 優點：production 先依賴真實資料與本地 deterministic analysis，LLM 退到 enrichment layer；429 只代表 AI 解讀待補，不代表整份報告壞。
+  - 缺點：需要分多 Phase 重定義 report core contract、promotion gate、quality tier、budget ledger 與 replay queue。
+  - 決策：採用並凍結為 P85-P95 主線。
+
+**稽核表**：
+- S 級代碼層：P85 不改 runtime code；後續 P86-P95 每 Phase 小步 patch，不一次大改。
+- S 級邏輯層：production 判定從 LLM 成功轉為 report core contract + quality tier，避免 quota 問題污染報告真實性。
+- S 級測試層：P86-P95 每 Phase 必須補 focused tests；P85 本身用 `lint_phase_plan.py` 驗證 M1/M2。
+- S 級安全層：P85 不新增 provider secret，不要求 OpenAI key，不接免費 provider；P92/P93 另做 queue/provider 的 privacy/security 審查。
+- A 級架構層：LLM 從主鏈路降為 enrichment layer；daily report baseline 由真實資料與本地分析支撐。
+- A 級可觀察性層：後續 manifest 必須能顯示 quality tier、LLM coverage、quota reason、queue pending。
+- B 級成本層：零額外付費是硬限制；free provider 僅可在主公另核後啟用。
+
+**物理真相**：
+- 新增 `docs/PHASE_85_PLAN.md`
+  - 狀態：`FROZEN`
+  - 核心主線：`Evidence-first + Quality-tiered Production + LLM Enrichment Queue`
+  - 明確列出不採 OpenAI paid fallback、多 Gemini key 輪替、一開始接免費 provider。
+  - 凍結 P86-P95：
+    - P86 Gemini Model & Schedule Modernization
+    - P87 Report Core Contract
+    - P88 Deterministic Local Analyzer
+    - P89 Quality Tier / Promotion Gate
+    - P90 LLM Budget Ledger / Cooldown
+    - P91 Cache / Dedupe / Top-N
+    - P92 Enrichment Queue / Replay
+    - P93 Free Provider Slot（Disabled by Default）
+    - P94 Doctor / SLO Reclassification
+    - P95 R-016 Closeout Verification
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P85（FROZEN）`。
+  - Current Step 改為等待主公核准 P86。
+  - Forbidden Work 明列：不加 `OPENAI_API_KEY`、不接免費 provider、不改 workflow/runtime code。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - Program 改為 `R-016 Zero-Cost Evidence-first Reliability Program`。
+  - Next Decision 改為是否核准 P86。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 緩解策略加入 P85 zero-cost plan frozen。
+  - 免費 provider 只列 P93 disabled-by-default candidate。
+- 更新 `docs/DAILY_MONITORING_RELIABILITY_PROGRAM.md`
+  - 保留 P77-P84 已收官真相，但註記 2026-05-19 主公已明確要求凍結 P85，後續看 `docs/PHASE_85_PLAN.md`。
+
+**實跑證據**：
+- `py scripts/lint_phase_plan.py docs/PHASE_85_PLAN.md`
+  - 預期：通過 Pre-flight M1 + M2。
+- `git diff --check`
+  - 預期：無 whitespace error。
+- `rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md`
+  - 預期：active bootstrap marker 保持完整。
+
+**風險**：
+- P85 只是計畫凍結，不代表 R-016 已關閉。
+- 若後續 P89 promotion gate 放太寬，`production_local_only` 可能被誤解成 full AI report；必須 user-visible 顯示 LLM coverage。
+- 若 P92 queue/replay 保存 raw data 太久，會引入隱私與資料堆積風險；P92 必須先設 retention / redaction / max retry。
+- 若 P93 free provider 被未核准啟用，會增加 secrets 與 debug 複雜度；因此預設 disabled。
+
+**狀態**：
+- ✅ P85 FROZEN：零額外付費 R-016 修復總計畫已凍結。
+- 🔴 R-016 仍 Open：要等 P86-P95 分段落地與 Actions/health/SLO 實跑後才能關閉或降級。
+- ⏭️ 下一步：主公若核准，進入 P86 Gemini Model & Schedule Modernization；核准前不得改 runtime code。
