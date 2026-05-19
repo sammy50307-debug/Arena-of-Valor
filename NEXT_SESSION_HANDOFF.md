@@ -8,16 +8,16 @@
 | **Status** | ACTIVE |
 | **Program** | P77-P84 Daily Monitoring Reliability Program |
 | **Current Phase** | P84（Long-Term Governance / CLOSED） |
-| **Current Step** | P84.6 CLOSED：P77-P84 總收官完成；R-016 保留 Open operational risk |
+| **Current Step** | R-016.1 DONE：manifest sync/backfill 已修補；R-016 仍保留 Open（production 尚未恢復） |
 | **Mode** | CLOSED |
-| **Latest Verified Commit** | `HEAD docs: 完成 P84.6 P77-P84 closeout`（本地 commit，待主公確認 push） |
-| **Updated At** | 2026-05-18 Asia/Taipei |
+| **Latest Verified Commit** | `HEAD fix: 修補 R-016 manifest sync recovery`（本地 commit，待主公確認 push） |
+| **Updated At** | 2026-05-19 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 若需要收官細節，讀 `docs/P77_P84_CLOSEOUT_REPORT.md`；目前沒有自動開啟的新 Phase
+3. 若要接續 R-016，讀 `docs/RISK_REGISTRY.md` 的 R-016 與 `docs/P77_P84_CLOSEOUT_REPORT.md`
 
 ## Current Source Of Truth
 
@@ -33,11 +33,11 @@
 | 欄位 | 內容 |
 |---|---|
 | **Current Phase** | P84（CLOSED） |
-| **Current Step** | P84.6 CLOSED：P77-P84 總收官完成；R-016 保留 Open operational risk |
-| **Allowed Files** | 預設不可動工；若主公要求維護 R-016，可讀 `docs/P77_P84_CLOSEOUT_REPORT.md`, `docs/RISK_REGISTRY.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`（append only）與必要的 production/backfill 檔案 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage untracked reports；不實刪歷史資料；不自動開 P85；不把 P84 CLOSED 解讀成 production SLO 已恢復；不重寫 P80 promotion/P83 security |
-| **Exit Criteria** | P84.6 已完成；P77-P84 總戰役 CLOSED WITH KNOWN OPERATIONAL RISK；R-016 留待主公另行指示 |
-| **Resume Rule** | 新視窗只用本區塊決定下一步；若主公要修 R-016，依 closeout report 的 production/backfill/recovery 順序處理；否則等待明確任務 |
+| **Current Step** | R-016.1 DONE：manifest sync/backfill 已修補；R-016 仍保留 Open（production 尚未恢復） |
+| **Allowed Files** | 若主公要求繼續 R-016，可讀 `docs/RISK_REGISTRY.md`, `docs/P77_P84_CLOSEOUT_REPORT.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/ACTIVE_OPERATION.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`（append only）、`.github/workflows/daily_report.yml`, `.gitignore`, `main.py`, `scripts/backfill_manifest_from_report.py`, `data/runs/**/run_manifest.json` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不實刪歷史資料；不自動開 P85；不把 R-016.1 解讀成 production 已恢復；不重寫 P80 promotion/P83 security |
+| **Exit Criteria** | R-016.1 已讓 `SLO002` manifest gap 收斂；R-016 仍因 `SLO001` no production 與 `SLO003` degraded budget 保持 Open |
+| **Resume Rule** | 新視窗只用本區塊決定下一步；若主公要繼續，下一步是確認外部 API/Actions 是否能產出 production，再跑 health + SLO；否則等待明確任務 |
 
 ## Required Verification Commands
 
@@ -51,8 +51,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- P84.6 已完成；不要自動開 P85 或把 R-016 併回 P84 改程式碼。
-- 不要把 P84/P77-P84 CLOSED 解讀成 production SLO 已恢復。
+- P84.6 已完成；R-016.1 只修 manifest sync/backfill，不代表 R-016 關閉。
+- 不要把 P84/P77-P84 CLOSED 或 R-016.1 DONE 解讀成 production SLO 已恢復。
 - 不要重寫 P80 promotion 架構。
 - 不要更換 LLM provider 或大改 prompt 架構。
 - 不要 git push，除非主公明確確認。

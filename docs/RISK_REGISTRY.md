@@ -137,10 +137,11 @@
 - **來源**：P84.6 總收官驗證（2026-05-18）
 - **風險級**：🔴 高
 - **狀態**：Open
-- **描述**：P84.6 收官矩陣顯示 governance / handoff / runbook / pytest 全數通過，但目前 production SLO 仍阻塞：`SLO001` 連續 3 天無 production、`SLO002` 5/17 與 5/18 缺 manifest、`SLO003` doctor severity budget 超標。`check_daily_report_health --date 2026-05-18 --expected-mode any` 顯示 canonical report 與 metadata mode 存在，但 landing main link 仍指向 `data/reports/aov_report_2026-05-16.html`。
+- **描述**：P84.6 收官矩陣顯示 governance / handoff / runbook / pytest 全數通過，但 production SLO 仍阻塞。2026-05-19 R-016.1 已修補 manifest sync contract，並由既有 canonical report 反建 5/16-5/19 report-only manifests，因此 `SLO002` manifest gap 已收斂；剩餘阻塞為 `SLO001` 連續無 production，`SLO003` 因連續 showcase_forced/degraded 超過門檻，且 landing 仍指向 `data/reports/aov_report_2026-05-16.html`。
 - **緩解策略**：
   - 短期：不要把 P84.6 CLOSED 解讀成 production SLO 已恢復；維持 `SLO###` / `DOC###` / health check 作為營運真相。
-  - 中期：等外部配額恢復或主公核准後，重跑 production / replay backfill，補齊 5/17、5/18 manifest 與 production report。
+  - 已完成：`data/runs/**/run_manifest.json` 已解除忽略，`main.py` 與 GitHub Actions fallback push 會同步 `data/runs/`；`scripts/backfill_manifest_from_report.py` 可從既有 canonical report 建立 report-only manifest。
+  - 中期：等外部配額恢復或主公核准後，重跑 production / replay backfill，補齊 production report，讓 landing 可由 promotion gate 指向真實 production。
   - 長期：若 landing stale 與 production gap 重複發生，另開獨立 operational recovery Phase，不併入 P84 governance closeout。
 - **觸發升級**：若連續無 production ≥ 7 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為獨立修復 Phase。
 

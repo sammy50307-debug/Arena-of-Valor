@@ -8226,3 +8226,81 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P84.6 CLOSED。
 - ✅ P77-P84 Daily Monitoring Reliability Program CLOSED WITH KNOWN OPERATIONAL RISK。
 - 🔴 R-016 保留 Open，等待主公另行指示是否進 production/backfill/recovery。
+
+### R-016.1 Manifest sync / report-only backfill recovery（2026-05-19）
+
+**目標**：
+- 處理 R-016 的第一段可由程式永久修補的根因：manifest 已在 daily run 產生，但因 `.gitignore` 與兩條 GitHub 同步路徑沒有納入 `data/runs/`，導致新 clone / 新視窗永遠看不到 run manifest。
+- 不偽造 production；只把既有 canonical report 反建成 report-only manifest，讓 SLO 能區分「manifest 同步缺口」與「真的沒有 production」。
+
+**觸發**：
+- 主公在 P84.6 push 後指示「開始下一半」。
+- 2026-05-19 Actions 自動同步已產出 `data/reports/aov_report_2026-05-19.html`，但 health/SLO 顯示仍缺 manifest 且 no production。
+
+**取捨**：
+- 方案 A：直接把 landing 指到 2026-05-19 showcase report。
+  - 優點：`check_daily_report_health --expected-mode any` 會較快轉綠。
+  - 缺點：會繞過 P80 production-only promotion 邊界，把 forced showcase 推成「最新戰報」，容易誤導。
+- 方案 B：先修 manifest persistence + backfill report-only manifests，保留 production/landing 問題為 Open。
+  - 優點：永久修掉 SLO002 類型；不把 showcase 說成 production；後續 production 恢復時 promotion gate 仍能正確更新 landing。
+  - 缺點：R-016 不會完全關閉，仍需外部 API / Actions 產出 production。
+- 決策：採方案 B。
+
+**稽核表**：
+- S 級代碼層：只改同步路徑與新增小型 backfill script。
+- S 級邏輯層：manifest backfill 明確標 `replay_source=report_metadata`、`is_backfill=true`、`dry_run=true`，不偽造 raw/analysis/production。
+- S 級測試層：新增 `tests/test_manifest_sync_contract.py` 與 `tests/test_backfill_manifest_from_report.py`。
+- S 級安全層：不輸出 secret，不提交 `.env`，不 stage unrelated reports。
+- A 級文件/流程層：同步 handoff、active operation、closeout report、risk registry、本歷史。
+
+**物理真相**：
+- `.gitignore`
+  - 新增 `!data/runs/`
+  - 新增 `!data/runs/**/`
+  - 新增 `!data/runs/**/run_manifest.json`
+- `main.py`
+  - `github_backup_job()` 的 `git add` 納入 `data/runs/`。
+- `.github/workflows/daily_report.yml`
+  - `Fallback Push` 的 `git add` 納入 `data/runs/`。
+- 新增 `scripts/backfill_manifest_from_report.py`
+  - 讀取既有 canonical report metadata。
+  - 建立 `data/runs/YYYY-MM-DD/run_manifest.json`。
+  - raw / analysis 路徑保留空字串。
+  - eligibility reasons 包含 `manifest backfilled from canonical report only`，若非 production 另記 `mode is showcase_forced (not production)`。
+- 新增 `tests/test_manifest_sync_contract.py`
+  - 鎖住 `.gitignore` 與兩條 sync path 都必須納入 run manifest。
+- 新增 `tests/test_backfill_manifest_from_report.py`
+  - 鎖住 report-only manifest 的欄位語義。
+- 新增 / 更新 `data/runs/2026-05-16` 到 `data/runs/2026-05-19` 的 `run_manifest.json`
+  - 全部由既有 canonical report 反建。
+  - 全部保留 `mode=showcase_forced`，不標 production。
+
+**實跑證據**：
+- 修補前（2026-05-19）：
+  - `py scripts\check_daily_report_health.py --date 2026-05-19 --expected-mode any`
+    - canonical report PASS
+    - metadata mode PASS：`mode=showcase_forced`
+    - landing FAIL：仍指 `data/reports/aov_report_2026-05-16.html`
+  - `py scripts\slo_checker.py --repo-root . --date 2026-05-19 --window-days 3`
+    - `SLO001 BLOCKING`
+    - `SLO002 BLOCKING`: 5/17-5/19 manifest 全缺
+    - `SLO003 BLOCKING`
+- 修補後：
+  - `py -m pytest -q tests\test_backfill_manifest_from_report.py tests\test_manifest_sync_contract.py` -> 4 passed
+  - `py scripts\backfill_manifest_from_report.py --repo-root . --date 2026-05-16` -> OK
+  - `py scripts\backfill_manifest_from_report.py --repo-root . --date 2026-05-17` -> OK
+  - `py scripts\backfill_manifest_from_report.py --repo-root . --date 2026-05-18` -> OK
+  - `py scripts\backfill_manifest_from_report.py --repo-root . --date 2026-05-19` -> OK
+  - `py scripts\slo_checker.py --repo-root . --date 2026-05-19 --window-days 3`
+    - `SLO001 BLOCKING`: `consecutive_no_production=3 threshold=1`
+    - `SLO003 DEGRADED`: `blocking_days=0 degraded_days=3 degraded_threshold=2`
+    - `SLO002` 已消失。
+
+**風險**：
+- R-016 仍 Open：目前無 production report；本機也沒有 `GEMINI_API_KEY` / `OPENAI_API_KEY` / `TAVILY_API_KEY`，不能本機產出 production。
+- Landing 仍指向 2026-05-16：這是刻意不繞過 P80 production-only promotion；若要改成 showcase fallback landing，需要主公另外拍板。
+- report-only manifest 是復原真相，不是完整 run truth；raw/analysis 缺失仍不補造。
+
+**狀態**：
+- ✅ R-016.1 DONE：manifest sync / report-only backfill 已完成。
+- 🔴 R-016 仍 Open：下一步需外部 API / Actions 成功產出 `mode=production`，再跑 health + SLO。

@@ -24,6 +24,9 @@ env/
 # Data & Logs
 data/*
 !data/reports/
+!data/runs/
+!data/runs/**/
+!data/runs/**/run_manifest.json
 !data/_quarantine/
 !data/llm_cache.json
 !data/.cache_policy.md

@@ -44,6 +44,13 @@
 
 **判讀**：這不是 P84.6 的 checker 失敗，而是 P84/P79/P80/P84.2 成功把目前營運風險照出來。後續處置需在外部配額恢復或主公核准 production/backfill 後執行。
 
+**R-016.1 更新（2026-05-19）**：
+- 已修補 manifest sync contract：`.gitignore` 允許 `data/runs/**/run_manifest.json`，`main.py` 與 GitHub Actions fallback push 會同步 `data/runs/`。
+- 已新增 `scripts/backfill_manifest_from_report.py`，可從既有 canonical report 反建 report-only manifest，不偽造 raw / analysis / production。
+- 已從 2026-05-16 至 2026-05-19 canonical reports 建立 report-only manifests。
+- 2026-05-19 SLO 已從 `SLO001/SLO002/SLO003` 收斂為 `SLO001` BLOCKING + `SLO003` DEGRADED；`SLO002` manifest gap 已消失。
+- R-016 仍 Open，因目前所有 5/17-5/19 report 仍為 `showcase_forced`，尚未產出 `mode=production`。
+
 ## 4. 後續維護規則
 
 1. 新視窗不再自動開新 Phase；先讀 `NEXT_SESSION_HANDOFF.md` active bootstrap。
