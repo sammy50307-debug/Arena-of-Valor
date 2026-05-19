@@ -66,6 +66,7 @@ async def test_tc1_429_triggers_quota_error():
 
     assert result["is_showcase"] is True
     assert result["quota_error"] is True
+    assert result["provider_diagnostics"]["openai_fallback_configured"] is False
 
 
 # ── TC2：正常執行 → quota_error=False ───────────────────────
@@ -89,6 +90,7 @@ async def test_tc2_normal_run_no_quota_error():
 
     assert result["is_showcase"] is False
     assert result["quota_error"] is False
+    assert result["provider_diagnostics"]["openai_fallback_used"] is False
 
 
 # ── TC3：主動 showcase=True（非 429）→ quota_error=False ────

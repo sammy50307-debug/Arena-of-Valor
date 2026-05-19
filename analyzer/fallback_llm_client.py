@@ -30,6 +30,7 @@ class FallbackLLMClient:
     ):
         self.primary = primary or GeminiClient()
         self.logger = logging.getLogger(f"{__name__}.FallbackLLMClient")
+        self.last_fallback_used = False
 
         if enable_openai is False:
             self.fallback = None
@@ -43,6 +44,10 @@ class FallbackLLMClient:
     @property
     def cache_manager(self):
         return self.primary.cache_manager
+
+    @property
+    def fallback_configured(self) -> bool:
+        return self.fallback is not None
 
     @staticmethod
     def _is_provider_failure(exc: Exception) -> bool:
@@ -59,7 +64,16 @@ class FallbackLLMClient:
         return False
 
     def _should_fallback(self, exc: Exception) -> bool:
-        return self.fallback is not None and self._is_provider_failure(exc)
+        provider_failure = self._is_provider_failure(exc)
+        if provider_failure and self.fallback is None:
+            self.logger.warning(
+                "Gemini provider failure (%s) but OpenAI fallback unavailable "
+                "(OPENAI_FALLBACK_ENABLED=%s, OPENAI_API_KEY configured=%s)",
+                type(exc).__name__,
+                config.OPENAI_FALLBACK_ENABLED,
+                bool(config.OPENAI_API_KEY),
+            )
+        return self.fallback is not None and provider_failure
 
     async def chat(
         self,
@@ -69,6 +83,7 @@ class FallbackLLMClient:
         temperature: float = 0.3,
         response_schema: Optional[dict] = None,
     ) -> Union[dict, str]:
+        self.last_fallback_used = False
         try:
             return await self.primary.chat(
                 system_prompt,
@@ -84,6 +99,7 @@ class FallbackLLMClient:
                 "Gemini provider failure (%s); switching single chat to OpenAI fallback",
                 type(exc).__name__,
             )
+            self.last_fallback_used = True
             return await self.fallback.chat(
                 system_prompt,
                 user_prompt,
@@ -100,6 +116,7 @@ class FallbackLLMClient:
         concurrency: Optional[int] = None,
         response_schema: Optional[dict] = None,
     ) -> List[Union[dict, str]]:
+        self.last_fallback_used = False
         try:
             return await self.primary.batch_chat(
                 system_prompt,
@@ -115,6 +132,7 @@ class FallbackLLMClient:
                 "Gemini provider failure (%s); switching batch to OpenAI fallback",
                 type(exc).__name__,
             )
+            self.last_fallback_used = True
             return await self.fallback.batch_chat(
                 system_prompt,
                 user_prompts,

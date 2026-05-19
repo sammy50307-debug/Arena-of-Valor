@@ -61,6 +61,8 @@ async def test_fallback_batch_chat_uses_openai_after_gemini_429():
     fallback.batch_chat.assert_awaited_once()
     assert fallback.batch_chat.await_args.kwargs["concurrency"] == 1
     assert fallback.batch_chat.await_args.kwargs["response_schema"] == {"type": "OBJECT"}
+    assert client.fallback_configured is True
+    assert client.last_fallback_used is True
 
 
 @pytest.mark.asyncio
@@ -104,6 +106,8 @@ async def test_sentiment_analyze_posts_stays_production_after_openai_fallback():
     assert result["is_showcase"] is False
     assert result["quota_error"] is False
     assert result["posts"][0]["analysis"]["summary"] == "fallback ok"
+    assert result["provider_diagnostics"]["openai_fallback_configured"] is True
+    assert result["provider_diagnostics"]["openai_fallback_used"] is True
 
 
 @pytest.mark.asyncio
@@ -118,6 +122,8 @@ async def test_fallback_batch_chat_reraises_without_openai_key():
 
     with pytest.raises(httpx.HTTPStatusError):
         await client.batch_chat("sys", ["user"])
+    assert client.fallback_configured is False
+    assert client.last_fallback_used is False
 
 
 @pytest.mark.asyncio

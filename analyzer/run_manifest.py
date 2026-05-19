@@ -215,6 +215,11 @@ def build_manifest(
         "quality": {
             "source_health": source_quality,
         },
+        "provider": {
+            "quota_error": bool(meta.get("quota_error", False)),
+            "openai_fallback_configured": bool(meta.get("openai_fallback_configured", False)),
+            "openai_fallback_used": bool(meta.get("openai_fallback_used", False)),
+        },
         "replay_source": replay_source,
         "is_backfill": bool(is_backfill),
         "eligibility": {

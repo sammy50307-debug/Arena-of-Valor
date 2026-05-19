@@ -22,7 +22,17 @@ def test_build_manifest_basic_fields(tmp_path: Path):
         raw_path=tmp_path / "raw_20260516.json",
         analysis_path=tmp_path / "analysis_20260516.json",
         report_path=tmp_path / "aov_report_2026-05-16.html",
-        meta={"cache_hit": 2, "l1_hits": 1, "l2_hits": 1, "llm_calls": 3, "total_calls": 5, "history_status": "ok"},
+        meta={
+            "cache_hit": 2,
+            "l1_hits": 1,
+            "l2_hits": 1,
+            "llm_calls": 3,
+            "total_calls": 5,
+            "history_status": "ok",
+            "quota_error": False,
+            "openai_fallback_configured": True,
+            "openai_fallback_used": True,
+        },
         history_delta={"weekly_vol_pulse": {"volumes": [1, 2, 3]}},
         status="ok",
         source_hash=SOURCE_HASH,
@@ -48,6 +58,9 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["eligibility"]["decision"] == "eligible"
     assert manifest["eligibility"]["reasons"] == []
     assert manifest["quality"]["source_health"]["status"] == "unknown"
+    assert manifest["provider"]["quota_error"] is False
+    assert manifest["provider"]["openai_fallback_configured"] is True
+    assert manifest["provider"]["openai_fallback_used"] is True
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 

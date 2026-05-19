@@ -51,6 +51,13 @@
 - 2026-05-19 SLO 已從 `SLO001/SLO002/SLO003` 收斂為 `SLO001` BLOCKING + `SLO003` DEGRADED；`SLO002` manifest gap 已消失。
 - R-016 仍 Open，因目前所有 5/17-5/19 report 仍為 `showcase_forced`，尚未產出 `mode=production`。
 
+**R-016.2 更新（2026-05-19）**：
+- GitHub API 可列出 run，但 logs download endpoint 回覆 403：`Must have admin rights to Repository`，因此不能直接由本機下載 `Execute AoV Pipeline` 原始 log。
+- 2026-05-19 手動 workflow #36 成功，後續 push run 也成功；manifest 顯示 source quality 正常（19 posts / 4 platforms），但 mode 仍為 `showcase_forced`。
+- 已新增 workflow `LLM Secret Preflight (Advisory)`，下次 rerun 可直接在 Actions UI 看 `GEMINI_API_KEY` / `OPENAI_API_KEY` 是否配置，且不輸出 secret 值。
+- 已新增 manifest provider diagnostics：`quota_error`、`openai_fallback_configured`、`openai_fallback_used`。
+- 已讓 fallback client 在 Gemini provider failure 但 OpenAI fallback 不可用時輸出不含 secret 值的警示。
+
 ## 4. 後續維護規則
 
 1. 新視窗不再自動開新 Phase；先讀 `NEXT_SESSION_HANDOFF.md` active bootstrap。

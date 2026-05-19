@@ -172,6 +172,14 @@ class SentimentAnalyzer:
         self.llm = llm_client or FallbackLLMClient()
         self.logger = logging.getLogger(f"{__name__}.SentimentAnalyzer")
 
+    def _provider_diagnostics(self) -> dict:
+        configured = getattr(self.llm, "fallback_configured", False)
+        fallback_used = getattr(self.llm, "last_fallback_used", False)
+        return {
+            "openai_fallback_configured": configured if isinstance(configured, bool) else False,
+            "openai_fallback_used": fallback_used if isinstance(fallback_used, bool) else False,
+        }
+
     def _compress_content(self, text: str, target_heroes: List[str]) -> str:
         """長文本智能切片：保留首尾 150 字及含有焦點英雄的段落。"""
         if len(text) <= 500:
@@ -214,6 +222,8 @@ class SentimentAnalyzer:
             if cached is not None:
                 cm.increment_stat("total_l1_hits")
                 self.logger.info(f"   [⚡] L1 快取命中 ({l1_key})，零 LLM 呼叫")
+                if isinstance(cached, dict):
+                    cached.setdefault("provider_diagnostics", self._provider_diagnostics())
                 return cached
 
         self.logger.info(f"開始分析 {len(search_results)} 筆結果...")
@@ -292,6 +302,7 @@ class SentimentAnalyzer:
                 "quota_error": quota_error_triggered,
                 "contract_status": "ok",
                 "contract_errors": [],
+                "provider_diagnostics": self._provider_diagnostics(),
             }
 
         analyzed = []
@@ -355,6 +366,7 @@ class SentimentAnalyzer:
             "quota_error": False,
             "contract_status": "degraded" if contract_errors else "ok",
             "contract_errors": contract_errors,
+            "provider_diagnostics": self._provider_diagnostics(),
         }
 
         # L1 寫入：showcase 結果不寫，避免污染快取
