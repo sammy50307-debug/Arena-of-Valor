@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P85（Evidence-first + Quality-tiered Zero-Cost Reliability / FROZEN） |
-| **Current Step** | P85 FROZEN：零額外付費 R-016 修復總計畫已凍結；等待主公核准 P86 才能改程式碼 |
+| **Current Phase** | P86（Gemini Model & Schedule Modernization / FROZEN） |
+| **Current Step** | P86 FROZEN：Gemini model / schedule 詳細計畫已凍結；等待主公核准 P86 才能改程式碼 |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `HEAD docs: 凍結 P85 zero-cost reliability plan`（本地 commit，待主公確認 push） |
+| **Latest Verified Commit** | `HEAD docs: 凍結 P86 gemini model schedule plan`（本地 commit，待主公確認 push） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-19 |
 
@@ -20,20 +20,20 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_85_PLAN.md`
-4. R-016 風險登記：`docs/RISK_REGISTRY.md`
+3. 當前 Phase 計畫：`docs/PHASE_86_PLAN.md`
+4. 總戰略計畫：`docs/PHASE_85_PLAN.md`
 5. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P85（FROZEN） |
-| **Current Step** | P85 FROZEN：等待主公核准 P86 Gemini Model & Schedule Modernization |
-| **Allowed Files** | FROZEN 狀態只允許讀 `docs/PHASE_85_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`；若要修正 P85 文件真相，可改 docs/handoff/history，但不可改 runtime code |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 `.github/workflows/daily_report.yml`；不改 `analyzer/**` / `main.py`；不把 R-016 標記 Closed |
-| **Exit Criteria** | P85 只凍結計畫，不關閉 R-016；P86-P95 需逐 Phase 核准與驗證後才能收斂 R-016 |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；若主公說「開始」，先確認是核准 P86，再依 P86 scope 動工 |
+| **Current Phase** | P86（FROZEN） |
+| **Current Step** | P86 FROZEN：等待主公核准 P86 APPROVED |
+| **Allowed Files** | FROZEN 狀態只允許讀 `docs/PHASE_86_PLAN.md`, `docs/PHASE_85_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`；若要修正 P86 文件真相，可改 docs/handoff/history，但不可改 runtime code |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；未核准前不改 `.github/workflows/daily_report.yml`；未核准前不改 `analyzer/gemini_client.py`；不把 R-016 標記 Closed |
+| **Exit Criteria** | P86 只凍結細項計畫，不關閉 R-016；P86 APPROVED 後才可移除 deprecated Gemini 2.0 models 與調整 cron |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；若主公說「開始」或「核准」，才依 P86 plan 動 `analyzer/gemini_client.py` 與 `.github/workflows/daily_report.yml` |
 
 ## State Machine
 
@@ -55,14 +55,14 @@ DRAFT -> FROZEN -> APPROVED -> IN_PROGRESS -> VERIFYING -> CLOSED
 ```powershell
 git status -sb
 git diff --check
-py scripts/lint_phase_plan.py docs/PHASE_85_PLAN.md
+py scripts/lint_phase_plan.py docs/PHASE_86_PLAN.md
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
 ## Latest Evidence
 
-R-016.2 已完成 LLM fallback/secret diagnostics，且 Actions 證據顯示 `GEMINI_API_KEY configured`、`OPENAI_API_KEY missing`。主公明確不想增加 OpenAI API 費用，因此 P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。R-016 仍 Open；P85 不是 production 恢復。
+P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已完成官方查證：Gemini rate limit 以 RPM/TPM/RPD 評估、套在 project 而非 API key，RPD 在 Pacific midnight reset；`gemini-2.0-flash` 與 `gemini-2.0-flash-lite` 官方 shutdown date 為 2026-06-01。P86 仍只是 FROZEN 計畫，不是 runtime 修復。
 
 ## Next Decision
 
-下一步是主公是否核准 P86。P86 的第一件事是 Gemini Model & Schedule Modernization：開工前需二次查證官方 Gemini rate limit / model availability；核准前不得改程式碼或 workflow。
+下一步是主公是否核准 P86 APPROVED。核准後才可改 `analyzer/gemini_client.py` 與 `.github/workflows/daily_report.yml`，實作 model list 現代化與 cron 調整。

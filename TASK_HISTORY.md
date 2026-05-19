@@ -8460,3 +8460,97 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P85 FROZEN：零額外付費 R-016 修復總計畫已凍結。
 - 🔴 R-016 仍 Open：要等 P86-P95 分段落地與 Actions/health/SLO 實跑後才能關閉或降級。
 - ⏭️ 下一步：主公若核准，進入 P86 Gemini Model & Schedule Modernization；核准前不得改 runtime code。
+
+### P86 Gemini Model & Schedule Modernization 計畫凍結（2026-05-19）
+
+**目標**：
+- 凍結 P86 詳細計畫，處理 R-016 zero-cost 戰役中最低風險且最時效性的兩件事：
+  - 移除即將 shutdown 的 Gemini 2.0 model 依賴。
+  - 評估並凍結 daily workflow cron 調整到 Pacific midnight RPD reset 後的方案。
+- P86 只凍結計畫，不改 `analyzer/gemini_client.py` 或 `.github/workflows/daily_report.yml`。
+
+**觸發**：
+- 主公確認 P86-P95 細項凍結採「一個 Phase 一個 Phase 來」。
+- 主公明確指示：「凍結P86」。
+- P85 要求 P86 開工前必須重新查證 Gemini 官方 model / rate limit / pricing / deprecation 文件。
+
+**官方查證（2026-05-19）**：
+- `https://ai.google.dev/gemini-api/docs/rate-limits`
+  - Gemini rate limits 以 RPM / TPM / RPD 三維評估。
+  - rate limits applied per project, not per API key。
+  - RPD quotas reset at midnight Pacific time。
+  - active limits 需在 AI Studio 查看，specified limits are not guaranteed。
+- `https://ai.google.dev/gemini-api/docs/deprecations`
+  - `gemini-2.0-flash` shutdown date：2026-06-01；recommended replacement：`gemini-2.5-flash`。
+  - `gemini-2.0-flash-lite` shutdown date：2026-06-01；recommended replacement：`gemini-2.5-flash-lite`。
+  - `gemini-2.5-flash` / `gemini-2.5-flash-lite` shutdown date：2026-10-16。
+- `https://ai.google.dev/gemini-api/docs/models`
+  - Gemini 3.1 Flash-Lite 為 stable，但 P86 不直接設 primary，避免新 endpoint/schema 行為未在本 repo 實測。
+- `https://ai.google.dev/gemini-api/docs/pricing`
+  - 多個 Gemini 文字模型仍有 free tier；free tier data may be used to improve products。
+
+**取捨**：
+- 方案 A：只刪 2.0，單用 `gemini-2.5-flash`。
+  - 優點：最小變更。
+  - 缺點：沒有 lite 優先，可能較耗 quota。
+  - 決策：不採。
+- 方案 B：`gemini-2.5-flash-lite` -> `gemini-2.5-flash`。
+  - 優點：符合官方 2.0 replacement，低成本，最小 blast radius。
+  - 缺點：2.5 系列 2026-10-16 仍有 shutdown date。
+  - 決策：採用為 P86 實作目標。
+- 方案 C：`gemini-3.1-flash-lite` -> `gemini-2.5-flash-lite` -> `gemini-2.5-flash`。
+  - 優點：更長 deprecation horizon。
+  - 缺點：新 endpoint / schema / rate-limit 未在本 repo 實測。
+  - 決策：列候選，不在 P86 直接 primary。
+- 方案 E：cron 改 UTC 08:30。
+  - 優點：台北 16:30，落在 Pacific midnight 後，可降低舊 RPD window 風險。
+  - 缺點：早上不自動出報告。
+  - 決策：P86 計畫採用；早報 local-only / 下午 enrichment 留 P90/P92。
+
+**稽核表**：
+- S 級代碼層：P86 實作只允許改 model list / cron / tests，不重構 Gemini client。
+- S 級邏輯層：model order 採官方 replacement，schedule 依 RPD reset；P86 不把 3.1 新模型直接設 primary。
+- S 級測試層：要求 model policy test、workflow schedule test、429 retry focused tests。
+- S 級安全層：不新增 secrets，不印 API key，不接 provider。
+- A 級 DevOps：cron 變更必須有註解、測試與 Actions 實跑證據。
+- B 級成本層：Lite first，零額外付費；P90 才做 budget ledger。
+- B 級 i18n/在地化層：cron 註解需同時標 UTC / Asia/Taipei / Pacific reset。
+
+**物理真相**：
+- 新增 `docs/PHASE_86_PLAN.md`
+  - 狀態：`FROZEN`
+  - 實作目標：
+    - `GEMINI_MODELS` 禁止 `gemini-2.0-flash` / `gemini-2.0-flash-lite`。
+    - 預設 order 凍結為 `gemini-2.5-flash-lite` -> `gemini-2.5-flash`。
+    - `gemini-3.1-flash-lite` 只作候選，不直接 primary。
+    - cron 凍結目標：UTC 08:30 / Asia/Taipei 16:30。
+  - 明確 Forbidden Work：
+    - 不加 OpenAI key。
+    - 不接免費 provider。
+    - 不做 P87-P95 內容。
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 P86 FROZEN。
+  - Required Minimal Reads 改為 `docs/PHASE_86_PLAN.md`。
+  - Forbidden Work 明列未核准前不改 `analyzer/gemini_client.py` / `.github/workflows/daily_report.yml`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - Program 保持 R-016 zero-cost reliability。
+  - Current Step 改為 P86 FROZEN，等待主公核准 P86 APPROVED。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 緩解策略加入 P86 detailed plan frozen。
+
+**實跑證據**：
+- 待驗證：
+  - `py scripts/lint_phase_plan.py docs\PHASE_86_PLAN.md`
+  - `py scripts\check_handoff_truth.py --repo-root .`
+  - `py scripts\governance_doctor.py --repo-root .`
+  - `git diff --check`
+
+**風險**：
+- P86 不是 R-016 收官；只降低 deprecated model 與舊 RPD window 風險。
+- cron 改晚會改變每日自動報告體感；P86 plan 明確把早報 / 雙段發布留到 P90/P92。
+- 2.5 replacement 仍有 2026-10-16 shutdown date；P86 plan 設 2026-10-01 review trigger。
+
+**狀態**：
+- ✅ P86 FROZEN：Gemini model / schedule 詳細計畫已凍結。
+- ⏸️ P86 尚未 APPROVED：未改 runtime code。
+- 🔴 R-016 仍 Open：需 P86-P95 分段落地與實跑驗證後才能關閉或降級。
