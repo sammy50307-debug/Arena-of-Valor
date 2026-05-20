@@ -1,6 +1,6 @@
-# Phase P88 計畫書 — Deterministic Local Analyzer（凍結版）
+# Phase P88 計畫書 — Deterministic Local Analyzer（收官版）
 
-> 狀態：FROZEN。此檔只凍結 P88 動工範圍與驗收規則；runtime code 必須等主公另行核准後才能修改。
+> 狀態：CLOSED。P88 runtime 已依主公核准完成；P89 才能處理 quality tier / promotion gate。
 
 ---
 
@@ -11,6 +11,7 @@
 | **Phase 編號** | P88 |
 | **Phase 名稱** | Deterministic Local Analyzer |
 | **凍結日期** | 2026-05-20 |
+| **收官日期** | 2026-05-20 |
 | **影響半徑** | 標準 (3-9 檔) — 預計 runtime 實作會碰 `analyzer/`、`main.py` 或 `analyzer/sentiment.py` integration、tests、docs |
 | **預估投入時數** | 3-6 小時 |
 | **Token budget** | 45K-75K tokens |
@@ -20,8 +21,8 @@
 
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
-| P88 plan | DRAFT_PENDING_PLAN | FROZEN | 計畫可讀、邊界固定、尚不可改 runtime code | `docs/PHASE_88_PLAN.md` 通過 lint 並完成 handoff / risk / history 更新 | AI 建立，主公核准後進 APPROVED |
-| Deterministic Local Analyzer runtime | 未建立 | 待 APPROVED | 尚未在 pipeline 產生本地情緒、關鍵字、英雄、平台、事件初判 | 主公明確說「核准 P88 動工」或同義指令 | 主公核准 |
+| P88 plan | DRAFT_PENDING_PLAN | FROZEN | 計畫可讀、邊界固定、尚不可改 runtime code | `docs/PHASE_88_PLAN.md` 通過 lint 並完成 handoff / risk / history 更新 | 已完成 |
+| Deterministic Local Analyzer runtime | APPROVED | CLOSED | pipeline 已具備 LLM 失敗時的本地情緒、關鍵字、英雄、平台、事件初判 | 主公明確說「push 核准 P88 runtime 動工」後完成實作、測試與收官 | 已完成 |
 
 ---
 
@@ -47,21 +48,21 @@ P86 讓 Gemini model/schedule 降低 429 風險，P87 建立 `quality.core_contr
 - [x] 前置 Phase 已收官：P87 CLOSED，manifest / health / doctor 已能顯示 core contract。
 - [x] 資料/依賴已備：`SearchResult`、`analyzer.sentiment` schema、`reporter.generator` 期望欄位已可讀。
 - [x] 主公已核准計畫凍結：2026-05-20 主公要求「好請繼續」。
-- [ ] 主公另行核准 runtime 動工：FROZEN 後仍需主公明確核准才能改 `analyzer/`、`main.py`、`tests/`。
+- [x] 主公另行核准 runtime 動工：2026-05-20 主公明確要求「push 核准 P88 runtime 動工」。
 - [x] 風險登記簿無未解新高風險：R-016 仍 Open，但 P88 是既定主線；不新增不可逆操作。
 
 ## 4. Exit Criteria（退出條件）
 
 P88 runtime 收官需全部達成：
-- [ ] 新增本地分析模組，單篇貼文輸出與 `SINGLE_POST_SCHEMA` / reporter 需要欄位相容。
-- [ ] 本地 daily summary 輸出與 `DAILY_SUMMARY_SCHEMA` / reporter 需要欄位相容。
-- [ ] LLM 單篇分析失敗時可回退到 local deterministic analyzed posts，不再使用高擬真 showcase mock posts 取代真實貼文。
-- [ ] LLM daily summary 失敗時可回退到 local deterministic summary，保留真實 source links / platform / hero 統計。
-- [ ] 輸出必須標明 `analysis_source=local_deterministic` 或同等 `_meta` 欄位，且不改 P89 才負責的 quality tier / promotion gate。
-- [ ] Focused tests 覆蓋正負中情緒、英雄偵測、關鍵字、事件偵測、平台 breakdown、LLM 429 fallback、非 429 fallback、空資料。
-- [ ] `py -m pytest -q` 通過；若有 pre-existing failure，需依 B-008 記錄，不可靜默放行。
-- [ ] `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` 與 `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 不新增 blocking。
-- [ ] `TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md` 更新；R-016 仍不得關閉。
+- [x] 新增本地分析模組，單篇貼文輸出與 `SINGLE_POST_SCHEMA` / reporter 需要欄位相容。
+- [x] 本地 daily summary 輸出與 `DAILY_SUMMARY_SCHEMA` / reporter 需要欄位相容。
+- [x] LLM 單篇分析失敗時可回退到 local deterministic analyzed posts，不再使用高擬真 showcase mock posts 取代真實貼文。
+- [x] LLM daily summary 失敗時可回退到 local deterministic summary，保留真實 source links / platform / hero 統計。
+- [x] 輸出必須標明 `analysis_source=local_deterministic` 或同等 `_meta` 欄位，且不改 P89 才負責的 quality tier / promotion gate。
+- [x] Focused tests 覆蓋正負中情緒、英雄偵測、關鍵字、事件偵測、平台 breakdown、LLM 429 fallback、非 429 fallback、空資料。
+- [x] `py -m pytest -q` 通過；若有 pre-existing failure，需依 B-008 記錄，不可靜默放行。
+- [x] `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` 與 `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 不新增 blocking。
+- [x] `TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md` 更新；R-016 仍不得關閉。
 
 P88 plan-only 凍結需全部達成：
 - [x] 新增本檔 `docs/PHASE_88_PLAN.md`。
@@ -289,3 +290,32 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-88-deterministic-local-an
 ## 14. STR9 — Skill 收官 entry_points 機械化檢查
 
 本 Phase 不新增或修改 skill，STR9 不觸發；若後續臨時新增 skill，必須另開 Phase 或修訂計畫並重新凍結。
+
+---
+
+## 15. Runtime 收官證據（2026-05-20）
+
+### 15.1 實作真相
+
+- 新增 `analyzer/local_analyzer.py`：純本地 deterministic baseline，輸出 `analysis_source=local_deterministic`、sentiment、keywords、detected_heroes、events、platform breakdown、hero_stats、wordcloud、top_links。
+- 更新 `analyzer/sentiment.py`：LLM 429 / provider exception 時保留真實 source posts 並改走 local baseline；主動 `showcase=True` 仍保留原展演路徑。
+- 未修改 `main.py`、promotion gate、quality tier、LLM budget ledger；P89/P90 邊界未越界。
+
+### 15.2 測試證據
+
+| 指令 | 結果 |
+|---|---|
+| `py -m py_compile analyzer\local_analyzer.py analyzer\sentiment.py` | PASS |
+| `py -m pytest -q tests\test_local_analyzer.py tests\test_sentiment_contract.py tests\test_showcase_modes.py` | 16 passed |
+| `py -m pytest -q tests\test_openai_fallback.py tests\test_run_manifest.py tests\test_daily_report_health.py tests\test_system_doctor.py` | 46 passed |
+| `py -m pytest -q` | 229 passed |
+| `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` | PASS：canonical report / metadata mode / core contract / landing link |
+| `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` | 無 blocking；僅 DOC007 advisory |
+| `py scripts\check_handoff_truth.py --repo-root .` | PASS：HND000 |
+| `py scripts\governance_doctor.py --repo-root .` | PASS：GOV000 |
+| `git diff --check` | PASS；僅 CRLF warning |
+
+### 15.3 邊界確認
+
+- R-016 仍 Open：P88 只建立 local baseline，不把 local-only 報告升成可發布 production tier。
+- 下一 Phase：P89 Quality Tier / Promotion Gate，需要先建立 `docs/PHASE_89_PLAN.md` 並凍結後才可動 runtime。

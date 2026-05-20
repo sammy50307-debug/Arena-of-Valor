@@ -9025,3 +9025,88 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P88 PLAN FROZEN：`docs/PHASE_88_PLAN.md` 已建立並通過 lint。
 - ⏸️ P88 runtime 尚未核准：下一步需主公明確說「核准 P88 動工」後才能改程式碼。
 - 🔴 R-016 仍 Open：需 P88-P95 完整走完或主公另行裁決。
+
+### P88 Deterministic Local Analyzer Runtime 收官（2026-05-20）
+
+**目標**：
+- 完成 P88 runtime：當 LLM 429 或 provider exception 發生時，不再用高擬真 showcase mock posts 取代真實來源貼文。
+- 新增零 API 成本的 deterministic local analyzer，讓真實貼文仍能產出 baseline analysis。
+- 明確保留 P89/P90 邊界：本 Phase 不改 quality tier、不改 promotion gate、不改 LLM budget ledger，不關閉 R-016。
+
+**觸發**：
+- P88 plan 已於前一段凍結。
+- 主公明確核准：「push 核准 P88 runtime 動工」。
+
+**稽核表**：
+- S 級代碼層：新增獨立 `analyzer/local_analyzer.py`，避免把規則全塞進 `analyzer/sentiment.py`。
+- S 級邏輯層：本地分析只做情緒詞、英雄 watchlist、事件 keyword、平台聚合；每筆輸出標 `analysis_source=local_deterministic`。
+- S 級測試層：新增/更新 focused tests，覆蓋正負中情緒、英雄偵測、事件偵測、平台 breakdown、LLM 429 fallback、非 429 fallback、空資料。
+- S 級安全層：不新增外部 API、不新增 secret、不執行貼文內容，只做純字串比對與聚合。
+- A 級資料層：top_links 來自真實 source post 的 URL/title/platform，不再以 showcase URL 污染 fallback。
+- A 級可觀察性層：analyze result 回傳 `local_analysis_status`、`fallback_reason`、`analysis_source`。
+- A 級流程層：P88 runtime 收官後 handoff / active 改成 P89 DRAFT_PENDING_PLAN；R-016 保持 Open。
+
+**物理真相**：
+- 新增 `analyzer/local_analyzer.py`
+  - 常數：
+    - `ANALYSIS_SOURCE = "local_deterministic"`。
+    - `POSITIVE_TERMS`：`好用`、`期待`、`喜歡`、`推薦`、`穩`、`加強`、`增強`、`爽`、`佛`、`讚`、`精彩`、`可愛`、`回流`、`高勝率`、`大優勢`、`保護`、`護盾`。
+    - `NEGATIVE_TERMS`：`爛`、`弱`、`糞`、`抱怨`、`削弱`、`延遲`、`卡頓`、`卡`、`掛機`、`檢舉`、`不平衡`、`退坑`、`問題`、`難用`、`崩`、`失敗`、`討厭`、`ban`。
+  - `analyze_local_post(...)`
+    - 輸出 `post.platform`、`author/source`、`url`、`title`、`content`、`timestamp`、`is_hero_focus`、`detected_heroes`、`region`。
+    - 輸出 `analysis.reasoning`、`sentiment`、`sentiment_score`、`category`、`keywords`、`summary`、`relevance_score`、`events`、`analysis_source=local_deterministic`、`llm_contract.status=skipped`。
+  - `generate_local_summary(...)`
+    - 輸出 `sentiment_distribution`、`platform_breakdown`、`hot_topics`、`detected_events`、`hero_stats`、`wordcloud`、`top_links`、`hero_focus`。
+    - `recommendation` 明確寫本日使用本地 deterministic baseline，語意深讀交由後續 LLM enrichment。
+- 更新 `analyzer/sentiment.py`
+  - LLM 429：
+    - 舊行為：`showcase = True` 後走精品展演 mock posts。
+    - 新行為：`quota_error=True` 且 `analyze_posts_locally(...)`，回傳 `is_showcase=False`、`analysis_source=local_deterministic`、`fallback_reason=http_status_429`。
+  - 非 429 provider exception：
+    - 新行為：回傳 local deterministic posts，`is_showcase=True` 以避免 P89 前誤升 production promotion；`generate_daily_summary(showcase=True)` 會偵測 local posts 並輸出 local summary，而非 showcase mock summary。
+  - daily summary exception：
+    - 舊行為：非 showcase fallback 仍有 `演示巡航` 與演示文案。
+    - 新行為：呼叫 `generate_local_summary(...)`，保留真實 platform / hero / source links。
+- 新增 `tests/test_local_analyzer.py`
+  - 驗證 positive hero/event、negative issue_report、neutral no-signal、summary aggregation、empty data。
+- 更新 `tests/test_sentiment_contract.py`
+  - 新增 quota 429 fallback、non-HTTP fallback、daily summary local fallback 測試。
+- 更新 `tests/test_showcase_modes.py`
+  - TC1 由 `429 -> is_showcase=True` 改為 `429 -> is_showcase=False + local_deterministic`。
+  - TC3/TC4 保持主動 showcase 仍走原 showcase 路徑。
+- 更新文件：
+  - `docs/PHASE_88_PLAN.md`：狀態改 CLOSED，補 runtime 收官證據。
+  - `NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`：下一步改 P89 DRAFT_PENDING_PLAN。
+  - `docs/RISK_REGISTRY.md`：R-016 補 P88 已完成，但不關閉。
+
+**實跑證據**：
+- `py -m py_compile analyzer\local_analyzer.py analyzer\sentiment.py`
+  - PASS。
+- `py -m pytest -q tests\test_local_analyzer.py tests\test_sentiment_contract.py tests\test_showcase_modes.py`
+  - 16 passed。
+- `py -m pytest -q tests\test_openai_fallback.py tests\test_run_manifest.py tests\test_daily_report_health.py tests\test_system_doctor.py`
+  - 46 passed。
+- `py -m pytest -q`
+  - 229 passed。
+- `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production`
+  - PASS：canonical report / metadata mode / core contract / landing link / landing target mode。
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production`
+  - 無 blocking；僅 DOC007 history source coverage advisory。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：HND000 active bootstrap truth verified。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：GOV000 runbook and risk registry governance verified。
+- `git diff --check`
+  - PASS：無 whitespace error；PowerShell 僅顯示 LF/CRLF warning，非阻擋錯誤。
+
+**風險**：
+- P88 local deterministic baseline 是規則式初判，不是 LLM 深度洞察；若直接當完整 production 解讀會誤導。P89 需要以 quality tier 明確標示。
+- P88 保留 P89 前的 promotion gate 邊界，因此 local-only 是否能上首頁尚未處理。
+- 英雄別名、英文名、簡繁差異仍可能漏判；後續 P92 replay/enrichment 可補強。
+- R-016 仍 Open；P88 只解「LLM 掛了仍有真實 baseline」，不解「如何發布/分級/限額治理」全鏈路。
+
+**狀態**：
+- ✅ P88 CLOSED：deterministic local analyzer runtime 已落地。
+- ✅ full pytest：229 passed。
+- 🔴 R-016 仍 Open：下一步是 P89 Quality Tier / Promotion Gate plan。
+- ⏭️ 下一步：建立/凍結 `docs/PHASE_89_PLAN.md`；未核准 P89 runtime 前不得改 promotion gate。
