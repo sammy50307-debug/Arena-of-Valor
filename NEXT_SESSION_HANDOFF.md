@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P86（Gemini Model & Schedule Modernization / VERIFYING） |
-| **Current Step** | P86.3 VERIFYING：Gemini 3.1 / 3.5 model list、UTC 08:30 cron、focused tests 已本地完成；下一步 push 後跑 GitHub Actions 實證 |
-| **Mode** | VERIFYING |
-| **Latest Verified Commit** | `HEAD`（P86 本地實作 commit；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
+| **Current Phase** | P87（Report Core Contract / DRAFT_PENDING_PLAN） |
+| **Current Step** | P86 CLOSED；下一步建立/凍結 `docs/PHASE_87_PLAN.md`，不可直接改 runtime code |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `HEAD`（P86 closeout docs，本地 commit 待 push；P86 production evidence commit = `100460f`；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
 | **Updated At** | 2026-05-20 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_86_PLAN.md`
+2. `docs/PHASE_85_PLAN.md` 的 P87 roadmap
 3. 若要確認短版狀態，再讀 `docs/ACTIVE_OPERATION.md`
 
 ## Current Source Of Truth
@@ -25,26 +25,26 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_86_PLAN.md` | P86 詳細凍結計畫 |
+| L3 | `docs/PHASE_85_PLAN.md` 的 P86-P95 roadmap | P87 下一步來源；`docs/PHASE_87_PLAN.md` 尚待建立 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P86（VERIFYING） |
-| **Current Step** | P86.3 VERIFYING：等待 push 與 GitHub Actions `AoV Daily Monitor` 實跑證據 |
-| **Allowed Files** | `analyzer/gemini_client.py`, `.github/workflows/daily_report.yml`, `tests/test_429_retry.py`, `tests/test_gemini_model_policy.py`, `tests/test_daily_report_schedule.py`, `docs/PHASE_86_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；VERIFYING 只允許修 P86 同範圍回歸 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不做 P87-P95；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | 本地 focused tests / py38 import 已通過；仍需 push 後 GitHub Actions `AoV Daily Monitor` 成功，才能把 P86 關閉或轉下一 Phase |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_86_PLAN.md`；若 P86 commit 已 push，先跑/檢查 GitHub Actions；若 CI 失敗，只修 P86 同範圍問題 |
+| **Current Phase** | P87（DRAFT_PENDING_PLAN） |
+| **Current Step** | P86 CLOSED；建立/凍結 `docs/PHASE_87_PLAN.md` |
+| **Allowed Files** | `docs/PHASE_87_PLAN.md`, `docs/PHASE_85_PLAN.md`, `docs/PHASE_86_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；DRAFT 階段只可做 P87 plan / handoff / risk / history |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 runtime code；不做 P88-P95；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P87 plan 需完成 17 層稽核、M1/M1.5/M2、Entry/Exit Criteria、影響檔案、Forbidden Work，並通過 `lint_phase_plan.py` 後才可 FROZEN |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_85_PLAN.md` P87 row；若主公說「凍結 P87」或「開始規劃 P87」，只建立/更新 `docs/PHASE_87_PLAN.md`，不得改 runtime code |
 
 ## Required Verification Commands
 
 ```powershell
 git status -sb
 git diff --check
-py scripts/lint_phase_plan.py docs/PHASE_86_PLAN.md
+if (Test-Path docs\PHASE_87_PLAN.md) { py scripts/lint_phase_plan.py docs\PHASE_87_PLAN.md }
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
@@ -52,11 +52,11 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- 不要把 P86 VERIFYING 解讀成 R-016 已恢復 production。
+- 不要把 P86 CLOSED 解讀成 R-016 CLOSED；R-016 仍 Open，後續要走 P87-P95。
 - 不要回到「加 OpenAI paid fallback」當主線；主公已明確不想多花 OpenAI API 錢。
 - 不要自動接 Groq / Cloudflare / GitHub Models；免費 provider 只列 P93 disabled-by-default 候選。
 - 不要把 R-016 標記 Closed；P85 是修復計畫凍結，不是 production 恢復。
-- 不要擴張到 P87-P95；P86 只能修 Gemini model list、workflow cron、focused tests 與同範圍驗證問題。
+- 不要直接改 runtime code；P87 目前只能先建立/凍結 plan。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

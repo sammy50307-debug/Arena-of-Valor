@@ -143,7 +143,7 @@
   - 已完成：`data/runs/**/run_manifest.json` 已解除忽略，`main.py` 與 GitHub Actions fallback push 會同步 `data/runs/`；`scripts/backfill_manifest_from_report.py` 可從既有 canonical report 建立 report-only manifest。
   - 已完成：R-016.2 新增 LLM fallback/secret diagnostics；下一次 Actions 會顯示 `GEMINI_API_KEY` / `OPENAI_API_KEY` 是否配置，manifest 會記錄 `provider.quota_error`、`provider.openai_fallback_configured`、`provider.openai_fallback_used`。
   - 已凍結：2026-05-19 主公明確不想增加 OpenAI API 費用，P85 已凍結 `Evidence-first + Quality-tiered Production + LLM Enrichment Queue` 作為零額外付費修復主線。
-  - VERIFYING：P86 `Gemini Model & Schedule Modernization` 已完成本地實作；官方查證指出 Gemini 2.0 Flash / Flash-Lite 於 2026-06-01 shutdown，且 RPD 以 Pacific midnight reset。2026-05-20 P86.0a 重新查證後，將實作目標從 2.5 路線修正為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，避免新主線落到 2026-10-16 shutdown 的 2.5 Flash 系列。本地已移除 2.0 / 2.5 主線 model、更新 daily cron 至 UTC 08:30，focused tests 與 py38 import 已通過；仍需 push 後 GitHub Actions 實跑證據，R-016 不得因此關閉。
+  - 已完成：P86 `Gemini Model & Schedule Modernization` 已 CLOSED；本地已移除 2.0 / 2.5 主線 model，改為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，並將 daily cron 更新至 UTC 08:30。遠端 commit `100460f` 已由 GitHub Actions 產出 `mode=production` report，manifest 顯示 `publish_eligible=true`、`quota_error=false`、`llm_calls=20`；health check production PASS，system doctor 無 blocking、僅 DOC007 advisory。
   - 中期：P86-P95 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、doctor/SLO 重分類。
   - 長期：免費 provider 只作 P93 disabled-by-default 插槽候選；不得在未核准前接進主鏈路。
 - **觸發升級**：若 P86-P95 完成後仍連續無可發布 production tier ≥ 3 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為 P95 closeout blocking issue，不得關閉 R-016。

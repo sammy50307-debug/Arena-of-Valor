@@ -8713,3 +8713,74 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P86.2 DONE：daily workflow cron 已改為 UTC 08:30 / 台北 16:30。
 - 🟡 P86.3 VERIFYING：本地 focused tests / py38 import 已過；下一步需 push 後跑 GitHub Actions 實證。
 - 🔴 R-016 仍 Open：P86 尚未取得遠端 Actions 成功證據，不能關閉或降級。
+
+### P86 Gemini Model & Schedule Modernization 收官（2026-05-20）
+
+**目標**：
+- 將 P86 從 VERIFYING 收官為 CLOSED。
+- 記錄 GitHub Actions production 實跑證據，證明 Gemini 3.1 / 3.5 model list 與 UTC 08:30 cron 可在遠端 pipeline 實際產出 production report。
+- 明確切開邊界：P86 CLOSED 不等於 R-016 CLOSED；R-016 還需要 P87-P95 接續治理。
+
+**觸發**：
+- 主公回報：「我剛剛跑了一次跑通了」。
+- `git fetch origin` 後發現遠端新增 commit `100460f docs: 戰略報告自動同步 2026-05-20 05:59:13 [mode:production l1:0 l2:0 hit:0%]`。
+
+**稽核表**：
+- S 級代碼層：P86 code change 已在 `640dc73` 完成；本次只收官文件與狀態。
+- S 級邏輯層：production run 的 manifest 顯示 `mode=production`、`publish_eligible=true`、`quota_error=false`，符合 P86 exit criteria。
+- S 級測試層：本地 full pytest 先前已 PASS；本次補跑 health / doctor 驗證遠端產物。
+- S 級安全層：未新增 secrets；`OPENAI_API_KEY` 仍不是主線；未接免費 provider。
+- A 級流程層：P86 改為 CLOSED，handoff 下一步轉 P87 DRAFT_PENDING_PLAN；P87 plan 未凍結前不得改 runtime code。
+
+**物理真相**：
+- Fast-forward 本機到遠端 `100460f`
+  - `data/llm_cache.json` 更新。
+  - `data/reports/aov_report_2026-05-20.html` 更新 canonical report。
+  - 新增 `data/reports/aov_report_2026-05-20_v2.html`。
+  - `data/runs/2026-05-20/run_manifest.json` 更新。
+  - `index.html` 更新 landing。
+- `data/runs/2026-05-20/run_manifest.json`
+  - `mode`: `production`
+  - `publish_eligible`: `true`
+  - `quota_error`: `false`
+  - `openai_fallback_configured`: `false`
+  - `openai_fallback_used`: `false`
+  - `llm_calls`: `20`
+  - `source_health.status`: `ok`
+  - `total_posts`: `18`
+  - `platform_count`: `4`
+- `data/reports/aov_report_2026-05-20_v2.html`
+  - 第一行：
+    ```html
+    <!-- cache_hit: 0/20 (0%) | llm_calls: 20 | mode: production | ✅ 真實輿情 -->
+    ```
+- 更新 `docs/PHASE_86_PLAN.md`
+  - 狀態改為 `CLOSED`。
+  - Exit Criteria 中 GitHub Actions 實跑改為 `[x]`。
+  - 新增 P86 收官證據表。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - Current Phase 改為 P87 `DRAFT_PENDING_PLAN`。
+  - Current Step 改為建立/凍結 `docs/PHASE_87_PLAN.md`。
+  - 明確禁止 P87 plan 凍結前改 runtime code。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 改為 P86 已完成，但 R-016 仍 Open。
+
+**實跑證據**：
+- `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production`
+  - PASS：canonical report。
+  - PASS：metadata mode = production。
+  - PASS：landing main link。
+  - PASS：landing target mode = production。
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production`
+  - 無 blocking。
+  - 僅 `DOC007 history source coverage` advisory：`source_dates empty; missing=7`。
+
+**風險**：
+- P86 已證明 Gemini model/schedule 可跑通，但不代表 report core contract、quality tier、budget ledger 已完成。
+- `DOC007` 仍提醒 history source coverage 缺口；這更適合由 P87/P88/P94 接續治理，不回頭擴張 P86。
+- R-016 仍 Open，直到 P87-P95 完成或主公另行裁決。
+
+**狀態**：
+- ✅ P86 CLOSED：model list / schedule modernization 已由遠端 production run 驗證。
+- 🔴 R-016 仍 Open：下一步是 P87 Report Core Contract plan。
+- ⏭️ 下一步：建立/凍結 `docs/PHASE_87_PLAN.md`；未核准 P87 前不得改 runtime code。

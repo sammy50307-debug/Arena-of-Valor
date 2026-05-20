@@ -3,8 +3,8 @@
 > 草案日期：2026-05-19
 > 凍結日期：2026-05-19
 > P86.0a 修正日期：2026-05-20
-> 狀態：VERIFYING
-> 核准狀態：主公已於 2026-05-20 核准 P86 施工；本地實作與 focused tests 已完成，等待 push 後 GitHub Actions 實跑證據
+> 狀態：CLOSED
+> 核准狀態：主公已於 2026-05-20 核准 P86 施工；本地測試與 GitHub Actions production 實跑皆完成
 
 ## 0. Phase 元資料
 
@@ -53,7 +53,7 @@ P86.0a 因此覆寫原本的 model target：
 | 2.5 系列定位 | P86 實作目標 | 不進主線；僅保留為歷史查證脈絡 |
 | 決策理由 | 最小風險、貼合 2.0 replacement | 更長壽命、仍維持 zero-cost/free-tier 可用性、避免短期二次遷移 |
 
-P86 狀態仍為 FROZEN：主公核准前不可改 `analyzer/gemini_client.py`、`.github/workflows/daily_report.yml` 或 tests。
+P86.0a 修正當下狀態仍為 FROZEN：主公核准前不可改 `analyzer/gemini_client.py`、`.github/workflows/daily_report.yml` 或 tests。
 
 ## 0.5 狀態轉換清單
 
@@ -61,6 +61,7 @@ P86 狀態仍為 FROZEN：主公核准前不可改 `analyzer/gemini_client.py`�
 |---|---|---|---|---|---|
 | P86 計畫 | DRAFT_PENDING_APPROVAL | FROZEN | P86 詳細計畫已通過稽核，但尚不可改 runtime code | 主公明確要求「凍結P86」，且官方查證完成 | AI 建立，主公核准後才動工 |
 | P86 施工 | FROZEN | VERIFYING | 主公已核准施工；本地 code / workflow / tests 已落地，等待遠端 Actions 實跑證據 | 2026-05-20 主公明確說「好 那開始施工P86」 | 主公核准，AI 執行 |
+| P86 收官 | VERIFYING | CLOSED | GitHub Actions 已產出 production report，證明 Gemini 3.1 / 3.5 endpoint 與現有 JSON pipeline 可用 | 遠端 commit `100460f` 產出 `mode:production` | AI 驗證，主公回報 Actions 跑通 |
 | `GEMINI_MODELS` | 待更新 | 已本地更新 | 改為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash` | P86 從 FROZEN 進入施工 | 主公核准，AI 執行 |
 | GitHub Actions cron | UTC 00:00 / 台北 08:00 | UTC 08:30 / 台北 16:30 | 避開 Pacific midnight RPD reset 前的舊配額窗口 | P86 從 FROZEN 進入施工 | 主公核准，AI 執行 |
 
@@ -87,7 +88,7 @@ P85 已凍結 R-016 的 zero-cost evidence-first 主線。P86 是第一個可動
 - [x] 主公已明確要求凍結 P86。
 - [x] Gemini rate limit / models / deprecations / pricing 官方資料已於 2026-05-19 重新查證，並於 2026-05-20 因模型更新再查證。
 - [x] 本計畫完成 17 層稽核、M1、M1.5、M2。
-- [x] 主公後續明確核准 P86 從 FROZEN 轉 APPROVED / VERIFYING。
+- [x] 主公後續明確核准 P86 從 FROZEN 轉 APPROVED / VERIFYING，並已以 production evidence 收官為 CLOSED。
 - [ ] P85 / P86 本地 commits push 與否由主公另行決定；push 不是 P86 動工前置條件，但推前必問。
 
 ## 4. Exit Criteria
@@ -107,7 +108,7 @@ P86 實作收官需全部達成：
 - [x] `py -m pytest -q` 通過。
 - [x] `py -3.8 -c "import analyzer.gemini_client; print(analyzer.gemini_client.GEMINI_MODELS)"` 通過。
 - [x] `git diff --check` 通過。
-- [ ] GitHub Actions `AoV Daily Monitor` 實跑通過，證明 Gemini 3.1 / 3.5 endpoint 與現有 JSON pipeline 相容。
+- [x] GitHub Actions `AoV Daily Monitor` 實跑通過，證明 Gemini 3.1 / 3.5 endpoint 與現有 JSON pipeline 相容。
 - [x] P86 收官時更新 handoff / active / risk / TASK_HISTORY。
 
 ## 5. ROI 評估
@@ -149,8 +150,8 @@ P86 實作收官需全部達成：
 | 11 | 部署層 (DevOps) | cron 從 UTC 00:00 改 UTC 08:30 | GitHub cron 延遲或錯過排程 | workflow_dispatch 保留；收官要求 Actions 實跑 |
 | 12 | 成本層 (Cost) | 不新增付費 provider；3.1 Flash-Lite first | 3.5 Flash fallback 若頻繁使用，免費額度壓力較高 | P90 budget ledger 承接；P86 不擴呼叫量 |
 | 13 | 可維護性層 (Maintainability) | 用測試防 deprecated model 回流，並防 2.5 短壽命模型回流 | 官方模型頁再更新後文件過期 | P86 文件設 2026-08-01 model review trigger；動工日超過 2026-06-03 必重查 |
-| 14 | 文件層 (Documentation) | handoff / active / history / risk 同步 | 新視窗不知 P86 已進入驗證 | ACTIVE_BOOTSTRAP 改成 P86 VERIFYING |
-| 15 | 流程層 (Process) | 主公核准後才施工；本地通過後進 VERIFYING | 把本地通過誤判成遠端 production 恢復 | Exit Criteria 保留 Actions 實跑證據，不關閉 R-016 |
+| 14 | 文件層 (Documentation) | handoff / active / history / risk 同步 | 新視窗不知 P86 已收官、下一步是 P87 計畫 | ACTIVE_BOOTSTRAP 改成 P87 DRAFT_PENDING_PLAN |
+| 15 | 流程層 (Process) | 主公核准後才施工；production 實跑後才 CLOSED | 把 P86 CLOSED 誤判成 R-016 CLOSED | Exit Criteria 明確：P86 CLOSED，但 R-016 仍 Open |
 | 16 | 隱私/合規層 (Privacy) | 不新增資料傳送方 | Gemini free tier data policy 仍存在 | P86 不改 provider；privacy 深審留 P92/P93 |
 | 17 | i18n/在地化層 | cron 註解同時標 UTC / Asia/Taipei / Pacific reset | DST 導致 Pacific midnight UTC 07/08 差異 | 用 UTC 08:30，落在 PDT/PST midnight 之後 |
 
@@ -206,7 +207,7 @@ P86 實作收官需全部達成：
 | R3 | 只換 model 無法根治 429 | 高 | 中 | 架構 | P86 明確只止血；P90 budget ledger 承接根治 |
 | R4 | Google Gemini 3 模型頁仍可能快速改版或調整免費額度 | 中 | 中 | 外部依賴 | 文件設 2026-08-01 review trigger；P90 budget ledger 追蹤實際用量 |
 | R5 | GitHub cron 不是精準排程，改到 UTC 08:30 仍可能延遲 | 中 | 低 | DevOps | Actions 實跑記錄實際 start time；不把分鐘精準當 SLO |
-| R6 | P86 本地驗證被誤解成遠端 production 恢復 | 低 | 中 | 流程 | handoff 明寫 VERIFYING，需 push 後 Actions 實跑證據 |
+| R6 | P86 CLOSED 被誤解成 R-016 CLOSED | 低 | 中 | 流程 | handoff 明寫下一步是 P87；R-016 仍 Open |
 
 高風險加權檢查（META4）：
 
@@ -222,7 +223,7 @@ P86 實作收官需全部達成：
 | P86.0a | Gemini 3.1 / 3.5 官方模型更新修正 | 2.5 短壽命模型被誤列為新主線 | docs-only amendment + handoff/risk/history 同步 |
 | P86.1 | Model list 現代化 | 2.0 shutdown endpoint | DONE：model policy tests PASS |
 | P86.2 | Workflow schedule 現代化 | 舊 RPD window 429 | DONE：schedule tests + workflow comment PASS |
-| P86.3 | 驗證與收官 | 回歸 / 交接偏航 | VERIFYING：focused tests + py38 import PASS；等待 Actions 實跑 |
+| P86.3 | 驗證與收官 | 回歸 / 交接偏航 | CLOSED：focused tests + py38 import + full pytest + Actions production evidence PASS |
 
 ## 11. 影響檔案清單
 
@@ -291,6 +292,19 @@ P86 明確不修改：
 
 Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-86-gemini-model-schedule.md`
 
+## 13.5 P86 收官證據（2026-05-20）
+
+| 證據 | 結果 |
+|---|---|
+| P86 implementation commit | `640dc73 feat: 實作 P86 gemini model schedule modernization` |
+| Actions report sync commit | `100460f docs: 戰略報告自動同步 2026-05-20 05:59:13 [mode:production l1:0 l2:0 hit:0%]` |
+| manifest | `data/runs/2026-05-20/run_manifest.json`：`mode=production`、`publish_eligible=true`、`quota_error=false`、`llm_calls=20` |
+| report first line | `<!-- cache_hit: 0/20 (0%) | llm_calls: 20 | mode: production | ✅ 真實輿情 -->` |
+| health check | `py scripts/check_daily_report_health.py --date 2026-05-20 --expected-mode production` PASS：canonical report、metadata mode、landing main link、landing target mode |
+| system doctor | `py scripts/system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 無 blocking；僅 `DOC007` history source coverage advisory |
+
+P86 關閉邊界：P86 只證明 Gemini 3.1 / 3.5 model list 與 UTC 08:30 cron 可跑出 production report；不代表 R-016 全戰役完成。R-016 仍需 P87-P95 接續治理。
+
 ## 14. Pre-flight 多視角體檢（STR10）
 
 ### M1 強制填表
@@ -336,12 +350,12 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-86-gemini-model-schedule.
 ## 15. 狀態機與下一步
 
 ```text
-P86: VERIFYING
-Next: push P86 implementation commit -> run GitHub Actions AoV Daily Monitor -> record evidence before closing P86 / R-016
+P86: CLOSED
+Next: P87 DRAFT_PENDING_PLAN -> 建立/凍結 docs/PHASE_87_PLAN.md；不可直接改 runtime code
 ```
 
 新視窗最小讀取：
 
 1. `NEXT_SESSION_HANDOFF.md` active bootstrap
 2. `docs/PHASE_86_PLAN.md`
-3. 若要繼續，先確認是否已 push P86 implementation commit；若已 push，跑一次 GitHub Actions 取得遠端實跑證據
+3. 若要繼續，先建立/凍結 `docs/PHASE_87_PLAN.md`；未核准 P87 前不可改 runtime code
