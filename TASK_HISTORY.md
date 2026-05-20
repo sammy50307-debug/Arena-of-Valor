@@ -9110,3 +9110,76 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ full pytest：229 passed。
 - 🔴 R-016 仍 Open：下一步是 P89 Quality Tier / Promotion Gate plan。
 - ⏭️ 下一步：建立/凍結 `docs/PHASE_89_PLAN.md`；未核准 P89 runtime 前不得改 promotion gate。
+
+### P89 Quality Tier / Promotion Gate 計畫凍結（2026-05-20）
+
+**目標**：
+- 建立 P89 凍結計畫，定義品質分級與 promotion gate 的 runtime 範圍。
+- 把目前單一 `mode` 判斷升級成 `quality_tier + publish_eligible` 判斷。
+- 明確切開 P89 與 P90/P91/P92：P89 只做 quality tier / promotion gate；不做 LLM budget ledger、不做 cache/dedupe、不做 enrichment queue。
+
+**觸發**：
+- P88 runtime 已完成並推上遠端：`c7c8525 feat: 實作 P88 deterministic local analyzer`。
+- 主公要求：「開始下一步」。
+- handoff 明確指出下一步只能建立/凍結 `docs/PHASE_89_PLAN.md`，尚不可改 runtime。
+
+**稽核表**：
+- S 級代碼層：P89 runtime 預計新增小型 quality tier 判定 helper，不把 gate 條件散落在 `main.py`。
+- S 級邏輯層：`publish_eligible` 將從 `mode == production` 改成 tier + core contract + gate reasons；manual showcase / error fallback 永不 promotion。
+- S 級測試層：runtime exit criteria 要求 full LLM、partial LLM、local-only quota、manual showcase、error fallback、core contract fail、shadow/blocking gate matrix tests。
+- S 級安全層：不新增 secrets/provider，不讓貼文內容決定 tier；tier 只讀系統 metadata。
+- A 級架構層：`quality_tier` 作為 mode 之外的獨立 contract；mode 保留相容，tier 作為 P89 後決策欄位。
+- A 級文件/流程層：handoff / active 從 P89 DRAFT_PENDING_PLAN 更新成 P89 FROZEN；runtime 前需主公另行核准。
+
+**物理真相**：
+- 新增 `docs/PHASE_89_PLAN.md`
+  - 狀態：`FROZEN`。
+  - 方案決策：採用「新增 `quality_tier`，保留 `mode` 作相容欄位」。
+  - P89 runtime 預計新增 tier：
+    - `production_full`
+    - `production_llm_partial`
+    - `production_local_only`
+    - `showcase_manual`
+    - `error_fallback`
+  - Exit Criteria 明列：
+    - `production_local_only` 在 source/core contract PASS 且 local baseline 完整時可被 promotion gate 接受。
+    - `showcase_manual` 與 `error_fallback` 不可 promotion。
+    - Manifest 寫入 `quality.tier`、`quality.analysis_source` 或等價欄位，並維持舊 `mode` 相容。
+  - Forbidden Work 明列：
+    - 不加 `OPENAI_API_KEY`
+    - 不接免費 provider
+    - 不做 P90 budget ledger
+    - 不做 P91 cache/dedupe/top-N
+    - 不做 P92 enrichment queue/replay
+    - 不關閉 R-016
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P89（Quality Tier / Promotion Gate / FROZEN）`。
+  - Current Step 改為等待主公核准 P89 runtime 動工。
+  - Required Minimal Reads 改為 bootstrap + `docs/PHASE_89_PLAN.md`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - L2 狀態同步 P89 FROZEN。
+  - Latest Evidence 補入 P89 plan 已凍結與 R-016 仍 Open。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補入 P89 `Quality Tier / Promotion Gate` plan 已凍結。
+
+**實跑證據**：
+- `py scripts\lint_phase_plan.py docs\PHASE_89_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `git diff --check`
+  - PASS：無 whitespace error；PowerShell 僅顯示 LF/CRLF warning，非阻擋錯誤。
+
+**風險**：
+- P89 plan 凍結不代表 runtime 已實作；下一步仍需主公核准才能改 `main.py` / `analyzer/run_manifest.py` / health/doctor scripts / reporter metadata / tests。
+- `quality_tier` 與舊 `mode` 雙欄位短期可能讓接手者混淆；runtime 必須以 tests 與文件固定「mode 相容、tier 決策」。
+- `production_local_only` 若 gate 放太寬，可能讓低品質報告上首頁；runtime 必須要求 core contract + local baseline 完整。
+- R-016 仍 Open；P89 只解 quality gate 子問題，不是 R-016 closeout。
+
+**狀態**：
+- ✅ P88 CLOSED 且已推到 origin/main。
+- ✅ P89 PLAN FROZEN：`docs/PHASE_89_PLAN.md` 已建立並通過 lint/governance 驗證，待 commit。
+- ⏸️ P89 runtime 尚未核准：下一步需主公明確說「核准 P89 動工」後才能改程式碼。
+- 🔴 R-016 仍 Open：需 P89-P95 完整走完或主公另行裁決。
