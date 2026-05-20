@@ -1,7 +1,7 @@
 """
 P69：旗艦展演模式四態驗證。
 
-TC1  analyze_posts 遇 429 → quota_error=True, is_showcase=True
+TC1  analyze_posts 遇 429 → quota_error=True, is_showcase=False, local deterministic fallback
 TC2  analyze_posts 正常執行  → quota_error=False, is_showcase=False
 TC3  analyze_posts 主動 showcase=True（無 429）→ quota_error=False, is_showcase=True
 TC4  generate_daily_summary(showcase=True) 不呼叫 self.llm.chat
@@ -50,11 +50,11 @@ def _make_429_error():
     return httpx.HTTPStatusError("429", request=MagicMock(), response=resp)
 
 
-# ── TC1：429 → quota_error=True ─────────────────────────────
+# ── TC1：429 → quota_error=True + local baseline ────────────
 
 @pytest.mark.asyncio
 async def test_tc1_429_triggers_quota_error():
-    """batch_chat 拋出 429 → quota_error=True, is_showcase=True"""
+    """batch_chat 拋出 429 → quota_error=True, but no showcase mock posts."""
     analyzer = _make_analyzer()
     analyzer.llm.batch_chat = AsyncMock(side_effect=_make_429_error())
 
@@ -64,8 +64,10 @@ async def test_tc1_429_triggers_quota_error():
             showcase=False,
         )
 
-    assert result["is_showcase"] is True
+    assert result["is_showcase"] is False
     assert result["quota_error"] is True
+    assert result["analysis_source"] == "local_deterministic"
+    assert result["posts"][0]["analysis"]["analysis_source"] == "local_deterministic"
     assert result["provider_diagnostics"]["openai_fallback_configured"] is False
 
 

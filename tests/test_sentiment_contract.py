@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import httpx
 import pytest
 
 from analyzer.sentiment import SentimentAnalyzer
@@ -34,6 +35,11 @@ def _make_analyzer() -> SentimentAnalyzer:
     llm.cache_manager = cm
     analyzer.llm = llm
     return analyzer
+
+
+def _make_429_error():
+    response = httpx.Response(429, request=httpx.Request("POST", "https://example.test"))
+    return httpx.HTTPStatusError("429", request=response.request, response=response)
 
 
 def _valid_single_post_payload() -> dict:
@@ -132,3 +138,68 @@ async def test_generate_daily_summary_marks_valid_contract_ok():
     summary = await analyzer.generate_daily_summary([_analyzed_post()], date="2026-05-17")
 
     assert summary["llm_contract"] == {"status": "ok", "errors": []}
+
+
+@pytest.mark.asyncio
+async def test_analyze_posts_uses_local_fallback_on_quota_error():
+    analyzer = _make_analyzer()
+    analyzer.llm.batch_chat = AsyncMock(side_effect=_make_429_error())
+
+    with patch.object(analyzer, "_compress_content", return_value="x"):
+        result = await analyzer.analyze_posts([_make_search_result("新版芽芽輔助教學")], showcase=False)
+
+    assert result["quota_error"] is True
+    assert result["is_showcase"] is False
+    assert result["analysis_source"] == "local_deterministic"
+    assert result["posts"][0]["analysis"]["analysis_source"] == "local_deterministic"
+    assert result["posts"][0]["post"]["title"] == "新版芽芽輔助教學"
+
+
+@pytest.mark.asyncio
+async def test_analyze_posts_uses_local_fallback_on_non_http_error():
+    analyzer = _make_analyzer()
+    analyzer.llm.batch_chat = AsyncMock(side_effect=RuntimeError("provider down"))
+
+    with patch.object(analyzer, "_compress_content", return_value="x"):
+        result = await analyzer.analyze_posts([_make_search_result("排位問題回報")], showcase=False)
+
+    assert result["quota_error"] is False
+    assert result["is_showcase"] is True
+    assert result["fallback_reason"].startswith("RuntimeError")
+    assert result["posts"][0]["analysis"]["analysis_source"] == "local_deterministic"
+
+
+@pytest.mark.asyncio
+async def test_generate_daily_summary_uses_local_summary_on_llm_exception():
+    analyzer = _make_analyzer()
+    analyzer.llm.chat = AsyncMock(side_effect=RuntimeError("summary down"))
+    analyzed = [
+        {
+            "post": {
+                "platform": "PTT",
+                "source": "user",
+                "url": "https://example.com/yaya",
+                "title": "新版芽芽輔助教學",
+                "content": "護盾加強好用",
+                "region": "TW",
+                "detected_heroes": ["芽芽"],
+            },
+            "analysis": {
+                "sentiment": "positive",
+                "sentiment_score": 0.8,
+                "summary": "本地基線",
+                "keywords": ["芽芽", "平衡調整"],
+                "relevance_score": 0.9,
+                "events": [{"name": "平衡調整", "type": "balance_update", "details": "加強"}],
+                "analysis_source": "local_deterministic",
+            },
+        }
+    ]
+
+    summary = await analyzer.generate_daily_summary(analyzed, date="2026-05-20")
+
+    assert summary["analysis_source"] == "local_deterministic"
+    assert summary["top_links"][0]["url"] == "https://example.com/yaya"
+    assert summary["platform_breakdown"]["ptt"]["post_count"] == 1
+    assert summary["hot_topics"][0]["topic"] == "芽芽"
+    assert summary["llm_contract"]["status"] == "skipped"

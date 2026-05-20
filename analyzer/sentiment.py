@@ -15,6 +15,11 @@ import config
 from scrapers.tavily_searcher import SearchResult
 from analyzer.fallback_llm_client import FallbackLLMClient
 from analyzer.gemini_client import GeminiClient
+from analyzer.local_analyzer import (
+    analyze_posts_locally,
+    generate_local_summary,
+    has_local_deterministic_posts,
+)
 from analyzer.nlp import analyze_keywords
 from analyzer.prompts import (
     SYSTEM_SINGLE_POST,
@@ -242,8 +247,9 @@ class SentimentAnalyzer:
                 )
             )
 
-        # P69：區分主動 showcase（user --showcase）vs 被迫 showcase（429 配額熔斷）
+        # P69/P88：區分主動 showcase vs provider failure；非主動 showcase 改走真實來源 local baseline。
         quota_error_triggered = False
+        local_fallback_reason = ""
         try:
             results = await self.llm.batch_chat(
                 system_prompt=SYSTEM_SINGLE_POST,
@@ -253,16 +259,33 @@ class SentimentAnalyzer:
                 response_schema=SINGLE_POST_SCHEMA
             )
         except httpx.HTTPStatusError as e:
-            self.logger.warning("[!] 配額耗盡熔斷觸發 → 強制切換至戰情室預演數據（quota_error=True）")
+            self.logger.warning("[!] 配額耗盡熔斷觸發 → 切換至本地 deterministic baseline（quota_error=True）")
             results = []
-            showcase = True
             quota_error_triggered = True
+            if not showcase:
+                status_code = getattr(getattr(e, "response", None), "status_code", "unknown")
+                local_fallback_reason = "http_status_%s" % status_code
         except Exception as e:
             if showcase:
                 self.logger.warning(f"分析失敗 ({e})... 任務模式：啟動精品級數據備援系統。")
             else:
-                self.logger.warning(f"分析流程中斷 ({e})... 啟動基礎備援。")
+                self.logger.warning(f"分析流程中斷 ({e})... 啟動本地 deterministic baseline。")
+                local_fallback_reason = "%s: %s" % (type(e).__name__, e)
             results = []
+
+        if local_fallback_reason:
+            analyzed = analyze_posts_locally(search_results, config.HERO_WATCHLIST)
+            return {
+                "posts": analyzed,
+                "is_showcase": False if quota_error_triggered else True,
+                "quota_error": quota_error_triggered,
+                "contract_status": "ok",
+                "contract_errors": [],
+                "local_analysis_status": "ok",
+                "fallback_reason": local_fallback_reason,
+                "analysis_source": "local_deterministic",
+                "provider_diagnostics": self._provider_diagnostics(),
+            }
             
         if showcase and not results:
             analyzed = []
@@ -391,6 +414,13 @@ class SentimentAnalyzer:
 
         # P69 A7：showcase 模式直接走 fallback，不打 LLM（省配額、防雪崩）
         if showcase:
+            if has_local_deterministic_posts(analyzed_posts):
+                self.logger.info("daily_summary skipped LLM: local deterministic analyzed posts → local summary")
+                return generate_local_summary(
+                    analyzed_posts,
+                    report_date,
+                    hero_focus=getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+                )
             self.logger.info("daily_summary skipped LLM: showcase mode → fallback 模板（quota 保護）")
             return self._generate_fallback_summary(analyzed_posts, report_date, showcase)
 
@@ -515,10 +545,15 @@ class SentimentAnalyzer:
             return summary
 
         except Exception as e:
-            self.logger.warning(f"摘要生成失敗 ({e})... 啟動救難模式")
+            self.logger.warning(f"摘要生成失敗 ({e})... 啟動本地 deterministic summary")
             fallback = self._generate_fallback_summary(analyzed_posts, report_date, showcase)
             if isinstance(e, LLMContractError):
                 fallback["llm_contract"] = {"status": "degraded", "errors": e.errors}
+            else:
+                fallback["llm_contract"] = {
+                    "status": "skipped",
+                    "errors": ["%s: %s" % (type(e).__name__, e)],
+                }
             return fallback
 
     def _format_analysis_for_summary(self, analyzed_posts: List[dict]) -> str:
@@ -622,31 +657,11 @@ class SentimentAnalyzer:
                 }
             }
 
-        return {
-            "overall": {
-                "sentiment_score": 0.95,
-                "summary": overview,
-                "trend": "Stable"
-            },
-            "date": date,
-            "overview": overview,
-            "total_posts": len(analyzed_posts),
-            "sentiment_distribution": sentiments,
-            "platform_breakdown": {},
-            "global_insights": {},
-            "hot_topics": ["演示巡航"],
-            "detected_events": [],
-            "hero_stats": {},
-            "wordcloud": {"positive": [], "negative": []},
-            "top_links": [],
-            "hero_focus": {
-                "name": "芽芽",
-                "summary": "在演示模式下展現了統馭級穩定性。",
-                "sentiment_score": 0.95,
-                "top_comments": []
-            },
-            "recommendation": "偵測到 API 限制，已啟動旗艦演示備援數據。",
-        }
+        return generate_local_summary(
+            analyzed_posts,
+            date,
+            hero_focus=getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+        )
 
     def _empty_summary(self, date: Optional[str] = None, showcase: bool = False) -> dict:
         if showcase:
