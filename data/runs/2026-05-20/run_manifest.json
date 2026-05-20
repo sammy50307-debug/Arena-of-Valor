@@ -1,17 +1,17 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-20T03:32:01.755512Z",
+  "generated_at": "2026-05-20T05:59:13.887865Z",
   "run_date": "2026-05-20",
   "run_date_taipei": "2026-05-20",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-05-20T03:31:50.880687Z",
-  "run_id": "2026-05-20-showcase_forced-cba56e0ca947",
-  "source_hash": "cba56e0ca9470e5e8c24dcffa5d5c955ca129c995772e57ca33e6652623abebc",
+  "scheduled_utc": "2026-05-20T05:57:15.223664Z",
+  "run_id": "2026-05-20-production-83dd6a83e87b",
+  "source_hash": "83dd6a83e87be431583c02795943e8e668fd5a8739225f1232dbb63199b3ecd9",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
-  "mode": "showcase_forced",
-  "publish_eligible": false,
+  "mode": "production",
+  "publish_eligible": true,
   "dry_run": false,
   "showcase_flag": false,
   "paths": {
@@ -24,8 +24,8 @@
     "l1_hits": 0,
     "l2_hits": 0,
     "apify_hits": 0,
-    "llm_calls": 1,
-    "total_calls": 1
+    "llm_calls": 20,
+    "total_calls": 20
   },
   "history": {
     "status": "ok",
@@ -57,7 +57,7 @@
     }
   },
   "provider": {
-    "quota_error": true,
+    "quota_error": false,
     "openai_fallback_configured": false,
     "openai_fallback_used": false
   },
@@ -65,11 +65,9 @@
   "is_backfill": false,
   "eligibility": {
     "gate_mode": "shadow",
-    "decision": "ineligible",
-    "reasons": [
-      "mode is showcase_forced (not production)"
-    ],
+    "decision": "eligible",
+    "reasons": [],
     "blocking_enforced": false,
-    "shadow_blocked": true
+    "shadow_blocked": false
   }
 }
