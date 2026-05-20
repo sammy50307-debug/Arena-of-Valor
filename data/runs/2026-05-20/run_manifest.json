@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-20T05:59:13.887865Z",
+  "generated_at": "2026-05-20T11:30:39.117927Z",
   "run_date": "2026-05-20",
   "run_date_taipei": "2026-05-20",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-05-20T05:57:15.223664Z",
-  "run_id": "2026-05-20-production-83dd6a83e87b",
-  "source_hash": "83dd6a83e87be431583c02795943e8e668fd5a8739225f1232dbb63199b3ecd9",
+  "scheduled_utc": "2026-05-20T11:29:52.100201Z",
+  "run_id": "2026-05-20-production-27afc4d0275e",
+  "source_hash": "27afc4d0275ebafa95750a664ede99e33f4aca3fa0e57e9da28179588a8ccc22",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -20,12 +20,12 @@
     "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-05-20.html"
   },
   "metrics": {
-    "cache_hit": 0,
-    "l1_hits": 0,
+    "cache_hit": 1,
+    "l1_hits": 1,
     "l2_hits": 0,
     "apify_hits": 0,
     "llm_calls": 20,
-    "total_calls": 20
+    "total_calls": 21
   },
   "history": {
     "status": "ok",
@@ -44,15 +44,29 @@
   "quality": {
     "source_health": {
       "status": "ok",
-      "total_posts": 18,
-      "platform_count": 4,
+      "total_posts": 19,
+      "platform_count": 5,
       "platform_counts": {
         "youtube": 1,
+        "facebook": 1,
         "web": 1,
         "dcard": 8,
         "bahamut": 8
       },
       "source_count": 3,
+      "reasons": []
+    },
+    "core_contract": {
+      "version": 1,
+      "status": "pass",
+      "total_posts": 19,
+      "platform_count": 5,
+      "source_count": 3,
+      "has_report": true,
+      "has_analysis": true,
+      "min_posts": 1,
+      "min_platforms": 2,
+      "min_sources": 2,
       "reasons": []
     }
   },
