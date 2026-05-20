@@ -10,7 +10,7 @@
 | **Current Phase** | P86（Gemini Model & Schedule Modernization / FROZEN） |
 | **Current Step** | P86.0a FROZEN：Gemini 3.1 / 3.5 model target 文案已修正；下一步等主公核准 P86 才能改程式碼 |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `6796e23 docs: 凍結 P86 gemini model schedule plan`（已推 origin/main） |
+| **Latest Verified Commit** | `f890558 docs: 更新 P86 gemini 3 model amendment`（已推 origin/main；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
 | **Updated At** | 2026-05-20 Asia/Taipei |
 
 ## Required Minimal Reads
