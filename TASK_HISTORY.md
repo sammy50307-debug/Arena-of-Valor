@@ -8784,3 +8784,79 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P86 CLOSED：model list / schedule modernization 已由遠端 production run 驗證。
 - 🔴 R-016 仍 Open：下一步是 P87 Report Core Contract plan。
 - ⏭️ 下一步：建立/凍結 `docs/PHASE_87_PLAN.md`；未核准 P87 前不得改 runtime code。
+
+### P87 Report Core Contract 計畫凍結（2026-05-20）
+
+**目標**：
+- 建立 P87 凍結計畫，定義不靠 LLM 也能判斷真實報告最低 production 條件的 `report_core_contract`。
+- 將 P87 與後續 P88 deterministic analyzer、P89 quality tier / promotion gate、P90 budget ledger 明確切開。
+- 讓新視窗只讀 handoff + `docs/PHASE_87_PLAN.md` 就知道：目前是 FROZEN，不可直接改 runtime code。
+
+**觸發**：
+- 主公要求：「push 然後開始 P87」。
+- 物理狀態確認：`git log --oneline --decorate -5` 顯示 `8b6958b (HEAD -> main, origin/main, origin/HEAD) docs: 收官 P86 gemini model schedule`，P86 收官 commit 已推到遠端。
+- `docs/PHASE_87_PLAN.md` 先前不存在，因此本段只做 plan freeze 與狀態同步。
+
+**稽核表**：
+- S 級代碼層：本次不改 runtime code；只新增計畫書與狀態文件。
+- S 級邏輯層：P87 採 shadow/advisory contract，不直接 blocking promotion，避免與 P89 職責重疊。
+- S 級測試層：plan 已通過 `lint_phase_plan.py`；runtime tests 留到主公核准 P87 動工後執行。
+- S 級安全層：不新增 secret、不加 OpenAI paid fallback、不接免費 provider；contract 設計只允許 counts/bool/reason code，不寫 raw content。
+- A 級流程層：handoff / active 從 P87 DRAFT_PENDING_PLAN 更新成 P87 FROZEN。
+- A 級文件層：P87 計畫明列 17 層稽核、M1/M1.5/M2、Entry/Exit Criteria、Allowed Files、Forbidden Work。
+
+**物理真相**：
+- 新增 `docs/PHASE_87_PLAN.md`
+  - 狀態：`FROZEN`。
+  - 方案決策：採用「Shadow/advisory core contract」，不採「Immediate blocking gate」。
+  - P87 runtime 預計核心欄位：
+    ```json
+    {
+      "quality": {
+        "core_contract": {
+          "version": 1,
+          "status": "pass|warn|fail|unknown",
+          "total_posts": 0,
+          "platform_count": 0,
+          "source_count": 0,
+          "has_report": false,
+          "has_analysis": false,
+          "min_posts": 1,
+          "min_platforms": 2,
+          "min_sources": 2,
+          "reasons": []
+        }
+      }
+    }
+    ```
+  - Forbidden Work 明列：不加 `OPENAI_API_KEY`、不接免費 provider、不改 quality tier / promotion gate、不實作 deterministic analyzer、不做 P88-P95、不關閉 R-016。
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P87（Report Core Contract / FROZEN）`。
+  - Current Step 改為等待主公核准 P87 runtime 動工。
+  - Required Minimal Reads 改為 bootstrap + `docs/PHASE_87_PLAN.md`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - L2 狀態同步 P87 FROZEN。
+  - Latest Evidence 補入 P87 plan 已凍結與 R-016 仍 Open。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補入 P87 `Report Core Contract` plan 已凍結。
+
+**實跑證據**：
+- `py scripts\lint_phase_plan.py docs\PHASE_87_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `git diff --check`
+  - PASS：無 whitespace error；PowerShell 僅顯示 LF/CRLF warning，非阻擋錯誤。
+
+**風險**：
+- P87 plan 凍結不代表 runtime 已實作；下一步仍需主公核准才能改 `analyzer/run_manifest.py` / doctor / health / tests。
+- Shadow/advisory 路線不會立刻阻擋低品質報告上首頁；promotion blocking 留給 P89。
+- R-016 仍 Open；P87 只是地基，不是 R-016 closeout。
+
+**狀態**：
+- ✅ P86 CLOSED 且已推到 origin/main。
+- ✅ P87 PLAN FROZEN：`docs/PHASE_87_PLAN.md` 已建立並通過 lint。
+- ⏸️ P87 runtime 尚未核准：下一步需主公明確說「核准 P87 動工」後才能改程式碼。
+- 🔴 R-016 仍 Open：需 P87-P95 完整走完或主公另行裁決。
