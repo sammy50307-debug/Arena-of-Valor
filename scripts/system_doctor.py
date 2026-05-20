@@ -42,6 +42,7 @@ ISSUE_CATALOG = {
     "debug_bundle_missing": {"code": "DOC012", "name": "debug bundle"},
     "quality_no_posts": {"code": "DOC013", "name": "quality:no posts"},
     "quality_source_health": {"code": "DOC014", "name": "quality:source health"},
+    "quality_core_contract": {"code": "DOC015", "name": "quality:core contract"},
 }
 
 
@@ -216,6 +217,29 @@ def run_doctor(
                     _add_issue(issues, "quality_no_posts", SEV_BLOCKING, detail)
                 elif health_status == "degraded":
                     _add_issue(issues, "quality_source_health", SEV_ADVISORY, detail)
+            core_contract = quality.get("core_contract")
+            if not isinstance(core_contract, dict):
+                _add_issue(issues, "quality_core_contract", SEV_ADVISORY, "quality.core_contract missing")
+            else:
+                contract_status = core_contract.get("status", "unknown")
+                reasons = core_contract.get("reasons", [])
+                detail = (
+                    "status=%s total_posts=%s platform_count=%s source_count=%s "
+                    "has_report=%s has_analysis=%s reasons=%s"
+                    % (
+                        contract_status,
+                        core_contract.get("total_posts", 0),
+                        core_contract.get("platform_count", 0),
+                        core_contract.get("source_count", 0),
+                        core_contract.get("has_report", False),
+                        core_contract.get("has_analysis", False),
+                        reasons,
+                    )
+                )
+                if contract_status == "fail":
+                    _add_issue(issues, "quality_core_contract", SEV_DEGRADED, detail)
+                elif contract_status in {"warn", "unknown"}:
+                    _add_issue(issues, "quality_core_contract", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
     for check in run_checks(

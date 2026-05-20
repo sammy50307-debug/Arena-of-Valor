@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from analyzer.run_manifest import (
+    build_core_contract,
     build_manifest,
     build_source_quality,
     manifest_path,
@@ -58,6 +59,8 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["eligibility"]["decision"] == "eligible"
     assert manifest["eligibility"]["reasons"] == []
     assert manifest["quality"]["source_health"]["status"] == "unknown"
+    assert manifest["quality"]["core_contract"]["status"] == "unknown"
+    assert "source_health_unknown" in manifest["quality"]["core_contract"]["reasons"]
     assert manifest["provider"]["quota_error"] is False
     assert manifest["provider"]["openai_fallback_configured"] is True
     assert manifest["provider"]["openai_fallback_used"] is True
@@ -162,8 +165,53 @@ def test_build_manifest_with_source_quality(tmp_path: Path):
     )
 
     assert manifest["quality"]["source_health"] == source_quality
+    assert manifest["quality"]["core_contract"]["status"] == "pass"
+    assert manifest["quality"]["core_contract"]["total_posts"] == 2
+    assert manifest["quality"]["core_contract"]["platform_count"] == 2
+    assert manifest["quality"]["core_contract"]["source_count"] == 2
+    assert manifest["quality"]["core_contract"]["has_report"] is True
+    assert manifest["quality"]["core_contract"]["has_analysis"] is True
+    assert manifest["quality"]["core_contract"]["reasons"] == []
     ok, errors = validate_manifest(manifest)
     assert ok, errors
+
+
+def test_build_core_contract_marks_single_platform_warn(tmp_path: Path):
+    source_quality = build_source_quality(
+        [
+            {"platform": "web", "source": "example.com"},
+            {"platform": "web", "source": "example.com"},
+        ]
+    )
+
+    contract = build_core_contract(
+        source_quality=source_quality,
+        analysis_path=tmp_path / "analysis.json",
+        report_path=tmp_path / "report.html",
+    )
+
+    assert contract["status"] == "warn"
+    assert "insufficient_platforms" in contract["reasons"]
+    assert "insufficient_sources" in contract["reasons"]
+
+
+def test_build_core_contract_marks_missing_report_fail(tmp_path: Path):
+    source_quality = build_source_quality(
+        [
+            {"platform": "dcard", "source": "dcard.tw"},
+            {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+        ]
+    )
+
+    contract = build_core_contract(
+        source_quality=source_quality,
+        analysis_path=tmp_path / "analysis.json",
+        report_path=None,
+    )
+
+    assert contract["status"] == "fail"
+    assert contract["has_report"] is False
+    assert "missing_report" in contract["reasons"]
 
 
 def test_validate_manifest_accepts_legacy_schema_v1():
@@ -277,6 +325,37 @@ def test_validate_manifest_rejects_bad_source_quality(tmp_path: Path):
 
     assert not ok
     assert any("quality.source_health.status" in msg for msg in errors)
+
+
+def test_validate_manifest_rejects_bad_core_contract(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+    )
+    manifest["quality"]["core_contract"]["status"] = "maybe"
+
+    ok, errors = validate_manifest(manifest)
+
+    assert not ok
+    assert any("quality.core_contract.status" in msg for msg in errors)
+
+
+def test_validate_manifest_accepts_schema_v2_without_core_contract(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+    )
+    del manifest["quality"]["core_contract"]
+
+    ok, errors = validate_manifest(manifest)
+
+    assert ok, errors
 
 
 def test_build_manifest_shadow_gate_with_reasons_blocks_eligibility(tmp_path: Path):

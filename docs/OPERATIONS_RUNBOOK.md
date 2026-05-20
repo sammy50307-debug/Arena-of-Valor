@@ -1,6 +1,6 @@
 # Operations Runbook（P79.2 / P84.2 / P84.3 / P84.4）
 
-> 更新日期：2026-05-18
+> 更新日期：2026-05-20
 > 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` / `scripts/check_handoff_truth.py` / `scripts/governance_doctor.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
 
 ## 使用方式
@@ -98,6 +98,14 @@
   1. 查看 manifest `quality.source_health.platform_counts` 與 `reasons`。
   2. 若只剩單一平台，檢查其餘平台 scraper/API 是否失敗。
   3. 修正後重跑 doctor；本代碼預設為 advisory，不直接代表報告不可發布。
+
+### <a id="doc015"></a>DOC015 — quality core contract
+- 意義：manifest `quality.core_contract` 顯示報告核心契約缺失、未知、警告或失敗。P87 階段此訊號只用來定位與觀察，不直接改 promotion gate。
+- 處置：
+  1. 查看 manifest `quality.core_contract.status` 與 `reasons`。
+  2. 若為 `missing_report` 或 `missing_analysis`，先檢查 report / analysis 產物是否真的生成。
+  3. 若為 `insufficient_posts`、`insufficient_platforms`、`insufficient_sources`，回頭檢查來源搜集與 scraper/API 狀態。
+  4. 修正後重跑：`py scripts\system_doctor.py --repo-root . --date <date> --profile local --require-production`。
 
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。

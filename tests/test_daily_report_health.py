@@ -10,6 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 import check_daily_report_health as health
+from analyzer.run_manifest import build_manifest, build_source_quality, write_manifest
 
 
 DATE = "2026-05-16"
@@ -45,6 +46,19 @@ def _detail_map(results):
     return {r.name: r.detail for r in results}
 
 
+def _write_manifest(root: Path, date_str: str, source_quality: dict) -> None:
+    data_dir = root / "data"
+    manifest = build_manifest(
+        run_date=date_str,
+        mode="production",
+        raw_path=data_dir / ("raw_%s.json" % date_str.replace("-", "")),
+        analysis_path=data_dir / ("analysis_%s.json" % date_str.replace("-", "")),
+        report_path=data_dir / "reports" / ("aov_report_%s.html" % date_str),
+        source_quality=source_quality,
+    )
+    write_manifest(data_dir, manifest)
+
+
 def test_valid_report_passes(tmp_path: Path):
     _write_repo(tmp_path)
     results = health.run_checks(tmp_path, DATE)
@@ -53,6 +67,45 @@ def test_valid_report_passes(tmp_path: Path):
     assert _status_map(results)["metadata mode"] == "PASS"
     assert _status_map(results)["landing main link"] == "PASS"
     assert _status_map(results)["landing target mode"] == "PASS"
+
+
+def test_core_contract_pass_is_reported_when_manifest_exists(tmp_path: Path):
+    _write_repo(tmp_path)
+    _write_manifest(
+        tmp_path,
+        DATE,
+        build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+    )
+
+    results = health.run_checks(tmp_path, DATE)
+
+    assert _status_map(results)["core contract"] == "PASS"
+    assert "status=pass" in _detail_map(results)["core contract"]
+
+
+def test_core_contract_warn_does_not_fail_health(tmp_path: Path):
+    _write_repo(tmp_path)
+    _write_manifest(
+        tmp_path,
+        DATE,
+        build_source_quality(
+            [
+                {"platform": "web", "source": "example.com"},
+                {"platform": "web", "source": "example.com"},
+            ]
+        ),
+    )
+
+    results = health.run_checks(tmp_path, DATE)
+
+    assert _status_map(results)["core contract"] == "WARN"
+    assert "status=warn" in _detail_map(results)["core contract"]
+    assert not any(r.failed for r in results)
 
 
 def test_missing_report_fails(tmp_path: Path):

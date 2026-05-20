@@ -8860,3 +8860,108 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P87 PLAN FROZEN：`docs/PHASE_87_PLAN.md` 已建立並通過 lint。
 - ⏸️ P87 runtime 尚未核准：下一步需主公明確說「核准 P87 動工」後才能改程式碼。
 - 🔴 R-016 仍 Open：需 P87-P95 完整走完或主公另行裁決。
+
+### P87 Report Core Contract runtime 收官（2026-05-20）
+
+**目標**：
+- 依 P87 凍結計畫，把 report core contract 從文件落地到 manifest / health / doctor。
+- 新 manifest 需產生 `quality.core_contract`，讓系統可以機械判斷真實資料是否足以支撐 production。
+- 保持 P87 邊界：只做 shadow/advisory，不改 `publish_eligible`、不改 promotion gate、不做 P88 deterministic analyzer。
+
+**觸發**：
+- 主公核准：「照你的建議走第一個」。
+- 依 P87 計畫，第一個選項是核准 P87 runtime 動工。
+
+**稽核表**：
+- S 級代碼層：只改 `analyzer/run_manifest.py`、`scripts/check_daily_report_health.py`、`scripts/system_doctor.py` 與 focused tests；未重構 provider / reporter / promotion。
+- S 級邏輯層：core contract 與 `source_health` / `eligibility` 分離；`core_contract.status=fail` 不會直接改 `publish_eligible`。
+- S 級測試層：補 `tests/test_run_manifest.py`、`tests/test_daily_report_health.py`、`tests/test_system_doctor.py`，再跑 full pytest。
+- S 級安全層：manifest 只寫 counts / bool / reason code；未寫 raw post content；未新增 secret 或外部 provider。
+- A 級可觀察性層：system doctor 新增 DOC015；health check 顯示 `core contract` PASS/WARN。
+- A 級流程層：P87 CLOSED 後 handoff 轉向 P88 DRAFT_PENDING_PLAN；R-016 仍 Open。
+
+**物理真相**：
+- 更新 `analyzer/run_manifest.py`
+  - 新增常數：
+    ```python
+    CORE_CONTRACT_VERSION = 1
+    CORE_CONTRACT_MIN_POSTS = 1
+    CORE_CONTRACT_MIN_PLATFORMS = 2
+    CORE_CONTRACT_MIN_SOURCES = 2
+    ALLOWED_CORE_CONTRACT_STATUS = {"pass", "warn", "fail", "unknown"}
+    ```
+  - 新增 `build_core_contract(...)`
+    - `pass`：posts/platforms/sources/report/analysis 全達標。
+    - `warn`：有資料但平台或來源覆蓋不足。
+    - `fail`：缺 posts、缺 report、缺 analysis。
+    - `unknown`：source health 缺失但 report / analysis path 存在。
+  - `build_manifest()` 會寫入：
+    ```json
+    "quality": {
+      "source_health": { "...": "..." },
+      "core_contract": {
+        "version": 1,
+        "status": "pass|warn|fail|unknown",
+        "total_posts": 0,
+        "platform_count": 0,
+        "source_count": 0,
+        "has_report": false,
+        "has_analysis": false,
+        "min_posts": 1,
+        "min_platforms": 2,
+        "min_sources": 2,
+        "reasons": []
+      }
+    }
+    ```
+  - `validate_manifest()` 會拒絕格式錯誤的 `quality.core_contract`，但舊 manifest 缺此欄位仍相容。
+- 更新 `scripts/check_daily_report_health.py`
+  - 讀取 `data/runs/<date>/run_manifest.json`。
+  - 若有 `quality.core_contract`：
+    - `status=pass` → `core contract` PASS。
+    - `status=warn/fail/unknown` → `core contract` WARN，不影響 exit code。
+  - 若 manifest 是 P87 前產物缺欄位 → `core contract` WARN：`quality.core_contract missing`。
+- 更新 `scripts/system_doctor.py`
+  - 新增 `DOC015 quality:core contract`。
+  - 缺 core contract 或 `status=warn/unknown` → ADVISORY。
+  - `status=fail` → DEGRADED。
+  - 不新增 BLOCKING，不直接影響 promotion gate。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `DOC015 — quality core contract` 處置步驟。
+- 更新 tests：
+  - `tests/test_run_manifest.py` 補 core contract pass/warn/fail/validation/legacy compatibility。
+  - `tests/test_daily_report_health.py` 補 health PASS/WARN 不失敗。
+  - `tests/test_system_doctor.py` 補 DOC015 degraded/advisory。
+- 更新 handoff / active / risk：
+  - P87 CLOSED。
+  - 下一步轉 P88 `DRAFT_PENDING_PLAN`。
+  - R-016 仍 Open。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_run_manifest.py tests\test_daily_report_health.py tests\test_system_doctor.py`
+  - PASS：`41 passed in 0.54s`。
+- `py -m pytest -q`
+  - PASS：`221 passed in 3.83s`。
+- `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production`
+  - PASS：canonical report。
+  - PASS：metadata mode = production。
+  - WARN：core contract = `quality.core_contract missing`（2026-05-20 manifest 是 P87 前產物，預期相容訊號）。
+  - PASS：landing main link。
+  - PASS：landing target mode = production。
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production`
+  - 無 blocking。
+  - 無 degraded。
+  - ADVISORY：DOC007 history source coverage。
+  - ADVISORY：DOC015 quality core contract missing。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+
+**風險**：
+- P87 沒有回補舊 manifest 的 core contract；舊資料會顯示 DOC015 advisory，這是刻意保留的相容訊號。
+- P87 不會阻擋低品質報告上首頁；真正 promotion gate / quality tier 要等 P89。
+- P87 不提供 local deterministic analysis；P88 才會讓無 LLM 時仍有 baseline analysis。
+
+**狀態**：
+- ✅ P87 CLOSED：Report Core Contract 已落地到 manifest / health / doctor / runbook / tests。
+- 🔴 R-016 仍 Open：下一步是 P88 Deterministic Local Analyzer plan。
+- ⏭️ 下一步：建立/凍結 `docs/PHASE_88_PLAN.md`；未核准 P88 runtime 前不得改程式碼。

@@ -1,6 +1,6 @@
 # Phase P87 計畫書 — Report Core Contract（凍結版）
 
-> 狀態：FROZEN。此檔只凍結 P87 動工範圍與驗收規則；runtime code 必須等主公另行核准後才能修改。
+> 狀態：CLOSED。P87 runtime 已完成；本 Phase 只建立 shadow/advisory core contract，不改 promotion gate。
 
 ---
 
@@ -21,7 +21,7 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P87 plan | DRAFT_PENDING_PLAN | FROZEN | 計畫可讀、邊界固定、尚不可改 runtime code | `docs/PHASE_87_PLAN.md` 通過 lint 並完成 handoff / risk / history 更新 | AI 建立，主公核准後進 APPROVED |
-| Report Core Contract runtime | 未建立 | 待 APPROVED | 尚未在 manifest / doctor / health 產生或檢查 core contract | 主公明確說「核准 P87 動工」或同義指令 | 主公核准 |
+| Report Core Contract runtime | 待 APPROVED | CLOSED | manifest 會產生 `quality.core_contract`，doctor/health 可讀取並報告狀態 | 主公已核准 P87 runtime，focused/full tests 與 doctor/health 驗證通過 | 主公核准，AI 執行 |
 
 ---
 
@@ -46,20 +46,20 @@ R-016 的白話根因不是只有 Gemini 429，而是「production 成敗太依�
 - [x] 前置 Phase 已收官：P86 CLOSED，遠端 Actions 已產出 `mode=production` report。
 - [x] 資料/依賴已備：`analyzer/run_manifest.py` 已有 `quality.source_health` 與 `eligibility` baseline。
 - [x] 主公已核准計畫凍結：2026-05-20 主公要求「push 然後開始 P87」。
-- [ ] 主公另行核准 runtime 動工：FROZEN 後仍需主公明確核准才能改 `analyzer/`、`reporter/`、`scripts/`、`tests/`。
+- [x] 主公另行核准 runtime 動工：2026-05-20 主公回覆「照你的建議走第一個」。
 - [x] 風險登記簿無未解新高風險：R-016 仍 Open，但它正是 P87-P95 主線；P87 不新增不可逆操作。
 
 ## 4. Exit Criteria（退出條件）
 
 P87 runtime 收官需全部達成：
-- [ ] Manifest 產生 `quality.core_contract`，至少含 `version`、`status`、`total_posts`、`platform_count`、`source_count`、`has_report`、`has_analysis`、`min_posts`、`min_platforms`、`min_sources`、`reasons`。
-- [ ] `validate_manifest()` 會拒絕格式錯誤的 core contract，且保留舊 manifest 的合理相容策略。
-- [ ] `scripts/system_doctor.py` 能報告 core contract pass/warn/fail；fail 在 P87 只作 degraded/advisory，不直接關閉 promotion。
-- [ ] `scripts/check_daily_report_health.py` 可在有 manifest 時檢查 core contract；沒有 manifest 時維持既有報告健康檢查行為。
-- [ ] Focused tests 覆蓋正常、缺資料、單平台、缺 report path、缺 analysis path、舊 manifest 相容。
-- [ ] `py -m pytest -q` 通過；若有 pre-existing failure，需依 B-008 記錄，不可靜默放行。
-- [ ] `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 可清楚顯示 core contract 狀態。
-- [ ] `TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md` 更新；R-016 仍不得關閉。
+- [x] Manifest 產生 `quality.core_contract`，至少含 `version`、`status`、`total_posts`、`platform_count`、`source_count`、`has_report`、`has_analysis`、`min_posts`、`min_platforms`、`min_sources`、`reasons`。
+- [x] `validate_manifest()` 會拒絕格式錯誤的 core contract，且保留舊 manifest 的合理相容策略。
+- [x] `scripts/system_doctor.py` 能報告 core contract pass/warn/fail；fail 在 P87 只作 degraded/advisory，不直接關閉 promotion。
+- [x] `scripts/check_daily_report_health.py` 可在有 manifest 時檢查 core contract；沒有 manifest 時維持既有報告健康檢查行為。
+- [x] Focused tests 覆蓋正常、缺資料、單平台、缺 report path、缺 analysis path、舊 manifest 相容。
+- [x] `py -m pytest -q` 通過；若有 pre-existing failure，需依 B-008 記錄，不可靜默放行。
+- [x] `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 可清楚顯示 core contract 狀態。
+- [x] `TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md` 更新；R-016 仍不得關閉。
 
 P87 plan-only 凍結需全部達成：
 - [x] 新增本檔 `docs/PHASE_87_PLAN.md`。
@@ -185,6 +185,20 @@ P87 plan-only 凍結需全部達成：
 
 ---
 
+## 9.5 收官證據
+
+| 項目 | 結果 |
+|---|---|
+| Focused tests | `py -m pytest -q tests\test_run_manifest.py tests\test_daily_report_health.py tests\test_system_doctor.py` → 41 passed |
+| Full tests | `py -m pytest -q` → 221 passed |
+| Health check | `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` → production PASS，舊 manifest 顯示 `core contract` WARN |
+| System doctor | `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` → 無 blocking / degraded，僅 DOC007、DOC015 advisory |
+| Governance doctor | `py scripts\governance_doctor.py --repo-root .` → GOV000 PASS |
+
+P87 實作後，未來新 manifest 會帶 `quality.core_contract`；2026-05-20 既有 manifest 是 P87 前產物，因此顯示 `DOC015 quality.core_contract missing` advisory，這是預期相容行為。
+
+---
+
 ## 10. 影響檔案清單
 
 **新增**：
@@ -196,13 +210,14 @@ P87 plan-only 凍結需全部達成：
 - `docs/RISK_REGISTRY.md`：R-016 mitigation 補 P87 plan frozen。
 - `TASK_HISTORY.md`：追加 P87 plan freeze 物理紀錄。
 
-**P87 runtime 核准後預計修改**：
+**P87 runtime 修改**：
 - `analyzer/run_manifest.py`：新增 core contract helper / manifest 欄位 / validation。
 - `scripts/check_daily_report_health.py`：讀取 manifest contract 並輸出 health result。
-- `scripts/system_doctor.py`：新增或擴充 issue code 顯示 contract 狀態。
+- `scripts/system_doctor.py`：新增 DOC015 顯示 contract 狀態。
+- `docs/OPERATIONS_RUNBOOK.md`：新增 DOC015 runbook anchor。
 - `tests/test_run_manifest.py`：manifest contract focused tests。
 - `tests/test_daily_report_health.py`：health contract focused tests。
-- `tests/test_system_doctor.py` 或新增 `tests/test_report_core_contract.py`：doctor contract tests。
+- `tests/test_system_doctor.py`：doctor contract tests。
 
 **刪除**：
 - 無。

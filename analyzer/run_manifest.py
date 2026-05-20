@@ -20,6 +20,11 @@ ALLOWED_MODES = {
 ALLOWED_STATUS = {"ok", "failed"}
 ALLOWED_GATE_MODES = {"off", "shadow", "blocking"}
 ALLOWED_SOURCE_HEALTH_STATUS = {"ok", "degraded", "failed", "unknown"}
+CORE_CONTRACT_VERSION = 1
+CORE_CONTRACT_MIN_POSTS = 1
+CORE_CONTRACT_MIN_PLATFORMS = 2
+CORE_CONTRACT_MIN_SOURCES = 2
+ALLOWED_CORE_CONTRACT_STATUS = {"pass", "warn", "fail", "unknown"}
 
 
 def _get_source_field(item: Any, key: str) -> str:
@@ -36,6 +41,18 @@ def _count_values(values: List[str]) -> Dict[str, int]:
         key = value.lower().strip() or "unknown"
         counts[key] = counts.get(key, 0) + 1
     return counts
+
+
+def _non_negative_int(value: Any) -> int:
+    try:
+        number = int(value or 0)
+    except (TypeError, ValueError):
+        number = 0
+    return max(0, number)
+
+
+def _path_present(path: Optional[Path]) -> bool:
+    return bool(str(path or "").strip())
 
 
 def build_source_quality(search_results: Any) -> Dict[str, Any]:
@@ -103,13 +120,6 @@ def _normalize_source_quality(source_quality: Optional[Dict[str, Any]]) -> Dict[
     if not isinstance(reasons, list):
         reasons = []
 
-    def _non_negative_int(value: Any) -> int:
-        try:
-            number = int(value or 0)
-        except (TypeError, ValueError):
-            number = 0
-        return max(0, number)
-
     return {
         "status": status,
         "total_posts": _non_negative_int(source_quality.get("total_posts", 0)),
@@ -117,6 +127,64 @@ def _normalize_source_quality(source_quality: Optional[Dict[str, Any]]) -> Dict[
         "platform_counts": clean_platform_counts,
         "source_count": _non_negative_int(source_quality.get("source_count", 0)),
         "reasons": [str(x) for x in reasons if str(x).strip()],
+    }
+
+
+def build_core_contract(
+    *,
+    source_quality: Optional[Dict[str, Any]],
+    analysis_path: Optional[Path],
+    report_path: Optional[Path],
+    min_posts: int = CORE_CONTRACT_MIN_POSTS,
+    min_platforms: int = CORE_CONTRACT_MIN_PLATFORMS,
+    min_sources: int = CORE_CONTRACT_MIN_SOURCES,
+) -> Dict[str, Any]:
+    """Build the raw-free report core contract used by doctor/health checks."""
+    source_quality = _normalize_source_quality(source_quality)
+    total_posts = source_quality["total_posts"]
+    platform_count = source_quality["platform_count"]
+    source_count = source_quality["source_count"]
+    has_report = _path_present(report_path)
+    has_analysis = _path_present(analysis_path)
+    reasons: List[str] = []
+
+    if source_quality["status"] == "unknown":
+        reasons.append("source_health_unknown")
+    else:
+        if total_posts < min_posts:
+            reasons.append("insufficient_posts")
+        if platform_count < min_platforms:
+            reasons.append("insufficient_platforms")
+        if source_count < min_sources:
+            reasons.append("insufficient_sources")
+
+    if not has_report:
+        reasons.append("missing_report")
+    if not has_analysis:
+        reasons.append("missing_analysis")
+
+    fatal_reasons = {"insufficient_posts", "missing_report", "missing_analysis"}
+    if not reasons:
+        status = "pass"
+    elif any(reason in fatal_reasons for reason in reasons):
+        status = "fail"
+    elif "source_health_unknown" in reasons:
+        status = "unknown"
+    else:
+        status = "warn"
+
+    return {
+        "version": CORE_CONTRACT_VERSION,
+        "status": status,
+        "total_posts": total_posts,
+        "platform_count": platform_count,
+        "source_count": source_count,
+        "has_report": has_report,
+        "has_analysis": has_analysis,
+        "min_posts": _non_negative_int(min_posts),
+        "min_platforms": _non_negative_int(min_platforms),
+        "min_sources": _non_negative_int(min_sources),
+        "reasons": reasons,
     }
 
 
@@ -176,6 +244,11 @@ def build_manifest(
     timezone_name = str(timezone_name or DEFAULT_TIMEZONE_NAME)
     scheduled_utc = str(scheduled_utc or "")
     source_quality = _normalize_source_quality(source_quality)
+    core_contract = build_core_contract(
+        source_quality=source_quality,
+        analysis_path=analysis_path,
+        report_path=report_path,
+    )
 
     return {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -214,6 +287,7 @@ def build_manifest(
         },
         "quality": {
             "source_health": source_quality,
+            "core_contract": core_contract,
         },
         "provider": {
             "quota_error": bool(meta.get("quota_error", False)),
@@ -414,5 +488,53 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
                 reasons = source_health.get("reasons")
                 if not isinstance(reasons, list) or any(not isinstance(v, str) for v in reasons):
                     errors.append("quality.source_health.reasons must be string list")
+
+            core_contract = quality.get("core_contract")
+            if core_contract is not None:
+                if not isinstance(core_contract, dict):
+                    errors.append("quality.core_contract must be object")
+                else:
+                    required_core = {
+                        "version",
+                        "status",
+                        "total_posts",
+                        "platform_count",
+                        "source_count",
+                        "has_report",
+                        "has_analysis",
+                        "min_posts",
+                        "min_platforms",
+                        "min_sources",
+                        "reasons",
+                    }
+                    for key in sorted(required_core):
+                        if key not in core_contract:
+                            errors.append("quality.core_contract.%s is required" % key)
+                    version = core_contract.get("version")
+                    if not isinstance(version, int) or isinstance(version, bool) or version != CORE_CONTRACT_VERSION:
+                        errors.append("quality.core_contract.version must be %s" % CORE_CONTRACT_VERSION)
+                    contract_status = core_contract.get("status")
+                    if contract_status not in ALLOWED_CORE_CONTRACT_STATUS:
+                        errors.append(
+                            "quality.core_contract.status must be one of: %s"
+                            % ", ".join(sorted(ALLOWED_CORE_CONTRACT_STATUS))
+                        )
+                    for int_key in (
+                        "total_posts",
+                        "platform_count",
+                        "source_count",
+                        "min_posts",
+                        "min_platforms",
+                        "min_sources",
+                    ):
+                        value = core_contract.get(int_key)
+                        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                            errors.append("quality.core_contract.%s must be non-negative integer" % int_key)
+                    for bool_key in ("has_report", "has_analysis"):
+                        if not isinstance(core_contract.get(bool_key), bool):
+                            errors.append("quality.core_contract.%s must be boolean" % bool_key)
+                    reasons = core_contract.get("reasons")
+                    if not isinstance(reasons, list) or any(not isinstance(v, str) for v in reasons):
+                        errors.append("quality.core_contract.reasons must be string list")
 
     return len(errors) == 0, errors

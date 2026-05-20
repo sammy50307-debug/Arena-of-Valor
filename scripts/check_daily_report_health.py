@@ -7,6 +7,7 @@ changes behind.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -58,6 +59,10 @@ def report_path(repo_root: Path, date_str: str) -> Path:
 
 def index_path(repo_root: Path) -> Path:
     return repo_root / "index.html"
+
+
+def manifest_path(repo_root: Path, date_str: str) -> Path:
+    return repo_root / "data" / "runs" / date_str / "run_manifest.json"
 
 
 def extract_metadata_mode(report_file: Path) -> Optional[str]:
@@ -140,6 +145,11 @@ def run_checks(
 
     landing = index_path(repo_root)
     results: List[CheckResult] = []
+    manifest_date: Optional[str] = None
+    try:
+        manifest_date = validate_date(date_str)
+    except ValueError:
+        manifest_date = normalized_date if normalized_date and DATE_RE.match(normalized_date) else None
 
     if expected_report.exists():
         results.append(CheckResult("canonical report", "PASS", str(expected_report)))
@@ -160,6 +170,45 @@ def run_checks(
             )
         else:
             results.append(CheckResult("metadata mode", "PASS", "mode=%s" % mode))
+
+    if manifest_date:
+        manifest_file = manifest_path(repo_root, manifest_date)
+        if manifest_file.exists():
+            try:
+                manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+            except Exception as exc:
+                results.append(
+                    CheckResult(
+                        "core contract",
+                        "WARN",
+                        "manifest unreadable: %s: %s" % (type(exc).__name__, exc),
+                    )
+                )
+            else:
+                quality = manifest.get("quality", {}) if isinstance(manifest, dict) else {}
+                core_contract = quality.get("core_contract") if isinstance(quality, dict) else None
+                if not isinstance(core_contract, dict):
+                    results.append(CheckResult("core contract", "WARN", "quality.core_contract missing"))
+                else:
+                    status = str(core_contract.get("status", "unknown"))
+                    reasons = core_contract.get("reasons", [])
+                    detail = (
+                        "status=%s total_posts=%s platform_count=%s source_count=%s "
+                        "has_report=%s has_analysis=%s reasons=%s"
+                        % (
+                            status,
+                            core_contract.get("total_posts", 0),
+                            core_contract.get("platform_count", 0),
+                            core_contract.get("source_count", 0),
+                            core_contract.get("has_report", False),
+                            core_contract.get("has_analysis", False),
+                            reasons,
+                        )
+                    )
+                    if status == "pass":
+                        results.append(CheckResult("core contract", "PASS", detail))
+                    else:
+                        results.append(CheckResult("core contract", "WARN", detail))
 
     if check_landing and landing.exists():
         href = extract_landing_main_href(landing)
