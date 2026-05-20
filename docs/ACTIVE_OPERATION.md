@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P89（Quality Tier / Promotion Gate，DRAFT_PENDING_PLAN） |
-| **Current Step** | P88 runtime 已完成；下一步只能建立/凍結 `docs/PHASE_89_PLAN.md`，尚不可改 runtime |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `HEAD`（P88 runtime 收官 commit；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
+| **Current Phase** | P89（Quality Tier / Promotion Gate / FROZEN） |
+| **Current Step** | P89 計畫已凍結；等待主公核准後才能改 runtime code |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `HEAD`（P89 plan freeze 本地 commit 待建立；P88 runtime commit = `c7c8525`；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-20 |
 
@@ -20,7 +20,7 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_89_PLAN.md`（尚未建立；下一步建立）
+3. 當前 Phase 計畫：`docs/PHASE_89_PLAN.md`
 4. 最近收官 Phase 計畫：`docs/PHASE_88_PLAN.md`
 5. 已收官 Phase 計畫：`docs/PHASE_86_PLAN.md`
 6. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P89（DRAFT_PENDING_PLAN） |
-| **Current Step** | 建立並凍結 P89 Quality Tier / Promotion Gate 計畫 |
-| **Allowed Files** | P89 DRAFT 階段只可動 `docs/PHASE_89_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；runtime 必須等 P89 plan FROZEN 且主公另行核准 |
+| **Current Phase** | P89（FROZEN） |
+| **Current Step** | 等待主公核准 P89 runtime 動工 |
+| **Allowed Files** | FROZEN 階段只可動 `docs/PHASE_89_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；runtime 核准後才可依 `docs/PHASE_89_PLAN.md` 動 `main.py`, `analyzer/run_manifest.py`, health/doctor scripts, reporter metadata, tests |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 LLM budget ledger；不做 P90-P95 runtime；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P88 runtime 已完成並通過 229 tests；P89 下一步只允許先產計畫書、17 層稽核、M1/M1.5/M2 與 Forbidden Work |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；若要繼續，只能建立/凍結 `docs/PHASE_89_PLAN.md`。未看到主公核准 P89 runtime 前，不可改 promotion gate 或 runtime code |
+| **Exit Criteria** | P89 plan 已完成 17 層稽核、M1/M1.5/M2、Entry/Exit Criteria、影響檔案、Forbidden Work；runtime 收官需依 `docs/PHASE_89_PLAN.md` 全部 Exit Criteria 驗證 |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_89_PLAN.md`；若主公說「核准 P89」或「開始 P89 runtime」，才可依計畫動工 |
 
 ## State Machine
 
@@ -62,8 +62,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 ## Latest Evidence
 
-P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已 CLOSED：model list 改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，daily cron 改成 UTC 08:30 / 台北 16:30，focused tests / full pytest / py38 import 通過。遠端 commit `100460f` 由 GitHub Actions 產出 `mode=production` report。P87 已 CLOSED：manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015；focused tests 41 passed、full pytest 221 passed。P88 已 CLOSED：新增 deterministic local analyzer，LLM 429 / provider exception 會保留真實貼文並產生 `analysis_source=local_deterministic` baseline；focused tests 16 passed、broader reliability tests 46 passed、full pytest 229 passed。R-016 仍 Open，因為 P89-P95 尚未完成。
+P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已 CLOSED：model list 改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，daily cron 改成 UTC 08:30 / 台北 16:30，focused tests / full pytest / py38 import 通過。遠端 commit `100460f` 由 GitHub Actions 產出 `mode=production` report。P87 已 CLOSED：manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015；focused tests 41 passed、full pytest 221 passed。P88 已 CLOSED：新增 deterministic local analyzer，LLM 429 / provider exception 會保留真實貼文並產生 `analysis_source=local_deterministic` baseline；focused tests 16 passed、broader reliability tests 46 passed、full pytest 229 passed。P89 plan 已凍結：後續 runtime 會建立 `quality_tier` 與 promotion gate matrix，但目前尚未核准改程式碼。R-016 仍 Open，因為 P89-P95 尚未完成。
 
 ## Next Decision
 
-下一步是建立/凍結 P89 Quality Tier / Promotion Gate 計畫書。P89 目標是把 P87 core contract 與 P88 local baseline 接到 quality tier / promotion 判定，但目前尚未凍結計畫，不得直接改 runtime code。
+下一步是等待主公核准 P89 runtime 動工。P89 目標是把 P87 core contract 與 P88 local baseline 接到 quality tier / promotion 判定；FROZEN 狀態下不得改 runtime code。

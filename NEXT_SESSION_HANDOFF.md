@@ -7,17 +7,17 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P89（Quality Tier / Promotion Gate，DRAFT_PENDING_PLAN） |
-| **Current Step** | P88 runtime 已完成；下一步只能建立/凍結 `docs/PHASE_89_PLAN.md`，尚不可改 runtime |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `HEAD`（P88 runtime 收官 commit；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
+| **Current Phase** | P89（Quality Tier / Promotion Gate / FROZEN） |
+| **Current Step** | P89 計畫已凍結；等待主公核准後才能改 runtime code |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `HEAD`（P89 plan freeze 本地 commit 待建立；P88 runtime commit = `c7c8525`；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
 | **Updated At** | 2026-05-20 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. 若要確認 P88 收官證據，讀 `docs/PHASE_88_PLAN.md`
-3. 若要開 P89，讀 `docs/PHASE_TEMPLATE.md` 與 `docs/PHASE_85_PLAN.md` 的 P89 戰略邊界後建立 `docs/PHASE_89_PLAN.md`
+2. `docs/PHASE_89_PLAN.md`
+3. 若要確認 P88 收官證據，再讀 `docs/PHASE_88_PLAN.md`
 
 ## Current Source Of Truth
 
@@ -25,27 +25,27 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_88_PLAN.md` | P88 Deterministic Local Analyzer 收官證據 |
-| L3-next | `docs/PHASE_89_PLAN.md` | 尚未建立；下一步要先凍結 |
+| L3 | `docs/PHASE_89_PLAN.md` | P89 Quality Tier / Promotion Gate 凍結計畫 |
+| L3-prev | `docs/PHASE_88_PLAN.md` | P88 Deterministic Local Analyzer 收官證據 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P89（DRAFT_PENDING_PLAN） |
-| **Current Step** | 建立並凍結 P89 Quality Tier / Promotion Gate 計畫 |
-| **Allowed Files** | P89 DRAFT 階段只可動 `docs/PHASE_89_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；runtime 必須等 P89 plan FROZEN 且主公另行核准 |
+| **Current Phase** | P89（FROZEN） |
+| **Current Step** | 等待主公核准 P89 runtime 動工 |
+| **Allowed Files** | FROZEN 階段只可動 `docs/PHASE_89_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；runtime 核准後才可依 `docs/PHASE_89_PLAN.md` 動 `main.py`, `analyzer/run_manifest.py`, health/doctor scripts, reporter metadata, tests |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 LLM budget ledger；不做 P90-P95 runtime；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P88 runtime 已完成並通過 229 tests；P89 下一步只允許先產計畫書、17 層稽核、M1/M1.5/M2 與 Forbidden Work |
-| **Resume Rule** | 新視窗讀本區塊；若要繼續，只能建立/凍結 `docs/PHASE_89_PLAN.md`。未看到主公核准 P89 runtime 前，不可改 promotion gate 或 runtime code |
+| **Exit Criteria** | P89 plan 已完成 17 層稽核、M1/M1.5/M2、Entry/Exit Criteria、影響檔案、Forbidden Work；runtime 收官需依 `docs/PHASE_89_PLAN.md` 全部 Exit Criteria 驗證 |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_89_PLAN.md`；若主公說「核准 P89」或「開始 P89 runtime」，才可依計畫動工，否則只能討論或推已凍結 commit |
 
 ## Required Verification Commands
 
 ```powershell
 git status -sb
 git diff --check
-py scripts\lint_phase_plan.py docs\PHASE_88_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_89_PLAN.md
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
@@ -57,7 +57,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要回到「加 OpenAI paid fallback」當主線；主公已明確不想多花 OpenAI API 錢。
 - 不要自動接 Groq / Cloudflare / GitHub Models；免費 provider 只列 P93 disabled-by-default 候選。
 - 不要把 R-016 標記 Closed；P88 是 local baseline 地基，不是 R-016 closeout。
-- 不要直接改 P89 runtime code；P89 目前尚未建立計畫書，需先凍結並由主公核准才能動工。
+- 不要直接改 P89 runtime code；P89 目前是 FROZEN，需主公核准才能動工。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
