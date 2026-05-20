@@ -8620,3 +8620,96 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P86.0a DOCS-ONLY AMENDMENT：文案已修正為 Gemini 3.1 / 3.5 target。
 - ⏸️ P86 仍 FROZEN：未改 runtime code。
 - 🔴 R-016 仍 Open：需 P86-P95 分段落地與實跑驗證後才能關閉或降級。
+
+### P86.1-P86.3 Gemini Model & Schedule Modernization 本地實作（2026-05-20）
+
+**目標**：
+- 依 P86.0a 已凍結方向，把 daily LLM waterfall 從 Gemini 2.0 / 2.5 路線切到 Gemini 3 stable 路線。
+- 把 GitHub Actions daily cron 從 UTC 00:00 / 台北 08:00 改到 UTC 08:30 / 台北 16:30，避開 Pacific midnight RPD reset 前的舊配額窗口。
+- 補 focused tests，讓 deprecated model 或錯誤 cron 回流時會被機械化攔住。
+
+**觸發**：
+- 主公詢問是否回到 P85；確認 P85 已凍結、下一步應是 P86。
+- 主公明確核准：「好 那開始施工P86」。
+- 依 P86 計畫，主公核准後可動 `analyzer/gemini_client.py`、`.github/workflows/daily_report.yml` 與 focused tests。
+
+**稽核表**：
+- S 級代碼層：只改 model list / workflow cron / focused tests，未重構 Gemini client。
+- S 級邏輯層：`GEMINI_MODELS` 改為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`；不保留 2.0 / 2.5 主線模型。
+- S 級測試層：新增 model policy test、workflow schedule test，並重跑既有 429 wait/retry test。
+- S 級安全層：未新增 secrets；未新增 `OPENAI_API_KEY`；未新增免費 provider；workflow secret preflight 未改。
+- A 級部署層：workflow cron 改為 `30 8 * * *`，保留 `workflow_dispatch`。
+- B 級成本層：Lite first，3.5 Flash 只作 fallback；沒有增加 paid provider。
+
+**物理真相**：
+- 更新 `analyzer/gemini_client.py`
+  - 原本：
+    ```python
+    GEMINI_MODELS = [
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-2.5-flash",
+    ]
+    ```
+  - 現在：
+    ```python
+    GEMINI_MODELS = [
+        "gemini-3.1-flash-lite",
+        "gemini-3.5-flash",
+    ]
+    ```
+- 更新 `.github/workflows/daily_report.yml`
+  - 原本：
+    ```yaml
+    # 每天 UTC 00:00 (台北時間 08:00) 執行
+    - cron: '0 0 * * *'
+    ```
+  - 現在：
+    ```yaml
+    # 每天 UTC 08:30 (台北時間 16:30) 執行；避開 Pacific midnight RPD reset 前的舊配額窗口
+    - cron: '30 8 * * *'
+    ```
+  - `workflow_dispatch` 保留，主公仍可手動跑 Actions。
+- 新增 `tests/test_gemini_model_policy.py`
+  - 驗證 `GEMINI_MODELS == ["gemini-3.1-flash-lite", "gemini-3.5-flash"]`。
+  - 驗證 `gemini-2.0-flash`、`gemini-2.0-flash-lite`、`gemini-2.5-flash`、`gemini-2.5-flash-lite` 不在 model list。
+- 新增 `tests/test_daily_report_schedule.py`
+  - 驗證 workflow 內含 `cron: '30 8 * * *'`。
+  - 驗證註解明寫 `UTC 08:30`、`台北時間 16:30`、`Pacific midnight RPD reset`。
+  - 驗證 `workflow_dispatch:` 仍存在。
+- 更新 `docs/PHASE_86_PLAN.md`
+  - 狀態改為 `VERIFYING`。
+  - Entry / Exit Criteria 標記本地實作與 focused tests 已完成。
+  - 明確保留 GitHub Actions 實跑作為尚未完成的遠端證據。
+- 更新 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - Current Phase 改為 P86 VERIFYING。
+  - Current Step 改為等待 push 與 GitHub Actions `AoV Daily Monitor` 實跑證據。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 改為 P86 VERIFYING：本地已完成，仍需遠端 Actions 實證，不得關閉 R-016。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_429_retry.py tests\test_gemini_model_policy.py tests\test_daily_report_schedule.py`
+  - PASS：`6 passed in 0.50s`。
+- `py -m pytest -q`
+  - PASS：`213 passed in 7.27s`。
+- `py -3.8 -c "import analyzer.gemini_client; print(analyzer.gemini_client.GEMINI_MODELS)"`
+  - PASS：輸出 `['gemini-3.1-flash-lite', 'gemini-3.5-flash']`。
+- `py scripts/lint_phase_plan.py docs\PHASE_86_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts/check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts/governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `git diff --check`
+  - PASS：無 whitespace error；PowerShell 顯示 LF/CRLF warning，非 diff check failure。
+
+**風險**：
+- 本地 tests 只能證明 repo policy 與 import 正常，不能證明 Google endpoint 當天一定可用。
+- cron 改到台北 16:30 會改變主公早上看報告的習慣；早報 local-only / 雙段發布仍留 P90/P92。
+- P86 仍不根治所有 429；P90 budget ledger / cooldown 才處理用量治理。
+
+**狀態**：
+- ✅ P86.1 DONE：Gemini model list 已改為 Gemini 3.1 / 3.5。
+- ✅ P86.2 DONE：daily workflow cron 已改為 UTC 08:30 / 台北 16:30。
+- 🟡 P86.3 VERIFYING：本地 focused tests / py38 import 已過；下一步需 push 後跑 GitHub Actions 實證。
+- 🔴 R-016 仍 Open：P86 尚未取得遠端 Actions 成功證據，不能關閉或降級。

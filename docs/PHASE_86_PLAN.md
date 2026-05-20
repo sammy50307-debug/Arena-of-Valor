@@ -3,8 +3,8 @@
 > 草案日期：2026-05-19
 > 凍結日期：2026-05-19
 > P86.0a 修正日期：2026-05-20
-> 狀態：FROZEN
-> 核准狀態：待主公核准後才可進入 APPROVED / IN_PROGRESS
+> 狀態：VERIFYING
+> 核准狀態：主公已於 2026-05-20 核准 P86 施工；本地實作與 focused tests 已完成，等待 push 後 GitHub Actions 實跑證據
 
 ## 0. Phase 元資料
 
@@ -60,8 +60,9 @@ P86 狀態仍為 FROZEN：主公核准前不可改 `analyzer/gemini_client.py`�
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P86 計畫 | DRAFT_PENDING_APPROVAL | FROZEN | P86 詳細計畫已通過稽核，但尚不可改 runtime code | 主公明確要求「凍結P86」，且官方查證完成 | AI 建立，主公核准後才動工 |
-| `GEMINI_MODELS` | 待更新 | 待 APPROVED 後更新 | 現行仍含 2.0 deprecated models；P86 核准後才改 | P86 從 FROZEN 轉 APPROVED | 主公核准，AI 執行 |
-| GitHub Actions cron | 待評估 | 待 APPROVED 後更新 | 現行 UTC 00:00 / 台北 08:00；P86 核准後才可改 | P86 從 FROZEN 轉 APPROVED | 主公核准，AI 執行 |
+| P86 施工 | FROZEN | VERIFYING | 主公已核准施工；本地 code / workflow / tests 已落地，等待遠端 Actions 實跑證據 | 2026-05-20 主公明確說「好 那開始施工P86」 | 主公核准，AI 執行 |
+| `GEMINI_MODELS` | 待更新 | 已本地更新 | 改為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash` | P86 從 FROZEN 進入施工 | 主公核准，AI 執行 |
+| GitHub Actions cron | UTC 00:00 / 台北 08:00 | UTC 08:30 / 台北 16:30 | 避開 Pacific midnight RPD reset 前的舊配額窗口 | P86 從 FROZEN 進入施工 | 主公核准，AI 執行 |
 
 ## 1. 目標
 
@@ -86,26 +87,28 @@ P85 已凍結 R-016 的 zero-cost evidence-first 主線。P86 是第一個可動
 - [x] 主公已明確要求凍結 P86。
 - [x] Gemini rate limit / models / deprecations / pricing 官方資料已於 2026-05-19 重新查證，並於 2026-05-20 因模型更新再查證。
 - [x] 本計畫完成 17 層稽核、M1、M1.5、M2。
-- [ ] 主公後續明確核准 P86 從 FROZEN 轉 APPROVED。
+- [x] 主公後續明確核准 P86 從 FROZEN 轉 APPROVED / VERIFYING。
 - [ ] P85 / P86 本地 commits push 與否由主公另行決定；push 不是 P86 動工前置條件，但推前必問。
 
 ## 4. Exit Criteria
 
 P86 實作收官需全部達成：
 
-- [ ] `analyzer/gemini_client.py` 的 `GEMINI_MODELS` 不含 `gemini-2.0-flash`、`gemini-2.0-flash-lite` 或其他官方已 shutdown/deprecated model。
-- [ ] 預設 model order 採 P86.0a 修正版：`gemini-3.1-flash-lite` -> `gemini-3.5-flash`。
-- [ ] `gemini-2.5-flash` / `gemini-2.5-flash-lite` 不進 P86 新主線；若未來因相容性 emergency fallback 使用，必須另開 hotfix 並寫明 sunset date。
-- [ ] `.github/workflows/daily_report.yml` cron 從 UTC 00:00 改為 UTC 08:30（台北 16:30），並更新註解說明：避開 Pacific midnight RPD reset 前的舊配額窗口。
-- [ ] workflow 保留 `workflow_dispatch`，方便主公手動跑早報或驗證。
-- [ ] 測試覆蓋：
+- [x] `analyzer/gemini_client.py` 的 `GEMINI_MODELS` 不含 `gemini-2.0-flash`、`gemini-2.0-flash-lite` 或其他官方已 shutdown/deprecated model。
+- [x] 預設 model order 採 P86.0a 修正版：`gemini-3.1-flash-lite` -> `gemini-3.5-flash`。
+- [x] `gemini-2.5-flash` / `gemini-2.5-flash-lite` 不進 P86 新主線；若未來因相容性 emergency fallback 使用，必須另開 hotfix 並寫明 sunset date。
+- [x] `.github/workflows/daily_report.yml` cron 從 UTC 00:00 改為 UTC 08:30（台北 16:30），並更新註解說明：避開 Pacific midnight RPD reset 前的舊配額窗口。
+- [x] workflow 保留 `workflow_dispatch`，方便主公手動跑早報或驗證。
+- [x] 測試覆蓋：
   - model policy：禁止 deprecated model names。
   - 429 retry：仍依 `GEMINI_MODELS` 全部輪替後再 wait 60/300/900。
   - workflow schedule：cron 與註解符合 P86 policy。
-- [ ] `py -m pytest -q tests/test_429_retry.py <新增測試>` 通過。
-- [ ] `py -3.8 -c "import analyzer.gemini_client; print(analyzer.gemini_client.GEMINI_MODELS)"` 通過。
-- [ ] `git diff --check` 通過。
-- [ ] P86 收官時更新 handoff / active / risk / TASK_HISTORY。
+- [x] `py -m pytest -q tests/test_429_retry.py tests/test_gemini_model_policy.py tests/test_daily_report_schedule.py` 通過。
+- [x] `py -m pytest -q` 通過。
+- [x] `py -3.8 -c "import analyzer.gemini_client; print(analyzer.gemini_client.GEMINI_MODELS)"` 通過。
+- [x] `git diff --check` 通過。
+- [ ] GitHub Actions `AoV Daily Monitor` 實跑通過，證明 Gemini 3.1 / 3.5 endpoint 與現有 JSON pipeline 相容。
+- [x] P86 收官時更新 handoff / active / risk / TASK_HISTORY。
 
 ## 5. ROI 評估
 
@@ -146,8 +149,8 @@ P86 實作收官需全部達成：
 | 11 | 部署層 (DevOps) | cron 從 UTC 00:00 改 UTC 08:30 | GitHub cron 延遲或錯過排程 | workflow_dispatch 保留；收官要求 Actions 實跑 |
 | 12 | 成本層 (Cost) | 不新增付費 provider；3.1 Flash-Lite first | 3.5 Flash fallback 若頻繁使用，免費額度壓力較高 | P90 budget ledger 承接；P86 不擴呼叫量 |
 | 13 | 可維護性層 (Maintainability) | 用測試防 deprecated model 回流，並防 2.5 短壽命模型回流 | 官方模型頁再更新後文件過期 | P86 文件設 2026-08-01 model review trigger；動工日超過 2026-06-03 必重查 |
-| 14 | 文件層 (Documentation) | handoff / active / history / risk 同步 | 新視窗不知 P86 已凍結 | ACTIVE_BOOTSTRAP 改成 P86 FROZEN |
-| 15 | 流程層 (Process) | FROZEN 不動 code；APPROVED 才實作 | 凍結時偷改 runtime | 本次只建計畫與文件，runtime 留下一步 |
+| 14 | 文件層 (Documentation) | handoff / active / history / risk 同步 | 新視窗不知 P86 已進入驗證 | ACTIVE_BOOTSTRAP 改成 P86 VERIFYING |
+| 15 | 流程層 (Process) | 主公核准後才施工；本地通過後進 VERIFYING | 把本地通過誤判成遠端 production 恢復 | Exit Criteria 保留 Actions 實跑證據，不關閉 R-016 |
 | 16 | 隱私/合規層 (Privacy) | 不新增資料傳送方 | Gemini free tier data policy 仍存在 | P86 不改 provider；privacy 深審留 P92/P93 |
 | 17 | i18n/在地化層 | cron 註解同時標 UTC / Asia/Taipei / Pacific reset | DST 導致 Pacific midnight UTC 07/08 差異 | 用 UTC 08:30，落在 PDT/PST midnight 之後 |
 
@@ -166,8 +169,8 @@ P86 實作收官需全部達成：
 | 動作 | 可逆性 | 主公確認 |
 |---|---|---|
 | 新增 P86 計畫文件 | 可逆 | 主公已要求凍結 P86 |
-| 後續修改 `GEMINI_MODELS` | 可逆 | P86 APPROVED 後才可做 |
-| 後續修改 cron | 可逆 | P86 APPROVED 後才可做；可用 commit revert |
+| 修改 `GEMINI_MODELS` | 可逆 | 主公已於 2026-05-20 核准 P86 施工 |
+| 修改 cron | 可逆 | 主公已於 2026-05-20 核准 P86 施工；可用 commit revert |
 | 後續 push | 半可逆 | push 前必問主公 |
 
 ### X2 盲區掃描
@@ -203,7 +206,7 @@ P86 實作收官需全部達成：
 | R3 | 只換 model 無法根治 429 | 高 | 中 | 架構 | P86 明確只止血；P90 budget ledger 承接根治 |
 | R4 | Google Gemini 3 模型頁仍可能快速改版或調整免費額度 | 中 | 中 | 外部依賴 | 文件設 2026-08-01 review trigger；P90 budget ledger 追蹤實際用量 |
 | R5 | GitHub cron 不是精準排程，改到 UTC 08:30 仍可能延遲 | 中 | 低 | DevOps | Actions 實跑記錄實際 start time；不把分鐘精準當 SLO |
-| R6 | P86 凍結被誤解成已改程式碼 | 低 | 中 | 流程 | handoff 明寫 FROZEN，不可動 runtime |
+| R6 | P86 本地驗證被誤解成遠端 production 恢復 | 低 | 中 | 流程 | handoff 明寫 VERIFYING，需 push 後 Actions 實跑證據 |
 
 高風險加權檢查（META4）：
 
@@ -217,9 +220,9 @@ P86 實作收官需全部達成：
 |---|---|---|---|
 | P86.0 | 計畫凍結與官方查證 | 過期資料導致錯誤計畫 | `lint_phase_plan` PASS |
 | P86.0a | Gemini 3.1 / 3.5 官方模型更新修正 | 2.5 短壽命模型被誤列為新主線 | docs-only amendment + handoff/risk/history 同步 |
-| P86.1 | Model list 現代化 | 2.0 shutdown endpoint | model policy tests |
-| P86.2 | Workflow schedule 現代化 | 舊 RPD window 429 | schedule tests + workflow comment |
-| P86.3 | 驗證與收官 | 回歸 / 交接偏航 | focused tests + py38 import + handoff/history |
+| P86.1 | Model list 現代化 | 2.0 shutdown endpoint | DONE：model policy tests PASS |
+| P86.2 | Workflow schedule 現代化 | 舊 RPD window 429 | DONE：schedule tests + workflow comment PASS |
+| P86.3 | 驗證與收官 | 回歸 / 交接偏航 | VERIFYING：focused tests + py38 import PASS；等待 Actions 實跑 |
 
 ## 11. 影響檔案清單
 
@@ -249,6 +252,13 @@ P86 實作核准後預計修改：
 - `tests/test_429_retry.py`（如需調整 model count assumptions）
 - `tests/test_gemini_model_policy.py`（新增）
 - `tests/test_daily_report_schedule.py`（新增）
+
+P86 本地實作已修改：
+
+- `analyzer/gemini_client.py`
+- `.github/workflows/daily_report.yml`
+- `tests/test_gemini_model_policy.py`
+- `tests/test_daily_report_schedule.py`
 
 P86 明確不修改：
 
@@ -326,12 +336,12 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-86-gemini-model-schedule.
 ## 15. 狀態機與下一步
 
 ```text
-P86: FROZEN
-Next: 主公核准 P86 APPROVED -> 才能改 analyzer/gemini_client.py 與 daily_report.yml
+P86: VERIFYING
+Next: push P86 implementation commit -> run GitHub Actions AoV Daily Monitor -> record evidence before closing P86 / R-016
 ```
 
 新視窗最小讀取：
 
 1. `NEXT_SESSION_HANDOFF.md` active bootstrap
 2. `docs/PHASE_86_PLAN.md`
-3. 若要動工，先確認主公已明確核准 P86
+3. 若要繼續，先確認是否已 push P86 implementation commit；若已 push，跑一次 GitHub Actions 取得遠端實跑證據

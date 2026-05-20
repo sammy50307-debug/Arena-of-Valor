@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P86（Gemini Model & Schedule Modernization / FROZEN） |
-| **Current Step** | P86.0a FROZEN：Gemini 3.1 / 3.5 model target 文案已修正；等待主公核准 P86 才能改程式碼 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `f890558 docs: 更新 P86 gemini 3 model amendment`（已推 origin/main；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
+| **Current Phase** | P86（Gemini Model & Schedule Modernization / VERIFYING） |
+| **Current Step** | P86.3 VERIFYING：Gemini 3.1 / 3.5 model list、UTC 08:30 cron、focused tests 已本地完成；等待 push 後 GitHub Actions 實證 |
+| **Mode** | VERIFYING |
+| **Latest Verified Commit** | `HEAD`（P86 本地實作 commit；若本欄與 repo 狀態不一致，以 `git log -1 --oneline` 為準） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-20 |
 
@@ -28,12 +28,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P86（FROZEN） |
-| **Current Step** | P86.0a FROZEN：等待主公核准 P86 APPROVED |
-| **Allowed Files** | FROZEN 狀態只允許讀 `docs/PHASE_86_PLAN.md`, `docs/PHASE_85_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`；若要修正 P86 文件真相，可改 docs/handoff/history，但不可改 runtime code |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；未核准前不改 `.github/workflows/daily_report.yml`；未核准前不改 `analyzer/gemini_client.py`；不把 R-016 標記 Closed |
-| **Exit Criteria** | P86 只凍結細項計畫，不關閉 R-016；P86 APPROVED 後才可移除 deprecated Gemini 2.0 models、改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，並調整 cron |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；若主公說「開始」或「核准」，才依 P86 plan 動 `analyzer/gemini_client.py` 與 `.github/workflows/daily_report.yml` |
+| **Current Phase** | P86（VERIFYING） |
+| **Current Step** | P86.3 VERIFYING：等待 push 與 GitHub Actions `AoV Daily Monitor` 實跑證據 |
+| **Allowed Files** | `analyzer/gemini_client.py`, `.github/workflows/daily_report.yml`, `tests/test_429_retry.py`, `tests/test_gemini_model_policy.py`, `tests/test_daily_report_schedule.py`, `docs/PHASE_86_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`, `TASK_HISTORY.md`；VERIFYING 只允許修 P86 同範圍回歸 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不做 P87-P95；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | 本地 focused tests / py38 import 已通過；仍需 push 後 GitHub Actions `AoV Daily Monitor` 成功，才能把 P86 關閉或轉下一 Phase |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap；若 P86 commit 已 push，先跑/檢查 GitHub Actions；若 CI 失敗，只修 P86 同範圍問題 |
 
 ## State Machine
 
@@ -61,8 +61,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 ## Latest Evidence
 
-P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已完成官方查證：Gemini rate limit 以 RPM/TPM/RPD 評估、套在 project 而非 API key，RPD 在 Pacific midnight reset；`gemini-2.0-flash` 與 `gemini-2.0-flash-lite` 官方 shutdown date 為 2026-06-01。P86.0a 於 2026-05-20 重新查證 Google 模型頁與 deprecations，將 P86 實作目標從 2.5 路線修正為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`。P86 仍只是 FROZEN 計畫，不是 runtime 修復。
+P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已完成官方查證：Gemini rate limit 以 RPM/TPM/RPD 評估、套在 project 而非 API key，RPD 在 Pacific midnight reset；`gemini-2.0-flash` 與 `gemini-2.0-flash-lite` 官方 shutdown date 為 2026-06-01。P86.0a 於 2026-05-20 重新查證 Google 模型頁與 deprecations，將 P86 實作目標從 2.5 路線修正為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`。P86.1/P86.2 本地實作已完成：model list 改成 Gemini 3.1/3.5，daily cron 改成 UTC 08:30 / 台北 16:30，focused tests 與 py38 import 已通過。P86 仍需 push 後 GitHub Actions 實跑證據，不得視為 R-016 已恢復 production。
 
 ## Next Decision
 
-下一步是主公是否核准 P86 APPROVED。核准後才可改 `analyzer/gemini_client.py` 與 `.github/workflows/daily_report.yml`，實作 Gemini 3.1 / 3.5 model list 現代化與 cron 調整。
+下一步是推 P86 implementation commit，然後手動或等待排程跑 GitHub Actions `AoV Daily Monitor`，用遠端實跑結果驗證 Gemini 3.1 / 3.5 endpoint 與現有 JSON pipeline 相容。
