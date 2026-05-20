@@ -8554,3 +8554,69 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P86 FROZEN：Gemini model / schedule 詳細計畫已凍結。
 - ⏸️ P86 尚未 APPROVED：未改 runtime code。
 - 🔴 R-016 仍 Open：需 P86-P95 分段落地與實跑驗證後才能關閉或降級。
+
+### P86.0a Gemini 3.1 / 3.5 官方模型更新文案修正（2026-05-20）
+
+**目標**：
+- 修正 P86 凍結計畫中的 model target 文案，避免新主線仍停在已公告 2026-10-16 shutdown 的 Gemini 2.5 Flash 系列。
+- 保持 P86 狀態為 FROZEN：本次只改文件真相，不改 `analyzer/gemini_client.py`、`.github/workflows/daily_report.yml` 或 tests。
+
+**觸發**：
+- 主公提醒：「這幾天 google 好像有更新模型，你上網去查一下有沒有新的適合我的好用模型可以用」。
+- 依照專案規則，涉及外部 provider / 模型版本 / pricing / deprecation 的資訊具時間敏感性，必須重新查官方來源。
+
+**稽核表**：
+- S 級代碼層：本次不改 runtime code；只修 docs / handoff / risk / history。
+- S 級邏輯層：5/19 P86 原文採 `gemini-2.5-flash-lite` -> `gemini-2.5-flash`；5/20 官方 deprecations 顯示 2.5 Flash / Flash-Lite 已有 2026-10-16 shutdown date，replacement 指向 `gemini-3.5-flash` / `gemini-3.1-flash-lite`。
+- S 級測試層：本次為 docs-only amendment，驗證用 `lint_phase_plan.py`、handoff truth、governance doctor、`git diff --check`。
+- S 級安全層：不新增 secrets，不新增 provider，不要求 OpenAI API key。
+- A 級文件層：`docs/PHASE_86_PLAN.md` 新增 P86.0a 修正段，明確覆寫 5/19 的 2.5 model target。
+- A 級流程層：FROZEN 仍不得改 runtime；主公核准 P86 APPROVED 後才可實作。
+
+**物理真相**：
+- 更新 `docs/PHASE_86_PLAN.md`
+  - 官方查證快照改為 2026-05-20。
+  - 新增 `## 0.2 P86.0a 凍結後文案修正（2026-05-20）`。
+  - P86 實作目標改為：
+    - Primary：`gemini-3.1-flash-lite`
+    - Fallback：`gemini-3.5-flash`
+  - 原 2.5 route 從「採用」改為「P86.0a 撤回採用」。
+  - Exit Criteria、17 層稽核、風險、M2 紅藍對抗同步修正。
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Step 改為 P86.0a FROZEN。
+  - Latest Verified Commit 改為已推的 `6796e23 docs: 凍結 P86 gemini model schedule plan`。
+  - Exit Criteria 改為 P86 APPROVED 後採 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - Latest Evidence 補上 P86.0a 重新查證與 model target 修正。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補上 P86.0a：避免新主線落到 2.5 Flash 系列。
+
+**官方來源（2026-05-20 查證）**：
+- `https://ai.google.dev/gemini-api/docs/models`
+  - Gemini 3 區塊列出 `gemini-3.5-flash` stable 與 `gemini-3.1-flash-lite` stable。
+- `https://ai.google.dev/gemini-api/docs/deprecations`
+  - `gemini-3.5-flash` release date 2026-05-19，No shutdown date announced。
+  - `gemini-3.1-flash-lite` release date 2026-05-07，shutdown date 2027-05-07。
+  - `gemini-2.5-flash` / `gemini-2.5-flash-lite` shutdown date 2026-10-16，replacement 分別為 `gemini-3.5-flash` / `gemini-3.1-flash-lite`。
+- `https://ai.google.dev/gemini-api/docs/pricing`
+  - Gemini 3.5 Flash 與 Gemini 3.1 Flash-Lite 皆列有 free tier input/output；free tier 內容可能用於改進產品，privacy 深審仍留 P92/P93。
+
+**實跑證據**：
+- `py scripts/lint_phase_plan.py docs\PHASE_86_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `git diff --check`
+  - PASS：無 whitespace error；PowerShell 顯示既有 LF/CRLF warning，非 diff check failure。
+
+**風險**：
+- P86.0a 只修正文件，不代表 Gemini 3.1 / 3.5 已在 repo runtime 實測。
+- P86 APPROVED 後實作時仍需用 focused tests 與 Actions evidence 驗證 endpoint/schema 相容性。
+- R-016 仍 Open；P86.0a 不關閉任何 production SLO blocking issue。
+
+**狀態**：
+- ✅ P86.0a DOCS-ONLY AMENDMENT：文案已修正為 Gemini 3.1 / 3.5 target。
+- ⏸️ P86 仍 FROZEN：未改 runtime code。
+- 🔴 R-016 仍 Open：需 P86-P95 分段落地與實跑驗證後才能關閉或降級。

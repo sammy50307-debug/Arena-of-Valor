@@ -2,6 +2,7 @@
 
 > 草案日期：2026-05-19
 > 凍結日期：2026-05-19
+> P86.0a 修正日期：2026-05-20
 > 狀態：FROZEN
 > 核准狀態：待主公核准後才可進入 APPROVED / IN_PROGRESS
 
@@ -12,14 +13,15 @@
 | Phase 編號 | P86 |
 | Phase 名稱 | Gemini Model & Schedule Modernization |
 | 凍結日期 | 2026-05-19 |
+| P86.0a 修正日期 | 2026-05-20 |
 | 影響半徑 | 標準（預估 5-8 檔：Gemini client、workflow、tests、handoff/docs/history） |
 | 預估投入時數 | 2-4 h |
 | Token budget | 25K-45K tokens |
 | 負責模型 | GPT-5.3-Codex 高；若同一錯誤修 3 次仍失敗，提醒切 GPT-5.5 高/超高 |
 
-## 0.1 官方查證快照（2026-05-19）
+## 0.1 官方查證快照（2026-05-20）
 
-> P86 開工前已按 P85 要求重新查官方文件。本表是 P86 凍結依據；若實際動工日期超過 2026-06-02，需再次查證。
+> P86 開工前已按 P85 要求重新查官方文件。本表是 P86.0a 修正後的凍結依據；若實際動工日期超過 2026-06-03，需再次查證。
 
 | 主題 | 官方來源 | P86 判斷 |
 |---|---|---|
@@ -27,8 +29,8 @@
 | Rate limit 範圍 | Google Gemini rate limits：limits applied per project, not per API key；RPD reset at midnight Pacific time | 多 API key 輪替不是主線；schedule 可改到 Pacific midnight 後 |
 | Active limits | Google Gemini rate limits：實際 limits 需在 AI Studio 查看，specified limits not guaranteed | P86 不硬編每日可用額度；P90 才做 budget ledger |
 | 2.0 deprecation | Google Gemini deprecations：`gemini-2.0-flash` / `gemini-2.0-flash-lite` shutdown date 2026-06-01 | P86 必須移除 2.0 model names |
-| 2.0 replacement | Google Gemini deprecations：2.0 Flash -> `gemini-2.5-flash`，2.0 Flash-Lite -> `gemini-2.5-flash-lite` | P86 採官方 replacement 作為保守落地 |
-| 3.1 Flash-Lite | Google Gemini models：`gemini-3.1-flash-lite` 為 Gemini 3 stable；deprecations 顯示 shutdown 2027-05-07 | P86 先列候選，不直接設為 primary，避免新 endpoint/schema 風險混入本 Phase |
+| 2.5 deprecation | Google Gemini deprecations：`gemini-2.5-flash` / `gemini-2.5-flash-lite` shutdown date 2026-10-16；recommended replacement 分別為 `gemini-3.5-flash` / `gemini-3.1-flash-lite` | P86.0a 不再把 2.5 作為新主線，避免剛修完又進入短壽命模型 |
+| Gemini 3 stable | Google Gemini models / deprecations：`gemini-3.1-flash-lite` 為 stable 且 shutdown 2027-05-07；`gemini-3.5-flash` stable，No shutdown date announced | P86.0a 採 `gemini-3.1-flash-lite` -> `gemini-3.5-flash` 作為實作目標 |
 | Free tier | Gemini pricing：多個文字模型仍有 free tier，但 free tier data may be used to improve products | P86 不新增付費；不處理 privacy policy 改版，P92/P93 再審 |
 
 官方來源：
@@ -37,6 +39,21 @@
 - `https://ai.google.dev/gemini-api/docs/deprecations`
 - `https://ai.google.dev/gemini-api/docs/models`
 - `https://ai.google.dev/gemini-api/docs/pricing`
+
+## 0.2 P86.0a 凍結後文案修正（2026-05-20）
+
+本修正只更新 P86 計畫文字，不改 runtime code。修正原因是主公提醒「這幾天 Google 好像有更新模型」，重新查證後發現：5/19 凍結版採用的 2.5 路線雖然是 2.0 的官方 replacement，但 2.5 Flash / Flash-Lite 本身也已列出 2026-10-16 shutdown date，官方 replacement 已指向 Gemini 3 系列。
+
+P86.0a 因此覆寫原本的 model target：
+
+| 項目 | 5/19 凍結版 | 5/20 P86.0a 修正版 |
+|---|---|---|
+| Primary model | `gemini-2.5-flash-lite` | `gemini-3.1-flash-lite` |
+| Fallback model | `gemini-2.5-flash` | `gemini-3.5-flash` |
+| 2.5 系列定位 | P86 實作目標 | 不進主線；僅保留為歷史查證脈絡 |
+| 決策理由 | 最小風險、貼合 2.0 replacement | 更長壽命、仍維持 zero-cost/free-tier 可用性、避免短期二次遷移 |
+
+P86 狀態仍為 FROZEN：主公核准前不可改 `analyzer/gemini_client.py`、`.github/workflows/daily_report.yml` 或 tests。
 
 ## 0.5 狀態轉換清單
 
@@ -48,7 +65,7 @@
 
 ## 1. 目標
 
-在不新增付費 provider、不接免費 provider 插槽的前提下，移除即將 shutdown 的 Gemini 2.0 model 依賴，並把每日排程調整到更接近 Gemini RPD 重置後的安全窗口，降低因過期模型與舊配額窗口造成的 `showcase_forced` 機率。
+在不新增付費 provider、不接免費 provider 插槽的前提下，移除即將 shutdown 的 Gemini 2.0 model 依賴，避免把主線遷到已公告 2026-10-16 shutdown 的 Gemini 2.5 Flash 系列，改採 Gemini 3 stable 模型作為 daily LLM waterfall；同時把每日排程調整到更接近 Gemini RPD 重置後的安全窗口，降低因過期模型與舊配額窗口造成的 `showcase_forced` 機率。
 
 ## 2. 觸發背景
 
@@ -56,7 +73,8 @@ P85 已凍結 R-016 的 zero-cost evidence-first 主線。P86 是第一個可動
 
 1. `analyzer/gemini_client.py` 目前 `GEMINI_MODELS` 仍包含 `gemini-2.0-flash` 與 `gemini-2.0-flash-lite`。
 2. 官方 deprecations 顯示 Gemini 2.0 Flash / Flash-Lite 最早 shutdown date 為 2026-06-01，距離今天 2026-05-19 只剩不到兩週。
-3. `.github/workflows/daily_report.yml` 目前 UTC 00:00（台北 08:00）執行；官方 rate limit 文件寫 RPD reset at midnight Pacific time，因此台北早上 8 點可能仍落在舊 RPD window。
+3. 2026-05-20 重新查證後，官方 deprecations 也顯示 Gemini 2.5 Flash / Flash-Lite 已有 2026-10-16 shutdown date，replacement 指向 `gemini-3.5-flash` / `gemini-3.1-flash-lite`。
+4. `.github/workflows/daily_report.yml` 目前 UTC 00:00（台北 08:00）執行；官方 rate limit 文件寫 RPD reset at midnight Pacific time，因此台北早上 8 點可能仍落在舊 RPD window。
 
 本 Phase 不是 P87-P95 的 production 定義重構；P86 只處理 model list 與 schedule。
 
@@ -66,7 +84,7 @@ P85 已凍結 R-016 的 zero-cost evidence-first 主線。P86 是第一個可動
 
 - [x] P85 已凍結，且主線明確排除 OpenAI paid fallback。
 - [x] 主公已明確要求凍結 P86。
-- [x] Gemini rate limit / models / deprecations / pricing 官方資料已於 2026-05-19 重新查證。
+- [x] Gemini rate limit / models / deprecations / pricing 官方資料已於 2026-05-19 重新查證，並於 2026-05-20 因模型更新再查證。
 - [x] 本計畫完成 17 層稽核、M1、M1.5、M2。
 - [ ] 主公後續明確核准 P86 從 FROZEN 轉 APPROVED。
 - [ ] P85 / P86 本地 commits push 與否由主公另行決定；push 不是 P86 動工前置條件，但推前必問。
@@ -76,8 +94,8 @@ P85 已凍結 R-016 的 zero-cost evidence-first 主線。P86 是第一個可動
 P86 實作收官需全部達成：
 
 - [ ] `analyzer/gemini_client.py` 的 `GEMINI_MODELS` 不含 `gemini-2.0-flash`、`gemini-2.0-flash-lite` 或其他官方已 shutdown/deprecated model。
-- [ ] 預設 model order 採官方 replacement：`gemini-2.5-flash-lite` -> `gemini-2.5-flash`。
-- [ ] `gemini-3.1-flash-lite` 只列為後續候選或明確 comment，不在未實測前直接設為 primary。
+- [ ] 預設 model order 採 P86.0a 修正版：`gemini-3.1-flash-lite` -> `gemini-3.5-flash`。
+- [ ] `gemini-2.5-flash` / `gemini-2.5-flash-lite` 不進 P86 新主線；若未來因相容性 emergency fallback 使用，必須另開 hotfix 並寫明 sunset date。
 - [ ] `.github/workflows/daily_report.yml` cron 從 UTC 00:00 改為 UTC 08:30（台北 16:30），並更新註解說明：避開 Pacific midnight RPD reset 前的舊配額窗口。
 - [ ] workflow 保留 `workflow_dispatch`，方便主公手動跑早報或驗證。
 - [ ] 測試覆蓋：
@@ -103,8 +121,9 @@ P86 實作收官需全部達成：
 | 方案 | 做法 | 優點 | 缺點 | 決策 |
 |---|---|---|---|---|
 | A. 只刪 2.0，保留 2.5 Flash | 最小改動，`gemini-2.5-flash` 單 model | 最安全 | 沒有 lite fallback，可能較耗 quota | 不採 |
-| B. 2.5 Flash-Lite -> 2.5 Flash | 官方 replacement，保守且低成本 | blast radius 小，貼合現行 REST/JSON schema | 2.5 系列 2026-10-16 也有 shutdown date | 採用 |
-| C. 3.1 Flash-Lite -> 2.5 Flash-Lite -> 2.5 Flash | 更長 deprecation horizon | 可能更前沿 | 新 endpoint/schema/rate-limit 未在本 repo 實測 | 暫列候選，P86 不直接 primary |
+| B. 2.5 Flash-Lite -> 2.5 Flash | 5/19 凍結版採用方案 | blast radius 小，貼合現行 REST/JSON schema | 2.5 系列 2026-10-16 也有 shutdown date，修完後仍需短期再遷移 | P86.0a 撤回採用 |
+| C. 3.1 Flash-Lite -> 2.5 Flash-Lite -> 2.5 Flash | 把 3.1 放前面、2.5 作後援 | 有過渡 fallback | 仍保留短壽命 2.5；測試與診斷會變複雜 | 不採 |
+| F. 3.1 Flash-Lite -> 3.5 Flash | 直接採 Gemini 3 stable，Lite 省額度，Flash 做品質 fallback | 壽命較長、符合 2.5 replacement、新增成本為零 | 需 Actions 實跑確認 endpoint/schema 與現有 JSON pipeline 相容 | 採用 |
 | D. 不改 cron，等 P90 budget ledger | 保持早上報告習慣 | 不影響主公作息 | 仍可能每天撞舊 RPD window | 不採 |
 | E. cron 改 UTC 08:30 | 台北 16:30，安全落在 Pacific midnight 後 | 降低舊 RPD window 風險 | 早上不自動出報告 | 採用；早報/雙段發布留 P90/P92 |
 
@@ -115,18 +134,18 @@ P86 實作收官需全部達成：
 | # | 層級 | 採用優化項 / 理由 | 該層風險 | 緩解 |
 |---|---|---|---|---|
 | 1 | 代碼層 (Code) | 只改 model list 與 workflow cron，不重構 Gemini client | 小改誤動 retry / cache 行為 | focused tests 鎖 429 retry 與 import |
-| 2 | 邏輯層 (Logic) | model order 改為官方 replacement；schedule 依 RPD reset | 把 preview/new model 當 stable 使用 | P86 不直接 primary 3.1，先保守 2.5 |
+| 2 | 邏輯層 (Logic) | model order 改為 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`；schedule 依 RPD reset | 新模型與現有 JSON pipeline 不相容 | P86 實作必跑 import / focused tests / Actions evidence |
 | 3 | 架構層 (Architecture) | 不引入 provider abstraction，保持 Gemini-only | 提早引入 P93 provider 插槽造成範圍外擴張 | Forbidden Work 明列不接 provider |
 | 4 | 測試層 (Testing) | 新增 model policy / workflow schedule tests | 只跑現有 tests 會漏 model name 回歸 | 測試明確 grep deprecated names |
 | 5 | 資料層 (Data) | N/A：不改 manifest/data schema | schedule 改後報告日期跨日誤判 | 保留 P82 Asia/Taipei run context，workflow health 用 TZ=Asia/Taipei |
 | 6 | 可觀察性層 (Observability) | workflow 註解與 tests 顯示新 cron 意圖 | 主公只看 Actions 時不知為何下午跑 | 註解明寫 Pacific reset / Taipei 16:30 |
-| 7 | 韌性層 (Resilience) | 移除 2.0 shutdown endpoint；避開舊 quota window | 2.5 仍可能 429 | P86 只降低風險，P90 才做 budget/cooldown |
-| 8 | 效能層 (Performance) | Flash-Lite 優先，降低 token/cost 壓力 | Lite 品質可能比 Flash 弱 | Flash 作 second fallback；品質分級留 P89 |
+| 7 | 韌性層 (Resilience) | 移除 2.0 shutdown endpoint，並避免遷到已公告 2026-10-16 shutdown 的 2.5 主線；避開舊 quota window | Gemini 3 仍可能 429 | P86 只降低模型過期與舊 window 風險，P90 才做 budget/cooldown |
+| 8 | 效能層 (Performance) | 3.1 Flash-Lite 優先，降低 token/cost 壓力 | Lite 品質可能比 3.5 Flash 弱 | 3.5 Flash 作 second fallback；品質分級留 P89 |
 | 9 | UX/A11y 層 | 不改報告 UI | 下午自動報告可能影響主公早上習慣 | 保留 workflow_dispatch；雙段發布留 P90/P92 |
 | 10 | 安全層 (Security) | 不新增 secrets，不印 API key | schedule 或 model log 洩漏 key | `_masked_url` 不動；workflow secret preflight 只印 configured/missing |
 | 11 | 部署層 (DevOps) | cron 從 UTC 00:00 改 UTC 08:30 | GitHub cron 延遲或錯過排程 | workflow_dispatch 保留；收官要求 Actions 實跑 |
-| 12 | 成本層 (Cost) | 不新增付費 provider；Lite first | 2.5 Flash 仍消耗免費額度 | P90 budget ledger 承接；P86 不擴呼叫量 |
-| 13 | 可維護性層 (Maintainability) | 用測試防 deprecated model 回流 | 未來 2.5 shutdown 又忘記更新 | P86 文件記錄 2026-10-16 review trigger |
+| 12 | 成本層 (Cost) | 不新增付費 provider；3.1 Flash-Lite first | 3.5 Flash fallback 若頻繁使用，免費額度壓力較高 | P90 budget ledger 承接；P86 不擴呼叫量 |
+| 13 | 可維護性層 (Maintainability) | 用測試防 deprecated model 回流，並防 2.5 短壽命模型回流 | 官方模型頁再更新後文件過期 | P86 文件設 2026-08-01 model review trigger；動工日超過 2026-06-03 必重查 |
 | 14 | 文件層 (Documentation) | handoff / active / history / risk 同步 | 新視窗不知 P86 已凍結 | ACTIVE_BOOTSTRAP 改成 P86 FROZEN |
 | 15 | 流程層 (Process) | FROZEN 不動 code；APPROVED 才實作 | 凍結時偷改 runtime | 本次只建計畫與文件，runtime 留下一步 |
 | 16 | 隱私/合規層 (Privacy) | 不新增資料傳送方 | Gemini free tier data policy 仍存在 | P86 不改 provider；privacy 深審留 P92/P93 |
@@ -161,8 +180,9 @@ P86 實作收官需全部達成：
 ### X3 時間敏感性
 
 - 本計畫凍結日期：2026-05-19。
-- 本計畫過期日期：2026-06-02；超過需重查 Gemini deprecations / rate limits。
-- 下次必看日期：2026-10-01 前需重新檢查 Gemini 2.5 deprecation，避免 2026-10-16 shutdown 前又壓線。
+- P86.0a 修正日期：2026-05-20。
+- 本計畫過期日期：2026-06-03；超過需重查 Gemini deprecations / models / rate limits。
+- 下次必看日期：2026-08-01 前需重新檢查 Gemini 3 deprecation / pricing，避免官方模型頁再次改版後文件漂移。
 
 ### X4 多角度同行審查
 
@@ -178,10 +198,10 @@ P86 實作收官需全部達成：
 
 | # | 風險 | 機率 | 影響 | 類型 | 緩解 |
 |---|---|---|---|---|---|
-| R1 | `gemini-2.5-flash-lite` 在現有 JSON schema 行為與 2.0 不完全一致 | 中 | 中 | 外部依賴 | focused import + mocked schema tests；Actions 實跑觀察 |
+| R1 | `gemini-3.1-flash-lite` / `gemini-3.5-flash` 在現有 JSON schema 行為與 2.0 不完全一致 | 中 | 中 | 外部依賴 | focused import + mocked schema tests；Actions 實跑觀察 |
 | R2 | cron 改晚讓主公早上看不到新報告 | 中 | 中 | UX / DevOps | 保留 workflow_dispatch；P90/P92 評估早報 local-only + 下午 enrichment |
 | R3 | 只換 model 無法根治 429 | 高 | 中 | 架構 | P86 明確只止血；P90 budget ledger 承接根治 |
-| R4 | 2.5 models 也有 2026-10-16 shutdown date | 中 | 高 | 外部依賴 | 文件設 2026-10-01 review trigger；P93/Pfuture 評估 3.1 |
+| R4 | Google Gemini 3 模型頁仍可能快速改版或調整免費額度 | 中 | 中 | 外部依賴 | 文件設 2026-08-01 review trigger；P90 budget ledger 追蹤實際用量 |
 | R5 | GitHub cron 不是精準排程，改到 UTC 08:30 仍可能延遲 | 中 | 低 | DevOps | Actions 實跑記錄實際 start time；不把分鐘精準當 SLO |
 | R6 | P86 凍結被誤解成已改程式碼 | 低 | 中 | 流程 | handoff 明寫 FROZEN，不可動 runtime |
 
@@ -196,6 +216,7 @@ P86 實作收官需全部達成：
 | Stage | 內容 | 解掉的風險 | 驗收 |
 |---|---|---|---|
 | P86.0 | 計畫凍結與官方查證 | 過期資料導致錯誤計畫 | `lint_phase_plan` PASS |
+| P86.0a | Gemini 3.1 / 3.5 官方模型更新修正 | 2.5 短壽命模型被誤列為新主線 | docs-only amendment + handoff/risk/history 同步 |
 | P86.1 | Model list 現代化 | 2.0 shutdown endpoint | model policy tests |
 | P86.2 | Workflow schedule 現代化 | 舊 RPD window 429 | schedule tests + workflow comment |
 | P86.3 | 驗證與收官 | 回歸 / 交接偏航 | focused tests + py38 import + handoff/history |
@@ -208,6 +229,14 @@ P86 凍結階段新增：
 
 P86 凍結階段修改：
 
+- `NEXT_SESSION_HANDOFF.md`
+- `docs/ACTIVE_OPERATION.md`
+- `docs/RISK_REGISTRY.md`
+- `TASK_HISTORY.md`（append only）
+
+P86.0a 文案修正修改：
+
+- `docs/PHASE_86_PLAN.md`
 - `NEXT_SESSION_HANDOFF.md`
 - `docs/ACTIVE_OPERATION.md`
 - `docs/RISK_REGISTRY.md`
@@ -260,7 +289,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-86-gemini-model-schedule.
 |---|---|
 | X4-A 世界頂尖駭客 / 紅隊攻擊者 | P86 不新增 secrets 或 provider，因此主要攻擊面是 CI/CD 誤改、workflow log 洩漏與模型錯誤造成 fallback 行為；最小緩解是只印 configured/missing、不動 secret handling。 |
 | X4-B 接手者視角 | 接手者需要知道 P86 只處理 model list 與 cron，不處理 quality tier；禁止 model test 會防止 2.0 名稱回流。 |
-| X4-C 災難情境 | 情境：改成 2.5 後 Actions 因 schema 差異失敗；緩解：保留 workflow_dispatch、focused tests、收官要求實跑 evidence。 |
+| X4-C 災難情境 | 情境：改成 Gemini 3.1 / 3.5 後 Actions 因 schema 差異失敗；緩解：保留 workflow_dispatch、focused tests、收官要求實跑 evidence。 |
 | X4-D 5 年後視角 | 五年後 Gemini 版本必然不同，P86 的真正價值是建立 model deprecation policy test，而不是只換一次字串。 |
 | X4-E 終端 vs IDE | Windows 本機不會跑 cron，Ubuntu Actions 才會；P86 必須靠 workflow text test 與 Actions 實跑，而不是本機推測。 |
 | X4-F 跨平台 Win/Mac/Linux | Python 測試可跨平台，但 cron 與 `TZ=Asia/Taipei` 是 Linux workflow 語境；P86 不把 shell date 搬進核心邏輯。 |
@@ -287,11 +316,11 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-86-gemini-model-schedule.
 
 | # | 紅隊質疑（具體） | 攻擊力 | pre-existing 失敗計次 | 藍隊回應 | 處置 |
 |---|---|---|---|---|---|
-| 1 | 只換 2.5 model 可能仍 429，是否浪費 Phase？ | **S** | 0 | P86 目標是移除 shutdown 風險與排程舊窗口，不承諾單獨根治 429；P90 承接 budget | 入計畫範圍 |
+| 1 | 只換 Gemini 3 model 可能仍 429，是否浪費 Phase？ | **S** | 0 | P86 目標是移除 shutdown 風險與排程舊窗口，不承諾單獨根治 429；P90 承接 budget | 入計畫範圍 |
 | 2 | cron 改到台北下午會不會讓主公早上失去每日情報？ | **S** | 0 | P86 保留 workflow_dispatch；早報 local-only / 下午 enrichment 放 P90/P92 評估 | 入計畫範圍 |
-| 3 | `gemini-3.1-flash-lite` 看起來更長壽，為什麼不直接 primary？ | A | 0 | P86 選最小風險官方 2.0 replacement；3.1 先候選，需 Actions endpoint/schema 實測 | 入計畫範圍 |
+| 3 | `gemini-3.1-flash-lite` 看起來更長壽，為什麼不直接 primary？ | A | 0 | P86.0a 已改採直接 primary；相容性風險改由 focused tests 與 Actions 實跑承接 | 入計畫範圍 |
 | 4 | model policy test 只是字串測試，無法保證 endpoint 可用。 | A | 0 | 正確；收官需 workflow_dispatch 或 scheduled Actions evidence，不靠字串測試宣稱可用 | 入計畫範圍 |
-| 5 | 2.5 也會 2026-10 shutdown，是否只是把問題往後拖？ | A | 0 | P86 增加 2026-10-01 review trigger，後續 P93/Pfuture 評估 3.1 migration | 入計畫範圍 |
+| 5 | 2.5 也會 2026-10 shutdown，是否只是把問題往後拖？ | A | 0 | P86.0a 撤回 2.5 主線，改採 `gemini-3.1-flash-lite` -> `gemini-3.5-flash` | 入計畫範圍 |
 | 6 | schedule 根據 Pacific reset 推論，但 GitHub cron 延遲與 Google 實際容量不保證，會不會假安全？ | **S** | 0 | P86 只降低舊 window 風險，不保證容量；P90 budget ledger 才處理可用量判斷 | 入計畫範圍 |
 
 ## 15. 狀態機與下一步

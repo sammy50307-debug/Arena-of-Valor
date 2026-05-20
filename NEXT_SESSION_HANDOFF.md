@@ -8,10 +8,10 @@
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
 | **Current Phase** | P86（Gemini Model & Schedule Modernization / FROZEN） |
-| **Current Step** | P86 FROZEN：Gemini model / schedule 詳細計畫已凍結；下一步等主公核准 P86 才能改程式碼 |
+| **Current Step** | P86.0a FROZEN：Gemini 3.1 / 3.5 model target 文案已修正；下一步等主公核准 P86 才能改程式碼 |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `HEAD docs: 凍結 P86 gemini model schedule plan`（本地 commit，待主公確認 push） |
-| **Updated At** | 2026-05-19 Asia/Taipei |
+| **Latest Verified Commit** | `6796e23 docs: 凍結 P86 gemini model schedule plan`（已推 origin/main） |
+| **Updated At** | 2026-05-20 Asia/Taipei |
 
 ## Required Minimal Reads
 
@@ -33,10 +33,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Current Phase** | P86（FROZEN） |
-| **Current Step** | P86 FROZEN：等待主公核准 P86 APPROVED |
+| **Current Step** | P86.0a FROZEN：等待主公核准 P86 APPROVED |
 | **Allowed Files** | FROZEN 狀態只允許讀 `docs/PHASE_86_PLAN.md`, `docs/PHASE_85_PLAN.md`, `docs/ACTIVE_OPERATION.md`, `docs/RISK_REGISTRY.md`, `NEXT_SESSION_HANDOFF.md`；若要修正 P86 文件真相，可改 docs/handoff/history，但不可改 runtime code |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 git push；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；未核准前不改 `.github/workflows/daily_report.yml`；未核准前不改 `analyzer/gemini_client.py`；不把 R-016 標記 Closed |
-| **Exit Criteria** | P86 只凍結細項計畫，不關閉 R-016；P86 APPROVED 後才可移除 deprecated Gemini 2.0 models 與調整 cron |
+| **Exit Criteria** | P86 只凍結細項計畫，不關閉 R-016；P86 APPROVED 後才可移除 deprecated Gemini 2.0 models、改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，並調整 cron |
 | **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_86_PLAN.md`；若主公說「開始」或「核准」，才依 P86 plan 動 `analyzer/gemini_client.py` 與 `.github/workflows/daily_report.yml` |
 
 ## Required Verification Commands
@@ -56,7 +56,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要回到「加 OpenAI paid fallback」當主線；主公已明確不想多花 OpenAI API 錢。
 - 不要自動接 Groq / Cloudflare / GitHub Models；免費 provider 只列 P93 disabled-by-default 候選。
 - 不要把 R-016 標記 Closed；P85 是修復計畫凍結，不是 production 恢復。
-- 不要在未核准前改 Gemini model list 或 GitHub Actions cron。
+- 不要在未核准前改 Gemini model list 或 GitHub Actions cron；P86.0a 只是文案修正，不是 runtime APPROVED。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
