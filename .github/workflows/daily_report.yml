@@ -2,8 +2,8 @@ name: AoV Daily Monitor
 
 on:
   schedule:
-    # 每天 UTC 00:00 (台北時間 08:00) 執行
-    - cron: '0 0 * * *'
+    # 每天 UTC 08:30 (台北時間 16:30) 執行；避開 Pacific midnight RPD reset 前的舊配額窗口
+    - cron: '30 8 * * *'
   # 允許在 GitHub 網頁上手動點擊執行
   workflow_dispatch:
     inputs:
