@@ -8965,3 +8965,63 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P87 CLOSED：Report Core Contract 已落地到 manifest / health / doctor / runbook / tests。
 - 🔴 R-016 仍 Open：下一步是 P88 Deterministic Local Analyzer plan。
 - ⏭️ 下一步：建立/凍結 `docs/PHASE_88_PLAN.md`；未核准 P88 runtime 前不得改程式碼。
+
+### P88 Deterministic Local Analyzer 計畫凍結（2026-05-20）
+
+**目標**：
+- 建立 P88 凍結計畫，定義不打外部 LLM 也能從真實貼文產生 baseline analysis 的 runtime 範圍。
+- 明確切開 P88 與 P89/P90：P88 只做本地情緒、關鍵字、英雄、平台、事件初判；不改 quality tier、不改 promotion gate、不做 budget ledger。
+- 讓新視窗只讀 handoff + `docs/PHASE_88_PLAN.md` 就知道：目前是 FROZEN，不可直接改 runtime code。
+
+**觸發**：
+- P87 runtime 已完成並推上遠端：`4f86488 feat: 實作 P87 report core contract`。
+- 主公詢問「那現在呢」後，確認下一步應是 P88 plan。
+- 主公核准：「好請繼續」。
+
+**稽核表**：
+- S 級代碼層：本次不改 runtime code；只新增計畫書與狀態文件。
+- S 級邏輯層：P88 計畫採「Rule-based local analyzer + explicit source labels」，輸出需標 `analysis_source=local_deterministic`，不得冒充 LLM。
+- S 級測試層：runtime exit criteria 要求 focused tests 覆蓋正負中情緒、英雄、事件、平台 breakdown、LLM 429 fallback、非 429 fallback、空資料。
+- S 級安全層：P88 禁止新增外部 API、secret、provider；只做純字串比對與聚合，不執行貼文內容。
+- A 級流程層：handoff / active 從 P88 DRAFT_PENDING_PLAN 更新成 P88 FROZEN。
+- A 級文件層：P88 計畫明列 17 層稽核、M1/M1.5/M2、Entry/Exit Criteria、Allowed Files、Forbidden Work。
+
+**物理真相**：
+- 新增 `docs/PHASE_88_PLAN.md`
+  - 狀態：`FROZEN`。
+  - 方案決策：採用「Rule-based local analyzer + explicit source labels」。
+  - P88 runtime 預計輸出：
+    - 單篇貼文：`sentiment`、`sentiment_score`、`keywords`、`summary`、`relevance_score`、`is_hero_focus`、`detected_heroes`、`events`、`analysis_source=local_deterministic`。
+    - 每日 summary：`sentiment_distribution`、`platform_breakdown`、`hot_topics`、`detected_events`、`hero_stats`、`wordcloud`、`top_links`。
+  - Forbidden Work 明列：不加 `OPENAI_API_KEY`、不接免費 provider、不改 quality tier / promotion gate、不做 P89-P95、不關閉 R-016。
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P88（Deterministic Local Analyzer / FROZEN）`。
+  - Current Step 改為等待主公核准 P88 runtime 動工。
+  - Required Minimal Reads 改為 bootstrap + `docs/PHASE_88_PLAN.md`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - L2 狀態同步 P88 FROZEN。
+  - Latest Evidence 補入 P88 plan 已凍結與 R-016 仍 Open。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補入 P88 `Deterministic Local Analyzer` plan 已凍結。
+
+**實跑證據**：
+- `py scripts\lint_phase_plan.py docs\PHASE_88_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `git diff --check`
+  - PASS：無 whitespace error；PowerShell 僅顯示 LF/CRLF warning，非阻擋錯誤。
+
+**風險**：
+- P88 plan 凍結不代表 runtime 已實作；下一步仍需主公核准才能改 `analyzer/local_analyzer.py` / `analyzer/sentiment.py` / tests。
+- 本地 analyzer 是啟發式 baseline，不等於 LLM 深度洞察；runtime 必須標明來源。
+- P88 不會讓 local-only 報告自動上首頁；promotion / quality tier 留給 P89。
+- R-016 仍 Open；P88 只是讓無 LLM 時有真實 baseline，不是 R-016 closeout。
+
+**狀態**：
+- ✅ P87 CLOSED 且已推到 origin/main。
+- ✅ P88 PLAN FROZEN：`docs/PHASE_88_PLAN.md` 已建立並通過 lint。
+- ⏸️ P88 runtime 尚未核准：下一步需主公明確說「核准 P88 動工」後才能改程式碼。
+- 🔴 R-016 仍 Open：需 P88-P95 完整走完或主公另行裁決。
