@@ -27,13 +27,14 @@ def _write_manifest(
     date_str: str,
     mode: str = "production",
     source_quality: Optional[dict] = None,
+    with_analysis: bool = True,
 ) -> None:
     data_dir = repo_root / "data"
     manifest = build_manifest(
         run_date=date_str,
         mode=mode,
         raw_path=data_dir / ("raw_%s.json" % date_str.replace("-", "")),
-        analysis_path=data_dir / ("analysis_%s.json" % date_str.replace("-", "")),
+        analysis_path=(data_dir / ("analysis_%s.json" % date_str.replace("-", ""))) if with_analysis else None,
         report_path=data_dir / "reports" / ("aov_report_%s.html" % date_str),
         meta={"history_status": "ok"},
         history_delta={
@@ -165,4 +166,51 @@ def test_system_doctor_advises_on_degraded_source_health(tmp_path: Path):
 
     assert result.blocking_count == 0
     assert any(x.code == "DOC014" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
+def test_system_doctor_degrades_on_core_contract_fail(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(tmp_path, date_str, mode="production")
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality={
+            "status": "ok",
+            "total_posts": 2,
+            "platform_count": 2,
+            "platform_counts": {"dcard": 1, "bahamut": 1},
+            "source_count": 2,
+            "reasons": [],
+        },
+        with_analysis=False,
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="local")
+
+    assert result.blocking_count == 0
+    assert any(x.code == "DOC015" and x.severity == doctor.SEV_DEGRADED for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
+def test_system_doctor_advises_when_core_contract_missing(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(tmp_path, date_str, mode="production")
+    data_dir = tmp_path / "data"
+    manifest = build_manifest(
+        run_date=date_str,
+        mode="production",
+        raw_path=data_dir / ("raw_%s.json" % date_str.replace("-", "")),
+        analysis_path=data_dir / ("analysis_%s.json" % date_str.replace("-", "")),
+        report_path=data_dir / "reports" / ("aov_report_%s.html" % date_str),
+    )
+    del manifest["quality"]["core_contract"]
+    out = data_dir / "runs" / date_str / "run_manifest.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="local")
+
+    assert any(x.code == "DOC015" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
     assert doctor.exit_code_for(result) == 0
