@@ -9731,3 +9731,119 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ⚠️ 2026-05-21 pre-P91 manifest 仍有 CCG005，等待下一次 Actions 產生 P91 selection snapshot 後觀察。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：建立/凍結 P92 enrichment replay / local-only 補深讀計畫；P92 runtime 需主公另行核准。
+
+### P92 Enrichment Replay / Local-only 補深讀 Plan Freeze（2026-05-22）
+
+**目標**：
+- 建立 `docs/PHASE_92_PLAN.md`，把 P92 固定為「artifact-backed enrichment queue + budget-aware replay」計畫。
+- P92 要解的不是「取消 P91 節流」，而是讓 P91 產生的 local-only / partial coverage 有一條可追溯、可 no-op、受 budget 控制的後補深讀路徑。
+- 明確保持零額外付費主線：
+  - 不新增 `OPENAI_API_KEY`。
+  - 不接 Groq / Cloudflare / GitHub Models 等免費 provider。
+  - 不調高 `LLM_DAILY_BUDGET` 或 `LLM_ANALYSIS_TOP_N` 來假裝補深讀。
+  - 不把 raw queue / raw prompt / raw provider response commit 進 repo。
+
+**觸發**：
+- P91 runtime 已 CLOSED，並由 GitHub Actions 手動 dispatch 產生 P91 後實跑證據。
+- 2026-05-22 Actions run 對應 P91 runtime commit `a1949d6`，遠端 Actions 產物 commit 為 `a020f32`。
+- 實跑 manifest `data/runs/2026-05-22/run_manifest.json` 顯示：
+  - pre-P91 2026-05-21：`llm_calls=28`、`total_calls=39`、無 `selection`。
+  - P91 2026-05-22：`llm_calls=6`、`total_calls=13`、有 `selection`。
+  - `selection.total_input_posts=19`
+  - `selection.unique_posts=12`
+  - `selection.duplicate_posts=7`
+  - `selection.llm_selected_posts=12`
+  - `selection.local_only_posts=7`
+  - `selection.reason_counts.duplicate_url=7`
+  - `budget.llm_calls_used=6`
+  - `budget.remaining_llm_calls=14`
+- 主公於 2026-05-22 核准 P92 plan freeze，要求同步 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` / `docs/RISK_REGISTRY.md` / `TASK_HISTORY.md` 到 P92 FROZEN 後 commit。
+
+**稽核表**：
+- S 級代碼層：P92 plan 規劃新增小型 `enrichment_queue` helper 與 replay CLI，runtime 尚未核准，不在本段落動 `main.py` / `analyzer/` / `scripts/`。
+- S 級邏輯層：eligibility 必須 reason-aware；`duplicate_url` / `duplicate_signature` 預設 skipped / no-op，避免把 P91 省下的 calls 花回去。
+- S 級測試層：計畫列出 queue / replay / merge / budget matrix tests；fixture 必須覆蓋 2026-05-22 這類 duplicate-only local-only no-op。
+- S 級安全層：manifest 只寫 raw-free `enrichment` snapshot；raw queue 只能位於 git-ignored 本機路徑或 short-retention Actions artifact。
+- A 級資料層：P92 runtime 必須補 stable raw-safe source id / queue digest，不得只憑 aggregate counts 猜測 local-only 對象。
+- A 級可觀察性層：manifest / CLI 必須顯示 `eligible`、`skipped`、`enriched`、`no-op reason`、budget skip。
+- A 級流程層：P92 plan FROZEN 不等於 runtime APPROVED；P92 runtime 仍需主公另行核准。
+- B 級成本層：replay 必須尊重 P90 budget / cooldown，不能搶走 normal daily run 的額度。
+- B 級隱私/合規層：第三方貼文 raw content 不得 commit；artifact retention 必須明文化。
+
+**物理真相**：
+- 新增 `docs/PHASE_92_PLAN.md`
+  - 狀態：`FROZEN`。
+  - 目標：建立 raw-safe、budget-aware 的 enrichment replay 設計。
+  - 採用方案：
+    - `Artifact-backed enrichment queue + replay CLI`
+    - raw content 僅保留於 git-ignored path 或 GitHub Actions artifact。
+    - repo manifest 僅保存 raw-free snapshot。
+  - 不採用方案：
+    - commit raw / analysis 到 repo。
+    - 調高 Top-N / budget。
+    - 接新免費 provider。
+  - P92 runtime 預計新增 / 修改：
+    - `analyzer/enrichment_queue.py`
+    - `scripts/enrichment_replay.py`
+    - `main.py`
+    - `analyzer/run_manifest.py`
+    - `.github/workflows/daily_report.yml`
+    - `scripts/cost_cache_governance.py`
+    - `scripts/system_doctor.py`
+    - `docs/OPERATIONS_RUNBOOK.md`
+    - `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+    - `tests/test_enrichment_queue.py`
+    - `tests/test_enrichment_replay.py`
+  - P92 runtime forbidden work：
+    - 不新增 OpenAI key。
+    - 不接免費 provider。
+    - 不調高 budget / Top-N。
+    - 不 commit raw queue。
+    - 不繞過 P90 budget / cooldown。
+    - 不把 duplicate local-only 預設送 LLM。
+    - 不關閉 R-016。
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - `Current Phase` 改為 `P92（Enrichment Replay / Local-only 補深讀 / FROZEN）`。
+  - `Mode` 改為 `FROZEN`。
+  - Required Minimal Reads 改為 `docs/PHASE_92_PLAN.md`。
+  - Source of Truth L3 改為 `docs/PHASE_92_PLAN.md`，L3-prev 改為 `docs/PHASE_91_PLAN.md`。
+  - Six Anti-Drift Fields 明確寫入：
+    - P92 plan 已封存。
+    - runtime 未核准前只能補文件。
+    - 不得改 `main.py` / `analyzer/` / `scripts/` runtime。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - L2 狀態同步 P92 FROZEN。
+  - Latest Evidence 補入 P91 實跑數據與 P92 plan FROZEN。
+  - Next Decision 改為等待主公核准 P92 runtime。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補入 P91 實跑已收斂：
+    - `llm_calls=28` -> `llm_calls=6`
+    - `duplicate_posts=7`
+    - `local_only_posts=7`
+    - local-only 由 `duplicate_url` 主導。
+  - R-016 mitigation 補入 P92 plan 已 FROZEN：
+    - artifact-backed enrichment queue。
+    - budget-aware replay。
+    - duplicate local-only 預設 skipped / no-op。
+    - P92 runtime 未核准。
+
+**實跑證據**：
+- `py scripts\lint_phase_plan.py docs\PHASE_92_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `git diff --check`
+  - PASS；無輸出。
+- `docs/PHASE_92_PLAN.md` 尾端空白檢查：
+  - PASS：`no trailing whitespace in docs/PHASE_92_PLAN.md`。
+
+**風險**：
+- P92 plan freeze 只是邊界凍結；runtime 尚未核准，不得直接建立 queue helper / replay CLI。
+- P91 manifest 目前只有 aggregate selection counts；P92 runtime 必須新增 stable source id / queue record 才能可靠補跑，不能靠 counts 猜。
+- Queue 若含 raw content，必須只進 git-ignored path 或 short-retention artifact；否則會違反隱私 / 合規層與安全層。
+- 2026-05-22 的 local-only 全由 `duplicate_url` 主導；P92 對這天很可能正確 no-op，這是節流成功，不是補深讀失敗。
+- R-016 仍 Open；P92 plan FROZEN 不等於 R-016 closed。
+
+**狀態**：
+- ✅ P92 PLAN FROZEN：`docs/PHASE_92_PLAN.md` 已建立並通過 lint。
+- ✅ Handoff / Active Operation / RISK_REGISTRY 已同步至 P92 FROZEN。
+- ⏸️ P92 runtime 尚未核准：下一步需主公明確說「核准 P92 runtime 動工」後才能改 runtime。
+- 🔴 R-016 仍 Open：後續至少仍需 P92 runtime、P93 provider abstraction 候選、P95 closeout 或主公另行裁決。
