@@ -9617,3 +9617,117 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P91 PLAN FROZEN：`docs/PHASE_91_PLAN.md` 已建立並通過 lint / handoff truth / governance / diff check，待 commit。
 - ⏸️ P91 runtime 尚未核准：下一步需主公明確說「核准 P91 runtime 動工」後才能改程式碼。
 - 🔴 R-016 仍 Open：需 P91-P95 完整走完或主公另行裁決。
+
+### P91 Cache / Dedupe / Top-N Runtime 收官（2026-05-22）
+
+**目標**：
+- 將每日 LLM 深讀從「搜到多少篇就盡量全送」改成「先 source selection，再只把高價值 Top-N 送 LLM」。
+- 保留所有 raw source：未被選入 LLM 深讀的真實貼文仍走 P88 deterministic local baseline，不刪資料、不偽造成 showcase。
+- 讓 selection 節流效果寫入 manifest，並由 system doctor / cost-cache governance 可見，後續 P92 可用 local-only 訊號做補深讀。
+
+**觸發**：
+- P90 Budget Ledger / Cooldown 已完成；但 2026-05-21 pre-P91 live manifest 仍顯示 `total_llm_calls=28`，超過 governance threshold 20。
+- 主公於 2026-05-22 明確說：「先 push 3a7b000 核准 P91 runtime 動工」。
+- P91 plan 已 FROZEN 並已推 commit `3a7b000 docs: 凍結 P91 cache dedupe topn plan`。
+
+**稽核表**：
+- S 級代碼層：新增 `analyzer/source_selection.py`，把 URL dedupe、signature dedupe、low-signal local-only、Top-N cap、platform diversity、manifest-safe snapshot 集中管理。
+- S 級邏輯層：raw source 保存完整；selection 只控制 LLM 深讀候選；local-only 由 deterministic baseline 合併回 `analyzed_posts`。
+- S 級測試層：新增 / 更新 tests 覆蓋 exact URL dedupe、near duplicate、platform diversity、budget-aware cap、local-only merge、manifest validation、DOC018、CCG007。
+- S 級安全層：manifest `selection` 只寫計數、reason code、platform counts，不寫 raw post content、prompt、provider response 或 API key。
+- A 級資料層：`raw_YYYYMMDD.json` 照舊完整保存；selection snapshot 是派生 metadata。
+- A 級可觀察性層：manifest 新增 `selection`；doctor 新增 DOC018；cost-cache governance 新增 CCG007 與 selected/local-only/duplicate day table 欄位。
+- A 級流程層：P91 CLOSED 但 R-016 仍 Open；下一步只能建立/凍結 P92 enrichment replay / local-only 補深讀計畫，不得直接改 P92 runtime。
+
+**物理真相**：
+- 新增 `analyzer/source_selection.py`
+  - 常數：
+    - `SELECTION_SCHEMA_VERSION = 1`
+    - `SELECTION_TRUTH = "source selection only; raw sources retained"`
+    - reason codes：`llm_selected`、`duplicate_url`、`duplicate_signature`、`low_signal_local_only`、`topn_overflow`
+  - `build_source_selection(posts, max_llm_posts, budget_remaining, hero_focus)`：
+    - 正規化 URL：忽略 query / fragment，避免 `utm` 變體重複消耗 LLM call。
+    - 同平台同 title signature 視為 duplicate。
+    - 同平台 near signature 以 `SequenceMatcher(...).ratio() >= 0.92` 判定 duplicate。
+    - 極短低訊號貼文標為 local-only。
+    - 先選不同 platform 的最高分候選，再依分數補滿 cap，避免單一平台洗版。
+    - 輸出 `SourceSelection(llm_posts, local_only_posts, snapshot)`。
+  - `normalize_selection_snapshot(...)` / `validate_selection_snapshot(...)`：
+    - 驗證 `selected + local_only == total_input_posts`。
+    - 驗證 `llm_selected_posts <= max_llm_items`。
+    - 驗證 reason / platform count 都是 raw-free 非負整數。
+  - `merge_local_only_entries(...)`：
+    - 把 LLM selected analysis 與 local baseline entries 合併。
+    - 若有 local-only 且 LLM selected 不是全 local fallback，標記 `analysis_source = "mixed"`、`local_analysis_status = "ok"`。
+- 更新 `config.py`
+  - 新增：`LLM_ANALYSIS_TOP_N = int(os.getenv("LLM_ANALYSIS_TOP_N", "18"))`
+  - 預設 18，低於 P90 `LLM_DAILY_BUDGET=20`，保留 summary / dynamic focus 的呼叫空間。
+- 更新 `main.py`
+  - Step 2 開始前建立 `budget_snapshot = budget_manager.snapshot(run_date)`。
+  - 呼叫：
+    ```python
+    selection = build_source_selection(
+        all_results,
+        max_llm_posts=getattr(config, "LLM_ANALYSIS_TOP_N", 18),
+        budget_remaining=budget_snapshot.get("remaining_llm_calls", getattr(config, "LLM_DAILY_BUDGET", 20)),
+        hero_focus=getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+    )
+    ```
+  - `selection.llm_posts` 送入 `SentimentAnalyzer.analyze_posts(...)`。
+  - `selection.local_only_posts` 透過 `analyze_posts_locally(...)` 轉為 deterministic baseline，再由 `merge_local_only_entries(...)` 合併。
+  - 若沒有 LLM selected posts，整輪 analysis source 標為 `local_deterministic`，仍可由 P88/P89 走 `production_local_only`。
+  - `_meta` 新增 `selection = selection_snapshot`，供 manifest / report / governance 使用。
+- 更新 `analyzer/run_manifest.py`
+  - build manifest 新增：
+    ```python
+    "selection": normalize_selection_snapshot(meta.get("selection")),
+    ```
+  - validate manifest 呼叫 `validate_selection_snapshot(...)`。
+- 更新 `scripts/system_doctor.py`
+  - 新增 issue catalog：`DOC018 selection:throttle`。
+  - 若 `llm_selected_posts > max_llm_items` → DEGRADED。
+  - 若 `local_only_posts` 或 `duplicate_posts` 大於 0 → ADVISORY，顯示 selected / local_only / duplicate / cap / reason_counts。
+- 更新 `scripts/cost_cache_governance.py`
+  - 新增 issue catalog：`CCG007 selection throttle`。
+  - `DailyCostCacheMetric` 新增：
+    - `selection_total_input_posts`
+    - `selection_llm_selected_posts`
+    - `selection_local_only_posts`
+    - `selection_duplicate_posts`
+    - `selection_max_llm_items`
+  - CLI day table 新增 selected / local_only / duplicate 欄位。
+- 更新文件：
+  - `docs/PHASE_91_PLAN.md`：FROZEN → CLOSED，追加 runtime 收官證據。
+  - `docs/OPERATIONS_RUNBOOK.md`：新增 DOC018 / CCG007。
+  - `docs/COST_CACHE_GOVERNANCE_POLICY.md`：新增 manifest selection 指標與 CCG007 policy。
+  - `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`：下一步改為建立/凍結 P92 計畫。
+  - `docs/RISK_REGISTRY.md`：R-016 mitigation 補 P91 已完成，但 R-016 仍 Open。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py tests\test_python38_annotation_compat.py`
+  - PASS：56 passed。
+- `py -m py_compile analyzer\source_selection.py analyzer\run_manifest.py main.py scripts\system_doctor.py scripts\cost_cache_governance.py config.py`
+  - PASS。
+- `py -m pytest -q`
+  - PASS：263 passed。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：GOV000 runbook and risk registry governance verified。
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-21 --window-days 1`
+  - EXPECTED OLD-RUN SIGNAL：exit 1。
+  - 物理輸出：`CCG005 total_llm_calls=28 threshold=20`。
+  - 判讀：該 manifest 是 P91 runtime 前產物，沒有 `selection` snapshot；下一次 Actions / production run 才能驗證 CCG005 是否收斂。
+
+**風險**：
+- Near-dedupe 是保守啟發式，不是語義真相；若未來發現重要貼文被 local-only，P92 應以 replay / enrichment queue 補深讀，不在 P91 直接提高 provider calls。
+- `LLM_ANALYSIS_TOP_N=18` 是初始保守值；若連續多日 `production_local_only` 比例過高，可在 P92/P95 用 governance evidence 調整。
+- P91 降低 LLM 深讀候選數，不代表 Google 供應商配額問題已永久消失；它只是把爆量風險前移控制。
+- R-016 仍 Open；P91 CLOSED 不等於 R-016 CLOSED。
+
+**狀態**：
+- ✅ P91 CLOSED：cache / dedupe / Top-N runtime 已完成本地收官。
+- ✅ focused tests：56 passed。
+- ✅ full pytest：263 passed。
+- ✅ py_compile / python38 annotation / governance doctor：PASS。
+- ⚠️ 2026-05-21 pre-P91 manifest 仍有 CCG005，等待下一次 Actions 產生 P91 selection snapshot 後觀察。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：建立/凍結 P92 enrichment replay / local-only 補深讀計畫；P92 runtime 需主公另行核准。

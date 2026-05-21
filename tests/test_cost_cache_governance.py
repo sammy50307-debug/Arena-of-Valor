@@ -18,6 +18,7 @@ def _write_manifest(
     llm_calls: int = 1,
     mode: str = "production",
     budget: dict | None = None,
+    selection: dict | None = None,
 ) -> None:
     path = repo_root / "data" / "runs" / date_str / "run_manifest.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -34,6 +35,8 @@ def _write_manifest(
     }
     if budget is not None:
         payload["budget"] = budget
+    if selection is not None:
+        payload["selection"] = selection
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
@@ -155,6 +158,30 @@ def test_cost_cache_advises_on_budget_cooldown(tmp_path: Path):
     assert "CCG006" in _codes(result)
     assert cost_cache_governance.exit_code_for(result) == 0
     assert result.days[0].budget_decision == "skip_llm"
+
+
+def test_cost_cache_advises_on_selection_throttle(tmp_path: Path):
+    _write_manifest(
+        tmp_path,
+        "2026-05-18",
+        cache_hit=0,
+        total_calls=5,
+        llm_calls=4,
+        selection={
+            "total_input_posts": 10,
+            "llm_selected_posts": 4,
+            "local_only_posts": 6,
+            "duplicate_posts": 2,
+            "max_llm_items": 4,
+        },
+    )
+    _write_cache(tmp_path)
+
+    result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
+
+    assert "CCG007" in _codes(result)
+    assert result.days[0].selection_llm_selected_posts == 4
+    assert cost_cache_governance.exit_code_for(result) == 0
 
 
 def test_cost_cache_degrades_invalid_cache_stats_without_dumping_entries(tmp_path: Path):

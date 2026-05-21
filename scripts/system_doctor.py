@@ -45,6 +45,7 @@ ISSUE_CATALOG = {
     "quality_core_contract": {"code": "DOC015", "name": "quality:core contract"},
     "quality_tier": {"code": "DOC016", "name": "quality:tier"},
     "budget_cooldown": {"code": "DOC017", "name": "budget:cooldown"},
+    "selection_throttle": {"code": "DOC018", "name": "selection:throttle"},
 }
 
 
@@ -175,6 +176,7 @@ def run_doctor(
         history = manifest.get("history", {})
         quality = manifest.get("quality", {})
         budget = manifest.get("budget", {})
+        selection = manifest.get("selection", {})
 
         if status != "ok":
             _add_issue(issues, "run_status", SEV_BLOCKING, "status=%s" % status)
@@ -278,6 +280,21 @@ def run_doctor(
                     )
                 )
                 _add_issue(issues, "budget_cooldown", SEV_ADVISORY, detail)
+
+        if isinstance(selection, dict) and selection:
+            selected = selection.get("llm_selected_posts", 0)
+            local_only = selection.get("local_only_posts", 0)
+            duplicates = selection.get("duplicate_posts", 0)
+            cap = selection.get("max_llm_items", 0)
+            reasons = selection.get("reason_counts", {})
+            detail = (
+                "selected=%s local_only=%s duplicates=%s cap=%s reasons=%s"
+                % (selected, local_only, duplicates, cap, reasons)
+            )
+            if isinstance(selected, int) and isinstance(cap, int) and selected > cap:
+                _add_issue(issues, "selection_throttle", SEV_DEGRADED, detail)
+            elif local_only or duplicates:
+                _add_issue(issues, "selection_throttle", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
     for check in run_checks(

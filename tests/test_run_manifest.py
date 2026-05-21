@@ -91,6 +91,43 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["provider"]["openai_fallback_used"] is True
     assert manifest["budget"]["decision"] == "call_llm"
     assert manifest["budget"]["billing_truth"] == "pipeline proxy only; not provider billing truth"
+    assert manifest["selection"]["selection_truth"] == "source selection only; raw sources retained"
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_with_selection_snapshot(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+        meta={
+            "analysis_source": "mixed",
+            "llm_coverage": "partial",
+            "selection": {
+                "schema_version": 1,
+                "selection_truth": "source selection only; raw sources retained",
+                "total_input_posts": 8,
+                "unique_posts": 6,
+                "duplicate_posts": 2,
+                "llm_selected_posts": 4,
+                "local_only_posts": 4,
+                "max_llm_items": 4,
+                "budget_remaining": 10,
+                "selection_reasons": ["duplicate_url", "llm_selected", "topn_overflow"],
+                "reason_counts": {"duplicate_url": 2, "llm_selected": 4, "topn_overflow": 2},
+                "selected_platform_counts": {"dcard": 2, "bahamut": 2},
+                "local_only_platform_counts": {"dcard": 4},
+            },
+        },
+    )
+
+    assert manifest["selection"]["llm_selected_posts"] == 4
+    assert manifest["selection"]["local_only_posts"] == 4
+    assert manifest["quality"]["tier"] == "production_llm_partial"
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 

@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from analyzer.data_writer import atomic_write_json
 from analyzer.llm_budget import normalize_budget_snapshot, validate_budget_snapshot
 from analyzer.run_context import DEFAULT_TIMEZONE_NAME, SOURCE_HASH_VERSION, build_run_id
+from analyzer.source_selection import normalize_selection_snapshot, validate_selection_snapshot
 
 MANIFEST_SCHEMA_VERSION = 2
 ALLOWED_MODES = {
@@ -412,6 +413,7 @@ def build_manifest(
             "openai_fallback_used": bool(meta.get("openai_fallback_used", False)),
         },
         "budget": normalize_budget_snapshot(meta.get("budget")),
+        "selection": normalize_selection_snapshot(meta.get("selection")),
         "replay_source": replay_source,
         "is_backfill": bool(is_backfill),
         "eligibility": {
@@ -690,5 +692,9 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
     ok_budget, budget_errors = validate_budget_snapshot(manifest.get("budget"))
     if not ok_budget:
         errors.extend(budget_errors)
+
+    ok_selection, selection_errors = validate_selection_snapshot(manifest.get("selection"))
+    if not ok_selection:
+        errors.extend(selection_errors)
 
     return len(errors) == 0, errors

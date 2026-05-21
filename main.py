@@ -55,6 +55,7 @@ from analyzer.sentiment import SentimentAnalyzer
 from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
+from analyzer.local_analyzer import analyze_posts_locally, generate_local_summary
 from analyzer.llm_budget import LLMBudgetManager
 from analyzer.run_context import build_run_context, build_source_hash
 from analyzer.run_manifest import (
@@ -65,6 +66,7 @@ from analyzer.run_manifest import (
     is_publishable_quality_tier,
     write_manifest,
 )
+from analyzer.source_selection import build_source_selection, merge_local_only_entries
 from reporter.generator import ReportGenerator
 from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
@@ -387,22 +389,61 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     analyzer = SentimentAnalyzer()
     stats_scraper = HeroStatsScraper()
     pre_cache_stats = analyzer.llm.cache_manager.get_stats()
+    selection_snapshot = {}
 
     def _stat_delta(current: dict, previous: dict, key: str) -> int:
         return max(0, int(current.get(key, 0) or 0) - int(previous.get(key, 0) or 0))
 
     try:
-        analysis_res = await analyzer.analyze_posts(
-            all_results, showcase=showcase,
-            hero_name="combined", date_str=run_date,
+        budget_snapshot = budget_manager.snapshot(run_date)
+        selection = build_source_selection(
+            all_results,
+            max_llm_posts=getattr(config, "LLM_ANALYSIS_TOP_N", 18),
+            budget_remaining=budget_snapshot.get("remaining_llm_calls", getattr(config, "LLM_DAILY_BUDGET", 20)),
+            hero_focus=getattr(config, "HERO_FOCUS_NAME", "芽芽"),
         )
+        selection_snapshot = selection.snapshot
+        logger.info(
+            "   [P91] source selection: total=%s selected=%s local_only=%s duplicate=%s cap=%s",
+            selection_snapshot.get("total_input_posts", 0),
+            selection_snapshot.get("llm_selected_posts", 0),
+            selection_snapshot.get("local_only_posts", 0),
+            selection_snapshot.get("duplicate_posts", 0),
+            selection_snapshot.get("max_llm_items", 0),
+        )
+
+        if selection.llm_posts:
+            cache_hero = "combined" if not selection.local_only_posts and len(selection.llm_posts) == len(all_results) else None
+            cache_date = run_date if cache_hero else None
+            analysis_res = await analyzer.analyze_posts(
+                selection.llm_posts,
+                showcase=showcase,
+                hero_name=cache_hero,
+                date_str=cache_date,
+            )
+            if selection.local_only_posts:
+                local_entries = analyze_posts_locally(selection.local_only_posts, config.HERO_WATCHLIST)
+                analysis_res = merge_local_only_entries(analysis_res, local_entries)
+        else:
+            local_entries = analyze_posts_locally(selection.local_only_posts, config.HERO_WATCHLIST)
+            analysis_res = {
+                "posts": local_entries,
+                "is_showcase": False,
+                "quota_error": False,
+                "contract_status": "ok",
+                "contract_errors": [],
+                "local_analysis_status": "ok",
+                "fallback_reason": "selection_no_llm_posts",
+                "analysis_source": "local_deterministic",
+                "provider_diagnostics": analyzer._provider_diagnostics(),
+            }
+        analysis_res = dict(analysis_res)
+        analysis_res["selection"] = selection_snapshot
         analyzed_posts = analysis_res["posts"]
         active_showcase = analysis_res["is_showcase"] or showcase
         # P69 F2：區分 showcase 四態（production / showcase / showcase_forced / error_fallback）
         _quota_error = analysis_res.get("quota_error", False)
         if analysis_res.get("analysis_source") == "local_deterministic":
-            from analyzer.local_analyzer import generate_local_summary
-
             daily_summary = generate_local_summary(
                 analyzed_posts,
                 run_date,
@@ -442,6 +483,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         )
         if _analysis_source == "local_deterministic":
             _llm_coverage = "none"
+        elif _analysis_source == "mixed":
+            _llm_coverage = "partial"
         elif _contract_status == "degraded" or _summary_contract_status == "degraded":
             _analysis_source = "mixed"
             _llm_coverage = "partial"
@@ -479,6 +522,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "openai_fallback_configured": bool(_provider_diag.get("openai_fallback_configured", False)),
             "openai_fallback_used": bool(_provider_diag.get("openai_fallback_used", False)),
             "budget": budget_manager.snapshot(run_date),
+            "selection": selection_snapshot,
         }
 
         # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
@@ -548,6 +592,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "llm_calls": _fb_miss_delta,
             "total_calls": _fb_l1_delta + _fb_l2_delta + _fb_ap_delta + _fb_miss_delta,
             "budget": budget_manager.snapshot(run_date),
+            "selection": selection_snapshot,
         }
         analyzed_posts = []
 

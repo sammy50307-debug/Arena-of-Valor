@@ -38,6 +38,7 @@ ISSUE_CATALOG = {
     "cache_store_stats": {"code": "CCG004", "name": "cache store stats"},
     "llm_call_budget": {"code": "CCG005", "name": "llm call budget"},
     "budget_cooldown": {"code": "CCG006", "name": "budget cooldown"},
+    "selection_throttle": {"code": "CCG007", "name": "selection throttle"},
 }
 
 
@@ -59,6 +60,11 @@ class DailyCostCacheMetric:
     budget_reason: str = ""
     budget_cooldown_active: bool = False
     budget_llm_calls_used: int = 0
+    selection_total_input_posts: int = 0
+    selection_llm_selected_posts: int = 0
+    selection_local_only_posts: int = 0
+    selection_duplicate_posts: int = 0
+    selection_max_llm_items: int = 0
 
 
 @dataclass
@@ -152,6 +158,10 @@ def _int_metric(metrics: Dict[str, object], key: str) -> int:
     return value
 
 
+def _safe_non_negative_int(value: object) -> int:
+    return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else 0
+
+
 def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCostCacheMetric], Optional[str]]:
     path = repo_root / "data" / "runs" / date_str / "run_manifest.json"
     if not path.exists():
@@ -178,6 +188,18 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             budget_cooldown_active = bool(budget.get("cooldown_active", False))
             used = budget.get("llm_calls_used", 0)
             budget_llm_calls_used = used if isinstance(used, int) and not isinstance(used, bool) and used >= 0 else 0
+        selection = payload.get("selection", {})
+        selection_total_input_posts = 0
+        selection_llm_selected_posts = 0
+        selection_local_only_posts = 0
+        selection_duplicate_posts = 0
+        selection_max_llm_items = 0
+        if isinstance(selection, dict):
+            selection_total_input_posts = _safe_non_negative_int(selection.get("total_input_posts", 0))
+            selection_llm_selected_posts = _safe_non_negative_int(selection.get("llm_selected_posts", 0))
+            selection_local_only_posts = _safe_non_negative_int(selection.get("local_only_posts", 0))
+            selection_duplicate_posts = _safe_non_negative_int(selection.get("duplicate_posts", 0))
+            selection_max_llm_items = _safe_non_negative_int(selection.get("max_llm_items", 0))
     except Exception as exc:
         return None, "%s: %s" % (path, exc)
     return (
@@ -198,6 +220,11 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             budget_reason=budget_reason,
             budget_cooldown_active=budget_cooldown_active,
             budget_llm_calls_used=budget_llm_calls_used,
+            selection_total_input_posts=selection_total_input_posts,
+            selection_llm_selected_posts=selection_llm_selected_posts,
+            selection_local_only_posts=selection_local_only_posts,
+            selection_duplicate_posts=selection_duplicate_posts,
+            selection_max_llm_items=selection_max_llm_items,
         ),
         None,
     )
@@ -374,6 +401,49 @@ def evaluate_cost_cache(
             )
         )
 
+    selection_over_cap = [
+        day
+        for day in days
+        if day.selection_total_input_posts > 0
+        and day.selection_max_llm_items >= 0
+        and day.selection_llm_selected_posts > day.selection_max_llm_items
+    ]
+    if selection_over_cap:
+        issues.append(
+            _issue(
+                "selection_throttle",
+                SEV_DEGRADED,
+                "selected_over_cap_days=%s"
+                % ",".join("%s:%s>%s" % (day.date, day.selection_llm_selected_posts, day.selection_max_llm_items) for day in selection_over_cap),
+            )
+        )
+    else:
+        throttled_days = [
+            day
+            for day in days
+            if day.selection_total_input_posts > 0
+            and (day.selection_local_only_posts > 0 or day.selection_duplicate_posts > 0)
+        ]
+        if throttled_days:
+            issues.append(
+                _issue(
+                    "selection_throttle",
+                    SEV_ADVISORY,
+                    "selection_days=%s"
+                    % ",".join(
+                        "%s:selected=%s local_only=%s duplicate=%s cap=%s"
+                        % (
+                            day.date,
+                            day.selection_llm_selected_posts,
+                            day.selection_local_only_posts,
+                            day.selection_duplicate_posts,
+                            day.selection_max_llm_items,
+                        )
+                        for day in throttled_days
+                    ),
+                )
+            )
+
     return CostCacheResult(
         date=date_str,
         window_days=window_days,
@@ -440,11 +510,11 @@ def print_result(result: CostCacheResult) -> None:
     print("| cache_observed_hit_rate_pct | %s |" % result.cache_store.observed_hit_rate_pct)
 
     print("")
-    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | budget_decision | budget_reason |")
-    print("|---|---|---|---:|---:|---:|---:|---|---|")
+    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | selected | local_only | duplicate | budget_decision | budget_reason |")
+    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|")
     for day in result.days:
         print(
-            "| %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
             % (
                 day.date,
                 day.source,
@@ -453,6 +523,9 @@ def print_result(result: CostCacheResult) -> None:
                 day.total_calls,
                 day.llm_calls,
                 day.cache_hit_rate_pct,
+                day.selection_llm_selected_posts,
+                day.selection_local_only_posts,
+                day.selection_duplicate_posts,
                 day.budget_decision or "-",
                 day.budget_reason or "-",
             )
