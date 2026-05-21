@@ -9295,3 +9295,76 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ full pytest：240 passed。
 - ✅ 2026-05-20 health / doctor：無 blocking。
 - 🔴 R-016 仍 Open：下一步是 P90 Budget Ledger / Cooldown 計畫，不得直接改 P90 runtime。
+
+### P90 Budget Ledger / Cooldown 計畫凍結（2026-05-21）
+
+**目標**：
+- 建立 P90 凍結計畫，定義 budget ledger / cooldown 的 runtime 範圍。
+- 把目前「每次 run 先撞 provider，撞到 429 再 fallback」改成下一階段要實作的「先讀 budget/cooldown state，再決定是否呼叫 LLM」。
+- 明確切開 P90 與 P91/P92/P93：P90 只做 budget state、429 cooldown、manifest budget snapshot、doctor/governance 可觀測性；不做 cache/dedupe、不做 enrichment replay、不接免費 provider。
+
+**觸發**：
+- P89 runtime 已完成並推上遠端：`95f1207 feat: 實作 P89 quality tier promotion gate`。
+- R-016 仍 Open，P85 已凍結 zero-cost evidence-first 主線。
+- 主公要求：「請繼續謝謝」。
+- handoff 明確指出下一步只能建立/凍結 `docs/PHASE_90_PLAN.md`，尚不可改 budget/cooldown runtime。
+
+**稽核表**：
+- S 級代碼層：P90 runtime 預計新增集中式 budget helper，避免把 budget/cooldown 判斷散落在 `main.py` 與 provider client。
+- S 級邏輯層：LLM 呼叫前先看 budget/cooldown；429 後寫入 cooldown；過期後恢復嘗試。
+- S 級測試層：runtime exit criteria 要求 under budget、over budget、active cooldown、expired cooldown、429 writes cooldown、malformed state fail-safe、no raw content leakage。
+- S 級安全層：budget state 僅允許 count/status/time/reason，不得寫 raw prompt、raw post、API key、provider response body。
+- A 級資料層：預計使用 raw-free `data/llm_budget_state.json` 作小型狀態檔，manifest 保存本次 budget snapshot；state 必須有 rolling retention。
+- A 級可觀察性層：doctor / cost governance / manifest 需顯示 budget status、cooldown reason、quota count。
+- A 級流程層：P90 plan 凍結後仍需主公明確核准 runtime；R-016 保持 Open。
+
+**物理真相**：
+- 新增 `docs/PHASE_90_PLAN.md`
+  - 狀態：`FROZEN`。
+  - 採用方案：Repo 內小型 budget state + manifest snapshot。
+  - 明確聲明 budget ledger 是 pipeline proxy，不是 Google provider billing truth。
+  - Runtime exit criteria 明列：
+    - 新增 machine-readable budget state，至少記錄 `date`、`max_daily_llm_calls`、`llm_calls_used`、`cooldown_active`、`cooldown_reason`、`cooldown_until_utc`、`quota_error_count`、`last_quota_error_at_utc`。
+    - Runtime 在呼叫 LLM 前檢查 budget / cooldown；超預算或 cooldown active 時，不打 provider，改走 P88 local deterministic baseline。
+    - 429 / quota 類 provider error 會寫入 cooldown state，下一次 run 可先阻擋 LLM 呼叫。
+    - Run manifest 寫入 `budget` snapshot，health / doctor / governance 可顯示 cooldown 狀態。
+    - `production_local_only` 在 budget/cooldown skip 情境仍可由 P89 gate 發布，但 metadata 必須顯示 local deterministic / no LLM coverage。
+  - Forbidden Work 明列：
+    - 不加 `OPENAI_API_KEY`
+    - 不接免費 provider
+    - 不做 P91 cache/dedupe/top-N
+    - 不做 P92 enrichment queue / replay
+    - 不做 P93 provider abstraction
+    - 不把 budget ledger 說成 provider billing truth
+    - 不關閉 R-016
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P90（Budget Ledger / Cooldown / FROZEN）`。
+  - Current Step 改為等待主公核准 P90 runtime 動工。
+  - Required Minimal Reads 改為 bootstrap + `docs/PHASE_90_PLAN.md`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - L2 狀態同步 P90 FROZEN。
+  - Latest Evidence 補入 P90 plan 已凍結與 R-016 仍 Open。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補入 P90 `Budget Ledger / Cooldown` plan 已凍結。
+
+**實跑證據**：
+- `py scripts\lint_phase_plan.py docs\PHASE_90_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：HND000 active bootstrap truth verified。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：GOV000 runbook and risk registry governance verified。
+- `git diff --check`
+  - PASS；PowerShell 僅顯示 LF/CRLF warning，非 whitespace error。
+
+**風險**：
+- P90 plan 凍結不代表 runtime 已實作；下一步仍需主公核准才能改 `analyzer/llm_budget.py`、`main.py`、provider 呼叫入口、manifest / doctor / governance scripts 與 tests。
+- Budget ledger 是 pipeline proxy，不是 provider 真實帳單；若文件或 CLI 沒寫清楚，可能造成錯誤營運判讀。
+- Cooldown state 若寫壞可能永久停用 LLM；runtime 必須用 fake clock tests 覆蓋 active / expired。
+- R-016 仍 Open；P90 只解 budget/cooldown 子問題，不是 R-016 closeout。
+
+**狀態**：
+- ✅ P89 CLOSED 且已推到 origin/main。
+- ✅ P90 PLAN FROZEN：`docs/PHASE_90_PLAN.md` 已建立並通過 lint / handoff truth / governance / diff check，待 commit。
+- ⏸️ P90 runtime 尚未核准：下一步需主公明確說「核准 P90 runtime 動工」後才能改程式碼。
+- 🔴 R-016 仍 Open：需 P90-P95 完整走完或主公另行裁決。
