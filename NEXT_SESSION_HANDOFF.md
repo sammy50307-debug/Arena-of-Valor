@@ -10,7 +10,7 @@
 | **Current Phase** | P91（Cache / Dedupe / Top-N / CLOSED） |
 | **Current Step** | P91 runtime 已收官；下一步建立/凍結 P92 enrichment replay / local-only 補深讀計畫，未核准前不得改 P92 runtime |
 | **Mode** | CLOSED |
-| **Latest Verified Commit** | 本地最新 P91 runtime commit（以 `git log -1 --oneline` 為準；待 push） |
+| **Latest Verified Commit** | Runtime verified: `a1949d6 feat: 實作 P91 cache dedupe topn`（已 push 到 origin/main）；handoff docs 以 `git log -1 --oneline` 為準 |
 | **Updated At** | 2026-05-22 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -28,6 +28,15 @@
 | L3 | `docs/PHASE_91_PLAN.md` | P91 Cache / Dedupe / Top-N 收官真相 |
 | L3-prev | `docs/PHASE_90_PLAN.md` | P90 Budget Ledger / Cooldown 收官證據 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
+
+## Window Switch Timing
+
+| 判斷 | 建議 |
+|---|---|
+| **現在能不能換視窗** | 可以。P91 runtime 已推到 `origin/main`，handoff 已把下一步固定為 P92 計畫凍結，不會偏航。 |
+| **最舒服的換窗點** | 等 GitHub Actions 跑完一次 `AoV Daily Monitor` 後換；下一視窗只要讀本檔頂部，再看 Actions 結果是否出現 P91 `selection` snapshot。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 查看 Actions 最新 run → 若 run 成功，回填 P91 實跑證據；若 run 未跑，先建立/凍結 P92 計畫，不動 runtime。 |
+| **不要在換窗後做的事** | 不要重新修 P91；不要直接動 P92 runtime；不要把 2026-05-21 舊 manifest 的 `CCG005 llm_calls=28` 當成 P91 失敗。 |
 
 ## Six Anti-Drift Fields
 
