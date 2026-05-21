@@ -147,6 +147,52 @@ def test_system_doctor_advises_on_budget_cooldown(tmp_path: Path):
     assert doctor.exit_code_for(result) == 0
 
 
+def test_system_doctor_advises_on_selection_throttle(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(
+        tmp_path,
+        date_str,
+        mode="production",
+        quality_tier="production_llm_partial",
+    )
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality=build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+        meta={
+            "history_status": "ok",
+            "analysis_source": "mixed",
+            "llm_coverage": "partial",
+            "selection": {
+                "schema_version": 1,
+                "selection_truth": "source selection only; raw sources retained",
+                "total_input_posts": 10,
+                "unique_posts": 8,
+                "duplicate_posts": 2,
+                "llm_selected_posts": 4,
+                "local_only_posts": 6,
+                "max_llm_items": 4,
+                "budget_remaining": 10,
+                "selection_reasons": ["duplicate_url", "llm_selected", "topn_overflow"],
+                "reason_counts": {"duplicate_url": 2, "llm_selected": 4, "topn_overflow": 4},
+                "selected_platform_counts": {"dcard": 2, "bahamut": 2},
+                "local_only_platform_counts": {"dcard": 6},
+            },
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
+
+    assert any(x.code == "DOC018" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
 def test_system_doctor_blocks_when_manifest_missing(tmp_path: Path):
     date_str = "2026-05-16"
     _write_report_and_index(tmp_path, date_str, mode="production")

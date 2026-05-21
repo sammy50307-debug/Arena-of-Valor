@@ -148,8 +148,8 @@
   - 已完成：P88 `Deterministic Local Analyzer` 已 CLOSED；LLM 429 / provider exception 時可從真實貼文產出 `analysis_source=local_deterministic` 的 sentiment、keywords、heroes、events、platform breakdown 與 baseline summary；P88 未改 quality tier / promotion gate，R-016 仍 Open。
   - 已完成：P89 `Quality Tier / Promotion Gate` 已 CLOSED；manifest 寫入 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage`，report metadata 顯示 tier/source/coverage，promotion gate 改看 publishable quality tier；`production_local_only` 在 core contract / local baseline 通過時可發布，`showcase_manual` / `error_fallback` 不可發布。2026-05-20 health/doctor 無 blocking；舊產物缺 tier 僅 DOC016 advisory。R-016 仍 Open。
   - 已完成：P90 `Budget Ledger / Cooldown` 已 CLOSED；新增 raw-free budget state、429 cooldown、manifest budget snapshot、DOC017 / CCG006 advisory。Gemini budget/cooldown active 時會停止打 provider 並改走 P88/P89 local baseline；budget ledger 明確標註為 pipeline proxy，不是 provider billing truth。R-016 仍 Open。
-  - 已凍結：P91 `Cache / Dedupe / Top-N` plan 已 FROZEN；runtime 預計新增 source selection、保守 dedupe、budget-aware Top-N、local-only merge、manifest selection snapshot、doctor/governance 可觀測性，目標是事前降低 LLM calls 與 CCG005。尚未核准 runtime，R-016 仍 Open。
-  - 中期：P86-P95 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、doctor/SLO 重分類；下一步需主公核准 P91 cache/dedupe/top-N runtime。
+  - 已完成：P91 `Cache / Dedupe / Top-N` 已 CLOSED；新增 source selection、保守 dedupe、budget-aware Top-N、local-only merge、manifest `selection` snapshot、doctor `DOC018`、cost governance `CCG007`。預設 `LLM_ANALYSIS_TOP_N=18`，raw source 不刪除，未選來源仍走 deterministic local baseline。2026-05-21 pre-P91 live manifest 仍有 `CCG005 llm_calls=28`，需等下一次 Actions 產生 P91 selection snapshot 後觀察是否收斂。R-016 仍 Open。
+  - 中期：P86-P95 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、doctor/SLO 重分類；下一步是建立/凍結 P92 enrichment replay / local-only 補深讀計畫。
   - 長期：免費 provider 只作 P93 disabled-by-default 插槽候選；不得在未核准前接進主鏈路。
 - **觸發升級**：若 P86-P95 完成後仍連續無可發布 production tier ≥ 3 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為 P95 closeout blocking issue，不得關閉 R-016。
 

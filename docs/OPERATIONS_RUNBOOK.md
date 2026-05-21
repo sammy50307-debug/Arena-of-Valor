@@ -1,6 +1,6 @@
 # Operations Runbook（P79.2 / P84.2 / P84.3 / P84.4）
 
-> 更新日期：2026-05-20
+> 更新日期：2026-05-22
 > 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` / `scripts/check_handoff_truth.py` / `scripts/governance_doctor.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
 
 ## 使用方式
@@ -122,6 +122,14 @@
   2. 若 reason 是 `cooldown_active` 或 `quota_error`，等待 cooldown 過期後重跑；不要補 OpenAI API key 當主線。
   3. 若 reason 是 `budget_exhausted`，代表本日 pipeline 呼叫額度已用完；後續應走 `production_local_only` 或等下一個業務日。
   4. 若 reason 是 `budget_state_malformed`，檢查 `data/llm_budget_state.json` JSON 格式；確認不含 raw prompt / raw post 後修復或重建。
+
+### <a id="doc018"></a>DOC018 — selection throttle
+- 意義：manifest `selection` 顯示 P91 已將部分來源留在 local deterministic baseline，或 duplicate/top-N 節流正在生效。
+- 處置：
+  1. 查看 manifest `selection.llm_selected_posts`、`local_only_posts`、`duplicate_posts`、`reason_counts`。
+  2. 若為 advisory，代表節流正常生效；用 report 與 local baseline 檢查洞察品質即可。
+  3. 若 selected 超過 `max_llm_items`，先跑 `py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py`，再檢查 `analyzer/source_selection.py` 是否計算 cap 漂移。
+  4. 不要因本 issue 直接開 OpenAI fallback；P91 的主線是減少 LLM 深讀候選數。
 
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
@@ -279,3 +287,11 @@
   2. 若 reason 是 `cooldown_active`，等待 `cooldown_until_utc` 過期後再重跑。
   3. 若 reason 是 `budget_exhausted`，確認是否需要調整 `LLM_DAILY_BUDGET`；調整前先看 cache hit rate 與 P91/P92 是否尚未完成。
   4. 不要把本 issue 當成 provider billing truth；真實費用仍需查供應商帳單。
+
+### <a id="ccg007"></a>CCG007 — selection throttle
+- 意義：window 內 manifest `selection` 顯示 P91 節流正在生效，或 selected 數量超過 cap。
+- 處置：
+  1. 查看輸出列的 `selected` / `local_only` / `duplicate`。
+  2. 若為 advisory，代表 Top-N / dedupe 正常降低 LLM call 壓力。
+  3. 若為 degraded，檢查 `selection.llm_selected_posts > selection.max_llm_items` 的日期，修正 source selection 後重跑。
+  4. 若 local-only 比例連續過高，後續走 P92 replay/backfill 補深讀，不在 P91 直接引入新 provider。

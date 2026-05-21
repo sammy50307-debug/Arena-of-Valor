@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P91（Cache / Dedupe / Top-N / FROZEN） |
-| **Current Step** | P91 計畫已凍結；下一步等待主公核准 P91 runtime 動工，未核准前不得改 cache/dedupe/top-N runtime |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `798ed58 feat: 實作 P90 budget ledger cooldown`（P91 plan freeze 若已有本地 commit，則以 `git log -1 --oneline` 為準） |
-| **Updated At** | 2026-05-21 Asia/Taipei |
+| **Current Phase** | P91（Cache / Dedupe / Top-N / CLOSED） |
+| **Current Step** | P91 runtime 已收官；下一步建立/凍結 P92 enrichment replay / local-only 補深讀計畫，未核准前不得改 P92 runtime |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | 本地最新 P91 runtime commit（以 `git log -1 --oneline` 為準；待 push） |
+| **Updated At** | 2026-05-22 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_91_PLAN.md`
+2. `docs/PHASE_91_PLAN.md`（P91 收官真相）
 3. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
 ## Current Source Of Truth
@@ -25,7 +25,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_91_PLAN.md` | P91 Cache / Dedupe / Top-N 計畫入口 |
+| L3 | `docs/PHASE_91_PLAN.md` | P91 Cache / Dedupe / Top-N 收官真相 |
 | L3-prev | `docs/PHASE_90_PLAN.md` | P90 Budget Ledger / Cooldown 收官證據 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -33,12 +33,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P91（FROZEN） |
-| **Current Step** | 等待主公核准 P91 runtime 動工；未核准前不可改 cache/dedupe/top-N runtime |
-| **Allowed Files** | FROZEN 階段只能檢視/討論 `docs/PHASE_91_PLAN.md`；若主公核准 runtime，才可依 P91 計畫動 source selection helper、`main.py`、`analyzer/sentiment.py`、manifest / doctor / governance scripts、tests、docs |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不直接改 cache/dedupe/top-N runtime；不做 P92-P95 runtime；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P91 plan 已凍結；runtime 收官需完成 source selection / dedupe / budget-aware Top-N / local merge / manifest selection snapshot / doctor-governance-tests，且 R-016 仍不得關閉 |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_91_PLAN.md`；若主公尚未明確核准 P91 runtime，只能討論或等待，不得改 cache/dedupe/top-N code |
+| **Current Phase** | P91（CLOSED） |
+| **Current Step** | 建立/凍結 P92 enrichment replay / local-only 補深讀計畫；P92 runtime 需主公另行核准 |
+| **Allowed Files** | P91 已封存，只能補 closeout 文件或建立 `docs/PHASE_92_PLAN.md` 草案；P92 runtime 未核准前不得改 `main.py` / `analyzer/` / `scripts/` runtime |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 P91 已封存 runtime；不直接做 P92 replay/backfill runtime；不做 P93 provider abstraction；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P91 已完成 source selection / dedupe / budget-aware Top-N / local merge / manifest selection snapshot / DOC018 / CCG007 / tests；R-016 仍 Open |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_91_PLAN.md`；下一步只可規劃 P92，除非主公明確核准 P92 runtime |
 
 ## Required Verification Commands
 
@@ -47,6 +47,7 @@ git status -sb
 git diff --check
 py scripts\lint_phase_plan.py docs\PHASE_90_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_91_PLAN.md
+py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
@@ -54,11 +55,11 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 - 不要使用本檔 archive 舊段落的「下個視窗」文字決定下一步。
 - 不要全讀 `TASK_HISTORY.md`；需要歷史時只用 anchor search。
-- 不要把 P90 CLOSED 解讀成 R-016 CLOSED；R-016 仍 Open，後續要走 P91-P95。
+- 不要把 P91 CLOSED 解讀成 R-016 CLOSED；R-016 仍 Open，後續至少還要走 P92-P95。
 - 不要回到「加 OpenAI paid fallback」當主線；主公已明確不想多花 OpenAI API 錢。
 - 不要自動接 Groq / Cloudflare / GitHub Models；免費 provider 只列 P93 disabled-by-default 候選。
-- 不要把 R-016 標記 Closed；P90 是 budget/cooldown 子問題收官，不是 R-016 closeout。
-- 不要直接改 P91 runtime code；P91 目前已凍結計畫，但仍需主公核准才能動工。
+- 不要把 R-016 標記 Closed；P91 是 cache/dedupe/top-N 子問題收官，不是 R-016 closeout。
+- 不要直接改 P92 runtime code；下一步只能先建立/凍結 P92 計畫。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
