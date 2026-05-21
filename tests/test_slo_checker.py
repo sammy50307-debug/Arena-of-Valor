@@ -8,7 +8,7 @@ from typing import Optional
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from analyzer.run_manifest import build_manifest, write_manifest
+from analyzer.run_manifest import build_manifest, build_source_quality, write_manifest
 from scripts import slo_checker
 
 
@@ -28,6 +28,12 @@ def _write_report_and_index(repo_root: Path, date_str: str, mode: str = "product
 
 def _write_manifest(repo_root: Path, date_str: str, mode: str = "production", status: str = "ok") -> None:
     data_dir = repo_root / "data"
+    source_quality = build_source_quality(
+        [
+            {"platform": "dcard", "source": "dcard.tw"},
+            {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+        ]
+    )
     manifest = build_manifest(
         run_date=date_str,
         mode=mode,
@@ -40,6 +46,7 @@ def _write_manifest(repo_root: Path, date_str: str, mode: str = "production", st
             "diagnostics": {"source_dates": ["2026-05-14"], "missing_dates": []},
         },
         status=status,
+        source_quality=source_quality,
     )
     write_manifest(data_dir, manifest)
 

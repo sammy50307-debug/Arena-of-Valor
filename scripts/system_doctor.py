@@ -17,7 +17,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from analyzer.run_context import build_run_context
-from analyzer.run_manifest import validate_manifest
+from analyzer.run_manifest import ALLOWED_QUALITY_TIERS, PUBLISHABLE_QUALITY_TIERS, validate_manifest
 from check_daily_report_health import run_checks
 
 
@@ -43,6 +43,7 @@ ISSUE_CATALOG = {
     "quality_no_posts": {"code": "DOC013", "name": "quality:no posts"},
     "quality_source_health": {"code": "DOC014", "name": "quality:source health"},
     "quality_core_contract": {"code": "DOC015", "name": "quality:core contract"},
+    "quality_tier": {"code": "DOC016", "name": "quality:tier"},
 }
 
 
@@ -202,6 +203,22 @@ def run_doctor(
                 )
 
         if isinstance(quality, dict):
+            tier = quality.get("tier")
+            analysis_source = quality.get("analysis_source", "unknown")
+            llm_coverage = quality.get("llm_coverage", "unknown")
+            tier_detail = "tier=%s analysis_source=%s llm_coverage=%s" % (
+                tier or "<missing>",
+                analysis_source,
+                llm_coverage,
+            )
+            if not tier:
+                _add_issue(issues, "quality_tier", SEV_ADVISORY, "quality.tier missing")
+            elif tier not in ALLOWED_QUALITY_TIERS:
+                _add_issue(issues, "quality_tier", SEV_DEGRADED, tier_detail)
+            elif tier not in PUBLISHABLE_QUALITY_TIERS:
+                sev = SEV_DEGRADED if require_production else SEV_ADVISORY
+                _add_issue(issues, "quality_tier", sev, tier_detail)
+
             source_health = quality.get("source_health", {})
             if isinstance(source_health, dict):
                 health_status = source_health.get("status", "unknown")

@@ -56,7 +56,14 @@ from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
 from analyzer.run_context import build_run_context, build_source_hash
-from analyzer.run_manifest import build_manifest, build_source_quality, write_manifest
+from analyzer.run_manifest import (
+    build_core_contract,
+    build_manifest,
+    build_quality_tier,
+    build_source_quality,
+    is_publishable_quality_tier,
+    write_manifest,
+)
 from reporter.generator import ReportGenerator
 from reporter.obsidian_exporter import ObsidianExporter
 from notifier.line_bot import LineBotNotifier
@@ -97,13 +104,18 @@ def evaluate_publish_gate(
     mode: str,
     gate_mode: str = "shadow",
     candidate_report_path: Path = None,
+    quality_tier: str = "",
 ) -> tuple[list[str], list]:
     """Evaluate publish gate reasons using report health checks."""
     reasons: list[str] = []
     checks = []
     normalized_gate = str(gate_mode or "shadow").lower()
 
-    if mode != "production":
+    if quality_tier:
+        if not is_publishable_quality_tier(quality_tier):
+            reasons.append("quality_tier is %s (not publishable)" % quality_tier)
+            return reasons, checks
+    elif mode != "production":
         reasons.append("mode is %s (not production)" % mode)
         return reasons, checks
 
@@ -388,7 +400,37 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         _l2 = _stats.get("total_l2_hits", 0)
         _ap = _stats.get("total_apify_hits", 0)
         _miss = _stats.get("total_misses", 0)
-        if _quota_error:
+
+        _analysis_source = str(
+            analysis_res.get("analysis_source")
+            or daily_summary.get("analysis_source")
+            or ""
+        )
+        _summary_contract = daily_summary.get("llm_contract", {})
+        _contract_status = str(analysis_res.get("contract_status", "ok"))
+        _summary_contract_status = (
+            str(_summary_contract.get("status", "ok"))
+            if isinstance(_summary_contract, dict)
+            else "ok"
+        )
+        if _analysis_source == "local_deterministic":
+            _llm_coverage = "none"
+        elif _contract_status == "degraded" or _summary_contract_status == "degraded":
+            _analysis_source = "mixed"
+            _llm_coverage = "partial"
+        elif showcase:
+            _analysis_source = "showcase"
+            _llm_coverage = "none"
+        else:
+            _analysis_source = "llm"
+            _llm_coverage = "full"
+
+        _legacy_mode = "showcase_forced" if _quota_error else ("showcase" if active_showcase else "production")
+        if showcase:
+            _mode = "showcase"
+        elif _analysis_source == "local_deterministic":
+            _mode = "production"
+        elif _quota_error:
             _mode = "showcase_forced"
         elif active_showcase:
             _mode = "showcase"
@@ -396,6 +438,10 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             _mode = "production"
         daily_summary["_meta"] = {
             "mode": _mode,
+            "legacy_mode": _legacy_mode,
+            "analysis_source": _analysis_source,
+            "llm_coverage": _llm_coverage,
+            "local_analysis_status": analysis_res.get("local_analysis_status", ""),
             "cache_hit": _l1 + _l2,
             "l1_hits": _l1,
             "l2_hits": _l2,
@@ -459,6 +505,10 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         _fb_stats = analyzer.llm.cache_manager.get_stats()
         daily_summary["_meta"] = {
             "mode": "showcase" if showcase else "error_fallback",
+            "legacy_mode": "showcase" if showcase else "error_fallback",
+            "analysis_source": "showcase" if showcase else "unknown",
+            "llm_coverage": "none",
+            "local_analysis_status": "",
             "cache_hit": _fb_stats.get("total_l1_hits", 0) + _fb_stats.get("total_l2_hits", 0),
             "l1_hits": _fb_stats.get("total_l1_hits", 0),
             "l2_hits": _fb_stats.get("total_l2_hits", 0),
@@ -484,6 +534,24 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     # 儲存分析結果（Phase 56.5：契約守門 + atomic write 治本 R7/R21）
     from analyzer.data_writer import atomic_write_json, validate_summary, coerce_to_schema
     analysis_path = config.DATA_DIR / f"analysis_{compact_run_date}.json"
+    preview_report_path = config.REPORTS_DIR / f"aov_report_{daily_summary.get('date', run_date)}.html"
+    _meta = daily_summary.setdefault("_meta", {})
+    _preview_core_contract = build_core_contract(
+        source_quality=source_quality,
+        analysis_path=analysis_path,
+        report_path=preview_report_path,
+    )
+    _preview_tier = build_quality_tier(
+        mode=_meta.get("mode", "unknown"),
+        status="ok",
+        core_contract=_preview_core_contract,
+        meta=_meta,
+        showcase_flag=showcase,
+    )
+    _meta["quality_tier"] = _preview_tier["tier"]
+    _meta["analysis_source"] = _preview_tier["analysis_source"]
+    _meta["llm_coverage"] = _preview_tier["llm_coverage"]
+    _meta["quality_tier_reasons"] = _preview_tier["reasons"]
     ok, missing = validate_summary(daily_summary)
     if not ok:
         logger.warning(f"  [!] daily_summary 缺契約欄位 {missing}，已用安全預設值補齊")
@@ -545,14 +613,16 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
     # ── Step 4.5：寫入 Run Manifest (P78) ──────────────
     gate_mode = getattr(config, "PUBLISH_GATE_MODE", "shadow")
+    mode = daily_summary.get("_meta", {}).get("mode", "unknown")
+    quality_tier = daily_summary.get("_meta", {}).get("quality_tier", "")
     gate_reasons, gate_checks = evaluate_publish_gate(
         daily_summary.get("date", run_date),
-        daily_summary.get("_meta", {}).get("mode", "unknown"),
+        mode,
         gate_mode=gate_mode,
         candidate_report_path=report_candidate_path,
+        quality_tier=quality_tier,
     )
-    mode = daily_summary.get("_meta", {}).get("mode", "unknown")
-    should_promote = bool(report_candidate_path) and (mode == "production") and (len(gate_reasons) == 0)
+    should_promote = bool(report_candidate_path) and is_publishable_quality_tier(quality_tier) and (len(gate_reasons) == 0)
     if should_promote:
         try:
             report_promoted_path = generator.promote_candidate(
@@ -566,7 +636,12 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             gate_reasons.append("promotion error: %s: %s" % (type(pe).__name__, pe))
             logger.error("  [FAIL] promote 失敗：%s", pe)
     else:
-        logger.info("   [PROMOTE] 跳過：mode=%s, gate_reasons=%d", mode, len(gate_reasons))
+        logger.info(
+            "   [PROMOTE] 跳過：mode=%s, quality_tier=%s, gate_reasons=%d",
+            mode,
+            quality_tier or "unknown",
+            len(gate_reasons),
+        )
     try:
         _meta = daily_summary.get("_meta", {})
         manifest = build_manifest(

@@ -23,12 +23,29 @@ def _write_repo(
     landing_date: str = DATE,
     with_report: bool = True,
     landing_href: str | None = None,
+    quality_tier: str | None = None,
 ) -> None:
     reports = root / "data" / "reports"
     reports.mkdir(parents=True)
+    if quality_tier is None:
+        quality_tier = "production_full" if mode == "production" else "showcase_manual"
+    analysis_source = {
+        "production_full": "llm",
+        "production_llm_partial": "mixed",
+        "production_local_only": "local_deterministic",
+    }.get(quality_tier, "showcase")
+    llm_coverage = {
+        "production_full": "full",
+        "production_llm_partial": "partial",
+        "production_local_only": "none",
+    }.get(quality_tier, "none")
     if with_report:
         (reports / ("aov_report_%s.html" % date_str)).write_text(
-            f"<!-- cache_hit: 2/3 (66%) | llm_calls: 1 | mode: {mode} -->\n<html></html>\n",
+            (
+                f"<!-- cache_hit: 2/3 (66%) | llm_calls: 1 | mode: {mode} "
+                f"| quality_tier: {quality_tier} | analysis_source: {analysis_source} "
+                f"| llm_coverage: {llm_coverage} -->\n<html></html>\n"
+            ),
             encoding="utf-8",
         )
     href = landing_href or ("data/reports/aov_report_%s.html" % landing_date)
@@ -46,7 +63,7 @@ def _detail_map(results):
     return {r.name: r.detail for r in results}
 
 
-def _write_manifest(root: Path, date_str: str, source_quality: dict) -> None:
+def _write_manifest(root: Path, date_str: str, source_quality: dict, meta: dict | None = None) -> None:
     data_dir = root / "data"
     manifest = build_manifest(
         run_date=date_str,
@@ -54,6 +71,7 @@ def _write_manifest(root: Path, date_str: str, source_quality: dict) -> None:
         raw_path=data_dir / ("raw_%s.json" % date_str.replace("-", "")),
         analysis_path=data_dir / ("analysis_%s.json" % date_str.replace("-", "")),
         report_path=data_dir / "reports" / ("aov_report_%s.html" % date_str),
+        meta=meta or {},
         source_quality=source_quality,
     )
     write_manifest(data_dir, manifest)
@@ -65,6 +83,7 @@ def test_valid_report_passes(tmp_path: Path):
     assert not any(r.failed for r in results)
     assert _status_map(results)["canonical report"] == "PASS"
     assert _status_map(results)["metadata mode"] == "PASS"
+    assert _status_map(results)["metadata quality tier"] == "PASS"
     assert _status_map(results)["landing main link"] == "PASS"
     assert _status_map(results)["landing target mode"] == "PASS"
 
@@ -85,7 +104,34 @@ def test_core_contract_pass_is_reported_when_manifest_exists(tmp_path: Path):
     results = health.run_checks(tmp_path, DATE)
 
     assert _status_map(results)["core contract"] == "PASS"
+    assert _status_map(results)["quality tier"] == "PASS"
     assert "status=pass" in _detail_map(results)["core contract"]
+
+
+def test_local_only_quality_tier_passes_when_manifest_is_publishable(tmp_path: Path):
+    _write_repo(tmp_path, quality_tier="production_local_only")
+    _write_manifest(
+        tmp_path,
+        DATE,
+        build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+        meta={
+            "quota_error": True,
+            "analysis_source": "local_deterministic",
+            "llm_coverage": "none",
+            "local_analysis_status": "ok",
+        },
+    )
+
+    results = health.run_checks(tmp_path, DATE)
+
+    assert _status_map(results)["metadata quality tier"] == "PASS"
+    assert _status_map(results)["quality tier"] == "PASS"
+    assert "tier=production_local_only" in _detail_map(results)["quality tier"]
 
 
 def test_core_contract_warn_does_not_fail_health(tmp_path: Path):

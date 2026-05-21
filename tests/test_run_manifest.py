@@ -5,8 +5,10 @@ from pathlib import Path
 
 from analyzer.run_manifest import (
     build_core_contract,
+    build_quality_tier,
     build_manifest,
     build_source_quality,
+    is_publishable_quality_tier,
     manifest_path,
     validate_manifest,
     write_manifest,
@@ -16,7 +18,17 @@ from analyzer.run_manifest import (
 SOURCE_HASH = "abcdef1234567890"
 
 
+def _source_quality_ok() -> dict:
+    return build_source_quality(
+        [
+            {"platform": "dcard", "source": "dcard.tw"},
+            {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+        ]
+    )
+
+
 def test_build_manifest_basic_fields(tmp_path: Path):
+    source_quality = _source_quality_ok()
     manifest = build_manifest(
         run_date="2026-05-16",
         mode="production",
@@ -31,6 +43,8 @@ def test_build_manifest_basic_fields(tmp_path: Path):
             "total_calls": 5,
             "history_status": "ok",
             "quota_error": False,
+            "analysis_source": "llm",
+            "llm_coverage": "full",
             "openai_fallback_configured": True,
             "openai_fallback_used": True,
         },
@@ -38,6 +52,7 @@ def test_build_manifest_basic_fields(tmp_path: Path):
         status="ok",
         source_hash=SOURCE_HASH,
         scheduled_utc="2026-05-15T16:00:00Z",
+        source_quality=source_quality,
     )
 
     assert manifest["schema_version"] == 2
@@ -58,9 +73,12 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["eligibility"]["gate_mode"] == "shadow"
     assert manifest["eligibility"]["decision"] == "eligible"
     assert manifest["eligibility"]["reasons"] == []
-    assert manifest["quality"]["source_health"]["status"] == "unknown"
-    assert manifest["quality"]["core_contract"]["status"] == "unknown"
-    assert "source_health_unknown" in manifest["quality"]["core_contract"]["reasons"]
+    assert manifest["quality"]["source_health"]["status"] == "ok"
+    assert manifest["quality"]["core_contract"]["status"] == "pass"
+    assert manifest["quality"]["tier"] == "production_full"
+    assert manifest["quality"]["analysis_source"] == "llm"
+    assert manifest["quality"]["llm_coverage"] == "full"
+    assert manifest["quality"]["tier_publishable"] is True
     assert manifest["provider"]["quota_error"] is False
     assert manifest["provider"]["openai_fallback_configured"] is True
     assert manifest["provider"]["openai_fallback_used"] is True
@@ -149,12 +167,7 @@ def test_build_manifest_with_history_dates_and_backfill(tmp_path: Path):
 
 
 def test_build_manifest_with_source_quality(tmp_path: Path):
-    source_quality = build_source_quality(
-        [
-            {"platform": "dcard", "source": "dcard.tw"},
-            {"platform": "bahamut", "source": "forum.gamer.com.tw"},
-        ]
-    )
+    source_quality = _source_quality_ok()
     manifest = build_manifest(
         run_date="2026-05-16",
         mode="production",
@@ -172,8 +185,124 @@ def test_build_manifest_with_source_quality(tmp_path: Path):
     assert manifest["quality"]["core_contract"]["has_report"] is True
     assert manifest["quality"]["core_contract"]["has_analysis"] is True
     assert manifest["quality"]["core_contract"]["reasons"] == []
+    assert manifest["quality"]["tier"] == "production_full"
     ok, errors = validate_manifest(manifest)
     assert ok, errors
+
+
+def test_build_manifest_marks_local_only_publishable(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        meta={
+            "quota_error": True,
+            "analysis_source": "local_deterministic",
+            "llm_coverage": "none",
+            "local_analysis_status": "ok",
+        },
+        source_quality=_source_quality_ok(),
+    )
+
+    assert manifest["quality"]["tier"] == "production_local_only"
+    assert manifest["quality"]["analysis_source"] == "local_deterministic"
+    assert manifest["quality"]["llm_coverage"] == "none"
+    assert manifest["quality"]["tier_publishable"] is True
+    assert manifest["publish_eligible"] is True
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_marks_partial_llm_publishable(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        meta={"analysis_source": "mixed", "llm_coverage": "partial"},
+        source_quality=_source_quality_ok(),
+    )
+
+    assert manifest["quality"]["tier"] == "production_llm_partial"
+    assert manifest["quality"]["tier_publishable"] is True
+    assert manifest["publish_eligible"] is True
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_marks_manual_showcase_not_publishable(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="showcase",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        showcase_flag=True,
+        meta={"analysis_source": "showcase", "llm_coverage": "none"},
+        source_quality=_source_quality_ok(),
+    )
+
+    assert manifest["quality"]["tier"] == "showcase_manual"
+    assert manifest["quality"]["tier_publishable"] is False
+    assert manifest["publish_eligible"] is False
+    assert any("quality_tier=showcase_manual" in x for x in manifest["eligibility"]["reasons"])
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_marks_core_contract_fail_not_publishable(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=None,
+        meta={"analysis_source": "llm", "llm_coverage": "full"},
+        source_quality=_source_quality_ok(),
+    )
+
+    assert manifest["quality"]["core_contract"]["status"] == "fail"
+    assert manifest["quality"]["tier"] == "error_fallback"
+    assert manifest["publish_eligible"] is False
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_quality_tier_infers_local_only_from_quota(tmp_path: Path):
+    core_contract = build_core_contract(
+        source_quality=_source_quality_ok(),
+        analysis_path=tmp_path / "analysis.json",
+        report_path=tmp_path / "report.html",
+    )
+    tier = build_quality_tier(
+        mode="showcase_forced",
+        status="ok",
+        core_contract=core_contract,
+        meta={"quota_error": True, "local_analysis_status": "ok"},
+    )
+
+    assert tier["tier"] == "production_local_only"
+    assert is_publishable_quality_tier(tier["tier"]) is True
+
+
+def test_build_quality_tier_does_not_publish_quota_without_local_baseline(tmp_path: Path):
+    core_contract = build_core_contract(
+        source_quality=_source_quality_ok(),
+        analysis_path=tmp_path / "analysis.json",
+        report_path=tmp_path / "report.html",
+    )
+    tier = build_quality_tier(
+        mode="showcase_forced",
+        status="ok",
+        core_contract=core_contract,
+        meta={"quota_error": True},
+    )
+
+    assert tier["tier"] == "error_fallback"
+    assert is_publishable_quality_tier(tier["tier"]) is False
 
 
 def test_build_core_contract_marks_single_platform_warn(tmp_path: Path):
@@ -341,6 +470,23 @@ def test_validate_manifest_rejects_bad_core_contract(tmp_path: Path):
 
     assert not ok
     assert any("quality.core_contract.status" in msg for msg in errors)
+
+
+def test_validate_manifest_rejects_bad_quality_tier(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+    )
+    manifest["quality"]["tier"] = "maybe"
+
+    ok, errors = validate_manifest(manifest)
+
+    assert not ok
+    assert any("quality.tier" in msg for msg in errors)
 
 
 def test_validate_manifest_accepts_schema_v2_without_core_contract(tmp_path: Path):
