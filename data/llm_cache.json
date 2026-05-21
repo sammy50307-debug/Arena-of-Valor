@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-20T05:57:30.707385+00:00",
+      "last_accessed": "2026-05-21T11:50:29.710639+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -109,7 +109,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:31.970511+00:00",
-      "last_accessed": "2026-05-20T05:57:31.970511+00:00",
+      "last_accessed": "2026-05-21T11:50:29.713253+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -136,7 +136,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:34.268233+00:00",
-      "last_accessed": "2026-05-20T05:57:34.268233+00:00",
+      "last_accessed": "2026-05-21T11:50:29.721190+00:00",
       "ttl_days": 7
     },
     "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
@@ -163,7 +163,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:35.585176+00:00",
-      "last_accessed": "2026-05-20T05:57:35.585176+00:00",
+      "last_accessed": "2026-05-21T11:50:29.718669+00:00",
       "ttl_days": 7
     },
     "prompt:76befbb8d168c291b9d7ee56421d423b": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-20T05:57:36.651838+00:00",
+      "last_accessed": "2026-05-21T11:50:29.723587+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -217,7 +217,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:37.977642+00:00",
-      "last_accessed": "2026-05-20T05:57:37.977642+00:00",
+      "last_accessed": "2026-05-21T11:50:29.726020+00:00",
       "ttl_days": 7
     },
     "prompt:1008d06f8dc662092fa1690b58d1b9e1": {
@@ -375,7 +375,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:50.174034+00:00",
-      "last_accessed": "2026-05-20T05:57:50.174034+00:00",
+      "last_accessed": "2026-05-21T11:51:04.122076+00:00",
       "ttl_days": 7
     },
     "prompt:f6ccafeb1845cce7fc099e9881f92d58": {
@@ -408,7 +408,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:51.670423+00:00",
-      "last_accessed": "2026-05-20T05:57:51.670423+00:00",
+      "last_accessed": "2026-05-21T11:51:04.124389+00:00",
       "ttl_days": 7
     },
     "prompt:1baf7f2bf047a1e3fcb6e67c6ddad74f": {
@@ -440,7 +440,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:52.983276+00:00",
-      "last_accessed": "2026-05-20T05:57:52.983276+00:00",
+      "last_accessed": "2026-05-21T11:51:04.126691+00:00",
       "ttl_days": 7
     },
     "prompt:0a84a7e0aff5b12b2e76016a93a1ac20": {
@@ -500,7 +500,7 @@
         }
       },
       "stored_at": "2026-05-20T05:58:02.151562+00:00",
-      "last_accessed": "2026-05-20T05:58:02.151562+00:00",
+      "last_accessed": "2026-05-21T11:51:09.090098+00:00",
       "ttl_days": 7
     },
     "prompt:38419e52a0265e392c95526b559e6073": {
@@ -533,7 +533,7 @@
         }
       },
       "stored_at": "2026-05-20T05:58:08.908904+00:00",
-      "last_accessed": "2026-05-20T05:58:08.908904+00:00",
+      "last_accessed": "2026-05-21T11:51:09.094453+00:00",
       "ttl_days": 7
     },
     "hero:combined:2026-05-20": {
@@ -1266,12 +1266,1015 @@
       "stored_at": "2026-05-20T05:58:08.911141+00:00",
       "last_accessed": "2026-05-20T05:58:08.911141+00:00",
       "ttl_days": 7
+    },
+    "prompt:3839c02c7159d5be978360cff8ff1db7": {
+      "result": {
+        "reasoning": "貼文標題主要為直播標題，內容包含遊戲實況與電競賽事資訊，屬於正常的遊戲內容分享，無負面情緒或反諷。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "傳說對決",
+          "璀璨",
+          "直播",
+          "巔峰賽",
+          "教主"
+        ],
+        "summary": "作者分享了關於傳說對決的直播內容以及對電競賽事的關注。",
+        "relevance_score": 0.9,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "520直播活動",
+            "type": "其他"
+          }
+        ],
+        "translated_content": "[5/20 今天上璀璨嗎｜傳說對決 - YouTube] 5/20 今天上璀璨嗎｜傳說對決 · Mantou小饅頭 · 【Jiaozu教主】520獨自大吃看我在巔峰受苦受難為了比賽練習 · [中文] T1 vs KRX | NS vs KT | 2026 LCK · 會考後的第一場.",
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:50:04.575436+00:00",
+      "last_accessed": "2026-05-21T11:50:04.575436+00:00",
+      "ttl_days": 7
+    },
+    "prompt:30c983adcf8fa4d4576fe0017338190b": {
+      "result": {
+        "reasoning": "該貼文為典型的帳號買賣廣告，並非針對遊戲內容的討論，屬於社群內的商業行為資訊。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "帳號買賣",
+          "收購",
+          "傳說對決",
+          "廣告"
+        ],
+        "summary": "此貼文為第三方帳號買賣平台的廣告資訊。",
+        "relevance_score": 0.3,
+        "is_hero_focus": false,
+        "events": [],
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:50:20.229629+00:00",
+      "last_accessed": "2026-05-21T11:50:20.229629+00:00",
+      "ttl_days": 7
+    },
+    "prompt:af3c7c803ae2eccb133b0bcbe6e06884": {
+      "result": {
+        "reasoning": "該玩家正在尋找隊友一起爬分，並詢問如何下載越南版遊戲，顯示其為尋求社群互動與跨區遊玩的玩家，語氣中性且單純。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "社群互動",
+        "keywords": [
+          "爬分",
+          "找隊友",
+          "跨區下載",
+          "傳說對決"
+        ],
+        "summary": "玩家尋找一起爬分的隊友，並詢問如何下載越南版傳說對決。",
+        "relevance_score": 0.9,
+        "is_hero_focus": false,
+        "events": [],
+        "translated_content": "尋找管理員，尋找一起爬分的隊伍 - Facebook。有人要一起組隊玩嗎？我玩凱撒路、中路和射手。（目前我只有台灣版本，有人能教我怎麼下載越南版的傳說對決嗎？）",
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:50:29.706703+00:00",
+      "last_accessed": "2026-05-21T11:50:29.706703+00:00",
+      "ttl_days": 7
+    },
+    "prompt:8c0256893f09edf7d1a2005bbb2e1b1f": {
+      "result": {
+        "reasoning": "該貼文為分享遊戲角色綺羅的教學心得，屬於玩家間的技術交流與經驗分享，語氣中性且具建設性。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "角色討論",
+        "keywords": [
+          "綺羅",
+          "教學",
+          "心得",
+          "傳說對決"
+        ],
+        "summary": "玩家在 Dcard 分享關於英雄綺羅的遊玩教學與心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [],
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:50:37.032872+00:00",
+      "last_accessed": "2026-05-21T11:50:37.032872+00:00",
+      "ttl_days": 7
+    },
+    "prompt:df796bc0fc755c6e6c369798931bbf5a": {
+      "result": {
+        "reasoning": "該貼文為標題分享，旨在提供遊戲裝備相關的知識與攻略，屬於正面且具建設性的社群分享行為。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "傳說對決",
+          "裝備",
+          "攻略",
+          "心得"
+        ],
+        "summary": "玩家分享關於傳說對決裝備的小知識與心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [],
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:50:49.476208+00:00",
+      "last_accessed": "2026-05-21T11:50:49.476208+00:00",
+      "ttl_days": 7
+    },
+    "prompt:4c2cd6f486141f72bf38d136f495162b": {
+      "result": {
+        "reasoning": "貼文為純資訊分享，轉載官方聯名卡活動延長的情報，語氣客觀中立，旨在通知玩家活動資訊。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "星展銀行",
+          "聯名卡",
+          "緹莉",
+          "星夢展航",
+          "活動延長"
+        ],
+        "summary": "星展傳說對決聯名卡專屬活動延長至2026年6月30日，開卡可獲得緹莉造型。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "星展傳說對決聯名卡專屬活動",
+            "type": "合作活動"
+          }
+        ],
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:50:52.632448+00:00",
+      "last_accessed": "2026-05-21T11:50:52.632448+00:00",
+      "ttl_days": 7
+    },
+    "prompt:33cfdd375e520508c75e345c7ee130d7": {
+      "result": {
+        "reasoning": "玩家分享遊戲與MEN’s Bioré的聯名活動資訊，語氣中性客觀，主要目的是傳遞活動情報。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "MEN’s Bioré",
+          "聯名",
+          "傳說對決",
+          "活動"
+        ],
+        "summary": "分享MEN’s Bioré與傳說對決的聯名合作活動資訊。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "MEN’s Bioré 10倍炭控油系列 X 傳說對決聯名",
+            "type": "合作活動"
+          }
+        ],
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:51:04.117809+00:00",
+      "last_accessed": "2026-05-21T11:51:04.117809+00:00",
+      "ttl_days": 7
+    },
+    "prompt:e6891e2a94a5066023f1b10d5b49ff61": {
+      "result": {
+        "reasoning": "玩家針對遊戲的配對機制提出疑問，通常這類貼文反映了玩家對勝率、隊友實力落差或系統演算法的不滿，屬於常見的遊戲體驗抱怨。",
+        "sentiment": "negative",
+        "sentiment_score": 0.3,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "傳說對決",
+          "配對",
+          "遊戲體驗",
+          "巴哈姆特"
+        ],
+        "summary": "玩家在巴哈姆特論壇詢問關於傳說對決配對機制的相關問題。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [],
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-05-21T11:51:09.086130+00:00",
+      "last_accessed": "2026-05-21T11:51:09.086130+00:00",
+      "ttl_days": 7
+    },
+    "hero:combined:2026-05-21": {
+      "result": {
+        "posts": [
+          {
+            "post": {
+              "platform": "youtube",
+              "author": "tavily",
+              "url": "https://www.youtube.com/watch?v=nXEioaa9rh0",
+              "title": "5/20 今天上璀璨嗎｜傳說對決 - YouTube",
+              "content": "5/20 今天上璀璨嗎｜傳說對決 · Mantou小饅頭 · 【Jiaozu教主】520獨自大吃看我在巔峰受苦受難為了比賽練習 · [中文] T1 vs KRX | NS vs KT | 2026 LCK · 會考後的第一場.",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": "[5/20 今天上璀璨嗎｜傳說對決 - YouTube] 5/20 今天上璀璨嗎｜傳說對決 · Mantou小饅頭 · 【Jiaozu教主】520獨自大吃看我在巔峰受苦受難為了比賽練習 · [中文] T1 vs KRX | NS vs KT | 2026 LCK · 會考後的第一場."
+            },
+            "analysis": {
+              "reasoning": "貼文標題主要為直播標題，內容包含遊戲實況與電競賽事資訊，屬於正常的遊戲內容分享，無負面情緒或反諷。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "傳說對決",
+                "璀璨",
+                "直播",
+                "巔峰賽",
+                "教主"
+              ],
+              "summary": "作者分享了關於傳說對決的直播內容以及對電競賽事的關注。",
+              "relevance_score": 0.9,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "520直播活動",
+                  "type": "其他"
+                }
+              ],
+              "translated_content": "[5/20 今天上璀璨嗎｜傳說對決 - YouTube] 5/20 今天上璀璨嗎｜傳說對決 · Mantou小饅頭 · 【Jiaozu教主】520獨自大吃看我在巔峰受苦受難為了比賽練習 · [中文] T1 vs KRX | NS vs KT | 2026 LCK · 會考後的第一場.",
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "facebook",
+              "author": "tavily",
+              "url": "https://www.facebook.com/yn.chen.229111/photos/d41d8cd9/1364911762181687",
+              "title": "哀居賣場：Aov.yn.store",
+              "content": "哀居賣場：Aov.yn.store 高價收購傳說絕地決勝FF 荒野特戰 綁定好綁定差皆 收購問問不用錢❗️ 貼換 分期 跨遊戲互換 帳號直換 · Other posts · 尋號價格2萬下可秒中信無卡付.",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為典型的帳號買賣廣告，並非針對遊戲內容的討論，屬於社群內的商業行為資訊。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "其他",
+              "keywords": [
+                "帳號買賣",
+                "收購",
+                "傳說對決",
+                "廣告"
+              ],
+              "summary": "此貼文為第三方帳號買賣平台的廣告資訊。",
+              "relevance_score": 0.3,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "facebook",
+              "author": "tavily",
+              "url": "https://www.facebook.com/groups/1152553598927742/posts/2180549179461507",
+              "title": "Tìm ad , tìm team leo rank chung với tớ - Facebook",
+              "content": "Whether have team game together?I play top ,MID and ADcarry.(now i only have TaiWan version,could someone teach me how to download vietnam LOL?)",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": "尋找管理員，尋找一起爬分的隊伍 - Facebook。有人要一起組隊玩嗎？我玩凱撒路、中路和射手。（目前我只有台灣版本，有人能教我怎麼下載越南版的傳說對決嗎？）"
+            },
+            "analysis": {
+              "reasoning": "該玩家正在尋找隊友一起爬分，並詢問如何下載越南版遊戲，顯示其為尋求社群互動與跨區遊玩的玩家，語氣中性且單純。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "社群互動",
+              "keywords": [
+                "爬分",
+                "找隊友",
+                "跨區下載",
+                "傳說對決"
+              ],
+              "summary": "玩家尋找一起爬分的隊友，並詢問如何下載越南版傳說對決。",
+              "relevance_score": 0.9,
+              "is_hero_focus": false,
+              "events": [],
+              "translated_content": "尋找管理員，尋找一起爬分的隊伍 - Facebook。有人要一起組隊玩嗎？我玩凱撒路、中路和射手。（目前我只有台灣版本，有人能教我怎麼下載越南版的傳說對決嗎？）",
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/257800838",
+              "title": "#心得分享 2025凱撒路推薦&康特 - 傳說對決板 | Dcard",
+              "content": "#心得分享 2025凱撒路推薦&康特 - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為分享2025年凱撒路英雄推薦與康特關係的心得，屬於玩家間的技術交流與攻略分享，語氣客觀中立。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "角色討論",
+              "keywords": [
+                "凱撒路",
+                "攻略",
+                "康特",
+                "英雄推薦",
+                "2025版本"
+              ],
+              "summary": "玩家分享2025年凱撒路英雄推薦與康特關係的攻略心得。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/257954977",
+              "title": "#心得分享 爬分筆記 非喜勿入 - 傳說對決板 | Dcard",
+              "content": "#心得分享 爬分筆記 非喜勿入 - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文標題為爬分筆記分享，屬於玩家間的經驗交流與心得分享，語氣中性且具建設性，並無明顯情緒偏向或反諷。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "爬分",
+                "心得分享",
+                "傳說對決",
+                "攻略"
+              ],
+              "summary": "玩家在 Dcard 分享關於傳說對決的爬分心得與筆記。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/259530658",
+              "title": "#心得分享 輔助觀念 - 傳說對決板 | Dcard",
+              "content": "#心得分享 輔助觀念 - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為標題分享，旨在討論輔助位的遊戲觀念，屬於玩家間的經驗交流與教學性質，語氣中性且具建設性。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "輔助",
+                "觀念",
+                "心得分享",
+                "傳說對決"
+              ],
+              "summary": "玩家在 Dcard 分享關於輔助位的遊戲觀念與心得。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/259487238",
+              "title": "#心得分享 全屬性詳細攻略 - 傳說對決板 | Dcard",
+              "content": "#心得分享 全屬性詳細攻略 - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文標題為攻略分享，屬於玩家社群中常見的技術交流與經驗分享，語氣中性且具建設性。",
+              "sentiment": "positive",
+              "sentiment_score": 0.8,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "攻略",
+                "全屬性",
+                "心得分享",
+                "傳說對決"
+              ],
+              "summary": "玩家在Dcard分享關於傳說對決的全屬性詳細攻略心得。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/252965598",
+              "title": "#心得分享 【攻略】《傳說對決》從0~100圖倫教學!17分鐘一次快速上手(8/16再次更新) - 傳說對決板 | Dcard",
+              "content": "#心得分享 【攻略】《傳說對決》從0~100圖倫教學!17分鐘一次快速上手(8/16再次更新) - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": true,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為一篇教學攻略分享，旨在提供玩家圖倫的操作技巧與心得，內容正面且具建設性。",
+              "sentiment": "positive",
+              "sentiment_score": 0.9,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "角色討論",
+              "keywords": [
+                "圖倫",
+                "攻略",
+                "教學",
+                "心得分享"
+              ],
+              "summary": "玩家分享了一篇關於圖倫的詳細教學攻略，幫助新手快速上手。",
+              "relevance_score": 1.0,
+              "is_hero_focus": true,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/257893900",
+              "title": "#心得分享 請不要開 \"精準普攻\" - 傳說對決板 | Dcard",
+              "content": "#心得分享 請不要開 \"精準普攻\" - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "作者分享遊戲設定心得，明確建議玩家關閉『精準普攻』功能，屬於針對遊戲操作體驗的建議與教學分享，語氣客觀且具建設性。",
+              "sentiment": "positive",
+              "sentiment_score": 0.7,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "精準普攻",
+                "操作設定",
+                "遊戲心得",
+                "傳說對決"
+              ],
+              "summary": "作者建議玩家在遊戲設定中關閉『精準普攻』功能以優化操作體驗。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/258998598",
+              "title": "#心得分享 綺羅教學 - 傳說對決板 | Dcard",
+              "content": "#心得分享 綺羅教學 - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": true,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為分享遊戲角色綺羅的教學心得，屬於玩家間的技術交流與經驗分享，語氣中性且具建設性。",
+              "sentiment": "positive",
+              "sentiment_score": 0.8,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "角色討論",
+              "keywords": [
+                "綺羅",
+                "教學",
+                "心得",
+                "傳說對決"
+              ],
+              "summary": "玩家在 Dcard 分享關於英雄綺羅的遊玩教學與心得。",
+              "relevance_score": 1.0,
+              "is_hero_focus": true,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "dcard",
+              "author": "dcard.tw",
+              "url": "https://www.dcard.tw/f/aov/p/256077619",
+              "title": "#心得分享 傳說對決 裝備小知識 - 傳說對決板 | Dcard",
+              "content": "#心得分享 傳說對決 裝備小知識 - 傳說對決板 | Dcard（Dcard 傳說對決板）",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為標題分享，旨在提供遊戲裝備相關的知識與攻略，屬於正面且具建設性的社群分享行為。",
+              "sentiment": "positive",
+              "sentiment_score": 0.8,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "傳說對決",
+                "裝備",
+                "攻略",
+                "心得"
+              ],
+              "summary": "玩家分享關於傳說對決裝備的小知識與心得。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=362",
+              "title": "【情報】星展傳說對決聯名卡｜遊戲內卡友專屬活動 開卡送緹莉-星夢展航造型 活動延長至2026/06/30",
+              "content": "【情報】星展傳說對決聯名卡｜遊戲內卡友專屬活動 開卡送緹莉-星夢展航造型 活動延長至2026/06/30（巴哈姆特 AOV 哈啦板）[💬115701]",
+              "timestamp": "時間未知",
+              "is_hero_focus": true,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "貼文為純資訊分享，轉載官方聯名卡活動延長的情報，語氣客觀中立，旨在通知玩家活動資訊。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "活動資訊",
+              "keywords": [
+                "星展銀行",
+                "聯名卡",
+                "緹莉",
+                "星夢展航",
+                "活動延長"
+              ],
+              "summary": "星展傳說對決聯名卡專屬活動延長至2026年6月30日，開卡可獲得緹莉造型。",
+              "relevance_score": 1.0,
+              "is_hero_focus": true,
+              "events": [
+                {
+                  "name": "星展傳說對決聯名卡專屬活動",
+                  "type": "合作活動"
+                }
+              ],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
+              "title": "【情報】MEN’s Bioré 10倍炭*控油系列 X傳說對決聯名！洗澡也要本命carry",
+              "content": "【情報】MEN’s Bioré 10倍炭*控油系列 X傳說對決聯名！洗澡也要本命carry（巴哈姆特 AOV 哈啦板）[💬5583]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "玩家分享遊戲與MEN’s Bioré的聯名活動資訊，語氣中性客觀，主要目的是傳遞活動情報。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "活動資訊",
+              "keywords": [
+                "MEN’s Bioré",
+                "聯名",
+                "傳說對決",
+                "活動"
+              ],
+              "summary": "分享MEN’s Bioré與傳說對決的聯名合作活動資訊。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "MEN’s Bioré 10倍炭控油系列 X 傳說對決聯名",
+                  "type": "合作活動"
+                }
+              ],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=203",
+              "title": "【情報】傳說對決先行/體驗服 2026年更新情報【260512更新】",
+              "content": "【情報】傳說對決先行/體驗服 2026年更新情報【260512更新】（巴哈姆特 AOV 哈啦板）[💬865079]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "該貼文為巴哈姆特哈啦板的置頂情報串，旨在整理體驗服的更新資訊，屬於中立的資訊分享性質。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "版本更新",
+              "keywords": [
+                "傳說對決",
+                "體驗服",
+                "更新情報",
+                "先行服"
+              ],
+              "summary": "巴哈姆特哈啦板關於傳說對決體驗服2026年更新的情報彙整貼文。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "2026年體驗服更新",
+                  "type": "版本更新"
+                }
+              ],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
+              "title": "【情報】《Garena傳說對決》x 純喫茶 虛寶瓶瓶送買就抽次元突破造型及純喫茶專屬表情！",
+              "content": "【情報】《Garena傳說對決》x 純喫茶 虛寶瓶瓶送買就抽次元突破造型及純喫茶專屬表情！（巴哈姆特 AOV 哈啦板）[💬36038]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "貼文為官方合作活動情報，內容中性客觀，旨在傳達與純喫茶聯名的虛寶抽獎資訊。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "活動資訊",
+              "keywords": [
+                "傳說對決",
+                "純喫茶",
+                "聯名活動",
+                "虛寶",
+                "次元突破造型"
+              ],
+              "summary": "傳說對決與純喫茶合作推出買飲料抽虛寶與造型的活動。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "傳說對決 x 純喫茶 聯名活動",
+                  "type": "合作活動"
+                }
+              ],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
+              "title": "【情報】傳說對決箱子跳跳",
+              "content": "【情報】傳說對決箱子跳跳（巴哈姆特 AOV 哈啦板）[💬730]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "貼文標題明確指出為『情報』，且提及『箱子跳跳』活動，屬於玩家間分享遊戲內限時活動資訊的行為，語氣中性客觀。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "活動資訊",
+              "keywords": [
+                "傳說對決",
+                "箱子跳跳",
+                "情報",
+                "活動"
+              ],
+              "summary": "玩家分享關於遊戲內活動『箱子跳跳』的相關情報資訊。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "箱子跳跳",
+                  "type": "限時活動"
+                }
+              ],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
+              "title": "【問題】傳說對決配對",
+              "content": "【問題】傳說對決配對（巴哈姆特 AOV 哈啦板）[💬29]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "玩家針對遊戲的配對機制提出疑問，通常這類貼文反映了玩家對勝率、隊友實力落差或系統演算法的不滿，屬於常見的遊戲體驗抱怨。",
+              "sentiment": "negative",
+              "sentiment_score": 0.3,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "遊戲體驗",
+              "keywords": [
+                "傳說對決",
+                "配對",
+                "遊戲體驗",
+                "巴哈姆特"
+              ],
+              "summary": "玩家在巴哈姆特論壇詢問關於傳說對決配對機制的相關問題。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
+              "title": "【問題】【傳說對決】邀好友回歸送造型",
+              "content": "【問題】【傳說對決】邀好友回歸送造型（巴哈姆特 AOV 哈啦板）[💬304]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": ""
+            },
+            "analysis": {
+              "reasoning": "此貼文為巴哈姆特哈啦板上的討論串，主題為詢問或分享《傳說對決》的『邀好友回歸送造型』活動。這類貼文通常伴隨著玩家互相分享邀請碼或詢問活動規則，情緒表現中立。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "活動資訊",
+              "keywords": [
+                "傳說對決",
+                "好友回歸",
+                "送造型",
+                "巴哈姆特",
+                "邀請碼"
+              ],
+              "summary": "玩家在巴哈姆特論壇上針對《傳說對決》的「邀好友回歸送造型」活動進行提問與互助討論。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "邀好友回歸送造型",
+                  "type": "限時活動2024-11-20T12:00:00Z"
+                }
+              ],
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          },
+          {
+            "post": {
+              "platform": "bahamut",
+              "author": "forum.gamer.com.tw",
+              "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62690&tnum=1",
+              "title": "【討論】【傳說對決】回歸互助",
+              "content": "【討論】【傳說對決】回歸互助（巴哈姆特 AOV 哈啦板）[💬63]",
+              "timestamp": "時間未知",
+              "is_hero_focus": false,
+              "detected_heroes": [],
+              "region": "TW",
+              "original_language": "zh",
+              "translated_content": "【討論】【傳說對決】回歸互助（巴哈姆特 AOV 哈啦板）"
+            },
+            "analysis": {
+              "reasoning": "玩家在巴哈姆特論壇發起《傳說對決》的回歸互助討論，旨在透過社群力量互相填寫邀請碼以取得遊戲內的回歸活動獎勵，屬於功能性的社群互動，無明顯情緒傾向。",
+              "sentiment": "neutral",
+              "sentiment_score": 0.5,
+              "region": "TW",
+              "original_language": "zh",
+              "category": "社群互動",
+              "keywords": [
+                "傳說對決",
+                "回歸互助",
+                "巴哈姆特",
+                "邀請碼"
+              ],
+              "summary": "玩家在巴哈姆特論壇發起《傳說對決》回歸互助討論，互相分享邀請碼以領取活動獎勵。",
+              "relevance_score": 1.0,
+              "is_hero_focus": false,
+              "events": [
+                {
+                  "name": "回歸互助活動",
+                  "type": "限時活動"
+                }
+              ],
+              "translated_content": "【討論】【傳說對決】回歸互助（巴哈姆特 AOV 哈啦板）",
+              "llm_contract": {
+                "status": "ok",
+                "errors": []
+              }
+            }
+          }
+        ],
+        "is_showcase": false,
+        "quota_error": false,
+        "contract_status": "ok",
+        "contract_errors": [],
+        "provider_diagnostics": {
+          "openai_fallback_configured": false,
+          "openai_fallback_used": false
+        }
+      },
+      "stored_at": "2026-05-21T11:51:09.097055+00:00",
+      "last_accessed": "2026-05-21T11:51:09.097055+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 0,
+    "total_l2_hits": 11,
     "total_apify_hits": 0,
-    "total_misses": 19
+    "total_misses": 27
   }
 }

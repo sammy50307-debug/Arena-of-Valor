@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-05-21T11:52:09.553357Z",
+  "run_date": "2026-05-21",
+  "run_date_taipei": "2026-05-21",
+  "timezone": "Asia/Taipei",
+  "scheduled_utc": "2026-05-21T11:49:48.099759Z",
+  "run_id": "2026-05-21-production-426947773495",
+  "source_hash": "426947773495d6d88ceb0a210dec9cd700567a1532fa2197c1bb6dc234ff8643",
+  "source_hash_version": 1,
+  "status": "ok",
+  "error": "",
+  "mode": "production",
+  "publish_eligible": true,
+  "dry_run": false,
+  "showcase_flag": false,
+  "paths": {
+    "raw": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/raw_20260521.json",
+    "analysis": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/analysis_20260521.json",
+    "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-05-21.html"
+  },
+  "metrics": {
+    "cache_hit": 11,
+    "l1_hits": 0,
+    "l2_hits": 11,
+    "apify_hits": 0,
+    "llm_calls": 28,
+    "total_calls": 39
+  },
+  "history": {
+    "status": "ok",
+    "weekly_points": 1,
+    "source_dates": [],
+    "missing_dates": [
+      "2026-05-20",
+      "2026-05-19",
+      "2026-05-18",
+      "2026-05-17",
+      "2026-05-16",
+      "2026-05-15",
+      "2026-05-14"
+    ]
+  },
+  "quality": {
+    "source_health": {
+      "status": "ok",
+      "total_posts": 19,
+      "platform_count": 4,
+      "platform_counts": {
+        "youtube": 1,
+        "facebook": 2,
+        "dcard": 8,
+        "bahamut": 8
+      },
+      "source_count": 3,
+      "reasons": []
+    },
+    "core_contract": {
+      "version": 1,
+      "status": "pass",
+      "total_posts": 19,
+      "platform_count": 4,
+      "source_count": 3,
+      "has_report": true,
+      "has_analysis": true,
+      "min_posts": 1,
+      "min_platforms": 2,
+      "min_sources": 2,
+      "reasons": []
+    }
+  },
+  "provider": {
+    "quota_error": false,
+    "openai_fallback_configured": false,
+    "openai_fallback_used": false
+  },
+  "replay_source": "",
+  "is_backfill": false,
+  "eligibility": {
+    "gate_mode": "shadow",
+    "decision": "eligible",
+    "reasons": [],
+    "blocking_enforced": false,
+    "shadow_blocked": false
+  }
+}
