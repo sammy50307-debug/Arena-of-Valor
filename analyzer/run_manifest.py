@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from analyzer.data_writer import atomic_write_json
+from analyzer.llm_budget import normalize_budget_snapshot, validate_budget_snapshot
 from analyzer.run_context import DEFAULT_TIMEZONE_NAME, SOURCE_HASH_VERSION, build_run_id
 
 MANIFEST_SCHEMA_VERSION = 2
@@ -410,6 +411,7 @@ def build_manifest(
             "openai_fallback_configured": bool(meta.get("openai_fallback_configured", False)),
             "openai_fallback_used": bool(meta.get("openai_fallback_used", False)),
         },
+        "budget": normalize_budget_snapshot(meta.get("budget")),
         "replay_source": replay_source,
         "is_backfill": bool(is_backfill),
         "eligibility": {
@@ -684,5 +686,9 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
                     reasons = core_contract.get("reasons")
                     if not isinstance(reasons, list) or any(not isinstance(v, str) for v in reasons):
                         errors.append("quality.core_contract.reasons must be string list")
+
+    ok_budget, budget_errors = validate_budget_snapshot(manifest.get("budget"))
+    if not ok_budget:
+        errors.extend(budget_errors)
 
     return len(errors) == 0, errors

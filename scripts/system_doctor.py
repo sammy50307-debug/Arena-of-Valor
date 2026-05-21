@@ -44,6 +44,7 @@ ISSUE_CATALOG = {
     "quality_source_health": {"code": "DOC014", "name": "quality:source health"},
     "quality_core_contract": {"code": "DOC015", "name": "quality:core contract"},
     "quality_tier": {"code": "DOC016", "name": "quality:tier"},
+    "budget_cooldown": {"code": "DOC017", "name": "budget:cooldown"},
 }
 
 
@@ -173,6 +174,7 @@ def run_doctor(
         eligibility = manifest.get("eligibility", {})
         history = manifest.get("history", {})
         quality = manifest.get("quality", {})
+        budget = manifest.get("budget", {})
 
         if status != "ok":
             _add_issue(issues, "run_status", SEV_BLOCKING, "status=%s" % status)
@@ -257,6 +259,25 @@ def run_doctor(
                     _add_issue(issues, "quality_core_contract", SEV_DEGRADED, detail)
                 elif contract_status in {"warn", "unknown"}:
                     _add_issue(issues, "quality_core_contract", SEV_ADVISORY, detail)
+
+        if isinstance(budget, dict) and budget:
+            decision = budget.get("decision", "unknown")
+            reason = budget.get("decision_reason", "")
+            cooldown_active = bool(budget.get("cooldown_active", False))
+            budget_exhausted = bool(budget.get("budget_exhausted", False))
+            if decision == "skip_llm" or cooldown_active or budget_exhausted:
+                detail = (
+                    "decision=%s reason=%s used=%s/%s cooldown_active=%s cooldown_until_utc=%s"
+                    % (
+                        decision,
+                        reason,
+                        budget.get("llm_calls_used", 0),
+                        budget.get("max_daily_llm_calls", 0),
+                        cooldown_active,
+                        budget.get("cooldown_until_utc", ""),
+                    )
+                )
+                _add_issue(issues, "budget_cooldown", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
     for check in run_checks(

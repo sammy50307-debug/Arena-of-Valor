@@ -29,6 +29,7 @@ data/*
 !data/runs/**/run_manifest.json
 !data/_quarantine/
 !data/llm_cache.json
+!data/llm_budget_state.json
 !data/.cache_policy.md
 data/_quarantine/*.json
 data/aov_monitor.db

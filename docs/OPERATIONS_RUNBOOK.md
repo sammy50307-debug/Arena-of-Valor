@@ -115,6 +115,14 @@
   3. 若 tier 是 `showcase_manual`，確認是否主公手動 `--showcase`，不可 promotion。
   4. 若 tier 是 `error_fallback`，依 `quality.core_contract.reasons` 或 `status/error` 修復後重跑 doctor。
 
+### <a id="doc017"></a>DOC017 — budget cooldown
+- 意義：manifest `budget` 顯示本次 run 因 LLM budget/cooldown 停損，或本日 budget 已耗盡。這是 pipeline proxy，不是 Google provider billing truth。
+- 處置：
+  1. 查看 manifest `budget.decision`、`budget.decision_reason`、`llm_calls_used`、`max_daily_llm_calls`、`cooldown_until_utc`。
+  2. 若 reason 是 `cooldown_active` 或 `quota_error`，等待 cooldown 過期後重跑；不要補 OpenAI API key 當主線。
+  3. 若 reason 是 `budget_exhausted`，代表本日 pipeline 呼叫額度已用完；後續應走 `production_local_only` 或等下一個業務日。
+  4. 若 reason 是 `budget_state_malformed`，檢查 `data/llm_budget_state.json` JSON 格式；確認不含 raw prompt / raw post 後修復或重建。
+
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
 - 處置：
@@ -263,3 +271,11 @@
   1. 先確認 `total_llm_calls` 來源是 manifest 還是 report metadata。
   2. 對照 `CCG003` 判斷是否 cache hit 低造成。
   3. 若真實 API 費用需確認，另查供應商帳單；本 checker 不代表 billing truth。
+
+### <a id="ccg006"></a>CCG006 — budget cooldown
+- 意義：window 內至少一天 manifest `budget` 顯示 `skip_llm`、cooldown active、budget exhausted 或 malformed state。這是成本 / 配額停損訊號，不代表報告本身不可發布。
+- 處置：
+  1. 查看 cost/cache governance 輸出的 `budget_decision` 與 `budget_reason`。
+  2. 若 reason 是 `cooldown_active`，等待 `cooldown_until_utc` 過期後再重跑。
+  3. 若 reason 是 `budget_exhausted`，確認是否需要調整 `LLM_DAILY_BUDGET`；調整前先看 cache hit rate 與 P91/P92 是否尚未完成。
+  4. 不要把本 issue 當成 provider billing truth；真實費用仍需查供應商帳單。

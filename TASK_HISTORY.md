@@ -9368,3 +9368,178 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P90 PLAN FROZEN：`docs/PHASE_90_PLAN.md` 已建立並通過 lint / handoff truth / governance / diff check，待 commit。
 - ⏸️ P90 runtime 尚未核准：下一步需主公明確說「核准 P90 runtime 動工」後才能改程式碼。
 - 🔴 R-016 仍 Open：需 P90-P95 完整走完或主公另行裁決。
+
+### P90 Budget Ledger / Cooldown runtime 收官（2026-05-21）
+
+**目標**：
+- 實作 P90 runtime，讓 pipeline 在 Gemini budget 已耗盡或 cooldown active 時，不再先撞 provider，而是直接轉 P88/P89 的真實資料 local deterministic baseline。
+- 把 429 從一次性錯誤 log 升級成可跨 run 讀取的 raw-free 狀態帳本，讓下一次 Actions / 新視窗能知道為什麼沒有打 LLM。
+- 保持零額外付費主線：不加 `OPENAI_API_KEY`、不接免費 provider、不改 P91 cache/dedupe、不關閉 R-016。
+
+**觸發**：
+- 主公明確核准：「核准P90 runtime 動工」。
+- P90 plan 已由本地 commit `f2b6b47 docs: 凍結 P90 budget ledger cooldown plan` 凍結。
+- R-016 仍 Open；P90 只處理 budget ledger / cooldown 子問題。
+
+**稽核表**：
+- S 級代碼層：新增單一 `LLMBudgetManager`，集中管理 state load / save / decision / quota error，避免 budget 判斷散落。
+- S 級邏輯層：LLM provider call 前檢查 budget/cooldown；429 寫入 cooldown；cooldown 過期後恢復嘗試；preflight 不消耗 daily budget，避免 20 篇貼文時第 20 篇中途被 skip。
+- S 級測試層：新增 under budget、over budget、active cooldown、expired cooldown、malformed state、no raw leakage、batch budget skip 冒泡、sentiment local fallback tests。
+- S 級安全層：`data/llm_budget_state.json` 僅允許計數、狀態、時間、reason code；不寫 raw prompt、raw post、URL、作者、API key、provider response body。
+- A 級資料層：state schema version = 1，rolling retention default = 14 天，atomic JSON write。
+- A 級可觀察性層：manifest 新增 `budget` snapshot；system doctor 新增 DOC017；cost/cache governance 新增 CCG006。
+- A 級流程層：P90 收官後 handoff / active / risk / phase plan 全部轉向 P91 DRAFT；R-016 仍 Open。
+- B 級成本層：`LLM_DAILY_BUDGET` default = 20，`LLM_BUDGET_COOLDOWN_MINUTES` default = 360；ledger 明確是 pipeline proxy，不是 provider billing truth。
+
+**物理真相**：
+- 新增 `analyzer/llm_budget.py`
+  - `SCHEMA_VERSION = 1`
+  - `BILLING_TRUTH = "pipeline proxy only; not provider billing truth"`
+  - Reason codes：
+    - `budget_available`
+    - `budget_exhausted`
+    - `cooldown_active`
+    - `quota_error`
+    - `budget_state_malformed`
+    - `budget_state_write_failed`
+  - `BudgetDecision` dataclass：
+    - `date`
+    - `should_call_llm`
+    - `decision`
+    - `reason`
+    - `snapshot`
+  - `LLMBudgetSkip(RuntimeError)`：budget/cooldown 停損時拋出，不被 OpenAI fallback 當 provider failure。
+  - `LLMBudgetManager.decide(run_date, now=None)`：
+    - state malformed 時 fail-safe：回傳 `should_call_llm=False`、`decision_reason=budget_state_malformed`，不打 provider。
+    - `cooldown_until_utc` 大於 now 時回傳 `skip_llm / cooldown_active`。
+    - `llm_calls_used >= max_daily_llm_calls` 時回傳 `skip_llm / budget_exhausted`。
+  - `LLMBudgetManager.record_llm_call(...)`：
+    - 增加 `llm_calls_used`。
+    - 更新 `budget_exhausted`。
+    - atomic write state。
+  - `LLMBudgetManager.record_quota_error(...)`：
+    - 增加 `quota_error_count`。
+    - 寫入 `last_quota_error_at_utc`。
+    - 寫入 `cooldown_reason=quota_error`。
+    - 寫入 `cooldown_until_utc = now + cooldown_minutes`。
+  - `normalize_budget_snapshot(...)` / `validate_budget_snapshot(...)`：
+    - 供 manifest normalize / validate 使用。
+- 更新 `config.py`
+  - `LLM_BUDGET_STATE_FILE = DATA_DIR / "llm_budget_state.json"`
+  - `LLM_DAILY_BUDGET = int(os.getenv("LLM_DAILY_BUDGET", "20"))`
+  - `LLM_BUDGET_COOLDOWN_MINUTES = int(os.getenv("LLM_BUDGET_COOLDOWN_MINUTES", "360"))`
+  - `LLM_BUDGET_RETENTION_DAYS = int(os.getenv("LLM_BUDGET_RETENTION_DAYS", "14"))`
+- 更新 `.gitignore`
+  - 新增 `!data/llm_budget_state.json`
+  - 原因：budget state 是 raw-free operational state，可讓 Actions cooldown 跨 run 延續。
+- 更新 `analyzer/gemini_client.py`
+  - `__init__` 建立 `_budget_manager`。
+  - 新增 `_run_date()`、`_budget()`、`_ensure_budget_for_provider_call(record_call=True)`、`_record_quota_error()`。
+  - `chat(...)`：
+    - L2 cache miss 後、provider call 前先 `_ensure_budget_for_provider_call()`。
+    - 429 重試全部耗盡時 `_record_quota_error()`，再 raise。
+  - `batch_chat(...)`：
+    - preflight 前 `_ensure_budget_for_provider_call(record_call=False)`，只做停損檢查，不消耗 daily budget。
+    - preflight 429 時 `_record_quota_error()`。
+    - 單篇 `_analyze` 捕捉 `LLMBudgetSkip` 時直接 raise，不吞成 `{"error": ...}`，避免中途耗盡後混出一份 degraded LLM 報告。
+- 更新 `analyzer/sentiment.py`
+  - import `LLMBudgetSkip`。
+  - `except LLMBudgetSkip`：
+    - 設定 `fallback_reason = "budget_skip:<reason>"`。
+    - `quota_error = False`。
+    - `is_showcase = False`。
+    - `analysis_source = local_deterministic`。
+  - 目的：budget 停損是 production local-only，不是手動 showcase，也不是 OpenAI paid fallback。
+- 更新 `main.py`
+  - 建立 `budget_manager` 並把 snapshot 放入 manifest meta。
+  - zero-post failed manifest 也寫入 `budget` snapshot。
+  - `analysis_source == "local_deterministic"` 時直接呼叫 `generate_local_summary(...)`，避免 local baseline 後又打一次 LLM daily summary。
+  - cache stats 改成本次 run delta：
+    - `l1_hits`
+    - `l2_hits`
+    - `apify_hits`
+    - `llm_calls`
+    - `total_calls`
+  - `github_backup_job(...)` 若 `data/llm_budget_state.json` 存在，會加入 `git add` 路徑。
+- 更新 `analyzer/run_manifest.py`
+  - `build_manifest(...)` 寫入 `budget = normalize_budget_snapshot(meta.get("budget"))`。
+  - `validate_manifest(...)` 驗證 budget schema / allowed decisions / allowed reason codes。
+- 更新 `scripts/system_doctor.py`
+  - 新增 DOC017：`budget:cooldown`。
+  - 當 manifest `budget.decision == "skip_llm"`、`cooldown_active=True` 或 `budget_exhausted=True` 時新增 ADVISORY。
+  - detail 格式包含：
+    - `decision`
+    - `reason`
+    - `used/max`
+    - `cooldown_active`
+    - `cooldown_until_utc`
+- 更新 `scripts/cost_cache_governance.py`
+  - 新增 CCG006：`budget cooldown`。
+  - `DailyCostCacheMetric` 新增：
+    - `budget_decision`
+    - `budget_reason`
+    - `budget_cooldown_active`
+    - `budget_llm_calls_used`
+  - CLI day table 新增 `budget_decision` / `budget_reason` 欄位。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `DOC017 — budget cooldown`。
+  - 新增 `CCG006 — budget cooldown`。
+- 更新 `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+  - 新增 CCG006 policy row。
+  - 明確寫 `budget.llm_calls_used` / `budget.decision` 是 pipeline proxy，不是 provider billing truth。
+- 更新狀態檔：
+  - `docs/PHASE_90_PLAN.md`：FROZEN → CLOSED，追加 runtime 收官證據。
+  - `NEXT_SESSION_HANDOFF.md`：下一步轉 P91 DRAFT。
+  - `docs/ACTIVE_OPERATION.md`：下一步轉 P91 DRAFT。
+  - `docs/RISK_REGISTRY.md`：R-016 mitigation 補 P90 已完成，但 R-016 仍 Open。
+
+**實跑證據**：
+- `py -m pytest -q tests\test_llm_budget.py tests\test_sentiment_contract.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py`
+  - PASS：64 passed。
+- `py -m py_compile analyzer\llm_budget.py analyzer\gemini_client.py analyzer\sentiment.py analyzer\run_manifest.py main.py scripts\system_doctor.py scripts\cost_cache_governance.py`
+  - PASS。
+- `py -m pytest -q tests\test_429_retry.py tests\test_showcase_modes.py tests\test_sentiment_contract.py tests\test_openai_fallback.py`
+  - PASS：19 passed。
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-20 --window-days 1`
+  - PASS：exit code 0。
+  - 既有 2026-05-20 manifest 無 `budget` 欄位，因此沒有 CCG006。
+  - 仍有既有 CCG003 advisory：cache hit rate low，屬 P91 cache/dedupe/top-N 後續主線。
+- `py scripts\check_daily_report_health.py --date 2026-05-21 --expected-mode production`
+  - PASS：exit code 0。
+  - 物理輸出：
+    - `canonical report` PASS。
+    - `metadata mode` PASS：`mode=production`。
+    - `metadata quality tier` WARN：舊 report metadata comment 尚未有 `quality_tier`。
+    - `quality tier` WARN：舊 manifest 尚未有 `quality.tier`。
+    - `core contract` PASS：`status=pass total_posts=19 platform_count=4 source_count=3 has_report=True has_analysis=True reasons=[]`。
+    - `landing main link` PASS：`data/reports/aov_report_2026-05-21.html`。
+    - `landing target mode` PASS：`mode=production`。
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-21 --profile ci --require-production`
+  - PASS：exit code 0。
+  - 物理輸出：
+    - DOC007 ADVISORY：history source coverage。
+    - DOC016 ADVISORY：舊 manifest 缺 `quality.tier`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：GOV000 runbook and risk registry governance verified。
+- `py scripts\lint_phase_plan.py docs\PHASE_90_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：HND000 active bootstrap truth verified。
+- `git diff --check`
+  - PASS；PowerShell 僅顯示 LF/CRLF warning，非 whitespace error。
+- `py -m pytest -q`
+  - PASS：254 passed。
+
+**風險**：
+- Budget ledger 不是 provider billing truth；若 Google dashboard / quota 行為與 ledger 不一致，以 provider dashboard 為準。
+- Preflight 不消耗 daily budget 是刻意取捨：避免預設 20 次 budget 在 20 篇貼文時中途跳 local-only；代價是 ledger 不是 provider call 逐次精算。
+- `data/llm_budget_state.json` 允許進 repo，但目前只追蹤 raw-free operational state；若未來有人加入 raw 欄位，no raw leakage tests 必須擋下。
+- R-016 仍 Open；P91 cache/dedupe/top-N、P92 replay、P93 provider abstraction、P94/P95 closeout 尚未完成。
+
+**狀態**：
+- ✅ P90 CLOSED：budget ledger / cooldown runtime 已完成本地收官。
+- ✅ focused tests：64 passed。
+- ✅ full pytest：254 passed。
+- ✅ governance / handoff / phase lint / diff check：PASS。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：建立/凍結 `docs/PHASE_91_PLAN.md`（Cache / Dedupe / Top-N），不得直接動 P91 runtime。

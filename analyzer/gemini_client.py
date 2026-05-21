@@ -14,6 +14,13 @@ import httpx
 
 import config
 from analyzer.cache_manager import CacheManager
+from analyzer.llm_budget import (
+    BudgetDecision,
+    LLMBudgetManager,
+    LLMBudgetSkip,
+    REASON_BUDGET_EXHAUSTED,
+)
+from analyzer.run_context import build_run_context
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +54,12 @@ class GeminiClient:
         self._cm = CacheManager()
         self._save_lock = asyncio.Lock()
         self._semaphore = asyncio.Semaphore(self.CONCURRENCY_LIMIT)
+        self._budget_manager = LLMBudgetManager(
+            config.LLM_BUDGET_STATE_FILE,
+            max_daily_llm_calls=config.LLM_DAILY_BUDGET,
+            cooldown_minutes=config.LLM_BUDGET_COOLDOWN_MINUTES,
+            retention_days=config.LLM_BUDGET_RETENTION_DAYS,
+        )
 
     # ── 內部工具 ──────────────────────────────────────────────────────────────
 
@@ -57,6 +70,36 @@ class GeminiClient:
     async def _save_cache(self):
         async with self._save_lock:
             self._cm.save()
+
+    def _run_date(self) -> str:
+        return build_run_context(timezone_name=config.TIMEZONE).run_date
+
+    def _budget(self) -> Optional[LLMBudgetManager]:
+        return getattr(self, "_budget_manager", None)
+
+    def _ensure_budget_for_provider_call(self, *, record_call: bool = True) -> None:
+        budget = self._budget()
+        if budget is None:
+            return
+        run_date = self._run_date()
+        decision = budget.decide(run_date)
+        if not decision.should_call_llm:
+            self.logger.warning(
+                "LLM budget/cooldown active: decision=%s reason=%s used=%s/%s",
+                decision.decision,
+                decision.reason,
+                decision.snapshot.get("llm_calls_used"),
+                decision.snapshot.get("max_daily_llm_calls"),
+            )
+            raise LLMBudgetSkip(decision)
+        if record_call:
+            budget.record_llm_call(run_date)
+
+    def _record_quota_error(self) -> None:
+        budget = self._budget()
+        if budget is None:
+            return
+        budget.record_quota_error(self._run_date())
 
     # ── Pre-flight 探活 ───────────────────────────────────────────────────────
 
@@ -105,6 +148,7 @@ class GeminiClient:
             self.logger.info("   [⚡] L2 快取命中，零延遲節省額度！")
             return cached
 
+        self._ensure_budget_for_provider_call()
         self._cm.increment_stat("total_misses")
 
         if json_mode and not response_schema:
@@ -195,6 +239,7 @@ class GeminiClient:
                             self.logger.error(
                                 "所有備用模型均已遭遇 429 配額耗盡，拋出例外觸發終極斷路器。"
                             )
+                            self._record_quota_error()
                             raise
 
                 transient_attempt += 1
@@ -228,8 +273,32 @@ class GeminiClient:
         self.logger.info(f"開始批次分析 {total} 筆資料 (最大併發: {concurrency})")
 
         # Pre-flight：省去 3 分鐘空等 retry
+        self._ensure_budget_for_provider_call(record_call=False)
+        budget = self._budget()
+        if budget is not None:
+            run_date = self._run_date()
+            snapshot = budget.snapshot(run_date)
+            uncached_prompts = sum(
+                1
+                for prompt in user_prompts
+                if self._cm.get(self._prompt_cache_key(system_prompt, prompt)) is None
+            )
+            if uncached_prompts > snapshot.get("remaining_llm_calls", 0):
+                snapshot = dict(snapshot)
+                snapshot["decision"] = "skip_llm"
+                snapshot["decision_reason"] = REASON_BUDGET_EXHAUSTED
+                raise LLMBudgetSkip(
+                    BudgetDecision(
+                        run_date,
+                        False,
+                        "skip_llm",
+                        REASON_BUDGET_EXHAUSTED,
+                        snapshot,
+                    )
+                )
         ok = await self.preflight_check()
         if not ok:
+            self._record_quota_error()
             raise httpx.HTTPStatusError(
                 "Pre-flight 429",
                 request=None,
@@ -251,6 +320,8 @@ class GeminiClient:
                         raise
                     self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {e}")
                     return {"error": str(e)}
+                except LLMBudgetSkip:
+                    raise
                 except Exception as e:
                     self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {e}")
                     return {"error": str(e)}

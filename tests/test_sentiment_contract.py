@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
+from analyzer.llm_budget import BudgetDecision, LLMBudgetSkip, REASON_BUDGET_EXHAUSTED
 from analyzer.sentiment import SentimentAnalyzer
 
 
@@ -167,6 +168,27 @@ async def test_analyze_posts_uses_local_fallback_on_non_http_error():
     assert result["is_showcase"] is True
     assert result["fallback_reason"].startswith("RuntimeError")
     assert result["posts"][0]["analysis"]["analysis_source"] == "local_deterministic"
+
+
+@pytest.mark.asyncio
+async def test_analyze_posts_uses_local_fallback_on_budget_skip():
+    analyzer = _make_analyzer()
+    decision = BudgetDecision(
+        date="2026-05-21",
+        should_call_llm=False,
+        decision="skip_llm",
+        reason=REASON_BUDGET_EXHAUSTED,
+        snapshot={},
+    )
+    analyzer.llm.batch_chat = AsyncMock(side_effect=LLMBudgetSkip(decision))
+
+    with patch.object(analyzer, "_compress_content", return_value="x"):
+        result = await analyzer.analyze_posts([_make_search_result("新版芽芽輔助教學")], showcase=False)
+
+    assert result["quota_error"] is False
+    assert result["is_showcase"] is False
+    assert result["fallback_reason"] == "budget_skip:budget_exhausted"
+    assert result["analysis_source"] == "local_deterministic"
 
 
 @pytest.mark.asyncio
