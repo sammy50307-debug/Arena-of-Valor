@@ -9543,3 +9543,77 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ governance / handoff / phase lint / diff check：PASS。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：建立/凍結 `docs/PHASE_91_PLAN.md`（Cache / Dedupe / Top-N），不得直接動 P91 runtime。
+
+### P91 Cache / Dedupe / Top-N 計畫凍結（2026-05-21）
+
+**目標**：
+- 建立 P91 凍結計畫，定義 cache / dedupe / Top-N 的 runtime 範圍。
+- 把目前「搜到多少篇就盡量全送 LLM，超量才靠 P90 budget 停損」改成下一階段要實作的「先去重，再只把高價值 Top-N 送 LLM，其餘真實資料走 local deterministic baseline」。
+- 明確切開 P91 與 P92/P93：P91 只做 source selection、保守 dedupe、budget-aware Top-N、local merge、manifest selection snapshot、doctor/governance 可觀測性；不做 enrichment replay，不接免費 provider。
+
+**觸發**：
+- P90 runtime 已完成並推上遠端：`798ed58 feat: 實作 P90 budget ledger cooldown`。
+- 2026-05-21 cost/cache governance 顯示 2026-05-21 既有 manifest 的 `total_llm_calls=28` 超過 threshold 20；P90 是停損煞車，P91 需要做事前節流。
+- 主公要求：「那繼續P91囉」。
+- handoff 明確指出下一步只能建立/凍結 `docs/PHASE_91_PLAN.md`，尚不可改 cache/dedupe/top-N runtime。
+
+**稽核表**：
+- S 級代碼層：P91 runtime 預計新增集中式 source selection helper，避免 dedupe / scoring / Top-N 判斷散落在 `main.py` 與 `sentiment.py`。
+- S 級邏輯層：先 dedupe，再 selection，再 LLM partial analysis，最後 local deterministic baseline merge。
+- S 級測試層：runtime exit criteria 要求 exact URL dedupe、title/content near dedupe、platform diversity、budget-aware cap、local-only merge、manifest selection validation、cost governance tests。
+- S 級安全層：selection snapshot 僅允許計數、normalized id、reason code，不得寫 raw post、prompt、author 或 provider response body。
+- A 級資料層：raw results 保留完整；selection 只控制 LLM 深讀候選，不刪除 raw source。
+- A 級可觀察性層：manifest / doctor / cost governance 需顯示 input/unique/duplicate/selected/local-only counts。
+- A 級流程層：P91 plan 凍結後仍需主公明確核准 runtime；R-016 保持 Open。
+
+**物理真相**：
+- 新增 `docs/PHASE_91_PLAN.md`
+  - 狀態：`FROZEN`。
+  - 採用方案：Source selection planner。
+  - 明確聲明 Top-N 是成本與 quota 節流策略，不是內容品質真相。
+  - Runtime exit criteria 明列：
+    - 新增 deterministic source selection contract，至少輸出 `total_input_posts`、`unique_posts`、`duplicate_posts`、`llm_selected_posts`、`local_only_posts`、`selection_reasons`。
+    - LLM 深讀候選數由 `LLM_ANALYSIS_TOP_N` 或 P90 budget remaining 限制；預設不得高於 20。
+    - 去重只影響 LLM 分析候選，不可刪除 raw source。
+    - 同 URL、明顯同標題同平台、空內容或極短低訊號貼文不得重複消耗 LLM provider call。
+    - Top-N selection 保留平台/來源多樣性。
+    - Manifest 寫入 `selection` snapshot，doctor / cost governance 顯示 dedupe 與 top-N 節流狀態。
+  - Forbidden Work 明列：
+    - 不加 `OPENAI_API_KEY`
+    - 不接免費 provider
+    - 不做 P92 enrichment queue / replay
+    - 不做 P93 provider abstraction
+    - 不刪 raw source posts
+    - 不把 Top-N 說成內容品質真相
+    - 不關閉 R-016
+- 更新 `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P91（Cache / Dedupe / Top-N / FROZEN）`。
+  - Current Step 改為等待主公核准 P91 runtime 動工。
+  - Required Minimal Reads 改為 bootstrap + `docs/PHASE_91_PLAN.md`。
+- 更新 `docs/ACTIVE_OPERATION.md`
+  - L2 狀態同步 P91 FROZEN。
+  - Latest Evidence 補入 P91 plan 已凍結與 R-016 仍 Open。
+- 更新 `docs/RISK_REGISTRY.md`
+  - R-016 mitigation 補入 P91 `Cache / Dedupe / Top-N` plan 已凍結。
+
+**實跑證據**：
+- `py scripts\lint_phase_plan.py docs\PHASE_91_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：HND000 active bootstrap truth verified。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：GOV000 runbook and risk registry governance verified。
+- `git diff --check`
+  - PASS；PowerShell 僅顯示 LF/CRLF warning，非 whitespace error。
+
+**風險**：
+- P91 plan 凍結不代表 runtime 已實作；下一步仍需主公核准才能改 `analyzer/source_selection.py`、`main.py`、`analyzer/sentiment.py`、manifest / doctor / governance scripts 與 tests。
+- Dedupe 若太 aggressive，可能讓重要但相似的貼文沒被 LLM 深讀；runtime 必須保守處理，near-dedupe 初版只降分不硬刪。
+- Top-N 若被單一平台洗版，可能讓跨平台輿情失真；runtime 必須有 platform/source diversity tests。
+- R-016 仍 Open；P91 只解 cache/dedupe/top-N 子問題，不是 R-016 closeout。
+
+**狀態**：
+- ✅ P90 CLOSED 且已推到 origin/main。
+- ✅ P91 PLAN FROZEN：`docs/PHASE_91_PLAN.md` 已建立並通過 lint / handoff truth / governance / diff check，待 commit。
+- ⏸️ P91 runtime 尚未核准：下一步需主公明確說「核准 P91 runtime 動工」後才能改程式碼。
+- 🔴 R-016 仍 Open：需 P91-P95 完整走完或主公另行裁決。
