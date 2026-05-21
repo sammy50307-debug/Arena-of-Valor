@@ -55,6 +55,7 @@ from analyzer.sentiment import SentimentAnalyzer
 from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
+from analyzer.llm_budget import LLMBudgetManager
 from analyzer.run_context import build_run_context, build_source_hash
 from analyzer.run_manifest import (
     build_core_contract,
@@ -158,7 +159,10 @@ async def github_backup_job(is_manual: bool = False, meta: dict = None):
 
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        subprocess.run(["git", "add", "data/reports/", "data/runs/", "data/llm_cache.json", "index.html"], check=True, capture_output=True)
+        add_paths = ["data/reports/", "data/runs/", "data/llm_cache.json", "index.html"]
+        if config.LLM_BUDGET_STATE_FILE.exists():
+            add_paths.append("data/llm_budget_state.json")
+        subprocess.run(["git", "add", *add_paths], check=True, capture_output=True)
 
         has_changes = subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode != 0
 
@@ -251,6 +255,12 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     run_date = run_context.run_date
     compact_run_date = run_context.compact_date
     source_hash = "unknown"
+    budget_manager = LLMBudgetManager(
+        config.LLM_BUDGET_STATE_FILE,
+        max_daily_llm_calls=config.LLM_DAILY_BUDGET,
+        cooldown_minutes=config.LLM_BUDGET_COOLDOWN_MINUTES,
+        retention_days=config.LLM_BUDGET_RETENTION_DAYS,
+    )
 
     start_time = datetime.now()
     logger.info("=" * 60)
@@ -337,7 +347,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
                 raw_path=None,
                 analysis_path=None,
                 report_path=None,
-                meta={"history_status": "not_run"},
+                meta={"history_status": "not_run", "budget": budget_manager.snapshot(run_date)},
                 history_delta={},
                 status="failed",
                 error="no source results",
@@ -376,6 +386,10 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     logger.info(" Step 2/4: 啟動 AI 大腦進行語意與情緒拆解...")
     analyzer = SentimentAnalyzer()
     stats_scraper = HeroStatsScraper()
+    pre_cache_stats = analyzer.llm.cache_manager.get_stats()
+
+    def _stat_delta(current: dict, previous: dict, key: str) -> int:
+        return max(0, int(current.get(key, 0) or 0) - int(previous.get(key, 0) or 0))
 
     try:
         analysis_res = await analyzer.analyze_posts(
@@ -386,7 +400,16 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         active_showcase = analysis_res["is_showcase"] or showcase
         # P69 F2：區分 showcase 四態（production / showcase / showcase_forced / error_fallback）
         _quota_error = analysis_res.get("quota_error", False)
-        daily_summary = await analyzer.generate_daily_summary(analyzed_posts, date=run_date, showcase=active_showcase)
+        if analysis_res.get("analysis_source") == "local_deterministic":
+            from analyzer.local_analyzer import generate_local_summary
+
+            daily_summary = generate_local_summary(
+                analyzed_posts,
+                run_date,
+                hero_focus=getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+            )
+        else:
+            daily_summary = await analyzer.generate_daily_summary(analyzed_posts, date=run_date, showcase=active_showcase)
         daily_summary["date"] = run_date
         _provider_diag = dict(analysis_res.get("provider_diagnostics", {}))
         _provider_diag["openai_fallback_used"] = bool(
@@ -400,6 +423,10 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         _l2 = _stats.get("total_l2_hits", 0)
         _ap = _stats.get("total_apify_hits", 0)
         _miss = _stats.get("total_misses", 0)
+        _l1_delta = _stat_delta(_stats, pre_cache_stats, "total_l1_hits")
+        _l2_delta = _stat_delta(_stats, pre_cache_stats, "total_l2_hits")
+        _ap_delta = _stat_delta(_stats, pre_cache_stats, "total_apify_hits")
+        _miss_delta = _stat_delta(_stats, pre_cache_stats, "total_misses")
 
         _analysis_source = str(
             analysis_res.get("analysis_source")
@@ -442,15 +469,16 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "analysis_source": _analysis_source,
             "llm_coverage": _llm_coverage,
             "local_analysis_status": analysis_res.get("local_analysis_status", ""),
-            "cache_hit": _l1 + _l2,
-            "l1_hits": _l1,
-            "l2_hits": _l2,
-            "apify_hits": _ap,
-            "llm_calls": _miss,
-            "total_calls": _l1 + _l2 + _miss,
+            "cache_hit": _l1_delta + _l2_delta,
+            "l1_hits": _l1_delta,
+            "l2_hits": _l2_delta,
+            "apify_hits": _ap_delta,
+            "llm_calls": _miss_delta,
+            "total_calls": _l1_delta + _l2_delta + _ap_delta + _miss_delta,
             "quota_error": bool(_quota_error),
             "openai_fallback_configured": bool(_provider_diag.get("openai_fallback_configured", False)),
             "openai_fallback_used": bool(_provider_diag.get("openai_fallback_used", False)),
+            "budget": budget_manager.snapshot(run_date),
         }
 
         # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
@@ -503,18 +531,23 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         logger.error(f"  [FAIL] AI 分析發生嚴重錯誤: {e} (啟動旗艦演示備援)")
         daily_summary = analyzer._empty_summary(date=run_date, showcase=showcase)
         _fb_stats = analyzer.llm.cache_manager.get_stats()
+        _fb_l1_delta = _stat_delta(_fb_stats, pre_cache_stats, "total_l1_hits")
+        _fb_l2_delta = _stat_delta(_fb_stats, pre_cache_stats, "total_l2_hits")
+        _fb_ap_delta = _stat_delta(_fb_stats, pre_cache_stats, "total_apify_hits")
+        _fb_miss_delta = _stat_delta(_fb_stats, pre_cache_stats, "total_misses")
         daily_summary["_meta"] = {
             "mode": "showcase" if showcase else "error_fallback",
             "legacy_mode": "showcase" if showcase else "error_fallback",
             "analysis_source": "showcase" if showcase else "unknown",
             "llm_coverage": "none",
             "local_analysis_status": "",
-            "cache_hit": _fb_stats.get("total_l1_hits", 0) + _fb_stats.get("total_l2_hits", 0),
-            "l1_hits": _fb_stats.get("total_l1_hits", 0),
-            "l2_hits": _fb_stats.get("total_l2_hits", 0),
-            "apify_hits": _fb_stats.get("total_apify_hits", 0),
-            "llm_calls": _fb_stats.get("total_misses", 0),
-            "total_calls": sum(_fb_stats.values()),
+            "cache_hit": _fb_l1_delta + _fb_l2_delta,
+            "l1_hits": _fb_l1_delta,
+            "l2_hits": _fb_l2_delta,
+            "apify_hits": _fb_ap_delta,
+            "llm_calls": _fb_miss_delta,
+            "total_calls": _fb_l1_delta + _fb_l2_delta + _fb_ap_delta + _fb_miss_delta,
+            "budget": budget_manager.snapshot(run_date),
         }
         analyzed_posts = []
 

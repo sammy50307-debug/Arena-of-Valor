@@ -147,8 +147,8 @@
   - 已完成：P87 `Report Core Contract` 已 CLOSED；新 manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015；P87 採 shadow/advisory，不直接改 quality tier / promotion gate，不關閉 R-016。
   - 已完成：P88 `Deterministic Local Analyzer` 已 CLOSED；LLM 429 / provider exception 時可從真實貼文產出 `analysis_source=local_deterministic` 的 sentiment、keywords、heroes、events、platform breakdown 與 baseline summary；P88 未改 quality tier / promotion gate，R-016 仍 Open。
   - 已完成：P89 `Quality Tier / Promotion Gate` 已 CLOSED；manifest 寫入 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage`，report metadata 顯示 tier/source/coverage，promotion gate 改看 publishable quality tier；`production_local_only` 在 core contract / local baseline 通過時可發布，`showcase_manual` / `error_fallback` 不可發布。2026-05-20 health/doctor 無 blocking；舊產物缺 tier 僅 DOC016 advisory。R-016 仍 Open。
-  - 已凍結：P90 `Budget Ledger / Cooldown` plan 已 FROZEN；runtime 預計新增 raw-free budget state、429 cooldown、manifest budget snapshot、doctor/governance 可觀測性，目標是超預算或 cooldown active 時停止打 provider 並改走 P88/P89 local baseline。尚未核准 runtime，R-016 仍 Open。
-  - 中期：P86-P95 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、doctor/SLO 重分類；下一步需主公核准 P90 budget ledger / cooldown runtime。
+  - 已完成：P90 `Budget Ledger / Cooldown` 已 CLOSED；新增 raw-free budget state、429 cooldown、manifest budget snapshot、DOC017 / CCG006 advisory。Gemini budget/cooldown active 時會停止打 provider 並改走 P88/P89 local baseline；budget ledger 明確標註為 pipeline proxy，不是 provider billing truth。R-016 仍 Open。
+  - 中期：P86-P95 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、doctor/SLO 重分類；下一步需建立/凍結 P91 cache/dedupe/top-N 計畫。
   - 長期：免費 provider 只作 P93 disabled-by-default 插槽候選；不得在未核准前接進主鏈路。
 - **觸發升級**：若 P86-P95 完成後仍連續無可發布 production tier ≥ 3 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為 P95 closeout blocking issue，不得關閉 R-016。
 

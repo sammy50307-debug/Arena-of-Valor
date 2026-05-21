@@ -20,6 +20,7 @@
 | Cache hit advisory | aggregate cache hit rate 低於門檻時輸出 advisory，不阻擋 daily | `CCG003` |
 | Cache store stats | `data/llm_cache.json` 只能讀 schema / entry count / stats，不輸出 entry content | `CCG004` |
 | LLM call budget | window 內 LLM call proxy 超過門檻時輸出 degraded | `CCG005` |
+| Budget cooldown | window 內 manifest `budget` 顯示 skip / cooldown / budget exhausted / malformed state 時輸出 advisory | `CCG006` |
 
 ## 3. 指令
 
@@ -31,6 +32,7 @@ py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-day
 ## 4. 邊界
 
 - `total_llm_calls` 是 pipeline proxy，不是供應商帳單。
+- `budget.llm_calls_used` 與 `budget.decision` 也是 pipeline proxy，不是供應商帳單。
 - cache hit rate 低是 advisory；它可能只是冷啟動或資料源變動，不一定是 bug。
 - checker 不讀、不輸出 cache entry 的 LLM 結果內容。
 - 若要判斷真實花費，必須另查供應商帳單或 API usage dashboard。

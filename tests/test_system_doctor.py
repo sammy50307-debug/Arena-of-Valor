@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import scripts.system_doctor as doctor
+from analyzer.llm_budget import LLMBudgetManager
 from analyzer.run_manifest import build_manifest, build_source_quality, write_manifest
 
 
@@ -57,6 +58,16 @@ def _write_manifest(
     write_manifest(data_dir, manifest)
 
 
+def _budget_skip(tmp_path: Path, date_str: str) -> dict:
+    manager = LLMBudgetManager(
+        tmp_path / "data" / "llm_budget_state.json",
+        max_daily_llm_calls=1,
+        cooldown_minutes=60,
+    )
+    manager.record_llm_call(date_str)
+    return manager.snapshot(date_str)
+
+
 def test_system_doctor_local_passes_with_production_manifest(tmp_path: Path):
     date_str = "2026-05-16"
     _write_report_and_index(tmp_path, date_str, mode="production")
@@ -100,6 +111,39 @@ def test_system_doctor_accepts_production_local_only(tmp_path: Path):
     result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
 
     assert not any(x.code == "DOC016" for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
+def test_system_doctor_advises_on_budget_cooldown(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(
+        tmp_path,
+        date_str,
+        mode="production",
+        quality_tier="production_local_only",
+    )
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality=build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+        meta={
+            "history_status": "ok",
+            "analysis_source": "local_deterministic",
+            "llm_coverage": "none",
+            "local_analysis_status": "ok",
+            "budget": _budget_skip(tmp_path, date_str),
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
+
+    assert any(x.code == "DOC017" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
     assert doctor.exit_code_for(result) == 0
 
 

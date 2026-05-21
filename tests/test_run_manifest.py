@@ -13,6 +13,7 @@ from analyzer.run_manifest import (
     validate_manifest,
     write_manifest,
 )
+from analyzer.llm_budget import LLMBudgetManager
 
 
 SOURCE_HASH = "abcdef1234567890"
@@ -29,6 +30,11 @@ def _source_quality_ok() -> dict:
 
 def test_build_manifest_basic_fields(tmp_path: Path):
     source_quality = _source_quality_ok()
+    budget = LLMBudgetManager(
+        tmp_path / "llm_budget_state.json",
+        max_daily_llm_calls=20,
+        cooldown_minutes=60,
+    ).snapshot("2026-05-16")
     manifest = build_manifest(
         run_date="2026-05-16",
         mode="production",
@@ -47,6 +53,7 @@ def test_build_manifest_basic_fields(tmp_path: Path):
             "llm_coverage": "full",
             "openai_fallback_configured": True,
             "openai_fallback_used": True,
+            "budget": budget,
         },
         history_delta={"weekly_vol_pulse": {"volumes": [1, 2, 3]}},
         status="ok",
@@ -82,6 +89,8 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["provider"]["quota_error"] is False
     assert manifest["provider"]["openai_fallback_configured"] is True
     assert manifest["provider"]["openai_fallback_used"] is True
+    assert manifest["budget"]["decision"] == "call_llm"
+    assert manifest["budget"]["billing_truth"] == "pipeline proxy only; not provider billing truth"
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 
@@ -487,6 +496,23 @@ def test_validate_manifest_rejects_bad_quality_tier(tmp_path: Path):
 
     assert not ok
     assert any("quality.tier" in msg for msg in errors)
+
+
+def test_validate_manifest_rejects_bad_budget_snapshot(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+    )
+    manifest["budget"] = {"schema_version": 999}
+
+    ok, errors = validate_manifest(manifest)
+
+    assert not ok
+    assert any("budget.schema_version" in msg for msg in errors)
 
 
 def test_validate_manifest_accepts_schema_v2_without_core_contract(tmp_path: Path):

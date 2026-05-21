@@ -37,6 +37,7 @@ ISSUE_CATALOG = {
     "cache_hit_low": {"code": "CCG003", "name": "cache hit rate low"},
     "cache_store_stats": {"code": "CCG004", "name": "cache store stats"},
     "llm_call_budget": {"code": "CCG005", "name": "llm call budget"},
+    "budget_cooldown": {"code": "CCG006", "name": "budget cooldown"},
 }
 
 
@@ -54,6 +55,10 @@ class DailyCostCacheMetric:
     l2_hits: int = 0
     apify_hits: int = 0
     cache_hit_rate_pct: int = 0
+    budget_decision: str = ""
+    budget_reason: str = ""
+    budget_cooldown_active: bool = False
+    budget_llm_calls_used: int = 0
 
 
 @dataclass
@@ -162,6 +167,17 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
         l1_hits = _int_metric(metrics, "l1_hits")
         l2_hits = _int_metric(metrics, "l2_hits")
         apify_hits = _int_metric(metrics, "apify_hits")
+        budget = payload.get("budget", {})
+        budget_decision = ""
+        budget_reason = ""
+        budget_cooldown_active = False
+        budget_llm_calls_used = 0
+        if isinstance(budget, dict):
+            budget_decision = str(budget.get("decision", "") or "")
+            budget_reason = str(budget.get("decision_reason", "") or "")
+            budget_cooldown_active = bool(budget.get("cooldown_active", False))
+            used = budget.get("llm_calls_used", 0)
+            budget_llm_calls_used = used if isinstance(used, int) and not isinstance(used, bool) and used >= 0 else 0
     except Exception as exc:
         return None, "%s: %s" % (path, exc)
     return (
@@ -178,6 +194,10 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             l2_hits=l2_hits,
             apify_hits=apify_hits,
             cache_hit_rate_pct=_pct(cache_hit, total_calls),
+            budget_decision=budget_decision,
+            budget_reason=budget_reason,
+            budget_cooldown_active=budget_cooldown_active,
+            budget_llm_calls_used=budget_llm_calls_used,
         ),
         None,
     )
@@ -336,6 +356,24 @@ def evaluate_cost_cache(
             )
         )
 
+    cooldown_days = [
+        day
+        for day in days
+        if day.budget_decision == "skip_llm" or day.budget_cooldown_active or day.budget_reason in {"cooldown_active", "budget_exhausted", "budget_state_malformed"}
+    ]
+    if cooldown_days:
+        issues.append(
+            _issue(
+                "budget_cooldown",
+                SEV_ADVISORY,
+                "budget_skip_days=%s reasons=%s"
+                % (
+                    ",".join(day.date for day in cooldown_days),
+                    ",".join(sorted({day.budget_reason or "unknown" for day in cooldown_days})),
+                ),
+            )
+        )
+
     return CostCacheResult(
         date=date_str,
         window_days=window_days,
@@ -402,12 +440,22 @@ def print_result(result: CostCacheResult) -> None:
     print("| cache_observed_hit_rate_pct | %s |" % result.cache_store.observed_hit_rate_pct)
 
     print("")
-    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct |")
-    print("|---|---|---|---:|---:|---:|---:|")
+    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | budget_decision | budget_reason |")
+    print("|---|---|---|---:|---:|---:|---:|---|---|")
     for day in result.days:
         print(
-            "| %s | %s | %s | %s | %s | %s | %s |"
-            % (day.date, day.source, day.mode, day.cache_hit, day.total_calls, day.llm_calls, day.cache_hit_rate_pct)
+            "| %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+            % (
+                day.date,
+                day.source,
+                day.mode,
+                day.cache_hit,
+                day.total_calls,
+                day.llm_calls,
+                day.cache_hit_rate_pct,
+                day.budget_decision or "-",
+                day.budget_reason or "-",
+            )
         )
 
 

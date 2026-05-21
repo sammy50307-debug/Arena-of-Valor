@@ -15,6 +15,7 @@ import config
 from scrapers.tavily_searcher import SearchResult
 from analyzer.fallback_llm_client import FallbackLLMClient
 from analyzer.gemini_client import GeminiClient
+from analyzer.llm_budget import LLMBudgetSkip
 from analyzer.local_analyzer import (
     analyze_posts_locally,
     generate_local_summary,
@@ -250,6 +251,7 @@ class SentimentAnalyzer:
         # P69/P88：區分主動 showcase vs provider failure；非主動 showcase 改走真實來源 local baseline。
         quota_error_triggered = False
         local_fallback_reason = ""
+        local_fallback_showcase = None
         try:
             results = await self.llm.batch_chat(
                 system_prompt=SYSTEM_SINGLE_POST,
@@ -265,19 +267,27 @@ class SentimentAnalyzer:
             if not showcase:
                 status_code = getattr(getattr(e, "response", None), "status_code", "unknown")
                 local_fallback_reason = "http_status_%s" % status_code
+                local_fallback_showcase = False
+        except LLMBudgetSkip as e:
+            self.logger.warning("[!] LLM budget/cooldown 停損觸發 → 切換至本地 deterministic baseline")
+            results = []
+            if not showcase:
+                local_fallback_reason = "budget_skip:%s" % e.decision.reason
+                local_fallback_showcase = False
         except Exception as e:
             if showcase:
                 self.logger.warning(f"分析失敗 ({e})... 任務模式：啟動精品級數據備援系統。")
             else:
                 self.logger.warning(f"分析流程中斷 ({e})... 啟動本地 deterministic baseline。")
                 local_fallback_reason = "%s: %s" % (type(e).__name__, e)
+                local_fallback_showcase = True
             results = []
 
         if local_fallback_reason:
             analyzed = analyze_posts_locally(search_results, config.HERO_WATCHLIST)
             return {
                 "posts": analyzed,
-                "is_showcase": False if quota_error_triggered else True,
+                "is_showcase": bool(local_fallback_showcase),
                 "quota_error": quota_error_triggered,
                 "contract_status": "ok",
                 "contract_errors": [],
