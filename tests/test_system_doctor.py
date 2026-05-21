@@ -5,15 +5,24 @@ from pathlib import Path
 from typing import Optional
 
 import scripts.system_doctor as doctor
-from analyzer.run_manifest import build_manifest, write_manifest
+from analyzer.run_manifest import build_manifest, build_source_quality, write_manifest
 
 
-def _write_report_and_index(repo_root: Path, date_str: str, mode: str = "production") -> None:
+def _write_report_and_index(
+    repo_root: Path,
+    date_str: str,
+    mode: str = "production",
+    quality_tier: str = "production_full",
+) -> None:
     reports = repo_root / "data" / "reports"
     reports.mkdir(parents=True, exist_ok=True)
     report = reports / ("aov_report_%s.html" % date_str)
     report.write_text(
-        "<!-- cache_hit: 1/1 (100%%) | llm_calls: 0 | mode: %s -->\n<html></html>\n" % mode,
+        (
+            "<!-- cache_hit: 1/1 (100%%) | llm_calls: 0 | mode: %s "
+            "| quality_tier: %s -->\n<html></html>\n"
+        )
+        % (mode, quality_tier),
         encoding="utf-8",
     )
     (repo_root / "index.html").write_text(
@@ -27,6 +36,7 @@ def _write_manifest(
     date_str: str,
     mode: str = "production",
     source_quality: Optional[dict] = None,
+    meta: Optional[dict] = None,
     with_analysis: bool = True,
 ) -> None:
     data_dir = repo_root / "data"
@@ -36,7 +46,7 @@ def _write_manifest(
         raw_path=data_dir / ("raw_%s.json" % date_str.replace("-", "")),
         analysis_path=(data_dir / ("analysis_%s.json" % date_str.replace("-", ""))) if with_analysis else None,
         report_path=data_dir / "reports" / ("aov_report_%s.html" % date_str),
-        meta={"history_status": "ok"},
+        meta=meta or {"history_status": "ok"},
         history_delta={
             "weekly_vol_pulse": {"volumes": [1, 2, 3]},
             "diagnostics": {"source_dates": ["2026-05-15"], "missing_dates": ["2026-05-14"]},
@@ -57,6 +67,39 @@ def test_system_doctor_local_passes_with_production_manifest(tmp_path: Path):
     assert result.blocking_count == 0
     assert all(x.code.startswith("DOC") for x in result.issues)
     assert all(x.runbook.startswith("docs/OPERATIONS_RUNBOOK.md#") for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
+def test_system_doctor_accepts_production_local_only(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(
+        tmp_path,
+        date_str,
+        mode="production",
+        quality_tier="production_local_only",
+    )
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality=build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+        meta={
+            "history_status": "ok",
+            "quota_error": True,
+            "analysis_source": "local_deterministic",
+            "llm_coverage": "none",
+            "local_analysis_status": "ok",
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
+
+    assert not any(x.code == "DOC016" for x in result.issues)
     assert doctor.exit_code_for(result) == 0
 
 

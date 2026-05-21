@@ -21,10 +21,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from analyzer.run_context import build_run_context
+from analyzer.run_manifest import ALLOWED_QUALITY_TIERS, PUBLISHABLE_QUALITY_TIERS
 
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 META_MODE_RE = re.compile(r"mode:\s*([a-zA-Z0-9_:-]+)")
+META_TIER_RE = re.compile(r"quality_tier:\s*([a-zA-Z0-9_:-]+)")
 MAIN_BTN_RE = re.compile(r'<a\s+href="([^"]+)"\s+class="main-btn"', re.IGNORECASE)
 CANONICAL_REPORT_RE = re.compile(r"^aov_report_\d{4}-\d{2}-\d{2}\.html$")
 
@@ -72,6 +74,18 @@ def extract_metadata_mode(report_file: Path) -> Optional[str]:
     except IndexError:
         return None
     match = META_MODE_RE.search(first_line)
+    if not match:
+        return None
+    return match.group(1).strip()
+
+
+def extract_metadata_quality_tier(report_file: Path) -> Optional[str]:
+    """Extract `quality_tier: ...` from the first metadata comment line."""
+    try:
+        first_line = report_file.read_text(encoding="utf-8", errors="replace").splitlines()[0]
+    except IndexError:
+        return None
+    match = META_TIER_RE.search(first_line)
     if not match:
         return None
     return match.group(1).strip()
@@ -171,6 +185,15 @@ def run_checks(
         else:
             results.append(CheckResult("metadata mode", "PASS", "mode=%s" % mode))
 
+        tier = extract_metadata_quality_tier(expected_report)
+        if tier is None:
+            results.append(CheckResult("metadata quality tier", "WARN", "metadata comment missing quality_tier"))
+        elif tier not in ALLOWED_QUALITY_TIERS:
+            results.append(CheckResult("metadata quality tier", "FAIL", "quality_tier=%s is invalid" % tier))
+        else:
+            status = "PASS" if tier in PUBLISHABLE_QUALITY_TIERS else "WARN"
+            results.append(CheckResult("metadata quality tier", status, "quality_tier=%s" % tier))
+
     if manifest_date:
         manifest_file = manifest_path(repo_root, manifest_date)
         if manifest_file.exists():
@@ -187,6 +210,21 @@ def run_checks(
             else:
                 quality = manifest.get("quality", {}) if isinstance(manifest, dict) else {}
                 core_contract = quality.get("core_contract") if isinstance(quality, dict) else None
+                tier = quality.get("tier") if isinstance(quality, dict) else None
+                analysis_source = quality.get("analysis_source") if isinstance(quality, dict) else None
+                llm_coverage = quality.get("llm_coverage") if isinstance(quality, dict) else None
+                if tier is None:
+                    results.append(CheckResult("quality tier", "WARN", "quality.tier missing"))
+                elif tier not in ALLOWED_QUALITY_TIERS:
+                    results.append(CheckResult("quality tier", "FAIL", "quality.tier=%s is invalid" % tier))
+                else:
+                    detail = "tier=%s analysis_source=%s llm_coverage=%s" % (
+                        tier,
+                        analysis_source or "unknown",
+                        llm_coverage or "unknown",
+                    )
+                    status = "PASS" if tier in PUBLISHABLE_QUALITY_TIERS else "WARN"
+                    results.append(CheckResult("quality tier", status, detail))
                 if not isinstance(core_contract, dict):
                     results.append(CheckResult("core contract", "WARN", "quality.core_contract missing"))
                 else:

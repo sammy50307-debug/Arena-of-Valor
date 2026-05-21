@@ -303,6 +303,9 @@ class ReportGenerator:
         # 注入頂部 metadata comment，供主公一眼判真假
         _meta = daily_summary.get("_meta", {})
         _mode = _meta.get("mode", "unknown")
+        _quality_tier = _meta.get("quality_tier", "unknown")
+        _analysis_source = _meta.get("analysis_source", "unknown")
+        _llm_coverage = _meta.get("llm_coverage", "unknown")
         _hits = _meta.get("cache_hit", 0)
         _total = _meta.get("total_calls", 0)
         _llm_calls = _meta.get("llm_calls", 0)
@@ -316,12 +319,19 @@ class ReportGenerator:
             "showcase_forced": "⚠️ 配額耗盡被迫展演（API 429）",
             "error_fallback":  "❌ 系統錯誤備援",
         }.get(_mode, f"❓ {_mode}")
+        _tier_label = {
+            "production_full": "✅ LLM full",
+            "production_llm_partial": "🟡 LLM partial",
+            "production_local_only": "🧭 真實資料 + 本地 baseline",
+            "showcase_manual": "🎭 manual showcase",
+            "error_fallback": "❌ fallback",
+        }.get(_quality_tier, f"❓ {_quality_tier}")
         _backfill_meta = ""
         if _is_backfill:
             _src = _replay_source if isinstance(_replay_source, str) and _replay_source else "unknown"
             _backfill_meta = f" | backfill: true | replay_source: {_src}"
         html_content = (
-            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode}{_backfill_meta} | {_mode_label} -->\n"
+            f"<!-- cache_hit: {_hits}/{_total} ({_pct}%) | llm_calls: {_llm_calls} | mode: {_mode}{_backfill_meta} | quality_tier: {_quality_tier} | analysis_source: {_analysis_source} | llm_coverage: {_llm_coverage} | {_mode_label} | {_tier_label} -->\n"
             + html_content
         )
 

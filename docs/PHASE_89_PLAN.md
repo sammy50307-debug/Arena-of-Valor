@@ -1,6 +1,6 @@
-# Phase P89 計畫書 — Quality Tier / Promotion Gate（凍結版）
+# Phase P89 計畫書 — Quality Tier / Promotion Gate（收官版）
 
-> 狀態：FROZEN。此檔只凍結 P89 動工範圍與驗收規則；runtime code 必須等主公另行核准後才能修改。
+> 狀態：CLOSED。P89 runtime 已依本計畫完成 quality tier contract、promotion gate、metadata、health/doctor 與 focused tests；R-016 仍 Open，後續續行 P90-P95。
 
 ---
 
@@ -20,9 +20,9 @@
 
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
-| P89 plan | DRAFT_PENDING_PLAN | FROZEN | 計畫可讀、邊界固定、尚不可改 runtime code | `docs/PHASE_89_PLAN.md` 通過 lint 並完成 handoff / risk / history 更新 | AI 建立，主公核准後進 APPROVED |
-| Promotion gate runtime | 未改 | 待 APPROVED | 現有 gate 仍只接受 `mode == production`；`showcase_forced` 不會 promotion | 主公明確說「核准 P89 動工」或同義指令 | 主公核准 |
-| Quality tier contract | 未建立 | 待 APPROVED | 尚未在 manifest/report metadata 產生 `quality_tier` | P89 runtime 動工後建立並測試 | AI 執行，主公核准 |
+| P89 plan | FROZEN | CLOSED | 計畫邊界已固定並完成 runtime 收官 | runtime code / tests / health / doctor / docs 已驗證 | 主公核准，AI 執行 |
+| Promotion gate runtime | 待 APPROVED | CLOSED | gate 已從單純 `mode == production` 升級為 publishable quality tier + health checks | `production_local_only` 可在 core/local baseline pass 時 promotion；manual/error 不可 promotion | AI 執行 |
+| Quality tier contract | 待 APPROVED | CLOSED | manifest/report metadata 已產生 `quality.tier` / `analysis_source` / `llm_coverage` | focused tests + full pytest 通過 | AI 執行 |
 
 ---
 
@@ -48,22 +48,22 @@ P87 已讓 manifest 能判斷 report core contract，P88 已讓 LLM 429 / provid
 - [x] 前置 Phase 已收官：P87 Report Core Contract CLOSED、P88 Deterministic Local Analyzer CLOSED。
 - [x] 資料/依賴已備：`quality.core_contract`、P88 `analysis_source=local_deterministic`、`provider.quota_error` 已可被 runtime 取得。
 - [x] 主公已核准計畫凍結：2026-05-20 主公要求「開始下一步」。
-- [ ] 主公另行核准 runtime 動工：FROZEN 後仍需主公明確核准才能改 `main.py`、`analyzer/run_manifest.py`、scripts、tests。
+- [x] 主公另行核准 runtime 動工：主公已明確要求「推 20b9a78 核准 P89 runtime 動工」與「現在我們做到哪？請接著繼續做」。
 - [x] 風險登記簿無未解新高風險：R-016 仍 Open，但 P89 是既定主線；不新增不可逆操作。
 
 ## 4. Exit Criteria（退出條件）
 
 P89 runtime 收官需全部達成：
-- [ ] 新增 machine-readable `quality_tier`，至少支援 `production_full`、`production_llm_partial`、`production_local_only`、`showcase_manual`、`error_fallback`。
-- [ ] `quality_tier` 判定規則同時參考 P87 `quality.core_contract`、P88 local baseline source、LLM coverage/quota diagnostics、manual showcase flag。
-- [ ] `production_local_only` 在 source/core contract PASS 且 local baseline 完整時可被 promotion gate 接受；`showcase_manual` 與 `error_fallback` 不可 promotion。
-- [ ] Manifest 寫入 `quality.tier`、`quality.analysis_source` 或等價欄位，並維持舊 `mode` 相容。
-- [ ] Report metadata comment 可顯示 quality tier / analysis source / LLM coverage，不誤導為 full LLM report。
-- [ ] Health check / system doctor 可辨識 tier，不再把 quota-limited local-only 誤判成普通程式壞；blocking 與 advisory 分級明確。
-- [ ] Focused tests 覆蓋 full LLM、partial LLM、local-only quota、manual showcase、error fallback、core contract fail、shadow/blocking gate。
-- [ ] `py -m pytest -q` 通過；若有 pre-existing failure，需依 B-008 記錄，不可靜默放行。
-- [ ] `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` 與 `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 不新增 blocking。
-- [ ] `TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md` 更新；R-016 仍不得關閉。
+- [x] 新增 machine-readable `quality_tier`，支援 `production_full`、`production_llm_partial`、`production_local_only`、`showcase_manual`、`error_fallback`。
+- [x] `quality_tier` 判定規則同時參考 P87 `quality.core_contract`、P88 local baseline source、LLM coverage/quota diagnostics、manual showcase flag。
+- [x] `production_local_only` 在 source/core contract PASS 且 local baseline 完整時可被 promotion gate 接受；`showcase_manual` 與 `error_fallback` 不可 promotion。
+- [x] Manifest 寫入 `quality.tier`、`quality.analysis_source`、`quality.llm_coverage`，並維持舊 `mode` 相容。
+- [x] Report metadata comment 可顯示 quality tier / analysis source / LLM coverage，不誤導為 full LLM report。
+- [x] Health check / system doctor 可辨識 tier，不再把 quota-limited local-only 誤判成普通程式壞；blocking 與 advisory 分級明確。
+- [x] Focused tests 覆蓋 full LLM、partial LLM、local-only quota、manual showcase、error fallback、core contract fail、shadow/blocking gate。
+- [x] `py -m pytest -q` 通過：240 passed。
+- [x] `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` 與 `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` 不新增 blocking。
+- [x] `TASK_HISTORY.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md` 更新；R-016 仍不得關閉。
 
 P89 plan-only 凍結需全部達成：
 - [x] 新增本檔 `docs/PHASE_89_PLAN.md`。
@@ -134,7 +134,7 @@ P89 plan-only 凍結需全部達成：
 |---|---|---|
 | 新增 `docs/PHASE_89_PLAN.md` | 可逆 | 已核准開始下一步 plan |
 | 更新 handoff / active / risk / history | 可逆 | 已核准開始下一步 plan |
-| P89 runtime 實作 commit | 可逆 | 尚未核准，需主公下一步確認 |
+| P89 runtime 實作 commit | 可逆 | 已核准並完成本地驗證 |
 | Git push | 半可逆 | 每次 push 前需主公明確說 push |
 
 ### X2 盲區掃描 (Blind Spot)
@@ -174,7 +174,7 @@ P89 plan-only 凍結需全部達成：
 **高風險加權檢查（META4）**：
 - 高風險數量：4 項（R1/R4/R5/R6 影響高）。
 - 加權分數：6.5 分。
-- 是否 >= 5 須請示主公：是；因此 P89 runtime 前需主公明確核准，本檔只凍結計畫。
+- 是否 >= 5 須請示主公：是；主公已核准 runtime 動工，收官時以 focused tests + full pytest + health/doctor 驗證。
 
 ---
 
@@ -188,6 +188,8 @@ P89 plan-only 凍結需全部達成：
 | **P89.3 Promotion Gate Integration** | promotion 從 `mode == production` 改成 tier eligibility | 429 -> showcase_forced | gate matrix tests |
 | **P89.4 Doctor / Health Classification** | health/doctor 顯示 tier，不誤判 quota local-only | 定位不清 | script tests |
 | **P89.5 Closeout** | full pytest、health、doctor、handoff truth、governance doctor，更新歷史 | Phase 狀態漂移 | 全驗證通過後 commit；R-016 仍 Open |
+
+狀態：P89.0-P89.5 均已完成；R-016 仍 Open，下一步續行 P90 budget ledger / cooldown plan。
 
 ---
 
@@ -305,6 +307,18 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-89-quality-tier-promotion
 | `py scripts\governance_doctor.py --repo-root .` | PASS：GOV000 runbook and risk registry governance verified |
 | `git diff --check` | PASS；僅 CRLF warning |
 
-### 凍結後下一步
+## 16. Runtime 收官證據（2026-05-21）
 
-P89 runtime 尚未核准。下一步需主公明確說「核准 P89 動工」或同義指令後，才能依本計畫修改 `main.py`、`analyzer/run_manifest.py`、health/doctor scripts、reporter metadata 與 tests。
+| 指令 | 結果 |
+|---|---|
+| `py -m pytest -q tests/test_run_manifest.py tests/test_daily_report_health.py tests/test_system_doctor.py tests/test_slo_checker.py tests/test_publish_gate.py` | PASS：57 passed |
+| `py -m pytest -q` | PASS：240 passed |
+| `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production` | PASS：無 FAIL；舊產物缺 `quality_tier` 僅 WARN |
+| `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production` | PASS：無 blocking / degraded；僅 DOC007、DOC016 advisory |
+| `py scripts\governance_doctor.py --repo-root .` | PASS：GOV000 |
+| `py scripts\lint_phase_plan.py docs\PHASE_89_PLAN.md` | PASS：通過 Pre-flight 體檢（M1 + M2） |
+| `git diff --check` | PASS；僅 CRLF warning |
+
+### 收官後下一步
+
+P89 runtime 已收官。下一步是建立 / 凍結 P90 budget ledger / cooldown plan；P90 未核准前不得改 budget runtime。R-016 仍 Open，不得在 P89 收官時關閉。

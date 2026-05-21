@@ -25,6 +25,21 @@ CORE_CONTRACT_MIN_POSTS = 1
 CORE_CONTRACT_MIN_PLATFORMS = 2
 CORE_CONTRACT_MIN_SOURCES = 2
 ALLOWED_CORE_CONTRACT_STATUS = {"pass", "warn", "fail", "unknown"}
+ALLOWED_QUALITY_TIERS = {
+    "production_full",
+    "production_llm_partial",
+    "production_local_only",
+    "showcase_manual",
+    "error_fallback",
+    "unknown",
+}
+PUBLISHABLE_QUALITY_TIERS = {
+    "production_full",
+    "production_llm_partial",
+    "production_local_only",
+}
+ALLOWED_ANALYSIS_SOURCES = {"llm", "mixed", "local_deterministic", "showcase", "unknown"}
+ALLOWED_LLM_COVERAGE = {"full", "partial", "none", "unknown"}
 
 
 def _get_source_field(item: Any, key: str) -> str:
@@ -188,6 +203,91 @@ def build_core_contract(
     }
 
 
+def _clean_enum(value: Any, allowed: set, default: str) -> str:
+    text = str(value or "").strip()
+    return text if text in allowed else default
+
+
+def is_publishable_quality_tier(tier: Any) -> bool:
+    return str(tier or "").strip() in PUBLISHABLE_QUALITY_TIERS
+
+
+def build_quality_tier(
+    *,
+    mode: str,
+    status: str,
+    core_contract: Optional[Dict[str, Any]],
+    meta: Optional[Dict[str, Any]] = None,
+    showcase_flag: bool = False,
+) -> Dict[str, Any]:
+    """Decide P89 quality tier from runtime-owned metadata only."""
+    meta = meta or {}
+    analysis_source = _clean_enum(meta.get("analysis_source"), ALLOWED_ANALYSIS_SOURCES, "unknown")
+    llm_coverage = _clean_enum(meta.get("llm_coverage"), ALLOWED_LLM_COVERAGE, "unknown")
+    quota_error = bool(meta.get("quota_error", False))
+
+    if analysis_source == "unknown":
+        if showcase_flag or mode == "showcase":
+            analysis_source = "showcase"
+        elif meta.get("local_analysis_status") == "ok":
+            analysis_source = "local_deterministic"
+        elif mode == "production":
+            analysis_source = "llm"
+
+    if llm_coverage == "unknown":
+        if analysis_source == "local_deterministic":
+            llm_coverage = "none"
+        elif analysis_source == "mixed":
+            llm_coverage = "partial"
+        elif analysis_source == "llm" and mode == "production":
+            llm_coverage = "full"
+        elif analysis_source == "showcase":
+            llm_coverage = "none"
+
+    core_status = "unknown"
+    core_reasons: List[str] = []
+    if isinstance(core_contract, dict):
+        core_status = str(core_contract.get("status", "unknown"))
+        reasons = core_contract.get("reasons", [])
+        if isinstance(reasons, list):
+            core_reasons = [str(x) for x in reasons if str(x).strip()]
+
+    local_baseline_ok = analysis_source == "local_deterministic" or meta.get("local_analysis_status") == "ok"
+    tier_reasons: List[str] = []
+    if showcase_flag or mode == "showcase":
+        tier = "showcase_manual"
+        tier_reasons.append("manual_showcase")
+    elif status != "ok":
+        tier = "error_fallback"
+        tier_reasons.append("status=%s" % status)
+    elif core_status != "pass":
+        tier = "error_fallback"
+        tier_reasons.append("core_contract_%s" % core_status)
+        tier_reasons.extend(core_reasons)
+    elif local_baseline_ok:
+        tier = "production_local_only"
+        if quota_error:
+            tier_reasons.append("quota_error_local_baseline")
+        else:
+            tier_reasons.append("local_deterministic_baseline")
+    elif analysis_source == "mixed" or llm_coverage == "partial":
+        tier = "production_llm_partial"
+        tier_reasons.append("llm_partial_coverage")
+    elif mode == "production":
+        tier = "production_full"
+    else:
+        tier = "error_fallback"
+        tier_reasons.append("mode=%s" % mode)
+
+    return {
+        "tier": tier,
+        "analysis_source": analysis_source,
+        "llm_coverage": llm_coverage,
+        "publishable": is_publishable_quality_tier(tier),
+        "reasons": tier_reasons,
+    }
+
+
 def _normalize_date_list(values: Any) -> List[str]:
     if not isinstance(values, list):
         return []
@@ -238,7 +338,6 @@ def build_manifest(
     if gate_mode not in ALLOWED_GATE_MODES:
         gate_mode = "shadow"
     eligibility_reasons = [str(x) for x in (eligibility_reasons or []) if str(x).strip()]
-    base_eligible = mode == "production" and status == "ok"
     source_hash = str(source_hash or "unknown")
     run_id = str(run_id or build_run_id(run_date, mode, source_hash))
     timezone_name = str(timezone_name or DEFAULT_TIMEZONE_NAME)
@@ -249,6 +348,18 @@ def build_manifest(
         analysis_path=analysis_path,
         report_path=report_path,
     )
+    tier_decision = build_quality_tier(
+        mode=mode,
+        status=status,
+        core_contract=core_contract,
+        meta=meta,
+        showcase_flag=showcase_flag,
+    )
+    if not tier_decision["publishable"]:
+        tier_reason = "quality_tier=%s not publishable" % tier_decision["tier"]
+        if tier_reason not in eligibility_reasons:
+            eligibility_reasons.append(tier_reason)
+    base_eligible = bool(tier_decision["publishable"]) and status == "ok"
 
     return {
         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -288,6 +399,11 @@ def build_manifest(
         "quality": {
             "source_health": source_quality,
             "core_contract": core_contract,
+            "tier": tier_decision["tier"],
+            "analysis_source": tier_decision["analysis_source"],
+            "llm_coverage": tier_decision["llm_coverage"],
+            "tier_publishable": bool(tier_decision["publishable"]),
+            "tier_reasons": tier_decision["reasons"],
         },
         "provider": {
             "quota_error": bool(meta.get("quota_error", False)),
@@ -394,10 +510,18 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
         if isinstance(reasons, list):
             eligibility_reasons = [r for r in reasons if isinstance(r, str) and r.strip()]
 
-    expected_eligible = mode == "production" and status == "ok" and len(eligibility_reasons) == 0
+    tier = None
+    quality_for_tier = manifest.get("quality")
+    if isinstance(quality_for_tier, dict):
+        tier = quality_for_tier.get("tier")
+    if tier in ALLOWED_QUALITY_TIERS:
+        tier_publishable = is_publishable_quality_tier(tier)
+    else:
+        tier_publishable = mode == "production"
+    expected_eligible = tier_publishable and status == "ok" and len(eligibility_reasons) == 0
     if manifest.get("publish_eligible") is not expected_eligible:
         errors.append(
-            "publish_eligible must equal (mode == 'production' and status == 'ok' and no eligibility.reasons)"
+            "publish_eligible must equal (publishable quality tier/status ok/no eligibility.reasons)"
         )
 
     for bool_key in ("dry_run", "showcase_flag", "is_backfill"):
@@ -488,6 +612,30 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
                 reasons = source_health.get("reasons")
                 if not isinstance(reasons, list) or any(not isinstance(v, str) for v in reasons):
                     errors.append("quality.source_health.reasons must be string list")
+
+            tier = quality.get("tier")
+            if tier is not None and tier not in ALLOWED_QUALITY_TIERS:
+                errors.append(
+                    "quality.tier must be one of: %s" % ", ".join(sorted(ALLOWED_QUALITY_TIERS))
+                )
+            analysis_source = quality.get("analysis_source")
+            if analysis_source is not None and analysis_source not in ALLOWED_ANALYSIS_SOURCES:
+                errors.append(
+                    "quality.analysis_source must be one of: %s"
+                    % ", ".join(sorted(ALLOWED_ANALYSIS_SOURCES))
+                )
+            llm_coverage = quality.get("llm_coverage")
+            if llm_coverage is not None and llm_coverage not in ALLOWED_LLM_COVERAGE:
+                errors.append(
+                    "quality.llm_coverage must be one of: %s" % ", ".join(sorted(ALLOWED_LLM_COVERAGE))
+                )
+            tier_publishable = quality.get("tier_publishable")
+            if tier_publishable is not None and not isinstance(tier_publishable, bool):
+                errors.append("quality.tier_publishable must be boolean")
+            tier_reasons = quality.get("tier_reasons")
+            if tier_reasons is not None:
+                if not isinstance(tier_reasons, list) or any(not isinstance(v, str) for v in tier_reasons):
+                    errors.append("quality.tier_reasons must be string list")
 
             core_contract = quality.get("core_contract")
             if core_contract is not None:

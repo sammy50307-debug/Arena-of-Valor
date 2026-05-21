@@ -9183,3 +9183,115 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P89 PLAN FROZEN：`docs/PHASE_89_PLAN.md` 已建立並通過 lint/governance 驗證，待 commit。
 - ⏸️ P89 runtime 尚未核准：下一步需主公明確說「核准 P89 動工」後才能改程式碼。
 - 🔴 R-016 仍 Open：需 P89-P95 完整走完或主公另行裁決。
+
+### P89 Quality Tier / Promotion Gate Runtime 收官（2026-05-21）
+
+**目標**：
+- 完成 P89 runtime：把每日報告從單一 `mode == production` promotion gate 升級成 `quality_tier + core contract + gate checks`。
+- 讓 LLM 429 / provider exception 後的真實資料 local baseline 不再被歸類成不可發布的 showcase/error。
+- 保留 P90-P95 邊界：本 Phase 不做 budget ledger / cooldown、不做 cache/dedupe、不做 enrichment queue、不接免費 provider、不關閉 R-016。
+
+**觸發**：
+- P89 plan freeze commit `20b9a78 docs: 凍結 P89 quality tier promotion gate plan` 已推上 `origin/main`。
+- 主公明確核准：「推 20b9a78 核准 P89 runtime 動工」。
+- 主公要求：「現在我們做到哪? 請接著繼續做」。
+
+**稽核表**：
+- S 級代碼層：新增集中式 `build_quality_tier(...)` 與 `is_publishable_quality_tier(...)`，避免 promotion 條件散落。
+- S 級邏輯層：`production_full`、`production_llm_partial`、`production_local_only` 為可發布 tier；`showcase_manual`、`error_fallback` 永不可 promotion。
+- S 級測試層：focused tests 覆蓋 full LLM、partial LLM、local-only quota、manual showcase、error fallback、core contract fail、publish gate。
+- S 級安全層：tier 只由 runtime-owned metadata、P87 core contract、P88 local baseline diagnostics 判定；不信任 raw post content，不新增 secrets/provider。
+- A 級可觀察性層：report metadata、manifest、health check、system doctor 全部可見 tier/source/coverage。
+- A 級流程層：R-016 保持 Open；下一步只可先建立/凍結 P90 plan，不能直接改 budget runtime。
+
+**物理真相**：
+- 更新 `analyzer/run_manifest.py`
+  - 新增 enum：
+    - `ALLOWED_QUALITY_TIERS = {"production_full", "production_llm_partial", "production_local_only", "showcase_manual", "error_fallback", "unknown"}`
+    - `PUBLISHABLE_QUALITY_TIERS = {"production_full", "production_llm_partial", "production_local_only"}`
+    - `ALLOWED_ANALYSIS_SOURCES = {"llm", "mixed", "local_deterministic", "showcase", "unknown"}`
+    - `ALLOWED_LLM_COVERAGE = {"full", "partial", "none", "unknown"}`
+  - 新增 `build_quality_tier(...)`
+    - `showcase_flag` 或 `mode == "showcase"` → `showcase_manual`。
+    - `status != "ok"` → `error_fallback`。
+    - `quality.core_contract.status != "pass"` → `error_fallback`，並保留 core reasons。
+    - `analysis_source == "local_deterministic"` 或 `quota_error=True` 或 `llm_coverage == "none"` → `production_local_only`。
+    - `analysis_source == "mixed"` 或 `llm_coverage == "partial"` → `production_llm_partial`。
+    - `mode == "production"` → `production_full`。
+  - `build_manifest(...)`
+    - 寫入 `quality.tier`、`quality.analysis_source`、`quality.llm_coverage`、`quality.tier_publishable`、`quality.tier_reasons`。
+    - `publish_eligible` 改為 publishable tier + `status == "ok"` + no eligibility reasons。
+    - 非 publishable tier 自動加入 `eligibility.reasons`：`quality_tier=<tier> not publishable`。
+  - `validate_manifest(...)`
+    - 驗證 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage` enum。
+    - 舊 manifest 缺 tier 仍相容；新 manifest 若 tier 非法則 invalid。
+- 更新 `main.py`
+  - import `build_core_contract`、`build_quality_tier`、`is_publishable_quality_tier`。
+  - P88 local deterministic baseline 不再強制 `mode=showcase_forced`；若 `analysis_source=local_deterministic` 且不是主動 showcase，`mode` 保持 `production`，並以 `legacy_mode` 記錄舊語意。
+  - `_meta` 新增 `quality_tier`、`analysis_source`、`llm_coverage`、`local_analysis_status`、`quality_tier_reasons`。
+  - `evaluate_publish_gate(...)` 新增 `quality_tier` 參數：非 publishable tier 直接回傳 skip reason；publishable tier 繼續跑 health checks。
+  - `should_promote` 改為 `report_candidate_path exists + is_publishable_quality_tier(quality_tier) + no gate_reasons`。
+- 更新 `reporter/generator.py`
+  - metadata comment 從：
+    - `mode: production | ✅ 真實輿情`
+  - 擴充為：
+    - `mode: production | quality_tier: production_local_only | analysis_source: local_deterministic | llm_coverage: none | ...`
+  - `production_local_only` label 明確為「真實資料 + 本地 baseline」，不誤導為 full LLM。
+- 更新 `scripts/check_daily_report_health.py`
+  - 新增 `META_TIER_RE` 與 `extract_metadata_quality_tier(...)`。
+  - 新增 health row：
+    - `metadata quality tier`
+    - `quality tier`
+  - 舊 report / manifest 缺 tier 只 WARN，不 FAIL。
+- 更新 `scripts/system_doctor.py`
+  - 新增 DOC016：`quality:tier`。
+  - publishable tier 不新增 issue；`showcase_manual` / `error_fallback` 在 `require_production` 時 DEGRADED，在 local profile 下 ADVISORY。
+  - 舊 manifest 缺 tier 只 DOC016 ADVISORY。
+- 更新 `docs/OPERATIONS_RUNBOOK.md`
+  - 新增 `DOC016 — quality tier` runbook。
+  - 明確寫 `production_local_only` 代表真實資料與本地 baseline 可發布，但 LLM 深讀未完整覆蓋；不是 blocking。
+- 更新測試：
+  - `tests/test_run_manifest.py`
+  - `tests/test_daily_report_health.py`
+  - `tests/test_system_doctor.py`
+  - `tests/test_slo_checker.py`
+  - 新增 `tests/test_publish_gate.py`
+
+**實跑證據**：
+- `py -m pytest -q tests/test_run_manifest.py tests/test_daily_report_health.py tests/test_system_doctor.py tests/test_slo_checker.py tests/test_publish_gate.py`
+  - PASS：57 passed。
+- `py -m pytest -q`
+  - PASS：240 passed。
+- `py scripts\check_daily_report_health.py --date 2026-05-20 --expected-mode production`
+  - PASS：exit code 0。
+  - 物理輸出：
+    - `canonical report` PASS。
+    - `metadata mode` PASS：`mode=production`。
+    - `metadata quality tier` WARN：舊 report metadata comment 尚未有 `quality_tier`。
+    - `quality tier` WARN：舊 manifest 尚未有 `quality.tier`。
+    - `core contract` PASS：`status=pass total_posts=19 platform_count=5 source_count=3 has_report=True has_analysis=True reasons=[]`。
+    - `landing main link` PASS。
+    - `landing target mode` PASS。
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-20 --profile ci --require-production`
+  - PASS：exit code 0，無 blocking / degraded。
+  - 物理輸出：
+    - DOC007 ADVISORY：history source coverage。
+    - DOC016 ADVISORY：quality.tier missing（舊 manifest 相容警示）。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：GOV000 runbook and risk registry governance verified。
+- `py scripts\lint_phase_plan.py docs\PHASE_89_PLAN.md`
+  - PASS：通過 Pre-flight 體檢（M1 + M2）。
+- `git diff --check`
+  - PASS；PowerShell 僅顯示 LF/CRLF warning，非 whitespace error。
+
+**風險**：
+- P89 讓 `production_local_only` 可 promotion，但仍依賴 P90-P92 補上 budget/cooldown、cache/dedupe 與 enrichment queue；R-016 不得關閉。
+- 舊 report / manifest 缺 `quality_tier` 會出現 WARN / DOC016 ADVISORY；這是刻意相容策略，不回填舊資料以避免 scope 爆炸。
+- `quality_tier` 是機械式 gate，不是人類內容品質審稿；local-only 代表真實資料 baseline 可用，不代表 LLM 深度洞察完整。
+
+**狀態**：
+- ✅ P89 CLOSED：quality tier contract / promotion gate / report metadata / health / doctor 已落地。
+- ✅ focused tests：57 passed。
+- ✅ full pytest：240 passed。
+- ✅ 2026-05-20 health / doctor：無 blocking。
+- 🔴 R-016 仍 Open：下一步是 P90 Budget Ledger / Cooldown 計畫，不得直接改 P90 runtime。

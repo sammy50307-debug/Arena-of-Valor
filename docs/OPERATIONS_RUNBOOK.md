@@ -107,6 +107,14 @@
   3. 若為 `insufficient_posts`、`insufficient_platforms`、`insufficient_sources`，回頭檢查來源搜集與 scraper/API 狀態。
   4. 修正後重跑：`py scripts\system_doctor.py --repo-root . --date <date> --profile local --require-production`。
 
+### <a id="doc016"></a>DOC016 — quality tier
+- 意義：manifest `quality.tier` 缺失、非法，或落在不可發布 tier（`showcase_manual` / `error_fallback`）。
+- 處置：
+  1. 查看 manifest `quality.tier`、`quality.analysis_source`、`quality.llm_coverage` 與 `eligibility.reasons`。
+  2. 若 tier 是 `production_local_only`，代表真實資料與本地 baseline 可發布，但 LLM 深讀未完整覆蓋；這不是 blocking。
+  3. 若 tier 是 `showcase_manual`，確認是否主公手動 `--showcase`，不可 promotion。
+  4. 若 tier 是 `error_fallback`，依 `quality.core_contract.reasons` 或 `status/error` 修復後重跑 doctor。
+
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
 - 處置：
