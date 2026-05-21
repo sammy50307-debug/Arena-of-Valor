@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-21T11:50:29.710639+00:00",
+      "last_accessed": "2026-05-21T18:42:39.481269+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -109,7 +109,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:31.970511+00:00",
-      "last_accessed": "2026-05-21T11:50:29.713253+00:00",
+      "last_accessed": "2026-05-21T18:42:39.485853+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -136,7 +136,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:34.268233+00:00",
-      "last_accessed": "2026-05-21T11:50:29.721190+00:00",
+      "last_accessed": "2026-05-21T18:42:39.488383+00:00",
       "ttl_days": 7
     },
     "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
@@ -163,7 +163,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:35.585176+00:00",
-      "last_accessed": "2026-05-21T11:50:29.718669+00:00",
+      "last_accessed": "2026-05-21T18:42:39.491672+00:00",
       "ttl_days": 7
     },
     "prompt:76befbb8d168c291b9d7ee56421d423b": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-21T11:50:29.723587+00:00",
+      "last_accessed": "2026-05-21T18:42:39.483616+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -217,7 +217,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:37.977642+00:00",
-      "last_accessed": "2026-05-21T11:50:29.726020+00:00",
+      "last_accessed": "2026-05-21T18:42:39.494192+00:00",
       "ttl_days": 7
     },
     "prompt:1008d06f8dc662092fa1690b58d1b9e1": {
@@ -1440,7 +1440,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:52.632448+00:00",
-      "last_accessed": "2026-05-21T11:50:52.632448+00:00",
+      "last_accessed": "2026-05-21T18:42:34.944950+00:00",
       "ttl_days": 7
     },
     "prompt:33cfdd375e520508c75e345c7ee130d7": {
@@ -2269,12 +2269,137 @@
       "stored_at": "2026-05-21T11:51:09.097055+00:00",
       "last_accessed": "2026-05-21T11:51:09.097055+00:00",
       "ttl_days": 7
+    },
+    "prompt:5c38db722cad3caea659a9f396600b78": {
+      "result": {
+        "reasoning": "該貼文為 YouTube 直播連結的標題與資訊，單純提供賽事時間表與對戰組合，屬於中立的資訊發布。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "電競賽事",
+        "keywords": [
+          "APL 2026",
+          "外卡賽",
+          "傳說對決",
+          "電競",
+          "直播"
+        ],
+        "summary": "提供 APL 2026 外卡賽第一天的賽程時間表與對戰組合資訊。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "APL 2026 外卡賽",
+            "type": "電競賽事"
+          }
+        ]
+      },
+      "stored_at": "2026-05-21T18:42:37.020850+00:00",
+      "last_accessed": "2026-05-21T18:42:37.020850+00:00",
+      "ttl_days": 7
+    },
+    "prompt:9a4b0866d86333894e8e225059a41c25": {
+      "result": {
+        "reasoning": "該貼文為典型的遊戲帳號買賣廣告，與遊戲本身的遊玩體驗無關，屬於外部商業推廣行為。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "帳號買賣",
+          "收購",
+          "傳說對決"
+        ],
+        "summary": "該貼文為推廣遊戲帳號買賣的廣告資訊。",
+        "relevance_score": 0.2,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-21T18:42:38.202023+00:00",
+      "last_accessed": "2026-05-21T18:42:38.202023+00:00",
+      "ttl_days": 7
+    },
+    "prompt:338962500ce4616b27cdc1cac91245c8": {
+      "result": {
+        "reasoning": "貼文內容為官方或合作宣傳，介紹職業選手Xcen使用霧己新造型的實戰展示，語氣正面且具推廣性質。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "角色討論",
+        "keywords": [
+          "霧己",
+          "虛海回收令",
+          "Xcen",
+          "GCS",
+          "造型"
+        ],
+        "summary": "職業選手Xcen展示霧己「虛海回收令」造型的實戰操作與手感。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "虛海回收令造型推出",
+            "type": "限時活動"
+          }
+        ]
+      },
+      "stored_at": "2026-05-21T18:42:39.475929+00:00",
+      "last_accessed": "2026-05-21T18:42:39.475929+00:00",
+      "ttl_days": 7
+    },
+    "prompt:94f2ffada1eb836d78e45a3ad472008e": {
+      "result": {
+        "reasoning": "該貼文為 Dcard 傳說對決板的徵友標題，屬於典型的社群互動行為，意圖尋找遊戲夥伴，無負面情緒或反諷。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "社群互動",
+        "keywords": [
+          "徵求隊友",
+          "Dcard",
+          "傳說對決"
+        ],
+        "summary": "玩家在 Dcard 傳說對決板發文徵求遊戲隊友。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-21T18:42:40.488911+00:00",
+      "last_accessed": "2026-05-21T18:42:40.488911+00:00",
+      "ttl_days": 7
+    },
+    "prompt:6786c66e0f2adc0aff55bd31ed1d4a77": {
+      "result": {
+        "reasoning": "該貼文標題為心得分享與出裝思路，屬於玩家間正常的遊戲策略交流，語氣中性且具建設性。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "出裝",
+          "心得",
+          "攻略",
+          "傳說對決"
+        ],
+        "summary": "玩家在Dcard分享關於傳說對決的出裝思路與心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-21T18:42:48.551388+00:00",
+      "last_accessed": "2026-05-21T18:42:48.551388+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 11,
+    "total_l2_hits": 17,
     "total_apify_hits": 0,
-    "total_misses": 27
+    "total_misses": 32
   }
 }
