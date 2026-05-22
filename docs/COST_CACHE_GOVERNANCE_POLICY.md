@@ -1,6 +1,6 @@
-# Cost / Cache Hit Governance Policy（P84.5）
+# Cost / Cache Hit Governance Policy（P84.5 / P94）
 
-> 狀態：ACTIVE（2026-05-22）
+> 狀態：ACTIVE（2026-05-23）
 > 原則：本政策只提供 pipeline 成本代理訊號，不代表 OpenAI / Gemini / Tavily / Apify 供應商帳單。
 
 ## 1. 指標來源
@@ -22,7 +22,7 @@
 | Metrics invariant | `cache_hit <= total_calls` 且 `llm_calls <= total_calls`，所有指標必須是非負整數 | `CCG002` |
 | Cache hit advisory | aggregate cache hit rate 低於門檻時輸出 advisory，不阻擋 daily | `CCG003` |
 | Cache store stats | `data/llm_cache.json` 只能讀 schema / entry count / stats，不輸出 entry content | `CCG004` |
-| LLM call budget | window 內 LLM call proxy 超過門檻時輸出 degraded | `CCG005` |
+| LLM call budget | 最新日超過門檻時輸出 current degraded；若總量只因舊日 spike 超標，輸出 historical advisory | `CCG005` |
 | Budget cooldown | window 內 manifest `budget` 顯示 skip / cooldown / budget exhausted / malformed state 時輸出 advisory | `CCG006` |
 | Selection throttle | window 內 manifest `selection` 顯示 local-only / duplicate 節流，或 selected 超過 cap | `CCG007` |
 | Enrichment replay | window 內 manifest `enrichment` 顯示 pending / no-op / budget skip / partial / failed replay 狀態 | `CCG008` |
@@ -35,7 +35,15 @@ py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-day
 py scripts\cost_cache_governance.py --repo-root . --date 2026-05-18 --window-days 3 --json
 ```
 
-## 4. 邊界
+## 4. P94 Classification Taxonomy
+
+| Classification | 意義 | 典型來源 | 操作解讀 |
+|---|---|---|---|
+| `current` | 最新日或目前 window 仍有需要處置的風險 | `CCG005` 最新日超標、`CCG007` selected over cap、`CCG008 failed/pending`、`CCG009` provider enabled | 依 runbook 處理；若 severity 是 degraded/blocking，不能拿來支撐 closeout |
+| `historical` | window aggregate 被舊日 pre-remediation spike 拉高，但最新日未超過同一門檻 | P94 的 2026-05-21 pre-P91 `llm_calls=28` 對 2026-05-23 三日窗造成 `total_llm_calls=35` | 保留成本脈絡，但不讓最新健康 run 因舊尖峰 exit 1 |
+| `residual` | post-remediation 預期殘留，不代表 production failure | P91 duplicate/local-only 節流、P92 `no_eligible` replay no-op | 觀察品質與趨勢，不直接補 provider 或重送 LLM |
+
+## 5. 邊界
 
 - `total_llm_calls` 是 pipeline proxy，不是供應商帳單。
 - `budget.llm_calls_used` 與 `budget.decision` 也是 pipeline proxy，不是供應商帳單。

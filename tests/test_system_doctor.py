@@ -189,7 +189,10 @@ def test_system_doctor_advises_on_selection_throttle(tmp_path: Path):
 
     result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
 
-    assert any(x.code == "DOC018" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert any(
+        x.code == "DOC018" and x.severity == doctor.SEV_ADVISORY and x.classification == "residual"
+        for x in result.issues
+    )
     assert doctor.exit_code_for(result) == 0
 
 
@@ -239,7 +242,10 @@ def test_system_doctor_advises_on_enrichment_noop(tmp_path: Path):
 
     result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
 
-    assert any(x.code == "DOC019" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert any(
+        x.code == "DOC019" and x.severity == doctor.SEV_ADVISORY and x.classification == "residual"
+        for x in result.issues
+    )
     assert doctor.exit_code_for(result) == 0
 
 
@@ -293,7 +299,10 @@ def test_system_doctor_advises_on_enabled_provider_routing(tmp_path: Path):
 
     result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
 
-    assert any(x.code == "DOC020" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert any(
+        x.code == "DOC020" and x.severity == doctor.SEV_ADVISORY and x.classification == "current"
+        for x in result.issues
+    )
     assert doctor.exit_code_for(result) == 0
 
 

@@ -91,6 +91,10 @@ def _codes(result):
     return {issue.code for issue in result.issues}
 
 
+def _issue(result, code: str):
+    return next(issue for issue in result.issues if issue.code == code)
+
+
 def test_cost_cache_passes_with_manifest_and_cache_stats(tmp_path: Path):
     _write_manifest(tmp_path, "2026-05-18", cache_hit=2, total_calls=3, llm_calls=1)
     _write_cache(tmp_path)
@@ -140,7 +144,24 @@ def test_cost_cache_degrades_when_llm_call_budget_exceeded(tmp_path: Path):
     result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1, max_llm_calls=5)
 
     assert "CCG005" in _codes(result)
+    assert _issue(result, "CCG005").classification == "current"
     assert cost_cache_governance.exit_code_for(result) == 1
+
+
+def test_cost_cache_marks_pre_remediation_llm_spike_as_historical(tmp_path: Path):
+    _write_manifest(tmp_path, "2026-05-16", cache_hit=25, total_calls=30, llm_calls=28)
+    _write_manifest(tmp_path, "2026-05-17", cache_hit=5, total_calls=7, llm_calls=2)
+    _write_manifest(tmp_path, "2026-05-18", cache_hit=5, total_calls=10, llm_calls=5)
+    _write_cache(tmp_path)
+
+    result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=3, max_llm_calls=20)
+    issue = _issue(result, "CCG005")
+
+    assert issue.severity == cost_cache_governance.SEV_ADVISORY
+    assert issue.classification == "historical"
+    assert "latest_llm_calls=5" in issue.detail
+    assert "spike_days=2026-05-16:28" in issue.detail
+    assert cost_cache_governance.exit_code_for(result) == 0
 
 
 def test_cost_cache_advises_on_budget_cooldown(tmp_path: Path):
@@ -186,6 +207,7 @@ def test_cost_cache_advises_on_selection_throttle(tmp_path: Path):
     result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
 
     assert "CCG007" in _codes(result)
+    assert _issue(result, "CCG007").classification == "residual"
     assert result.days[0].selection_llm_selected_posts == 4
     assert cost_cache_governance.exit_code_for(result) == 0
 
@@ -210,7 +232,33 @@ def test_cost_cache_advises_on_enrichment_pending(tmp_path: Path):
     result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
 
     assert "CCG008" in _codes(result)
+    assert _issue(result, "CCG008").classification == "current"
     assert result.days[0].enrichment_eligible_posts == 2
+    assert cost_cache_governance.exit_code_for(result) == 0
+
+
+def test_cost_cache_marks_enrichment_no_eligible_as_residual(tmp_path: Path):
+    _write_manifest(
+        tmp_path,
+        "2026-05-18",
+        cache_hit=1,
+        total_calls=5,
+        llm_calls=2,
+        enrichment={
+            "queue_available": True,
+            "eligible_posts": 0,
+            "skipped_posts": 2,
+            "enriched_posts": 0,
+            "replay_status": "no_eligible",
+        },
+    )
+    _write_cache(tmp_path)
+
+    result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
+    issue = _issue(result, "CCG008")
+
+    assert issue.severity == cost_cache_governance.SEV_ADVISORY
+    assert issue.classification == "residual"
     assert cost_cache_governance.exit_code_for(result) == 0
 
 
@@ -238,6 +286,7 @@ def test_cost_cache_advises_on_provider_routing_enabled(tmp_path: Path):
     result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
 
     assert "CCG009" in _codes(result)
+    assert _issue(result, "CCG009").classification == "current"
     assert result.days[0].provider_router_enabled is True
     assert result.days[0].provider_enabled_slots == 1
     assert cost_cache_governance.exit_code_for(result) == 0

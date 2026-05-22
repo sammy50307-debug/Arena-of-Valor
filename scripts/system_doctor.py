@@ -26,6 +26,8 @@ SEV_DEGRADED = "DEGRADED"
 SEV_ADVISORY = "ADVISORY"
 SEV_OK = "OK"
 RUNBOOK_PATH = "docs/OPERATIONS_RUNBOOK.md"
+CLASS_CURRENT = "current"
+CLASS_RESIDUAL = "residual"
 
 ISSUE_CATALOG = {
     "manifest_missing": {"code": "DOC001", "name": "manifest missing"},
@@ -58,6 +60,7 @@ class DoctorIssue:
     name: str
     detail: str
     runbook: str
+    classification: str
 
 
 @dataclass
@@ -100,7 +103,13 @@ def _runbook_link(code: str) -> str:
     return "%s#%s" % (RUNBOOK_PATH, code.lower())
 
 
-def _add_issue(issues: List[DoctorIssue], key: str, severity: str, detail: str) -> None:
+def _add_issue(
+    issues: List[DoctorIssue],
+    key: str,
+    severity: str,
+    detail: str,
+    classification: str = CLASS_CURRENT,
+) -> None:
     entry = _issue_catalog_entry(key)
     issues.append(
         DoctorIssue(
@@ -109,6 +118,7 @@ def _add_issue(issues: List[DoctorIssue], key: str, severity: str, detail: str) 
             name=entry["name"],
             detail=detail,
             runbook=_runbook_link(entry["code"]),
+            classification=classification,
         )
     )
 
@@ -296,9 +306,9 @@ def run_doctor(
                 % (selected, local_only, duplicates, cap, reasons)
             )
             if isinstance(selected, int) and isinstance(cap, int) and selected > cap:
-                _add_issue(issues, "selection_throttle", SEV_DEGRADED, detail)
+                _add_issue(issues, "selection_throttle", SEV_DEGRADED, detail, classification=CLASS_CURRENT)
             elif local_only or duplicates:
-                _add_issue(issues, "selection_throttle", SEV_ADVISORY, detail)
+                _add_issue(issues, "selection_throttle", SEV_ADVISORY, detail, classification=CLASS_RESIDUAL)
 
         if isinstance(enrichment, dict) and enrichment:
             queue_available = bool(enrichment.get("queue_available", False))
@@ -318,11 +328,11 @@ def run_doctor(
                 )
             )
             if status_text == "failed":
-                _add_issue(issues, "enrichment_replay", SEV_DEGRADED, detail)
+                _add_issue(issues, "enrichment_replay", SEV_DEGRADED, detail, classification=CLASS_CURRENT)
             elif status_text in {"pending", "skipped_budget", "partial"}:
-                _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail)
+                _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail, classification=CLASS_CURRENT)
             elif queue_available and status_text == "no_eligible" and skipped:
-                _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail)
+                _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail, classification=CLASS_RESIDUAL)
 
         if isinstance(provider, dict):
             routing = provider.get("routing", {})
@@ -391,17 +401,18 @@ def print_result(result: DoctorResult) -> None:
     print("date: %s" % result.date)
     print("profile: %s" % result.profile)
     print("")
-    print("| severity | code | check | detail | runbook |")
-    print("|---|---|---|---|---|")
+    print("| severity | code | class | check | detail | runbook |")
+    print("|---|---|---|---|---|---|")
     if not result.issues:
-        print("| OK | DOC000 | summary | no issues detected | %s#doc000 |" % RUNBOOK_PATH)
+        print("| OK | DOC000 | %s | summary | no issues detected | %s#doc000 |" % (CLASS_CURRENT, RUNBOOK_PATH))
         return
     for issue in result.issues:
         print(
-            "| %s | %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s | %s |"
             % (
                 issue.severity,
                 issue.code,
+                issue.classification,
                 issue.name,
                 issue.detail.replace("|", "/"),
                 issue.runbook,

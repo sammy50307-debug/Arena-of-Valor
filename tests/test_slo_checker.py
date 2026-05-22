@@ -68,6 +68,7 @@ def test_slo_passes_when_window_has_production_and_manifests(tmp_path: Path):
 
     assert result.consecutive_no_production == 0
     assert result.missing_manifest_count == 0
+    assert result.classification == "current"
     assert result.issues == []
     assert slo_checker.exit_code_for(result) == 0
 
@@ -135,5 +136,6 @@ def test_cli_json_contains_slo_issue(tmp_path: Path, capsys):
     payload = json.loads(captured.out)
 
     assert rc == 1
+    assert payload["classification"] == "current"
     assert payload["missing_manifest_count"] == 1
-    assert any(issue["code"] == "SLO002" for issue in payload["issues"])
+    assert any(issue["code"] == "SLO002" and issue["classification"] == "current" for issue in payload["issues"])

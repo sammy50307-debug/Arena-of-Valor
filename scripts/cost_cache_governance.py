@@ -30,6 +30,9 @@ REPORT_META_RE = re.compile(
 SEV_BLOCKING = "BLOCKING"
 SEV_DEGRADED = "DEGRADED"
 SEV_ADVISORY = "ADVISORY"
+CLASS_CURRENT = "current"
+CLASS_HISTORICAL = "historical"
+CLASS_RESIDUAL = "residual"
 
 ISSUE_CATALOG = {
     "metrics_source_missing": {"code": "CCG001", "name": "metrics source missing"},
@@ -99,6 +102,7 @@ class CostCacheIssue:
     name: str
     detail: str
     runbook: str
+    classification: str
 
 
 @dataclass
@@ -133,7 +137,7 @@ def _runbook_link(code: str) -> str:
     return "%s#%s" % (RUNBOOK_PATH, code.lower())
 
 
-def _issue(key: str, severity: str, detail: str) -> CostCacheIssue:
+def _issue(key: str, severity: str, detail: str, classification: str = CLASS_CURRENT) -> CostCacheIssue:
     entry = ISSUE_CATALOG[key]
     return CostCacheIssue(
         code=entry["code"],
@@ -141,6 +145,7 @@ def _issue(key: str, severity: str, detail: str) -> CostCacheIssue:
         name=entry["name"],
         detail=detail,
         runbook=_runbook_link(entry["code"]),
+        classification=classification,
     )
 
 
@@ -423,13 +428,37 @@ def evaluate_cost_cache(
         )
 
     if total_llm_calls > max_llm_calls:
-        issues.append(
-            _issue(
-                "llm_call_budget",
-                SEV_DEGRADED,
-                "total_llm_calls=%s threshold=%s" % (total_llm_calls, max_llm_calls),
+        latest_day = days[-1] if days else None
+        latest_llm_calls = latest_day.llm_calls if latest_day is not None else 0
+        historical_llm_calls = total_llm_calls - latest_llm_calls
+        historical_spike_days = [day for day in days[:-1] if day.llm_calls > max_llm_calls]
+        if latest_day is not None and latest_llm_calls <= max_llm_calls and historical_spike_days:
+            issues.append(
+                _issue(
+                    "llm_call_budget",
+                    SEV_ADVISORY,
+                    "total_llm_calls=%s threshold=%s latest_day=%s latest_llm_calls=%s historical_llm_calls=%s spike_days=%s"
+                    % (
+                        total_llm_calls,
+                        max_llm_calls,
+                        latest_day.date,
+                        latest_llm_calls,
+                        historical_llm_calls,
+                        ",".join("%s:%s" % (day.date, day.llm_calls) for day in historical_spike_days),
+                    ),
+                    classification=CLASS_HISTORICAL,
+                )
             )
-        )
+        else:
+            issues.append(
+                _issue(
+                    "llm_call_budget",
+                    SEV_DEGRADED,
+                    "total_llm_calls=%s threshold=%s latest_llm_calls=%s"
+                    % (total_llm_calls, max_llm_calls, latest_llm_calls),
+                    classification=CLASS_CURRENT,
+                )
+            )
 
     cooldown_days = [
         day
@@ -463,6 +492,7 @@ def evaluate_cost_cache(
                 SEV_DEGRADED,
                 "selected_over_cap_days=%s"
                 % ",".join("%s:%s>%s" % (day.date, day.selection_llm_selected_posts, day.selection_max_llm_items) for day in selection_over_cap),
+                classification=CLASS_CURRENT,
             )
         )
     else:
@@ -489,6 +519,7 @@ def evaluate_cost_cache(
                         )
                         for day in throttled_days
                     ),
+                    classification=CLASS_RESIDUAL,
                 )
             )
 
@@ -503,6 +534,7 @@ def evaluate_cost_cache(
                 "enrichment_replay",
                 SEV_DEGRADED,
                 "enrichment_failed_days=%s" % ",".join(day.date for day in enrichment_failed),
+                classification=CLASS_CURRENT,
             )
         )
     else:
@@ -510,7 +542,7 @@ def evaluate_cost_cache(
             day
             for day in days
             if day.enrichment_queue_available
-            and day.enrichment_replay_status in {"pending", "skipped_budget", "partial", "no_eligible"}
+            and day.enrichment_replay_status in {"pending", "skipped_budget", "partial"}
         ]
         if enrichment_pending:
             issues.append(
@@ -529,6 +561,33 @@ def evaluate_cost_cache(
                         )
                         for day in enrichment_pending
                     ),
+                    classification=CLASS_CURRENT,
+                )
+            )
+        enrichment_noop = [
+            day
+            for day in days
+            if day.enrichment_queue_available
+            and day.enrichment_replay_status == "no_eligible"
+            and day.enrichment_skipped_posts > 0
+        ]
+        if enrichment_noop:
+            issues.append(
+                _issue(
+                    "enrichment_replay",
+                    SEV_ADVISORY,
+                    "no_eligible_days=%s"
+                    % ",".join(
+                        "%s:eligible=%s skipped=%s enriched=%s"
+                        % (
+                            day.date,
+                            day.enrichment_eligible_posts,
+                            day.enrichment_skipped_posts,
+                            day.enrichment_enriched_posts,
+                        )
+                        for day in enrichment_noop
+                    ),
+                    classification=CLASS_RESIDUAL,
                 )
             )
 
@@ -548,6 +607,7 @@ def evaluate_cost_cache(
                     % (day.date, day.provider_route_status or "-", day.provider_enabled_slots)
                     for day in provider_days
                 ),
+                classification=CLASS_CURRENT,
             )
         )
 
@@ -590,16 +650,17 @@ def print_result(result: CostCacheResult) -> None:
     print("window_days: %s" % result.window_days)
     print("billing_truth: %s" % result.billing_truth)
     print("")
-    print("| severity | code | check | detail | runbook |")
-    print("|---|---|---|---|---|")
+    print("| severity | code | class | check | detail | runbook |")
+    print("|---|---|---|---|---|---|")
     if not result.issues:
-        print("| OK | CCG000 | summary | cost/cache governance verified | %s#ccg000 |" % RUNBOOK_PATH)
+        print("| OK | CCG000 | %s | summary | cost/cache governance verified | %s#ccg000 |" % (CLASS_CURRENT, RUNBOOK_PATH))
     for issue in result.issues:
         print(
-            "| %s | %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s | %s |"
             % (
                 issue.severity,
                 issue.code,
+                issue.classification,
                 issue.name,
                 issue.detail.replace("|", "/"),
                 issue.runbook,
