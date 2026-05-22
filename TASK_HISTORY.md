@@ -10153,3 +10153,100 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ Handoff / Active Operation / RISK_REGISTRY / PHASE_92_PLAN / runbook / cost policy / TASK_HISTORY 已同步。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：commit P92 runtime；push 仍需主公明確確認。
+
+---
+
+### P93 — Provider Abstraction / Disabled-by-default Free Provider Slots（FROZEN）
+
+**目標**：
+- 凍結 P93 provider abstraction 計畫，將 Groq、Cloudflare Workers AI / AI Gateway、GitHub Models 只列為 disabled-by-default 候選插槽。
+- 明確禁止本 Phase plan-only 階段做任何 runtime provider call：
+  - 不新增 provider API key、PAT、Cloudflare token、Groq key。
+  - 不加 GitHub Actions `models: read`。
+  - 不把 Groq / Cloudflare / GitHub Models 接進 daily default。
+  - 不繞過 P90 budget / cooldown。
+  - 不把 raw prompt、raw response、raw post content、作者資訊寫進 manifest、repo 或 artifact。
+- 保留主公裁決權：P93 runtime 必須另行核准，才能依 frozen plan 動工。
+
+**觸發**：
+- P91 已在 2026-05-22 GitHub Actions 實跑把 LLM calls 從 pre-P91 的 28 降到 6。
+- P92 已完成 artifact-backed enrichment queue / manual replay，且 2026-05-22 Actions run `26282601411` 產生：
+  - `queue_available=true`
+  - `queue_digest=73e80e6ac71b9c74`
+  - `source_count=7`
+  - `eligible_posts=0`
+  - `skipped_posts=7`
+  - `replay_status=no_eligible`
+  - `skipped_reason_counts.duplicate_url=7`
+- 下一個問題不是立刻接免費 provider，而是先把「可否接、如何接、何時接、怎麼停」變成 fail-closed 工程契約。
+
+**稽核表**：
+- S 級：
+  - Code：provider interface / registry / factory / shared budget guard 必須集中，不把 provider 特例散落到 `main.py`。
+  - Logic：fail-closed routing；fallback 只處理 provider failure，不處理內容品質。
+  - Testing：fake-provider tests、no-env no-call tests、budget/cooldown matrix tests；CI 不需要真 API key。
+  - Security：secret 不落檔、不進 manifest；provider diagnostics raw-free；Cloudflare / GitHub token 權限最小化。
+- A 級：
+  - Architecture：現有 Gemini + local deterministic + P90-P92 鏈路仍是 daily default。
+  - Data：diagnostics 只寫 provider id、attempt、status、failure class、digest，不寫 raw content。
+  - Observability：manifest / doctor / governance 要區分 `disabled_by_default`、`missing_secret`、`budget_blocked`、`provider_failed`。
+  - Resilience：max attempts、timeout、cooldown respect，禁止 provider cascade loop。
+  - Maintainability：provider config schema 版本化，免費額度與模型清單 30 天重審。
+  - Documentation：文件統一用 disabled slot，不用 enabled provider 誤導接手者。
+  - Process：DRAFT -> FROZEN -> APPROVED -> runtime；runtime 需主公另行核准。
+- B 級：
+  - Performance：多 provider fallback 可能增加 latency，default disabled + max attempts 緩解。
+  - DevOps：GitHub Actions permissions / secrets 需單獨審。
+  - Cost：免費額度不可當永久事實，runtime 前重查官方文件。
+  - Privacy：第三方 provider 收到玩家貼文前必須過 data retention gate。
+  - i18n：繁中 AOV 品質需後續 small sample eval，不因 schema 通過就 promotion。
+
+**物理真相**：
+- 新增 / 凍結：
+  - `docs/PHASE_93_PLAN.md`
+    - 狀態：FROZEN。
+    - 凍結日期：2026-05-22。
+    - 重要邊界：
+      - `PROVIDER_ROUTER_ENABLED=false`
+      - `EXPERIMENTAL_FREE_PROVIDERS_ENABLED=false`
+      - per-provider enabled flag 全預設 false。
+      - Provider candidates 只能是 disabled slots。
+      - Live smoke 必須 manual-only。
+- 同步：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P93 FROZEN。
+    - Current Step 改為等待 P93 FROZEN commit / push，或等主公另行核准 P93 runtime。
+  - `docs/ACTIVE_OPERATION.md`
+    - L2 作戰狀態同步 P93 FROZEN。
+    - Required Verification 新增 P93 plan lint。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 mitigation 補 P93 FROZEN，但 R-016 仍 Open。
+  - `TASK_HISTORY.md`
+    - 追加本段無損紀錄。
+- 官方查證來源已寫入 `docs/PHASE_93_PLAN.md`：
+  - Groq overview / API reference：OpenAI-compatible base URL 與 Chat Completions 能力。
+  - Cloudflare AI Gateway REST API：`/ai/v1/chat/completions` OpenAI SDK compatible；Gateway 可能提供 logging / caching / rate limiting。
+  - GitHub Models quickstart / REST inference API：`models.github.ai/inference/chat/completions` 與 Actions `models: read` 權限。
+
+**風險**：
+- R1：Provider 被列名後誤接 daily chain，繞過主公核准。
+  - 緩解：default disabled、global kill switch、CI no-call tests、handoff forbidden work。
+- R2：Provider call 繞過 P90 budget / cooldown。
+  - 緩解：runtime 必須將 budget guard 上移到 router/shared guard。
+- R3：secret 或 raw prompt / response 被 log、manifest、artifact 保存。
+  - 緩解：secret masking tests、raw-free diagnostics schema、禁止 raw provider response 入 repo。
+- R4：OpenAI-compatible 只部分相容，JSON schema / response format 失敗。
+  - 緩解：fake-provider schema normalization tests；真 provider smoke manual-only。
+- R5：免費額度或條款改變。
+  - 緩解：不承諾免費永久；runtime 前重查官方 pricing / limits；per-provider cap。
+- R-016 仍 Open：
+  - P93 plan-only 只凍結 provider abstraction 邊界。
+  - P93 runtime 與 P94-P95 尚未完成。
+
+**狀態**：
+- ✅ P93 plan FROZEN。
+- ✅ `docs/PHASE_93_PLAN.md` 已明列 disabled-by-default provider slots、kill switch、budget guard、secret/privacy、fake-provider tests、manual-only smoke gate。
+- ✅ `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` / `docs/RISK_REGISTRY.md` / `TASK_HISTORY.md` 已同步到 P93 FROZEN。
+- 🔴 P93 runtime 尚未核准，不得動工。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：確認 P93 FROZEN commit 是否需要 push；push 仍需主公明確確認。
