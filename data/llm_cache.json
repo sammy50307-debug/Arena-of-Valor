@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-22T11:25:47.980930+00:00",
+      "last_accessed": "2026-05-22T16:17:46.159310+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -136,7 +136,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:34.268233+00:00",
-      "last_accessed": "2026-05-22T11:25:47.980966+00:00",
+      "last_accessed": "2026-05-22T16:17:46.164091+00:00",
       "ttl_days": 7
     },
     "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
@@ -163,7 +163,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:35.585176+00:00",
-      "last_accessed": "2026-05-22T11:25:47.980978+00:00",
+      "last_accessed": "2026-05-22T16:17:46.166321+00:00",
       "ttl_days": 7
     },
     "prompt:76befbb8d168c291b9d7ee56421d423b": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-22T11:25:47.980943+00:00",
+      "last_accessed": "2026-05-22T16:17:46.161803+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -1407,7 +1407,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:49.476208+00:00",
-      "last_accessed": "2026-05-21T11:50:49.476208+00:00",
+      "last_accessed": "2026-05-22T16:17:47.484401+00:00",
       "ttl_days": 7
     },
     "prompt:4c2cd6f486141f72bf38d136f495162b": {
@@ -1440,7 +1440,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:52.632448+00:00",
-      "last_accessed": "2026-05-22T11:25:47.981004+00:00",
+      "last_accessed": "2026-05-22T16:17:42.693223+00:00",
       "ttl_days": 7
     },
     "prompt:33cfdd375e520508c75e345c7ee130d7": {
@@ -2444,7 +2444,7 @@
         "events": []
       },
       "stored_at": "2026-05-22T10:30:59.014512+00:00",
-      "last_accessed": "2026-05-22T10:30:59.014512+00:00",
+      "last_accessed": "2026-05-22T16:17:43.340730+00:00",
       "ttl_days": 7
     },
     "prompt:e8c6e064459a3e056bf8f9a0b2dd3397": {
@@ -2532,14 +2532,117 @@
         ]
       },
       "stored_at": "2026-05-22T11:25:50.852236+00:00",
-      "last_accessed": "2026-05-22T11:25:50.852236+00:00",
+      "last_accessed": "2026-05-22T16:17:43.338372+00:00",
+      "ttl_days": 7
+    },
+    "prompt:2368f676b0c022ee8e93ff3b2f849fae": {
+      "result": {
+        "reasoning": "貼文為官方宣傳文案，旨在推廣新造型『平行世界 孫尚香』的推出，語氣正向且具行銷導向。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "孫尚香",
+          "平行世界",
+          "新造型",
+          "活動"
+        ],
+        "summary": "官方宣傳孫尚香新造型『平行世界』即將於5月推出。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "平行世界孫尚香造型推出",
+            "type": "限時活動"
+          }
+        ],
+        "translated_content": "用耀眼的連招和精彩的擊殺點亮峽谷……平行世界孫尚香將於5月降臨。"
+      },
+      "stored_at": "2026-05-22T16:17:44.957627+00:00",
+      "last_accessed": "2026-05-22T16:17:44.957627+00:00",
+      "ttl_days": 7
+    },
+    "prompt:99a058a9cf4e53ed8f63ae37eb06ae92": {
+      "result": {
+        "reasoning": "該貼文標題顯示為玩家分享獲得璀璨專屬標記的心得，屬於玩家在遊戲成就上的正面分享與交流，無反諷意圖。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "璀璨",
+          "專屬標",
+          "心得",
+          "排位賽"
+        ],
+        "summary": "玩家分享獲得遊戲內璀璨段位專屬標記的心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-22T16:17:46.153991+00:00",
+      "last_accessed": "2026-05-22T16:17:46.153991+00:00",
+      "ttl_days": 7
+    },
+    "prompt:953664bddd24fb3cf3bb85b3e5629a49": {
+      "result": {
+        "reasoning": "該貼文為分享性質，旨在提供魔法棋在體驗服的改動資訊，語氣客觀中立，屬於資訊分享類型的文章。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "魔法棋",
+          "體驗服",
+          "改動",
+          "心得分享"
+        ],
+        "summary": "分享傳說對決魔法棋在體驗服的最新改動內容。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "魔法棋體驗服改動",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-22T16:17:47.479125+00:00",
+      "last_accessed": "2026-05-22T16:17:47.479125+00:00",
+      "ttl_days": 7
+    },
+    "prompt:6695126c50d5c7fb0f0c77c715e2cd3a": {
+      "result": {
+        "reasoning": "作者分享了英雄瑪迦的基礎教學與心得，語氣正面且具建設性，旨在幫助其他玩家提升遊戲技巧。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "角色討論",
+        "keywords": [
+          "瑪迦",
+          "教學",
+          "心得分享",
+          "傳說對決"
+        ],
+        "summary": "玩家分享關於英雄瑪迦的基礎教學與心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": []
+      },
+      "stored_at": "2026-05-22T16:17:48.665952+00:00",
+      "last_accessed": "2026-05-22T16:17:48.665952+00:00",
       "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 23,
+    "total_l2_hits": 30,
     "total_apify_hits": 0,
-    "total_misses": 37
+    "total_misses": 41
   }
 }
