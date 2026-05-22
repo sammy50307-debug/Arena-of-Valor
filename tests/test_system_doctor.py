@@ -243,6 +243,60 @@ def test_system_doctor_advises_on_enrichment_noop(tmp_path: Path):
     assert doctor.exit_code_for(result) == 0
 
 
+def test_system_doctor_advises_on_enabled_provider_routing(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(
+        tmp_path,
+        date_str,
+        mode="production",
+        quality_tier="production_full",
+    )
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality=build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+        meta={
+            "history_status": "ok",
+            "analysis_source": "llm",
+            "llm_coverage": "full",
+            "provider_diagnostics": {
+                "schema_version": 1,
+                "provider_truth": "raw-free provider routing snapshot only",
+                "router_enabled": True,
+                "experimental_free_providers_enabled": True,
+                "active_provider": "gemini_primary",
+                "route_status": "blocked_enabled_experimental_slot",
+                "budget_guard": "required_before_provider_call",
+                "raw_payload_logging": False,
+                "secrets_logged": False,
+                "max_attempts": 1,
+                "slots": [
+                    {
+                        "name": "groq",
+                        "provider_type": "openai_compatible",
+                        "enabled": True,
+                        "secret_configured": True,
+                        "manual_only": True,
+                        "status": "ready_manual_only",
+                    }
+                ],
+                "attempts": [],
+            },
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
+
+    assert any(x.code == "DOC020" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
 def test_system_doctor_blocks_when_manifest_missing(tmp_path: Path):
     date_str = "2026-05-16"
     _write_report_and_index(tmp_path, date_str, mode="production")

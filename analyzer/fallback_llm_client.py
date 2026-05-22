@@ -13,6 +13,8 @@ from openai import APIConnectionError, APIStatusError, APITimeoutError, RateLimi
 import config
 from analyzer.gemini_client import GeminiClient
 from analyzer.llm_client import LLMClient
+from analyzer.provider_budget import ensure_budget_for_provider_call
+from analyzer.provider_router import build_provider_diagnostics
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,26 @@ class FallbackLLMClient:
     @property
     def fallback_configured(self) -> bool:
         return self.fallback is not None
+
+    def provider_diagnostics(self) -> dict:
+        attempts = []
+        if self.last_fallback_used:
+            attempts.append(
+                {
+                    "provider": "openai_fallback",
+                    "role": "fallback",
+                    "status": "called",
+                    "failure_class": "",
+                    "budget_decision": "",
+                }
+            )
+        return build_provider_diagnostics(
+            router_enabled=False,
+            experimental_enabled=False,
+            route_status="router_disabled_legacy_default",
+            active_provider="gemini_primary",
+            attempts=attempts,
+        )
 
     @staticmethod
     def _is_provider_failure(exc: Exception) -> bool:
@@ -99,6 +121,7 @@ class FallbackLLMClient:
                 "Gemini provider failure (%s); switching single chat to OpenAI fallback",
                 type(exc).__name__,
             )
+            ensure_budget_for_provider_call(self.primary)
             self.last_fallback_used = True
             return await self.fallback.chat(
                 system_prompt,
@@ -132,6 +155,7 @@ class FallbackLLMClient:
                 "Gemini provider failure (%s); switching batch to OpenAI fallback",
                 type(exc).__name__,
             )
+            ensure_budget_for_provider_call(self.primary)
             self.last_fallback_used = True
             return await self.fallback.batch_chat(
                 system_prompt,

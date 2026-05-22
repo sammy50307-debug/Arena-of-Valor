@@ -13,7 +13,6 @@ from typing import List, Optional, Dict, Any
 
 import config
 from scrapers.tavily_searcher import SearchResult
-from analyzer.fallback_llm_client import FallbackLLMClient
 from analyzer.gemini_client import GeminiClient
 from analyzer.llm_budget import LLMBudgetSkip
 from analyzer.local_analyzer import (
@@ -21,6 +20,7 @@ from analyzer.local_analyzer import (
     generate_local_summary,
     has_local_deterministic_posts,
 )
+from analyzer.provider_router import build_default_llm_client, build_provider_diagnostics
 from analyzer.nlp import analyze_keywords
 from analyzer.prompts import (
     SYSTEM_SINGLE_POST,
@@ -175,16 +175,25 @@ class SentimentAnalyzer:
     """
 
     def __init__(self, llm_client: Optional[Any] = None):
-        self.llm = llm_client or FallbackLLMClient()
+        self.llm = llm_client or build_default_llm_client()
         self.logger = logging.getLogger(f"{__name__}.SentimentAnalyzer")
 
     def _provider_diagnostics(self) -> dict:
         configured = getattr(self.llm, "fallback_configured", False)
         fallback_used = getattr(self.llm, "last_fallback_used", False)
-        return {
+        details = {}
+        diagnostics = getattr(self.llm, "provider_diagnostics", None)
+        if callable(diagnostics):
+            raw = diagnostics()
+            if isinstance(raw, dict):
+                details.update(raw)
+        else:
+            details.update(build_provider_diagnostics())
+        details.update({
             "openai_fallback_configured": configured if isinstance(configured, bool) else False,
             "openai_fallback_used": fallback_used if isinstance(fallback_used, bool) else False,
-        }
+        })
+        return details
 
     def _compress_content(self, text: str, target_heroes: List[str]) -> str:
         """長文本智能切片：保留首尾 150 字及含有焦點英雄的段落。"""

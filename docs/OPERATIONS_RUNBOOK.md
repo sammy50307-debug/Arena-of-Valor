@@ -140,6 +140,14 @@
   4. 若 dry-run 確認會補深讀，再執行 `py scripts\enrichment_replay.py --date <YYYY-MM-DD> --apply`；若要產候選報告才加 `--write-report`。
   5. 若 `replay_status=skipped_budget`，先看 `DOC017`，不得繞過 P90 budget/cooldown。
 
+### <a id="doc020"></a>DOC020 — provider routing
+- 意義：manifest `provider.routing` 顯示 P93 provider abstraction 狀態。預設應為 `router_disabled_legacy_default`，且 Groq / Cloudflare / GitHub Models slot 應維持 disabled；若 doctor 提示此項，代表 provider router 或候選 slot 已被開啟。
+- 處置：
+  1. 查看 manifest `provider.routing.route_status`、`router_enabled`、`experimental_free_providers_enabled`、`slots[*].enabled`。
+  2. 若不是主公核准的 manual-only smoke，關閉 `PROVIDER_ROUTER_ENABLED`、`EXPERIMENTAL_FREE_PROVIDERS_ENABLED` 與 `AOV_PROVIDER_*_ENABLED`。
+  3. 不要新增 provider secret，不要把候選 provider 接進 daily default。
+  4. 若 slot 被誤開導致 pipeline 走 local fallback，這是 fail-closed；先恢復 disabled 狀態，再依 P93 plan 討論 runtime。
+
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
 - 處置：
@@ -312,3 +320,11 @@
   2. advisory 的 `no_eligible` 表示 queue 存在但本批多為 duplicate / low-signal，不需補深讀。
   3. advisory 的 `skipped_budget` 依 `CCG006` 檢查 budget/cooldown。
   4. degraded 的 `failed` 才需要檢查 queue schema、provider error 或 replay merge 失敗；不要用調高 `LLM_DAILY_BUDGET` 當第一反應。
+
+### <a id="ccg009"></a>CCG009 — provider routing
+- 意義：window 內 manifest `provider.routing` 顯示 provider router 或候選 slot 曾啟用。這是成本與資料外送治理訊號，不代表已產生供應商帳單。
+- 處置：
+  1. 確認該日期是否為主公核准的 P93 manual-only smoke。
+  2. 若不是，回復所有 provider router / free provider env flags 為 false。
+  3. 檢查沒有新增 provider key、PAT、Cloudflare token、GitHub Actions `models: read`。
+  4. 成本真相仍需查 provider dashboard；本 checker 只看 pipeline proxy。

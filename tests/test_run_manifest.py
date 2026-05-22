@@ -54,6 +54,20 @@ def test_build_manifest_basic_fields(tmp_path: Path):
             "openai_fallback_configured": True,
             "openai_fallback_used": True,
             "budget": budget,
+            "provider_diagnostics": {
+                "schema_version": 1,
+                "provider_truth": "raw-free provider routing snapshot only",
+                "router_enabled": False,
+                "experimental_free_providers_enabled": False,
+                "active_provider": "gemini_primary",
+                "route_status": "router_disabled_legacy_default",
+                "budget_guard": "required_before_provider_call",
+                "raw_payload_logging": False,
+                "secrets_logged": False,
+                "max_attempts": 1,
+                "slots": [],
+                "attempts": [],
+            },
         },
         history_delta={"weekly_vol_pulse": {"volumes": [1, 2, 3]}},
         status="ok",
@@ -89,6 +103,8 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["provider"]["quota_error"] is False
     assert manifest["provider"]["openai_fallback_configured"] is True
     assert manifest["provider"]["openai_fallback_used"] is True
+    assert manifest["provider"]["routing"]["provider_truth"] == "raw-free provider routing snapshot only"
+    assert manifest["provider"]["routing"]["route_status"] == "router_disabled_legacy_default"
     assert manifest["budget"]["decision"] == "call_llm"
     assert manifest["budget"]["billing_truth"] == "pipeline proxy only; not provider billing truth"
     assert manifest["selection"]["selection_truth"] == "source selection only; raw sources retained"
@@ -168,6 +184,56 @@ def test_build_manifest_with_enrichment_snapshot(tmp_path: Path):
 
     assert manifest["enrichment"]["eligible_posts"] == 2
     assert manifest["enrichment"]["replay_status"] == "pending"
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_with_provider_routing_drops_raw_fields(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+        meta={
+            "provider_diagnostics": {
+                "schema_version": 1,
+                "provider_truth": "raw-free provider routing snapshot only",
+                "router_enabled": True,
+                "experimental_free_providers_enabled": True,
+                "active_provider": "groq",
+                "route_status": "blocked_enabled_experimental_slot",
+                "max_attempts": 1,
+                "slots": [
+                    {
+                        "name": "groq",
+                        "provider_type": "openai_compatible",
+                        "enabled": True,
+                        "secret_configured": True,
+                        "manual_only": True,
+                        "status": "ready_manual_only",
+                        "api_key": "must-not-survive",
+                    }
+                ],
+                "attempts": [
+                    {
+                        "provider": "groq",
+                        "role": "candidate",
+                        "status": "blocked",
+                        "prompt": "must-not-survive",
+                        "response": "must-not-survive",
+                    }
+                ],
+            },
+        },
+    )
+
+    routing = manifest["provider"]["routing"]
+    assert routing["router_enabled"] is True
+    assert routing["slots"][0]["name"] == "groq"
+    assert routing["attempts"][0]["provider"] == "groq"
+    assert "must-not-survive" not in json.dumps(routing, ensure_ascii=False)
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 
@@ -607,6 +673,23 @@ def test_validate_manifest_rejects_bad_enrichment_snapshot(tmp_path: Path):
 
     assert not ok
     assert any("enrichment.schema_version" in msg for msg in errors)
+
+
+def test_validate_manifest_rejects_bad_provider_routing(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+    )
+    manifest["provider"]["routing"] = {"schema_version": 999}
+
+    ok, errors = validate_manifest(manifest)
+
+    assert not ok
+    assert any("provider.routing.schema_version" in msg for msg in errors)
 
 
 def test_validate_manifest_accepts_schema_v2_without_core_contract(tmp_path: Path):

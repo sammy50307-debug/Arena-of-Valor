@@ -40,6 +40,7 @@ ISSUE_CATALOG = {
     "budget_cooldown": {"code": "CCG006", "name": "budget cooldown"},
     "selection_throttle": {"code": "CCG007", "name": "selection throttle"},
     "enrichment_replay": {"code": "CCG008", "name": "enrichment replay"},
+    "provider_routing": {"code": "CCG009", "name": "provider routing"},
 }
 
 
@@ -71,6 +72,9 @@ class DailyCostCacheMetric:
     enrichment_skipped_posts: int = 0
     enrichment_enriched_posts: int = 0
     enrichment_replay_status: str = ""
+    provider_route_status: str = ""
+    provider_router_enabled: bool = False
+    provider_enabled_slots: int = 0
 
 
 @dataclass
@@ -218,6 +222,24 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             enrichment_skipped_posts = _safe_non_negative_int(enrichment.get("skipped_posts", 0))
             enrichment_enriched_posts = _safe_non_negative_int(enrichment.get("enriched_posts", 0))
             enrichment_replay_status = str(enrichment.get("replay_status", "") or "")
+        provider = payload.get("provider", {})
+        provider_route_status = ""
+        provider_router_enabled = False
+        provider_enabled_slots = 0
+        if isinstance(provider, dict):
+            routing = provider.get("routing", {})
+            if isinstance(routing, dict):
+                provider_route_status = str(routing.get("route_status", "") or "")
+                provider_router_enabled = bool(routing.get("router_enabled", False))
+                slots = routing.get("slots", [])
+                if isinstance(slots, list):
+                    provider_enabled_slots = len(
+                        [
+                            slot
+                            for slot in slots
+                            if isinstance(slot, dict) and bool(slot.get("enabled", False))
+                        ]
+                    )
     except Exception as exc:
         return None, "%s: %s" % (path, exc)
     return (
@@ -248,6 +270,9 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             enrichment_skipped_posts=enrichment_skipped_posts,
             enrichment_enriched_posts=enrichment_enriched_posts,
             enrichment_replay_status=enrichment_replay_status,
+            provider_route_status=provider_route_status,
+            provider_router_enabled=provider_router_enabled,
+            provider_enabled_slots=provider_enabled_slots,
         ),
         None,
     )
@@ -507,6 +532,25 @@ def evaluate_cost_cache(
                 )
             )
 
+    provider_days = [
+        day
+        for day in days
+        if day.provider_router_enabled or day.provider_enabled_slots > 0
+    ]
+    if provider_days:
+        issues.append(
+            _issue(
+                "provider_routing",
+                SEV_ADVISORY,
+                "provider_days=%s"
+                % ",".join(
+                    "%s:route=%s enabled_slots=%s"
+                    % (day.date, day.provider_route_status or "-", day.provider_enabled_slots)
+                    for day in provider_days
+                ),
+            )
+        )
+
     return CostCacheResult(
         date=date_str,
         window_days=window_days,
@@ -573,11 +617,11 @@ def print_result(result: CostCacheResult) -> None:
     print("| cache_observed_hit_rate_pct | %s |" % result.cache_store.observed_hit_rate_pct)
 
     print("")
-    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | selected | local_only | duplicate | enrichment | budget_decision | budget_reason |")
-    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|")
+    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | selected | local_only | duplicate | enrichment | provider | budget_decision | budget_reason |")
+    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|---|")
     for day in result.days:
         print(
-            "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
             % (
                 day.date,
                 day.source,
@@ -590,6 +634,7 @@ def print_result(result: CostCacheResult) -> None:
                 day.selection_local_only_posts,
                 day.selection_duplicate_posts,
                 day.enrichment_replay_status or "-",
+                day.provider_route_status or "-",
                 day.budget_decision or "-",
                 day.budget_reason or "-",
             )

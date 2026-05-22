@@ -17,6 +17,18 @@ OPENAI_FALLBACK_ENABLED = os.getenv("OPENAI_FALLBACK_ENABLED", "true").lower() =
 OPENAI_FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini")
 PUBLISH_GATE_MODE = os.getenv("PUBLISH_GATE_MODE", "shadow").lower()
 
+# P93 provider abstraction：所有非既有 provider 預設關閉。
+PROVIDER_ROUTER_ENABLED = os.getenv("PROVIDER_ROUTER_ENABLED", "false").lower() == "true"
+EXPERIMENTAL_FREE_PROVIDERS_ENABLED = os.getenv("EXPERIMENTAL_FREE_PROVIDERS_ENABLED", "false").lower() == "true"
+PROVIDER_ROUTER_MAX_ATTEMPTS = int(os.getenv("PROVIDER_ROUTER_MAX_ATTEMPTS", "1"))
+AOV_PROVIDER_GROQ_ENABLED = os.getenv("AOV_PROVIDER_GROQ_ENABLED", "false").lower() == "true"
+AOV_PROVIDER_CLOUDFLARE_AI_ENABLED = os.getenv("AOV_PROVIDER_CLOUDFLARE_AI_ENABLED", "false").lower() == "true"
+AOV_PROVIDER_GITHUB_MODELS_ENABLED = os.getenv("AOV_PROVIDER_GITHUB_MODELS_ENABLED", "false").lower() == "true"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+CLOUDFLARE_API_TOKEN = os.getenv("CLOUDFLARE_API_TOKEN", "")
+CLOUDFLARE_ACCOUNT_ID = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
+GITHUB_MODELS_TOKEN = os.getenv("GITHUB_MODELS_TOKEN", os.getenv("GITHUB_TOKEN", ""))
+
 # ── 搜尋 ────────────────────────────────────────────
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 APIFY_TOKEN = os.getenv("APIFY_TOKEN", "")

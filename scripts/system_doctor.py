@@ -47,6 +47,7 @@ ISSUE_CATALOG = {
     "budget_cooldown": {"code": "DOC017", "name": "budget:cooldown"},
     "selection_throttle": {"code": "DOC018", "name": "selection:throttle"},
     "enrichment_replay": {"code": "DOC019", "name": "enrichment:replay"},
+    "provider_routing": {"code": "DOC020", "name": "provider:routing"},
 }
 
 
@@ -179,6 +180,7 @@ def run_doctor(
         budget = manifest.get("budget", {})
         selection = manifest.get("selection", {})
         enrichment = manifest.get("enrichment", {})
+        provider = manifest.get("provider", {})
 
         if status != "ok":
             _add_issue(issues, "run_status", SEV_BLOCKING, "status=%s" % status)
@@ -321,6 +323,27 @@ def run_doctor(
                 _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail)
             elif queue_available and status_text == "no_eligible" and skipped:
                 _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail)
+
+        if isinstance(provider, dict):
+            routing = provider.get("routing", {})
+            if isinstance(routing, dict) and routing:
+                route_status = str(routing.get("route_status", "unknown"))
+                router_enabled = bool(routing.get("router_enabled", False))
+                experimental_enabled = bool(routing.get("experimental_free_providers_enabled", False))
+                slots = routing.get("slots", [])
+                enabled_slots = []
+                if isinstance(slots, list):
+                    enabled_slots = [
+                        str(slot.get("name", "unknown"))
+                        for slot in slots
+                        if isinstance(slot, dict) and bool(slot.get("enabled", False))
+                    ]
+                if router_enabled or experimental_enabled or enabled_slots:
+                    detail = (
+                        "route_status=%s router_enabled=%s experimental=%s enabled_slots=%s"
+                        % (route_status, router_enabled, experimental_enabled, ",".join(enabled_slots) or "-")
+                    )
+                    _add_issue(issues, "provider_routing", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
     for check in run_checks(

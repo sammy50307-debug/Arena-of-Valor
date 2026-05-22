@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from analyzer.data_writer import atomic_write_json
 from analyzer.enrichment_queue import normalize_enrichment_snapshot, validate_enrichment_snapshot
 from analyzer.llm_budget import normalize_budget_snapshot, validate_budget_snapshot
+from analyzer.provider_router import normalize_provider_diagnostics, validate_provider_diagnostics
 from analyzer.run_context import DEFAULT_TIMEZONE_NAME, SOURCE_HASH_VERSION, build_run_id
 from analyzer.source_selection import normalize_selection_snapshot, validate_selection_snapshot
 
@@ -412,6 +413,7 @@ def build_manifest(
             "quota_error": bool(meta.get("quota_error", False)),
             "openai_fallback_configured": bool(meta.get("openai_fallback_configured", False)),
             "openai_fallback_used": bool(meta.get("openai_fallback_used", False)),
+            "routing": normalize_provider_diagnostics(meta.get("provider_diagnostics")),
         },
         "budget": normalize_budget_snapshot(meta.get("budget")),
         "selection": normalize_selection_snapshot(meta.get("selection")),
@@ -702,5 +704,11 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
     ok_enrichment, enrichment_errors = validate_enrichment_snapshot(manifest.get("enrichment"))
     if not ok_enrichment:
         errors.extend(enrichment_errors)
+
+    provider = manifest.get("provider", {})
+    if isinstance(provider, dict):
+        ok_provider, provider_errors = validate_provider_diagnostics(provider.get("routing"))
+        if not ok_provider:
+            errors.extend(provider_errors)
 
     return len(errors) == 0, errors

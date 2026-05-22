@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P93（Provider Abstraction / Disabled-by-default Free Provider Slots / FROZEN） |
-| **Current Step** | P93 plan 已凍結；若本地已有 FROZEN commit，下一步是等主公確認是否 push；P93 runtime 需主公另行核准 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | P93 plan freeze 文件已完成本地驗證；commit / push 狀態以 `git log -1 --oneline` 與 `git status -sb` 為準 |
+| **Current Phase** | P93（Provider Abstraction / Disabled-by-default Free Provider Slots / CLOSED） |
+| **Current Step** | P93 runtime 已完成本地驗證；下一步是 commit，push 仍需主公明確確認；後續技術 Phase 應進 P94 plan |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | P93 runtime 本地驗證完成；commit / push 狀態以 `git log -1 --oneline` 與 `git status -sb` 為準 |
 | **Updated At** | 2026-05-22 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_93_PLAN.md`（P93 provider abstraction 凍結邊界；runtime 尚未核准）
+2. `docs/PHASE_93_PLAN.md`（P93 provider abstraction 收官真相；runtime 已完成 disabled-by-default 抽象層）
 3. `docs/PHASE_92_PLAN.md`（P92 runtime 收官真相與 replay 邊界）
 4. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_93_PLAN.md` | P93 Provider Abstraction / Disabled-by-default Free Provider Slots 凍結真相 |
+| L3 | `docs/PHASE_93_PLAN.md` | P93 Provider Abstraction / Disabled-by-default Free Provider Slots 收官真相 |
 | L3-prev | `docs/PHASE_92_PLAN.md` | P92 Enrichment Replay / Local-only 補深讀收官真相 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P93 plan 已凍結，下一窗讀 active bootstrap 不會偏航。 |
-| **最舒服的換窗點** | P93 FROZEN commit 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_93_PLAN.md`；若未 push，先問主公是否 push。 |
+| **現在能不能換視窗** | 可以。P93 runtime 已驗證，下一窗讀 active bootstrap 不會偏航。 |
+| **最舒服的換窗點** | P93 runtime commit 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_93_PLAN.md`；若未 commit/push，先完成 closeout 或問主公。 |
 | **不要在換窗後做的事** | 不要重修 P91/P92；不要把 provider candidates 解讀成已啟用；不要把 R-016 標記 Closed。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P93（FROZEN） |
-| **Current Step** | P93 provider abstraction plan 已凍結；若本地已有 FROZEN commit，等待主公確認是否 push；P93 runtime 需主公另行核准 |
-| **Allowed Files** | P93 FROZEN 文件 closeout / commit / push；P93 runtime 需主公另行核准後才可動 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不做 P93 provider abstraction runtime，除非主公明確核准；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P93 plan 已凍結，明列 disabled-by-default provider slots、kill switch、budget guard、secret/privacy、fake-provider tests、manual-only smoke gate；plan lint / diff / doctor / handoff truth 通過；R-016 仍 Open |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_93_PLAN.md`；若本地 ahead 1，先等主公 push；若主公核准 runtime，依 P93 FROZEN 計畫開工 |
+| **Current Phase** | P93（CLOSED） |
+| **Current Step** | P93 disabled-by-default provider abstraction runtime 已完成；等待 commit / push 確認，或進 P94 plan |
+| **Allowed Files** | P93 closeout / commit / push；新 runtime 需另開 P94 或新 Phase plan |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不做 provider live smoke，除非主公逐 provider 明確核准；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P93 runtime 已建立 provider protocol / router / shared budget guard / raw-free provider diagnostics / DOC020 / CCG009，並通過 py_compile、focused tests（70 passed）、adjacent regression、full pytest（286 passed）、doctor、cost governance、handoff truth；R-016 仍 Open |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_93_PLAN.md`；若本地 ahead 1，先等主公 push；下一個技術 Phase 應從 P94 plan 開始 |
 
 ## Required Verification Commands
 
@@ -75,7 +75,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要自動接 Groq / Cloudflare / GitHub Models；免費 provider 只列 P93 disabled-by-default 候選。
 - 不要把 R-016 標記 Closed；P91/P92/P93 都是 R-016 子問題收官，不是 R-016 closeout。
 - 不要重開 P92 runtime；P92 已 CLOSED。
-- 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default 設計。
+- 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
