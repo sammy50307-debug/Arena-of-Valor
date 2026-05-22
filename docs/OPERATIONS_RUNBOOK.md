@@ -131,6 +131,15 @@
   3. 若 selected 超過 `max_llm_items`，先跑 `py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py`，再檢查 `analyzer/source_selection.py` 是否計算 cap 漂移。
   4. 不要因本 issue 直接開 OpenAI fallback；P91 的主線是減少 LLM 深讀候選數。
 
+### <a id="doc019"></a>DOC019 — enrichment replay
+- 意義：manifest `enrichment` 顯示 P92 replay queue 狀態。`no_eligible` 多半代表 local-only 來源全為 duplicate / low-signal，這是 expected no-op；`pending` 代表有可補深讀貼文但尚未手動 replay；`failed` 才是需要處理的錯誤。
+- 處置：
+  1. 查看 manifest `enrichment.queue_available`、`eligible_posts`、`skipped_posts`、`enriched_posts`、`replay_status`、`skipped_reason_counts`。
+  2. 若 `replay_status=no_eligible` 且 skipped reason 是 `duplicate_url` / `duplicate_signature`，不要重送 LLM，這表示 P91 節流成功。
+  3. 若 `replay_status=pending` 且有剩餘 budget，可下載 Actions artifact 或使用本機 `data/enrichment_queue/<date>/enrichment_queue.json` 後執行 `py scripts\enrichment_replay.py --date <YYYY-MM-DD>` 先 dry-run。
+  4. 若 dry-run 確認會補深讀，再執行 `py scripts\enrichment_replay.py --date <YYYY-MM-DD> --apply`；若要產候選報告才加 `--write-report`。
+  5. 若 `replay_status=skipped_budget`，先看 `DOC017`，不得繞過 P90 budget/cooldown。
+
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
 - 處置：
@@ -295,3 +304,11 @@
   2. 若為 advisory，代表 Top-N / dedupe 正常降低 LLM call 壓力。
   3. 若為 degraded，檢查 `selection.llm_selected_posts > selection.max_llm_items` 的日期，修正 source selection 後重跑。
   4. 若 local-only 比例連續過高，後續走 P92 replay/backfill 補深讀，不在 P91 直接引入新 provider。
+
+### <a id="ccg008"></a>CCG008 — enrichment replay
+- 意義：window 內 manifest `enrichment` 顯示 P92 replay queue 有 pending / no-op / budget skip / partial / failed 狀態。
+- 處置：
+  1. advisory 的 `pending` 表示有 eligible queue 尚未補深讀；先用 `scripts\enrichment_replay.py` dry-run 看 budget 與候選數。
+  2. advisory 的 `no_eligible` 表示 queue 存在但本批多為 duplicate / low-signal，不需補深讀。
+  3. advisory 的 `skipped_budget` 依 `CCG006` 檢查 budget/cooldown。
+  4. degraded 的 `failed` 才需要檢查 queue schema、provider error 或 replay merge 失敗；不要用調高 `LLM_DAILY_BUDGET` 當第一反應。

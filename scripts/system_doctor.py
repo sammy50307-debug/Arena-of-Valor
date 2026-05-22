@@ -46,6 +46,7 @@ ISSUE_CATALOG = {
     "quality_tier": {"code": "DOC016", "name": "quality:tier"},
     "budget_cooldown": {"code": "DOC017", "name": "budget:cooldown"},
     "selection_throttle": {"code": "DOC018", "name": "selection:throttle"},
+    "enrichment_replay": {"code": "DOC019", "name": "enrichment:replay"},
 }
 
 
@@ -177,6 +178,7 @@ def run_doctor(
         quality = manifest.get("quality", {})
         budget = manifest.get("budget", {})
         selection = manifest.get("selection", {})
+        enrichment = manifest.get("enrichment", {})
 
         if status != "ok":
             _add_issue(issues, "run_status", SEV_BLOCKING, "status=%s" % status)
@@ -295,6 +297,30 @@ def run_doctor(
                 _add_issue(issues, "selection_throttle", SEV_DEGRADED, detail)
             elif local_only or duplicates:
                 _add_issue(issues, "selection_throttle", SEV_ADVISORY, detail)
+
+        if isinstance(enrichment, dict) and enrichment:
+            queue_available = bool(enrichment.get("queue_available", False))
+            eligible = enrichment.get("eligible_posts", 0)
+            skipped = enrichment.get("skipped_posts", 0)
+            enriched = enrichment.get("enriched_posts", 0)
+            status_text = str(enrichment.get("replay_status", "not_available"))
+            detail = (
+                "queue_available=%s status=%s eligible=%s skipped=%s enriched=%s skipped_reasons=%s"
+                % (
+                    queue_available,
+                    status_text,
+                    eligible,
+                    skipped,
+                    enriched,
+                    enrichment.get("skipped_reason_counts", {}),
+                )
+            )
+            if status_text == "failed":
+                _add_issue(issues, "enrichment_replay", SEV_DEGRADED, detail)
+            elif status_text in {"pending", "skipped_budget", "partial"}:
+                _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail)
+            elif queue_available and status_text == "no_eligible" and skipped:
+                _add_issue(issues, "enrichment_replay", SEV_ADVISORY, detail)
 
     health_expected = "production" if require_production else "any"
     for check in run_checks(

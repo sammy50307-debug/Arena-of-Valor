@@ -193,6 +193,56 @@ def test_system_doctor_advises_on_selection_throttle(tmp_path: Path):
     assert doctor.exit_code_for(result) == 0
 
 
+def test_system_doctor_advises_on_enrichment_noop(tmp_path: Path):
+    date_str = "2026-05-16"
+    _write_report_and_index(
+        tmp_path,
+        date_str,
+        mode="production",
+        quality_tier="production_llm_partial",
+    )
+    _write_manifest(
+        tmp_path,
+        date_str,
+        mode="production",
+        source_quality=build_source_quality(
+            [
+                {"platform": "dcard", "source": "dcard.tw"},
+                {"platform": "bahamut", "source": "forum.gamer.com.tw"},
+            ]
+        ),
+        meta={
+            "history_status": "ok",
+            "analysis_source": "mixed",
+            "llm_coverage": "partial",
+            "enrichment": {
+                "schema_version": 1,
+                "enrichment_truth": "raw-free enrichment snapshot only",
+                "queue_available": True,
+                "queue_ref": "data/enrichment_queue/2026-05-16/enrichment_queue.json",
+                "queue_digest": "abc123",
+                "source_count": 2,
+                "eligible_posts": 0,
+                "skipped_posts": 2,
+                "enriched_posts": 0,
+                "artifact_retention_days": 3,
+                "replay_status": "no_eligible",
+                "eligible_reason_counts": {},
+                "skipped_reason_counts": {"duplicate_url": 2},
+                "budget_decision": "call_llm",
+                "budget_reason": "available",
+                "budget_remaining": 10,
+                "cooldown_active": False,
+            },
+        },
+    )
+
+    result = doctor.run_doctor(tmp_path, date_str, profile="ci", require_production=True)
+
+    assert any(x.code == "DOC019" and x.severity == doctor.SEV_ADVISORY for x in result.issues)
+    assert doctor.exit_code_for(result) == 0
+
+
 def test_system_doctor_blocks_when_manifest_missing(tmp_path: Path):
     date_str = "2026-05-16"
     _write_report_and_index(tmp_path, date_str, mode="production")

@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P92（Enrichment Replay / Local-only 補深讀 / FROZEN） |
-| **Current Step** | P92 plan 已凍結；等待主公另行核准 P92 runtime 動工，未核准前不得改 `main.py` / `analyzer/` / `scripts` runtime |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | Plan freeze in progress：`docs/PHASE_92_PLAN.md` 已通過 lint；handoff docs 以 `git log -1 --oneline` 為準 |
+| **Current Phase** | P92（Enrichment Replay / Local-only 補深讀 / CLOSED） |
+| **Current Step** | P92 runtime 已完成本地驗證；下一步是等主公確認是否 push，或開 P93 disabled-by-default provider abstraction plan |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | P92 runtime 本地驗證完成；commit / push 狀態以 `git log -1 --oneline` 與 `git status -sb` 為準 |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-22 |
 
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P92（FROZEN） |
-| **Current Step** | P92 enrichment replay / local-only 補深讀計畫已凍結；等待主公核准 P92 runtime |
-| **Allowed Files** | P92 plan 已封存；未核准 runtime 前只能補 closeout / handoff / risk / history 文件，不得改 `main.py` / `analyzer/` / `scripts/` runtime |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 P91 已封存 runtime；不直接做 P92 replay/backfill runtime；不做 P93 provider abstraction；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P92 plan 已完成 artifact-backed enrichment queue / budget-aware replay / duplicate no-op / raw-free manifest 設計，並通過 `lint_phase_plan.py`；R-016 仍 Open |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_92_PLAN.md`；下一步只可等待或請示 P92 runtime 核准，除非主公明確核准 P92 runtime |
+| **Current Phase** | P92（CLOSED） |
+| **Current Step** | P92 artifact-backed enrichment queue / budget-aware replay runtime 已完成；等待主公確認 push 或開 P93 plan |
+| **Allowed Files** | 若只接續 P92，僅可做 closeout / push；新 runtime 需另開 P93 或新 Phase plan |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不重開 P92 runtime；不做 P93 provider abstraction runtime；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P92 runtime 已建立 queue helper / replay CLI / manifest enrichment / workflow artifact / DOC019 / CCG008，並通過 focused 66、full pytest 274、py_compile、doctor、cost governance；R-016 仍 Open |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_92_PLAN.md`；若本地 ahead 1，先等主公 push；下一個技術 Phase 應從 P93 plan 開始 |
 
 ## State Machine
 
@@ -61,20 +61,21 @@ py scripts\lint_phase_plan.py docs\PHASE_91_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_92_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
-py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
+py -m pytest -q tests\test_enrichment_queue.py tests\test_enrichment_replay.py tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
+py -m pytest -q
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
 ## Latest Evidence
 
-P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已 CLOSED：model list 改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，daily cron改成 UTC 08:30 / 台北 16:30。P87 已 CLOSED：manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015。P88 已 CLOSED：新增 deterministic local analyzer，LLM 429 / provider exception 會保留真實貼文並產生 `analysis_source=local_deterministic` baseline。P89 已 CLOSED：新增 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage` contract，promotion gate 改看 publishable quality tier；`production_local_only` 在 core/local baseline pass 時可 promotion，manual showcase / error fallback 不可 promotion。P90 已 CLOSED：新增 raw-free `analyzer/llm_budget.py`、budget/cooldown state、provider 呼叫前停損、429 cooldown 記帳、manifest `budget` snapshot、DOC017 / CCG006 advisory；focused tests 64 passed、full pytest 254 passed。P91 已 CLOSED：新增 source selection / dedupe / budget-aware Top-N / local-only merge / manifest selection snapshot / DOC018 / CCG007；focused tests 56 passed、full pytest 263 passed。2026-05-22 Actions 實跑已產生 P91 `selection` snapshot，`llm_calls` 從 pre-P91 的 28 降至 6，`duplicate_posts=7` 且 local-only 全由 duplicate_url 主導。P92 plan 已 FROZEN：採 artifact-backed enrichment queue + budget-aware replay 設計，duplicate local-only 預設 no-op；runtime 尚未核准。R-016 仍 Open，因為 P92-P95 尚未完成。
+P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已 CLOSED：model list 改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，daily cron改成 UTC 08:30 / 台北 16:30。P87 已 CLOSED：manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015。P88 已 CLOSED：新增 deterministic local analyzer，LLM 429 / provider exception 會保留真實貼文並產生 `analysis_source=local_deterministic` baseline。P89 已 CLOSED：新增 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage` contract，promotion gate 改看 publishable quality tier；`production_local_only` 在 core/local baseline pass 時可 promotion，manual showcase / error fallback 不可 promotion。P90 已 CLOSED：新增 raw-free `analyzer/llm_budget.py`、budget/cooldown state、provider 呼叫前停損、429 cooldown 記帳、manifest `budget` snapshot、DOC017 / CCG006 advisory；focused tests 64 passed、full pytest 254 passed。P91 已 CLOSED：新增 source selection / dedupe / budget-aware Top-N / local-only merge / manifest selection snapshot / DOC018 / CCG007；focused tests 56 passed、full pytest 263 passed。2026-05-22 Actions 實跑已產生 P91 `selection` snapshot，`llm_calls` 從 pre-P91 的 28 降至 6，`duplicate_posts=7` 且 local-only 全由 duplicate_url 主導。P92 已 CLOSED：新增 artifact-backed `analyzer/enrichment_queue.py`、manual `scripts/enrichment_replay.py`、manifest raw-free `enrichment` snapshot、Actions short-retention artifact、DOC019 / CCG008；duplicate-only local-only 會正確 `no_eligible` no-op，不消耗 LLM；focused tests 66 passed、full pytest 274 passed。R-016 仍 Open，因為 P93-P95 尚未完成。
 
 ## Window Switch Guidance
 
-- 可以換視窗：P92 plan 已凍結，下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_92_PLAN.md` 即可接手。
-- 最佳換窗點：P92 plan freeze commit 完成後換；下一窗可直接等主公核准 runtime 或做只讀設計審查。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要重修 P91，也不要直接動 P92 runtime。
+- 可以換視窗：P92 runtime 已驗證，下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_92_PLAN.md` 即可接手。
+- 最佳換窗點：P92 runtime commit 完成後換；若本地 ahead，下一窗可直接等主公確認 push。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要重修 P91/P92。
 
 ## Next Decision
 
-下一步是等待主公核准 P92 runtime 動工。未核准前不得修改 `main.py` / `analyzer/` / `scripts/` runtime；R-016 仍 Open，不得關閉。
+下一步是等主公確認是否 push P92 runtime commit；或另開 P93 disabled-by-default provider abstraction plan。R-016 仍 Open，不得關閉。

@@ -72,6 +72,15 @@ jobs:
         run: |
           python main.py --run-now
 
+      - name: 📦 Upload Enrichment Queue Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enrichment-queue-${{ github.run_id }}
+          path: data/enrichment_queue/
+          if-no-files-found: ignore
+          retention-days: 3
+
       - name: 🛠️ Fallback Push
         # 如果 python main.py 裡面的 Git push 失敗，這裡補推一次
         if: always()

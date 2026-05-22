@@ -39,6 +39,7 @@ ISSUE_CATALOG = {
     "llm_call_budget": {"code": "CCG005", "name": "llm call budget"},
     "budget_cooldown": {"code": "CCG006", "name": "budget cooldown"},
     "selection_throttle": {"code": "CCG007", "name": "selection throttle"},
+    "enrichment_replay": {"code": "CCG008", "name": "enrichment replay"},
 }
 
 
@@ -65,6 +66,11 @@ class DailyCostCacheMetric:
     selection_local_only_posts: int = 0
     selection_duplicate_posts: int = 0
     selection_max_llm_items: int = 0
+    enrichment_queue_available: bool = False
+    enrichment_eligible_posts: int = 0
+    enrichment_skipped_posts: int = 0
+    enrichment_enriched_posts: int = 0
+    enrichment_replay_status: str = ""
 
 
 @dataclass
@@ -200,6 +206,18 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             selection_local_only_posts = _safe_non_negative_int(selection.get("local_only_posts", 0))
             selection_duplicate_posts = _safe_non_negative_int(selection.get("duplicate_posts", 0))
             selection_max_llm_items = _safe_non_negative_int(selection.get("max_llm_items", 0))
+        enrichment = payload.get("enrichment", {})
+        enrichment_queue_available = False
+        enrichment_eligible_posts = 0
+        enrichment_skipped_posts = 0
+        enrichment_enriched_posts = 0
+        enrichment_replay_status = ""
+        if isinstance(enrichment, dict):
+            enrichment_queue_available = bool(enrichment.get("queue_available", False))
+            enrichment_eligible_posts = _safe_non_negative_int(enrichment.get("eligible_posts", 0))
+            enrichment_skipped_posts = _safe_non_negative_int(enrichment.get("skipped_posts", 0))
+            enrichment_enriched_posts = _safe_non_negative_int(enrichment.get("enriched_posts", 0))
+            enrichment_replay_status = str(enrichment.get("replay_status", "") or "")
     except Exception as exc:
         return None, "%s: %s" % (path, exc)
     return (
@@ -225,6 +243,11 @@ def _manifest_metric(repo_root: Path, date_str: str) -> Tuple[Optional[DailyCost
             selection_local_only_posts=selection_local_only_posts,
             selection_duplicate_posts=selection_duplicate_posts,
             selection_max_llm_items=selection_max_llm_items,
+            enrichment_queue_available=enrichment_queue_available,
+            enrichment_eligible_posts=enrichment_eligible_posts,
+            enrichment_skipped_posts=enrichment_skipped_posts,
+            enrichment_enriched_posts=enrichment_enriched_posts,
+            enrichment_replay_status=enrichment_replay_status,
         ),
         None,
     )
@@ -444,6 +467,46 @@ def evaluate_cost_cache(
                 )
             )
 
+    enrichment_failed = [
+        day
+        for day in days
+        if day.enrichment_replay_status == "failed"
+    ]
+    if enrichment_failed:
+        issues.append(
+            _issue(
+                "enrichment_replay",
+                SEV_DEGRADED,
+                "enrichment_failed_days=%s" % ",".join(day.date for day in enrichment_failed),
+            )
+        )
+    else:
+        enrichment_pending = [
+            day
+            for day in days
+            if day.enrichment_queue_available
+            and day.enrichment_replay_status in {"pending", "skipped_budget", "partial", "no_eligible"}
+        ]
+        if enrichment_pending:
+            issues.append(
+                _issue(
+                    "enrichment_replay",
+                    SEV_ADVISORY,
+                    "enrichment_days=%s"
+                    % ",".join(
+                        "%s:status=%s eligible=%s skipped=%s enriched=%s"
+                        % (
+                            day.date,
+                            day.enrichment_replay_status,
+                            day.enrichment_eligible_posts,
+                            day.enrichment_skipped_posts,
+                            day.enrichment_enriched_posts,
+                        )
+                        for day in enrichment_pending
+                    ),
+                )
+            )
+
     return CostCacheResult(
         date=date_str,
         window_days=window_days,
@@ -510,11 +573,11 @@ def print_result(result: CostCacheResult) -> None:
     print("| cache_observed_hit_rate_pct | %s |" % result.cache_store.observed_hit_rate_pct)
 
     print("")
-    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | selected | local_only | duplicate | budget_decision | budget_reason |")
-    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|")
+    print("| date | source | mode | cache_hit | total_calls | llm_calls | hit_rate_pct | selected | local_only | duplicate | enrichment | budget_decision | budget_reason |")
+    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|")
     for day in result.days:
         print(
-            "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
             % (
                 day.date,
                 day.source,
@@ -526,6 +589,7 @@ def print_result(result: CostCacheResult) -> None:
                 day.selection_llm_selected_posts,
                 day.selection_local_only_posts,
                 day.selection_duplicate_posts,
+                day.enrichment_replay_status or "-",
                 day.budget_decision or "-",
                 day.budget_reason or "-",
             )

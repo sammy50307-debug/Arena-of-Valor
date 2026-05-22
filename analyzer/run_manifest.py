@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from analyzer.data_writer import atomic_write_json
+from analyzer.enrichment_queue import normalize_enrichment_snapshot, validate_enrichment_snapshot
 from analyzer.llm_budget import normalize_budget_snapshot, validate_budget_snapshot
 from analyzer.run_context import DEFAULT_TIMEZONE_NAME, SOURCE_HASH_VERSION, build_run_id
 from analyzer.source_selection import normalize_selection_snapshot, validate_selection_snapshot
@@ -414,6 +415,7 @@ def build_manifest(
         },
         "budget": normalize_budget_snapshot(meta.get("budget")),
         "selection": normalize_selection_snapshot(meta.get("selection")),
+        "enrichment": normalize_enrichment_snapshot(meta.get("enrichment")),
         "replay_source": replay_source,
         "is_backfill": bool(is_backfill),
         "eligibility": {
@@ -696,5 +698,9 @@ def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
     ok_selection, selection_errors = validate_selection_snapshot(manifest.get("selection"))
     if not ok_selection:
         errors.extend(selection_errors)
+
+    ok_enrichment, enrichment_errors = validate_enrichment_snapshot(manifest.get("enrichment"))
+    if not ok_enrichment:
+        errors.extend(enrichment_errors)
 
     return len(errors) == 0, errors

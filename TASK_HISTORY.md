@@ -9847,3 +9847,309 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ Handoff / Active Operation / RISK_REGISTRY 已同步至 P92 FROZEN。
 - ⏸️ P92 runtime 尚未核准：下一步需主公明確說「核准 P92 runtime 動工」後才能改 runtime。
 - 🔴 R-016 仍 Open：後續至少仍需 P92 runtime、P93 provider abstraction 候選、P95 closeout 或主公另行裁決。
+
+### P92 Enrichment Replay / Local-only 補深讀 Runtime（2026-05-22）
+
+**目標**：
+- 把 P91 selection 產生的 local-only 貼文接上一條可追溯、可 no-op、受 P90 budget 控制的後補深讀路徑。
+- 保持主公零額外付費主線：
+  - 不新增 `OPENAI_API_KEY`。
+  - 不接 Groq / Cloudflare / GitHub Models 等免費 provider。
+  - 不調高 `LLM_DAILY_BUDGET` 或 `LLM_ANALYSIS_TOP_N`。
+  - 不把 raw queue / raw prompt / raw provider response commit 進 repo。
+- 讓 2026-05-22 這種 local-only 全為 `duplicate_url` 的日子正確顯示 `no_eligible` no-op，而不是錯誤地補深讀。
+
+**觸發**：
+- P92 plan 已 FROZEN，主公於 2026-05-22 明確說「好 P92 runtime 動工」。
+- P91 實跑證據已證明 LLM calls 收斂：
+  - pre-P91 2026-05-21：`llm_calls=28`、`total_calls=39`。
+  - P91 2026-05-22：`llm_calls=6`、`total_calls=13`。
+  - `selection.total_input_posts=19`
+  - `selection.unique_posts=12`
+  - `selection.duplicate_posts=7`
+  - `selection.llm_selected_posts=12`
+  - `selection.local_only_posts=7`
+  - `selection.reason_counts.duplicate_url=7`
+- P92 runtime 的真正問題不是「更多 provider」，而是：
+  - P91 省下 LLM calls 後，local-only / partial coverage 需要有證據化補深讀通道。
+  - duplicate local-only 不能被錯誤送回 LLM，否則會抵銷 P91。
+
+**稽核表**：
+- S 級代碼層：
+  - 採用：新增小型 `analyzer/enrichment_queue.py` helper；`main.py` 只負責 producer；`scripts/enrichment_replay.py` 只負責 manual consumer。
+  - 風險：把 replay merge 全塞回 daily pipeline 會拖垮正常報告。
+  - 緩解：daily runtime 僅產 queue/snapshot；replay 預設 dry-run，`--apply` 才寫回。
+- S 級邏輯層：
+  - 採用：reason-aware eligibility。
+  - 物理規則：
+    - `topn_overflow`：可 replay，但受 `ENRICHMENT_REPLAY_MAX_POSTS` 與 budget remaining 限制。
+    - `duplicate_url`：skipped / no-op。
+    - `duplicate_signature`：skipped / no-op。
+    - `low_signal_local_only`：skipped / no-op。
+  - 緩解：tests 固定 duplicate-only no-op 與 topn eligible。
+- S 級測試層：
+  - 新增 `tests/test_enrichment_queue.py`、`tests/test_enrichment_replay.py`。
+  - 更新 `tests/test_source_selection.py`、`tests/test_run_manifest.py`、`tests/test_system_doctor.py`、`tests/test_cost_cache_governance.py`。
+  - Focused matrix 覆蓋 raw-free manifest、duplicate no-op、topn eligible、budget skip、apply write、DOC019、CCG008。
+- S 級安全層：
+  - Queue raw truth：`raw replay queue; do not commit to repo`。
+  - Manifest snapshot truth：`raw-free enrichment snapshot only`。
+  - Raw queue 路徑：`data/enrichment_queue/<date>/enrichment_queue.json`，由既有 `data/*` ignore 保護。
+  - Actions artifact retention：3 days。
+- A 級架構層：
+  - Producer / consumer 解耦。
+  - P93 provider abstraction 沒有混入 P92。
+  - `scripts/enrichment_replay.py` 使用 `FallbackLLMClient(enable_openai=False)`，避免 P92 追加 OpenAI cost。
+- A 級資料層：
+  - `SourceSelection` 新增 `local_only_reasons` 與 `local_only_records`。
+  - `build_source_id(...)` 以 platform / normalized url / title signature / content signature 建立 raw-safe digest。
+  - Manifest 僅保存 `queue_digest` / counts / reason_counts，不保存 raw title/content/url。
+- A 級可觀察性層：
+  - Manifest 新增 `enrichment`：
+    - `queue_available`
+    - `eligible_posts`
+    - `skipped_posts`
+    - `enriched_posts`
+    - `artifact_retention_days`
+    - `replay_status`
+    - `eligible_reason_counts`
+    - `skipped_reason_counts`
+    - `budget_decision`
+    - `budget_reason`
+    - `budget_remaining`
+  - Doctor 新增 `DOC019`。
+  - Cost governance 新增 `CCG008`。
+- A 級韌性層：
+  - Budget / cooldown active 時 replay 回 `skipped_budget`，不打 provider。
+  - Missing queue 回 failure，避免 operator 誤以為已補。
+  - Duplicate-only queue 回 success no-op。
+- A 級可維護性層：
+  - Queue schema / snapshot schema 均為 v1。
+  - Replay status enum 固定：
+    - `not_available`
+    - `pending`
+    - `no_eligible`
+    - `dry_run`
+    - `completed`
+    - `partial`
+    - `skipped_budget`
+    - `failed`
+- A 級文件層：
+  - `docs/PHASE_92_PLAN.md` 更新為 CLOSED。
+  - `docs/OPERATIONS_RUNBOOK.md` 補 DOC019 / CCG008。
+  - `docs/COST_CACHE_GOVERNANCE_POLICY.md` 補 enrichment 指標來源與邊界。
+  - `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` / `docs/RISK_REGISTRY.md` 同步。
+- A 級流程層：
+  - P92 CLOSED 後不得追加 provider runtime；P93 必須另開 plan。
+  - Push 仍需主公明確確認。
+- B 級效能層：
+  - `ENRICHMENT_REPLAY_MAX_POSTS=4` 預設小批次。
+  - Replay 會取 `min(max_items, remaining_budget)`。
+- B 級 UX/A11y 層：
+  - CLI 區分 `DRY-RUN`、`OK: no eligible`、`OK: budget skip`、`OK: enrichment replay ...`。
+  - no-op 不用錯誤語氣。
+- B 級部署層：
+  - GitHub Actions 新增 `actions/upload-artifact@v4`。
+  - `if-no-files-found: ignore`。
+  - `retention-days: 3`。
+- B 級成本層：
+  - Replay 不使用 OpenAI fallback。
+  - 不調高 budget / Top-N。
+  - P90 budget skip 優先。
+- B 級隱私/合規層：
+  - Raw content 只在 git-ignored queue 或 short-retention artifact。
+  - Manifest raw-free leakage test 明確驗證不含 title/content/url。
+- B 級 i18n/在地化層：
+  - P92 不新增跨語義判斷；eligibility 只依 P91 reason / score / cap / budget。
+
+**物理真相**：
+- 新增 `analyzer/enrichment_queue.py`
+  - `ENRICHMENT_SCHEMA_VERSION = 1`
+  - `ENRICHMENT_TRUTH = "raw replay queue; do not commit to repo"`
+  - `ENRICHMENT_SNAPSHOT_TRUTH = "raw-free enrichment snapshot only"`
+  - `RETENTION_TRUTH = "raw queue is git-ignored locally and short-retention in GitHub Actions artifacts"`
+  - `ELIGIBLE_SELECTION_REASONS = {REASON_TOPN_OVERFLOW}`
+  - `build_enrichment_queue(...)`
+    - 輸入：`run_date`、`source_hash`、`local_only_posts`、`local_only_reasons`、`max_replay_posts`、`retention_days`。
+    - 輸出 raw queue：
+      - `schema_version`
+      - `enrichment_truth`
+      - `run_date`
+      - `source_hash`
+      - `generated_at_utc`
+      - `source_count`
+      - `eligible_count`
+      - `skipped_count`
+      - `replay_max_posts`
+      - `retention_days`
+      - `retention_truth`
+      - `records`
+      - `queue_digest`
+    - record 欄位：
+      - `source_id`
+      - `reason`
+      - `eligible`
+      - `skip_reason`
+      - `platform`
+      - `score`
+      - `raw_post`
+  - `build_enrichment_snapshot(...)`
+    - 輸出 raw-free manifest snapshot：
+      - `schema_version`
+      - `enrichment_truth`
+      - `queue_available`
+      - `queue_ref`
+      - `queue_digest`
+      - `source_count`
+      - `eligible_posts`
+      - `skipped_posts`
+      - `enriched_posts`
+      - `artifact_retention_days`
+      - `replay_status`
+      - `eligible_reason_counts`
+      - `skipped_reason_counts`
+      - `budget_decision`
+      - `budget_reason`
+      - `budget_remaining`
+      - `cooldown_active`
+- 更新 `analyzer/source_selection.py`
+  - `SourceSelection` dataclass 新增：
+    - `local_only_reasons: List[str]`
+    - `local_only_records: List[Dict[str, Any]]`
+  - 新增 `build_source_id(item)`：
+    - hash payload = platform + normalized url + title signature + content signature。
+    - 回傳 sha256 前 16 字元。
+- 更新 `main.py`
+  - P91 selection 後建立 enrichment queue。
+  - `selection.local_only_posts` 為空時：
+    - `enrichment.queue_available=false`
+    - `replay_status=not_available`
+  - `selection.local_only_posts` 非空時：
+    - 寫入 `config.ENRICHMENT_QUEUE_DIR / <run_date> / enrichment_queue.json`
+    - `_meta["enrichment"] = build_enrichment_snapshot(...)`
+  - log：
+    - `[P92] enrichment queue: available=%s eligible=%s skipped=%s status=%s`
+- 更新 `config.py`
+  - `ENRICHMENT_QUEUE_DIR = DATA_DIR / "enrichment_queue"`
+  - `ENRICHMENT_REPLAY_MAX_POSTS = int(os.getenv("ENRICHMENT_REPLAY_MAX_POSTS", "4"))`
+  - `ENRICHMENT_ARTIFACT_RETENTION_DAYS = int(os.getenv("ENRICHMENT_ARTIFACT_RETENTION_DAYS", "3"))`
+  - 啟動時建立 `ENRICHMENT_QUEUE_DIR`。
+- 新增 `scripts/enrichment_replay.py`
+  - 預設 dry-run：
+    - `py scripts\enrichment_replay.py --date 2026-05-22`
+  - 寫回：
+    - `py scripts\enrichment_replay.py --date 2026-05-22 --apply`
+  - 產候選報告：
+    - `py scripts\enrichment_replay.py --date 2026-05-22 --apply --write-report`
+  - `--apply` 寫入：
+    - `data/enrichment_queue/<date>/enriched_posts.json`
+    - 既有 `data/runs/<date>/run_manifest.json` 的 `enrichment`
+  - `--write-report` 才會用 merged entries 產 candidate report，`promote=False`。
+- 更新 `analyzer/run_manifest.py`
+  - import `normalize_enrichment_snapshot` / `validate_enrichment_snapshot`。
+  - build manifest 新增 `"enrichment": normalize_enrichment_snapshot(meta.get("enrichment"))`。
+  - validate manifest 新增 enrichment validation。
+- 更新 `.github/workflows/daily_report.yml`
+  - 新增 step：
+    - `Upload Enrichment Queue Artifact`
+    - `uses: actions/upload-artifact@v4`
+    - `path: data/enrichment_queue/`
+    - `if-no-files-found: ignore`
+    - `retention-days: 3`
+- 更新 `scripts/system_doctor.py`
+  - `ISSUE_CATALOG["enrichment_replay"] = DOC019`
+  - `replay_status=failed` -> DEGRADED。
+  - `pending` / `skipped_budget` / `partial` -> ADVISORY。
+  - duplicate-only `no_eligible` 且 skipped > 0 -> ADVISORY，提醒是 expected no-op。
+- 更新 `scripts/cost_cache_governance.py`
+  - `ISSUE_CATALOG["enrichment_replay"] = CCG008`
+  - `DailyCostCacheMetric` 新增：
+    - `enrichment_queue_available`
+    - `enrichment_eligible_posts`
+    - `enrichment_skipped_posts`
+    - `enrichment_enriched_posts`
+    - `enrichment_replay_status`
+  - 輸出日級 enrichment 狀態欄。
+- 新增測試：
+  - `tests/test_enrichment_queue.py`
+  - `tests/test_enrichment_replay.py`
+- 更新測試：
+  - `tests/test_source_selection.py`
+  - `tests/test_run_manifest.py`
+  - `tests/test_system_doctor.py`
+  - `tests/test_cost_cache_governance.py`
+- 更新文件：
+  - `docs/OPERATIONS_RUNBOOK.md`
+    - 新增 DOC019。
+    - 新增 CCG008。
+  - `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+    - 新增 Run manifest enrichment 指標。
+    - 新增 CCG008 機械檢查。
+  - `docs/PHASE_92_PLAN.md`
+    - 狀態改為 CLOSED。
+    - 補 runtime 收官證據。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P92 CLOSED。
+  - `docs/ACTIVE_OPERATION.md`
+    - L2 狀態同步 P92 CLOSED。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 mitigation 補 P92 CLOSED，但 R-016 仍 Open。
+
+**實跑證據**：
+- Focused tests：
+  - 指令：
+    - `py -m pytest -q tests\test_enrichment_queue.py tests\test_enrichment_replay.py tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py`
+  - 結果：
+    - `66 passed in 1.25s`
+- py_compile：
+  - 指令：
+    - `py -m py_compile analyzer\enrichment_queue.py analyzer\source_selection.py analyzer\run_manifest.py scripts\enrichment_replay.py scripts\system_doctor.py scripts\cost_cache_governance.py main.py`
+  - 結果：
+    - PASS，無輸出。
+- Full pytest：
+  - 指令：
+    - `py -m pytest -q`
+  - 結果：
+    - `274 passed in 7.09s`
+- System doctor：
+  - 指令：
+    - `py scripts\system_doctor.py --repo-root . --date 2026-05-22 --profile local --skip-landing`
+  - 結果：
+    - exit 0。
+    - 只有既有 advisory：
+      - `DOC007 history source coverage`
+      - `DOC018 selection:throttle`
+- Cost/cache governance：
+  - 指令：
+    - `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-22 --window-days 1 --max-llm-calls 20`
+  - 結果：
+    - exit 0。
+    - 只有既有 advisory：
+      - `CCG007 selection throttle`
+    - 指標：
+      - `total_cache_hit=7`
+      - `total_calls=13`
+      - `total_llm_calls=6`
+      - `aggregate_cache_hit_rate_pct=54`
+      - `selected=12`
+      - `local_only=7`
+      - `duplicate=7`
+      - `enrichment=-`（既有 2026-05-22 manifest 是 P91 產物，P92 尚未由 Actions 重跑）
+- `git diff --check`
+  - 結果：
+    - PASS；僅 Git for Windows CRLF warning，無 whitespace error。
+
+**風險**：
+- P92 本地 code 已完成，但 GitHub Actions 尚未重跑 P92 runtime；下一次 manual dispatch / schedule 才會產生真實 `data/enrichment_queue/` artifact 與 manifest `enrichment` snapshot。
+- 2026-05-22 既有 manifest 仍是 P91 Actions 產物，所以 governance 顯示 `enrichment=-` 是預期，不是 P92 失效。
+- `data/enrichment_queue/` 會保存 raw post content；雖然被 `data/*` gitignore 擋住，後續任何 `git add -f data/enrichment_queue` 都必須禁止。
+- `scripts/enrichment_replay.py --apply --write-report` 會產 candidate report；預設不 promote，但仍可能產生 untracked report 版本檔，stage 前必檢。
+- R-016 仍 Open；P92 只完成 enrichment replay 子問題，P93-P95 尚未完成。
+- P93 provider abstraction 尚未核准；不得把免費 provider 直接接入 P92。
+
+**狀態**：
+- ✅ P92 runtime CLOSED。
+- ✅ Focused tests / py_compile / full pytest / doctor / cost governance / diff check 均通過。
+- ✅ Handoff / Active Operation / RISK_REGISTRY / PHASE_92_PLAN / runbook / cost policy / TASK_HISTORY 已同步。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：commit P92 runtime；push 仍需主公明確確認。
