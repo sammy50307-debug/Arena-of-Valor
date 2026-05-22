@@ -10434,3 +10434,171 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
   - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：commit P93 runtime；push 仍需主公明確確認。
+
+### P94 plan freeze — Doctor / SLO Reclassification（FROZEN）
+
+**目標**：
+- 凍結 P94 runtime 計畫：把 P86-P93 後的 doctor / SLO / cost governance 訊號重新分類，讓系統能區分：
+  - 真正阻塞 production：
+    - 無 production report
+    - manifest gap
+    - doctor blocking
+  - 已恢復 production 但仍有 advisory：
+    - DOC007 history source coverage
+    - DOC018 selection throttle
+    - DOC019 duplicate-only enrichment replay no-op
+  - 歷史窗口造成的成本 / 品質噪音：
+    - 例如 2026-05-21 pre-P91 `llm_calls=28` 仍會影響三日 cost governance window。
+- 為 P95 R-016 closeout verification 建立乾淨入口；P94 本身不關閉 R-016。
+
+**觸發背景**：
+- P93 runtime commit `eeefa28 feat: 完成 P93 provider abstraction runtime` 已 push。
+- 主公要求手動 dispatch AoV Daily Monitor，驗證 P93 `provider.routing` 在雲端是否維持關閉。
+- GitHub Actions run `26299079187` 成功，head SHA `eeefa28`，自動同步 commit：
+  - `7da4605 docs: 戰略報告自動同步 2026-05-22 16:19:00 [mode:production l1:0 l2:8 hit:62%]`
+- 2026-05-23 雲端 manifest 物理真相：
+  - `data/runs/2026-05-23/run_manifest.json`
+  - `mode=production`
+  - `status=ok`
+  - `llm_calls=5`
+  - `total_calls=13`
+  - `budget.decision=call_llm`
+  - `budget.decision_reason=budget_available`
+  - `selection.local_only_posts=7`
+  - `selection.duplicate_posts=7`
+  - `enrichment.replay_status=no_eligible`
+  - `enrichment.eligible_posts=0`
+  - `enrichment.skipped_posts=7`
+  - `enrichment.enriched_posts=0`
+- P93 provider routing 雲端真相：
+  - `provider.routing.provider_truth="raw-free provider routing snapshot only"`
+  - `router_enabled=false`
+  - `experimental_free_providers_enabled=false`
+  - `active_provider=gemini_primary`
+  - `route_status=router_disabled_legacy_default`
+  - `raw_payload_logging=false`
+  - `secrets_logged=false`
+  - `max_attempts=1`
+  - slots：
+    - `groq enabled=false secret_configured=false manual_only=true status=disabled_by_default`
+    - `cloudflare_ai enabled=false secret_configured=false manual_only=true status=disabled_by_default`
+    - `github_models enabled=false secret_configured=false manual_only=true status=disabled_by_default`
+  - `attempts=[]`
+- Actions permission log 物理真相：
+  - `Contents: write`
+  - `Metadata: read`
+  - 沒有 `models: read`
+- 2026-05-23 SLO probe：
+  - 指令：
+    - `py scripts\slo_checker.py --repo-root . --date 2026-05-23 --window-days 5 --json`
+  - 結果：
+    - `consecutive_no_production=0`
+    - `missing_manifest_count=0`
+    - `doctor_blocking_days=0`
+    - `doctor_degraded_days=1`
+    - `issues=[]`
+- 2026-05-23 cost/cache governance probe：
+  - 指令：
+    - `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-23 --window-days 3 --max-llm-calls 20`
+  - 結果：
+    - `DEGRADED CCG005 total_llm_calls=35 threshold=20`
+    - 原因包含 2026-05-21 pre-P91 `llm_calls=28`。
+    - 2026-05-23 provider 欄為 `router_disabled_legacy_default`。
+- 主公於 2026-05-23 回覆「核准」，允許 P94 plan freeze。
+
+**稽核表**：
+- S 級：
+  - Code：
+    - Plan-only 不改 code。
+    - P94 runtime 預計只允許小步修改 `scripts/slo_checker.py` / `scripts/system_doctor.py` / `scripts/cost_cache_governance.py` 與 tests。
+  - Logic：
+    - 核心邏輯是分類而非降級：
+      - current blocking
+      - historical residual
+      - post-remediation advisory
+    - 明確禁止降低 `SLO001` / `SLO002` / `SLO003` blocking 門檻。
+  - Testing：
+    - runtime 必須補 focused tests：
+      - healthy post-P93 production
+      - pre-P91 spike
+      - duplicate-only replay
+      - provider disabled
+      - manifest gap
+  - Security：
+    - 不新增 secrets。
+    - 不讀 raw artifact / raw queue content。
+    - 只使用 repo-safe manifest / report metadata。
+- A 級：
+  - Architecture：
+    - P94 限定為觀測分類層，不碰 daily analysis / provider routing。
+  - Data：
+    - 使用 `data/runs/<date>/run_manifest.json`、report metadata、cache metrics。
+  - Observability：
+    - future runtime 輸出需說明 issue 是 current / historical / residual。
+  - Resilience：
+    - 保留 SLO blocking 的嚴格判斷。
+  - Maintainability：
+    - classification taxonomy 要寫入 `docs/SLO_POLICY.md` / runbook / P94 plan。
+  - Documentation：
+    - `NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` 同步 P94 FROZEN。
+  - Process：
+    - plan freeze 與 runtime approval 分離。
+- B 級：
+  - Performance：
+    - 多日 window 掃描不得拖慢 CI；runtime tests 用 fixtures。
+  - UX/A11y：
+    - CLI / docs 要說明是否阻擋 P95，不只印紅黃綠。
+  - DevOps：
+    - 不接 CI blocking gate，不改 workflow。
+  - Cost：
+    - `CCG005` 是 pipeline proxy，不是供應商帳單。
+  - Privacy：
+    - 不輸出 raw queue / raw post content。
+  - i18n：
+    - GitHub UTC 與 Asia/Taipei report date 需避免錯位。
+
+**物理真相**：
+- 新增：
+  - `docs/PHASE_94_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - ACTIVE_BOOTSTRAP 切到 P94 FROZEN。
+    - Required Minimal Reads 新增 `docs/PHASE_94_PLAN.md`。
+    - Forbidden Work 明寫 P94 runtime 尚未核准，不得關 R-016 / 不得接 provider。
+  - `docs/ACTIVE_OPERATION.md`
+    - Current Phase 切到 P94 FROZEN。
+    - Latest Evidence 補 run `26299079187` / commit `7da4605` / provider routing 雲端驗證。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 mitigation 補 P94 plan frozen。
+    - 明確 P94 runtime 僅做分類，R-016 仍 Open。
+  - `TASK_HISTORY.md`
+    - 追加本段無損紀錄。
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - `analyzer/provider_router.py`
+  - `analyzer/gemini_client.py`
+  - `config.py`
+  - 任何 `.env` / secret / provider key。
+
+**風險**：
+- P94 runtime 若分類過度寬鬆，可能把真 production failure 降成 advisory。
+- P94 runtime 若分類過度嚴格，可能讓已恢復 production 的系統被 pre-P91 歷史尖峰永久誤擋。
+- 2026-05-23 SLO OK 不等於 R-016 已可關；P95 才能 closeout。
+- R-016 仍 Open；P94 只是 P95 前的儀表校準層。
+
+**狀態**：
+- ✅ P94 plan FROZEN。
+- ✅ `docs/PHASE_94_PLAN.md` 已建立。
+- ✅ handoff / active / risk / history 已同步 P94 FROZEN。
+- ✅ Phase lint 通過：
+  - `py scripts\lint_phase_plan.py docs\PHASE_94_PLAN.md`
+- ✅ Handoff truth 通過：
+  - `py scripts\check_handoff_truth.py --repo-root .`：`HND000`
+- ✅ Governance doctor 通過：
+  - `py scripts\governance_doctor.py --repo-root .`：`GOV000`
+- ✅ Diff hygiene 通過：
+  - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
+- 🔴 P94 runtime 尚未核准，不得改 scripts / tests。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：commit P94 plan；push 仍需主公明確確認。
