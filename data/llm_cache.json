@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-21T18:42:39.481269+00:00",
+      "last_accessed": "2026-05-22T10:31:07.561745+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -109,7 +109,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:31.970511+00:00",
-      "last_accessed": "2026-05-21T18:42:39.485853+00:00",
+      "last_accessed": "2026-05-22T10:31:07.567348+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -136,7 +136,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:34.268233+00:00",
-      "last_accessed": "2026-05-21T18:42:39.488383+00:00",
+      "last_accessed": "2026-05-22T10:31:07.569962+00:00",
       "ttl_days": 7
     },
     "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
@@ -163,7 +163,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:35.585176+00:00",
-      "last_accessed": "2026-05-21T18:42:39.491672+00:00",
+      "last_accessed": "2026-05-22T10:31:07.572586+00:00",
       "ttl_days": 7
     },
     "prompt:76befbb8d168c291b9d7ee56421d423b": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-21T18:42:39.483616+00:00",
+      "last_accessed": "2026-05-22T10:31:07.564537+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -217,7 +217,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:37.977642+00:00",
-      "last_accessed": "2026-05-21T18:42:39.494192+00:00",
+      "last_accessed": "2026-05-22T10:31:07.575158+00:00",
       "ttl_days": 7
     },
     "prompt:1008d06f8dc662092fa1690b58d1b9e1": {
@@ -1380,7 +1380,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:37.032872+00:00",
-      "last_accessed": "2026-05-21T11:50:37.032872+00:00",
+      "last_accessed": "2026-05-22T10:30:46.415133+00:00",
       "ttl_days": 7
     },
     "prompt:df796bc0fc755c6e6c369798931bbf5a": {
@@ -1440,7 +1440,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:52.632448+00:00",
-      "last_accessed": "2026-05-21T18:42:34.944950+00:00",
+      "last_accessed": "2026-05-22T10:30:46.415148+00:00",
       "ttl_days": 7
     },
     "prompt:33cfdd375e520508c75e345c7ee130d7": {
@@ -2394,12 +2394,123 @@
       "stored_at": "2026-05-21T18:42:48.551388+00:00",
       "last_accessed": "2026-05-21T18:42:48.551388+00:00",
       "ttl_days": 7
+    },
+    "prompt:112947b9594deccf3b2bb1268e0cef30": {
+      "result": {
+        "reasoning": "該貼文為官方或社群轉發的電競賽事直播預告，內容客觀陳述賽程資訊，不帶有個人情緒色彩。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "電競賽事",
+        "keywords": [
+          "APL 2026",
+          "外卡賽",
+          "傳說對決",
+          "直播",
+          "電競"
+        ],
+        "summary": "APL 2026 外卡賽第一日賽程直播預告。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "APL 2026 外卡賽",
+            "type": "電競賽事"
+          }
+        ],
+        "translated_content": "[APL 2026 外卡賽D1－2026/05/21《Garena傳說對決》 - YouTube] #APL · #2026 · #Wildcard APL 2026 外卡賽D1 | 雙敗淘汰賽# · 16:00｜MATCH 1：CFX vs. · 18:00｜MATCH 2：TEN vs. · 20:30｜MATCH 5：M1L vs. · 傳說對決 · #傳說對決直播"
+      },
+      "stored_at": "2026-05-22T10:30:57.468819+00:00",
+      "last_accessed": "2026-05-22T10:30:57.468819+00:00",
+      "ttl_days": 7
+    },
+    "prompt:c040ee5fa6bd922e6ca2edd89f0c90da": {
+      "result": {
+        "reasoning": "貼文內容明確提及『逆水寒』與『天機迷城』，這是另一款遊戲的內容，與《傳說對決》無關。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "逆水寒",
+          "天機迷城",
+          "手遊"
+        ],
+        "summary": "該貼文討論的是《逆水寒》手遊內容，與《傳說對決》無關。",
+        "relevance_score": 0.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-22T10:30:59.014512+00:00",
+      "last_accessed": "2026-05-22T10:30:59.014512+00:00",
+      "ttl_days": 7
+    },
+    "prompt:e8c6e064459a3e056bf8f9a0b2dd3397": {
+      "result": {
+        "reasoning": "該貼文為官方活動宣傳內容，旨在告知玩家活動已上線並鼓勵參與以獲取獎勵，語氣正面且具備推廣性質。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "525GoldenDay",
+          "活動",
+          "獎勵",
+          "造型",
+          "任務"
+        ],
+        "summary": "525GoldenDay活動正式開跑，玩家可透過完成任務獲得限定造型與賽季外觀兌換券。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "525GoldenDay",
+            "type": "限時活動"
+          }
+        ],
+        "translated_content": "525GoldenDay 現已開跑！全新遊戲模式與海量獎勵等你來拿！完成任務即可獲得 8 款限定武器造型、2,400 張賽季外觀兌換券以及 40 個獎勵。"
+      },
+      "stored_at": "2026-05-22T10:31:07.554715+00:00",
+      "last_accessed": "2026-05-22T10:31:07.554715+00:00",
+      "ttl_days": 7
+    },
+    "prompt:fa8ec67fd067d5521ee5211831a4ae57": {
+      "result": {
+        "reasoning": "作者整理了2025年2月20日的改版內容並提供個人見解，屬於客觀的資訊分享與社群討論，無反諷意圖。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "改版",
+          "懶人包",
+          "心得",
+          "傳說對決",
+          "20250220"
+        ],
+        "summary": "作者針對2025年2月20日的遊戲版本更新進行整理與心得分享。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "20250220 版本更新",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-22T10:31:13.984347+00:00",
+      "last_accessed": "2026-05-22T10:31:13.984347+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 17,
+    "total_l2_hits": 23,
     "total_apify_hits": 0,
-    "total_misses": 32
+    "total_misses": 36
   }
 }
