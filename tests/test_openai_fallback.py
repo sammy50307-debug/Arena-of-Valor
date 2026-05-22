@@ -168,7 +168,7 @@ async def test_openai_client_uses_json_schema_response_format():
 
 
 def test_sentiment_analyzer_defaults_to_fallback_client():
-    with patch("analyzer.sentiment.FallbackLLMClient") as fallback_cls:
+    with patch("analyzer.sentiment.build_default_llm_client") as fallback_cls:
         fallback = MagicMock()
         fallback_cls.return_value = fallback
 

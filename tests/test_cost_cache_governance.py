@@ -20,6 +20,7 @@ def _write_manifest(
     budget: dict | None = None,
     selection: dict | None = None,
     enrichment: dict | None = None,
+    provider_routing: dict | None = None,
 ) -> None:
     path = repo_root / "data" / "runs" / date_str / "run_manifest.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -40,6 +41,8 @@ def _write_manifest(
         payload["selection"] = selection
     if enrichment is not None:
         payload["enrichment"] = enrichment
+    if provider_routing is not None:
+        payload["provider"] = {"routing": provider_routing}
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
@@ -208,6 +211,35 @@ def test_cost_cache_advises_on_enrichment_pending(tmp_path: Path):
 
     assert "CCG008" in _codes(result)
     assert result.days[0].enrichment_eligible_posts == 2
+    assert cost_cache_governance.exit_code_for(result) == 0
+
+
+def test_cost_cache_advises_on_provider_routing_enabled(tmp_path: Path):
+    _write_manifest(
+        tmp_path,
+        "2026-05-18",
+        cache_hit=1,
+        total_calls=5,
+        llm_calls=2,
+        provider_routing={
+            "route_status": "blocked_enabled_experimental_slot",
+            "router_enabled": True,
+            "experimental_free_providers_enabled": True,
+            "slots": [
+                {
+                    "name": "groq",
+                    "enabled": True,
+                }
+            ],
+        },
+    )
+    _write_cache(tmp_path)
+
+    result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
+
+    assert "CCG009" in _codes(result)
+    assert result.days[0].provider_router_enabled is True
+    assert result.days[0].provider_enabled_slots == 1
     assert cost_cache_governance.exit_code_for(result) == 0
 
 

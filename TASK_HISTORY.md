@@ -10250,3 +10250,187 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - 🔴 P93 runtime 尚未核准，不得動工。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：確認 P93 FROZEN commit 是否需要 push；push 仍需主公明確確認。
+
+---
+
+### P93 runtime — Provider Abstraction / Disabled-by-default Free Provider Slots（CLOSED）
+
+**目標**：
+- 依 P93 FROZEN plan 落地 disabled-by-default provider abstraction。
+- 建立 provider interface / registry / factory / kill switches，並用測試鎖住：
+  - 預設 `PROVIDER_ROUTER_ENABLED=false`。
+  - 預設 `EXPERIMENTAL_FREE_PROVIDERS_ENABLED=false`。
+  - 預設 `AOV_PROVIDER_GROQ_ENABLED=false`。
+  - 預設 `AOV_PROVIDER_CLOUDFLARE_AI_ENABLED=false`。
+  - 預設 `AOV_PROVIDER_GITHUB_MODELS_ENABLED=false`。
+  - Groq / Cloudflare / GitHub Models 目前只允許成為 disabled slot。
+  - 若 candidate slot 被誤開，router fail-closed，直接 block，不呼叫外部 provider。
+- 將 P90 budget guard 擴展到 OpenAI fallback 切換前，避免 Gemini 失敗後 fallback 額外打 provider 卻未再過 budget。
+
+**觸發**：
+- 主公於 2026-05-22 回覆：「核准 P93 runtime 動工」。
+- P93 plan 已於 commit `63206ef` 推上 `origin/main`。
+- 前置物理真相：
+  - P91 已把 LLM calls 壓低。
+  - P92 已補 artifact-backed enrichment replay。
+  - R-016 仍 Open，下一層是 provider abstraction，但不能接 live provider。
+
+**稽核表**：
+- S 級：
+  - Code：
+    - 新增 `analyzer/provider_clients/base.py`，用 `LLMProviderClient` protocol 固定 `chat` / `batch_chat` / `cache_manager`。
+    - 新增 `analyzer/provider_router.py`，集中 ProviderSlot / ProviderRouter / ProviderRouteBlocked / diagnostics normalize / validate。
+    - 新增 `analyzer/provider_budget.py`，提供 shared `ensure_budget_for_provider_call(...)`。
+  - Logic：
+    - `build_default_llm_client()` 在 `PROVIDER_ROUTER_ENABLED=false` 時回傳既有 `FallbackLLMClient`，所以 daily default route 不變。
+    - `ProviderRouter` 只有在 router enabled 且無 candidate slot enabled 時 delegate primary；若任何 candidate slot enabled，先 raise `ProviderRouteBlocked`，不呼叫 primary / external provider。
+    - OpenAI fallback 切換前呼叫 `ensure_budget_for_provider_call(self.primary)`，若 budget exhausted / cooldown active，fallback 不會被呼叫。
+  - Testing：
+    - 新增 `tests/test_provider_router.py`。
+    - 更新 `tests/test_openai_fallback.py`、`tests/test_run_manifest.py`、`tests/test_system_doctor.py`、`tests/test_cost_cache_governance.py`。
+  - Security：
+    - `provider.routing` normalize 只保留 raw-free fields：
+      - `router_enabled`
+      - `experimental_free_providers_enabled`
+      - `active_provider`
+      - `route_status`
+      - `budget_guard`
+      - `raw_payload_logging=false`
+      - `secrets_logged=false`
+      - `slots[*].secret_configured` 只存 boolean
+      - `attempts[*].failure_class`
+    - 測試確認 `api_key` / `prompt` / `response` 等 raw fields 不會存活於 manifest diagnostics。
+- A 級：
+  - Architecture：
+    - 不把 provider 特例塞入 `main.py`。
+    - `main.py` 只把 analyzer diagnostics 放入 `_meta["provider_diagnostics"]`。
+  - Data：
+    - `analyzer/run_manifest.py` 新增 `provider.routing` normalize / validate。
+  - Observability：
+    - `scripts/system_doctor.py` 新增 `DOC020 provider:routing`。
+    - `scripts/cost_cache_governance.py` 新增 `CCG009 provider routing`。
+  - Resilience：
+    - `ProviderRouteBlocked` 是 fail-closed stop，不做 provider cascade loop。
+  - Maintainability：
+    - Provider candidates 用 config flags 集中管理。
+  - Documentation：
+    - `docs/OPERATIONS_RUNBOOK.md` 新增 DOC020 / CCG009。
+    - `docs/COST_CACHE_GOVERNANCE_POLICY.md` 新增 provider routing source / rule / caveat。
+  - Process：
+    - `.github/workflows/daily_report.yml` 未修改。
+    - 沒有新增 provider smoke workflow。
+- B 級：
+  - Cost：
+    - 本次沒有新增 live provider calls。
+    - governance 只回報 pipeline proxy，不宣稱 provider billing truth。
+  - Privacy：
+    - 沒有把玩家貼文送往新 provider。
+    - 沒有新增 secret。
+  - DevOps：
+    - 未加入 GitHub Actions `models: read`。
+  - i18n：
+    - 未做 provider 品質 promotion；繁中 AOV 品質評估留給後續 small sample eval。
+
+**物理真相**：
+- 新增：
+  - `analyzer/provider_clients/__init__.py`
+  - `analyzer/provider_clients/base.py`
+  - `analyzer/provider_budget.py`
+  - `analyzer/provider_router.py`
+  - `tests/test_provider_router.py`
+- 修改：
+  - `config.py`
+    - 新增 default-off flags：
+      - `PROVIDER_ROUTER_ENABLED`
+      - `EXPERIMENTAL_FREE_PROVIDERS_ENABLED`
+      - `PROVIDER_ROUTER_MAX_ATTEMPTS`
+      - `AOV_PROVIDER_GROQ_ENABLED`
+      - `AOV_PROVIDER_CLOUDFLARE_AI_ENABLED`
+      - `AOV_PROVIDER_GITHUB_MODELS_ENABLED`
+    - 新增 secret-present config 值，但不輸出 secret：
+      - `GROQ_API_KEY`
+      - `CLOUDFLARE_API_TOKEN`
+      - `CLOUDFLARE_ACCOUNT_ID`
+      - `GITHUB_MODELS_TOKEN`
+  - `analyzer/fallback_llm_client.py`
+    - OpenAI fallback 前加入 shared budget guard。
+    - 新增 raw-free `provider_diagnostics()`。
+  - `analyzer/sentiment.py`
+    - 預設改用 `build_default_llm_client()`。
+    - `_provider_diagnostics()` 合併 routing diagnostics 與 openai fallback flags。
+  - `analyzer/run_manifest.py`
+    - `provider.routing = normalize_provider_diagnostics(meta.get("provider_diagnostics"))`。
+    - `validate_manifest(...)` 檢查 provider routing schema。
+  - `main.py`
+    - `_meta` 寫入 `provider_diagnostics`。
+  - `scripts/system_doctor.py`
+    - `DOC020 provider:routing`：router 或 candidate slot enabled 時 advisory。
+  - `scripts/cost_cache_governance.py`
+    - `CCG009 provider routing`：window 內 provider router / candidate slot enabled 時 advisory。
+  - `docs/OPERATIONS_RUNBOOK.md`
+    - 新增 DOC020 / CCG009 runbook anchor。
+  - `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+    - 新增 provider routing 指標與 caveat。
+  - 測試檔：
+    - `tests/test_openai_fallback.py`
+    - `tests/test_run_manifest.py`
+    - `tests/test_system_doctor.py`
+    - `tests/test_cost_cache_governance.py`
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `analyzer/gemini_client.py`
+  - 任何 `.env` / secret / provider key。
+
+**實跑證據**：
+- py_compile：
+  - 指令：
+    - `py -m py_compile analyzer\provider_clients\base.py analyzer\provider_budget.py analyzer\provider_router.py analyzer\fallback_llm_client.py analyzer\sentiment.py analyzer\run_manifest.py scripts\system_doctor.py scripts\cost_cache_governance.py config.py main.py`
+  - 結果：
+    - PASS，無輸出。
+- Focused tests：
+  - 指令：
+    - `py -m pytest -q tests\test_provider_router.py tests\test_openai_fallback.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py`
+  - 結果：
+    - `70 passed in 1.22s`
+- Adjacent regression tests：
+  - 指令：
+    - `py -m pytest -q tests\test_sentiment_contract.py tests\test_showcase_modes.py tests\test_llm_budget.py`
+  - 結果：
+    - `22 passed in 0.76s`
+- Governance doctor：
+  - 指令：
+    - `py scripts\governance_doctor.py --repo-root .`
+  - 結果：
+    - `GOV000`
+
+**風險**：
+- Provider abstraction 已存在，但 live provider adapter 尚未建立；後續任何 Groq / Cloudflare / GitHub Models smoke 都必須另行主公核准。
+- `GITHUB_MODELS_TOKEN` 允許讀 `GITHUB_MODELS_TOKEN` 或 `GITHUB_TOKEN`，但 P93 只保存 `secret_configured` boolean，不保存 token 值；未加入 Actions `models: read`。
+- `ProviderRouter` 目前對 enabled candidate slot 採 fail-closed；若未來 P94/P95 需要 live smoke，需新增手動指令與 provider-specific tests。
+- R-016 仍 Open；P93 只是 provider abstraction 子問題收官。
+
+**狀態**：
+- ✅ P93 runtime CLOSED。
+- ✅ Provider protocol / router / shared budget guard / raw-free manifest diagnostics / DOC020 / CCG009 已完成。
+- ✅ py_compile 通過：
+  - `py -m py_compile analyzer\provider_clients\base.py analyzer\provider_budget.py analyzer\provider_router.py analyzer\fallback_llm_client.py analyzer\sentiment.py analyzer\run_manifest.py scripts\system_doctor.py scripts\cost_cache_governance.py config.py main.py`
+- ✅ Focused tests 通過：
+  - `py -m pytest -q tests\test_provider_router.py tests\test_openai_fallback.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py`
+  - `70 passed in 1.22s`
+- ✅ Adjacent regression 通過：
+  - `py -m pytest -q tests\test_sentiment_contract.py tests\test_showcase_modes.py tests\test_llm_budget.py`
+  - `22 passed in 0.76s`
+- ✅ Full pytest 通過：
+  - `py -m pytest -q`
+  - `286 passed in 4.07s`
+- ✅ Phase lint / handoff / governance 通過：
+  - `py scripts\lint_phase_plan.py docs\PHASE_93_PLAN.md`：PASS
+  - `py scripts\check_handoff_truth.py --repo-root .`：`HND000`
+  - `py scripts\governance_doctor.py --repo-root .`：`GOV000`
+- ✅ Runtime doctor / cost governance 通過：
+  - `py scripts\system_doctor.py --repo-root . --date 2026-05-22 --profile local --skip-landing`：exit 0；既有 advisories 保留 DOC007 / DOC018 / DOC019。
+  - `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-22 --window-days 1 --max-llm-calls 20`：exit 0；既有 advisories 保留 CCG007 / CCG008；provider column 為 `-`，證明 default disabled 未啟用 provider route。
+- ✅ Diff hygiene 通過：
+  - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：commit P93 runtime；push 仍需主公明確確認。

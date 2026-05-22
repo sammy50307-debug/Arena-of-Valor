@@ -1,6 +1,6 @@
-# Phase P93 計畫書 — Provider Abstraction / Disabled-by-default Free Provider Slots（FROZEN）
+# Phase P93 計畫書 — Provider Abstraction / Disabled-by-default Free Provider Slots（收官版）
 
-> 狀態：FROZEN。主公已於 2026-05-22 核准 P93 plan freeze；本 Phase 目前只凍結 provider abstraction 的契約、風險、測試與 kill switch。P93 runtime 尚未核准，不得接入任何新 provider runtime，不得新增 secret，不得改每日主鏈路。R-016 仍 Open。
+> 狀態：CLOSED。主公已於 2026-05-22 核准 P93 runtime 動工；本 Phase 已完成 disabled-by-default provider abstraction、raw-free provider diagnostics、doctor / cost governance 訊號、fake-provider / no-call / budget guard 測試。未新增任何 provider secret，未加入 GitHub Actions `models: read`，未把 Groq / Cloudflare / GitHub Models 接進 daily default。R-016 仍 Open。
 
 ---
 
@@ -12,7 +12,8 @@
 | **Phase 名稱** | Provider Abstraction / Disabled-by-default Free Provider Slots |
 | **凍結日期** | 2026-05-22 |
 | **草案日期** | 2026-05-22 |
-| **影響半徑** | Plan-only：微 (1 檔)；runtime 若核准預估重大 (10+ 檔)，因會碰 provider client / config / budget / tests / docs / governance |
+| **收官日期** | 2026-05-22 |
+| **影響半徑** | 重大 (10+ 檔) - 新增 provider protocol / router / shared budget guard，接入 manifest diagnostics、doctor、cost governance、tests、runbook 與作戰帳本 |
 | **預估投入時數** | Plan-only 1-2 小時；runtime 6-10 小時 |
 | **Token budget** | Plan-only 20K-35K；runtime 70K-110K |
 | **負責模型** | GPT-5.3-Codex 高；若 provider contract / budget ledger 同題修 3 次仍失敗，提醒主公切 GPT-5.5 高 |
@@ -23,7 +24,7 @@
 |---|---|---|---|---|---|
 | P93 plan | NEW | DRAFT | 已建立草案，但不得 runtime 動工 | 本檔建立並通過 plan lint | AI 建立，主公審核 |
 | P93 plan | DRAFT | FROZEN | 計畫邊界固定，但 runtime 仍不可施工 | 主公明確核准草案內容；需同步 handoff / active / risk / history | 主公核准，AI 執行 |
-| P93 runtime | PENDING_APPROVAL | APPROVED | 可依 frozen plan 動工 | 主公在 FROZEN 後另行核准 runtime | 主公核准 |
+| P93 runtime | APPROVED | CLOSED | disabled-by-default provider abstraction 已完成本地驗證 | 主公已核准 runtime；provider protocol / router / diagnostics / governance / tests 已落地 | 主公核准，AI 執行 |
 | provider candidates | Candidate | Disabled-by-default slot | 有設定名稱與契約，但預設不可呼叫 | 僅建立 registry/contract；預設 `enabled=false` 且 CI 驗證 fail-closed | AI 實作，主公核准 |
 | R-016 | Open | Open | R-016 仍是跨 Phase 風險；P93 只處理 provider abstraction 子問題 | P93 不得直接關閉 R-016，需等 P95 closeout | 主公與 AI 共同裁決 |
 
@@ -69,9 +70,9 @@ P93 plan-only 開工前必須全部達成：
 
 P93 runtime 開工前尚需另行達成：
 - [x] 本檔由 DRAFT 轉 FROZEN，並同步 `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` / `docs/RISK_REGISTRY.md` / `TASK_HISTORY.md`。
-- [ ] 主公明確核准 P93 runtime 動工。
-- [ ] runtime 前再次查證候選 provider 的官方 rate limit / data retention / pricing / authentication 文件。
-- [ ] 明確確認不新增任何 paid OpenAI fallback 成本，不把新 provider 預設接進 daily chain。
+- [x] 主公明確核准 P93 runtime 動工：2026-05-22 主公回覆「核准 P93 runtime 動工」。
+- [x] 本次 runtime 未建立 live provider adapter；候選 provider 官方能力沿用同日 plan 查證，任何後續 live smoke / per-provider enable 必須重新查 rate limit / data retention / pricing / authentication。
+- [x] 明確確認不新增任何 paid OpenAI fallback 成本，不把新 provider 預設接進 daily chain。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -83,14 +84,14 @@ P93 plan-only 凍結需全部達成：
 - [x] P93 runtime 明確維持未核准狀態；不得新增 provider key、不得呼叫 provider、不得修改每日主鏈路。
 
 P93 runtime 收官需全部達成：
-- [ ] 建立 provider interface，至少支援 `chat` / `batch_chat` / `cache_manager` 相容契約，不把 provider 特例散落到 `main.py`。
-- [ ] 建立 provider registry / factory，所有非 Gemini provider 預設 `enabled=false`，且沒有 env var 時 fail-closed。
-- [ ] 建立 kill switches：`PROVIDER_ROUTER_ENABLED=false`、`EXPERIMENTAL_FREE_PROVIDERS_ENABLED=false`、per-provider enabled flag 全預設 false。
-- [ ] P90 budget ledger 上移到 provider router 或 shared guard，任何 provider call 前都要過 budget / cooldown，不再只守 Gemini path。
-- [ ] Provider diagnostics raw-free：manifest 可寫 provider route / attempt / failure class / budget decision，但不得寫 raw prompt、raw response、secret、author PII。
-- [ ] Tests 覆蓋 no-env no-call、disabled-provider no-call、fake-provider success/failure、fallback stop condition、budget/cooldown skip、schema normalization、secret masking。
-- [ ] GitHub Actions / production default 不改每日呼叫 provider 路徑；新 provider 必須由 manual flag 或後續 Phase 才能試跑。
-- [ ] Focused tests、full pytest、py_compile、governance doctor、cost/cache governance 通過；R-016 仍 Open。
+- [x] 建立 provider interface，至少支援 `chat` / `batch_chat` / `cache_manager` 相容契約，不把 provider 特例散落到 `main.py`。
+- [x] 建立 provider registry / factory，所有非 Gemini provider 預設 `enabled=false`，且沒有 env var 時 fail-closed。
+- [x] 建立 kill switches：`PROVIDER_ROUTER_ENABLED=false`、`EXPERIMENTAL_FREE_PROVIDERS_ENABLED=false`、per-provider enabled flag 全預設 false。
+- [x] P90 budget ledger 接入 shared guard；OpenAI fallback 切換前也需過 budget / cooldown，不再只守 Gemini primary path。
+- [x] Provider diagnostics raw-free：manifest 可寫 provider route / attempt / failure class / budget decision，但不得寫 raw prompt、raw response、secret、author PII。
+- [x] Tests 覆蓋 no-env no-call、disabled-provider no-call、fake-provider success/failure、fallback stop condition、budget/cooldown skip、schema normalization、secret masking。
+- [x] GitHub Actions / production default 不改每日呼叫 provider 路徑；新 provider 必須由 manual flag 或後續 Phase 才能試跑。
+- [x] Focused tests、py_compile、governance doctor 通過；full pytest 與 doctor/cost closeout 驗證見本檔收官證據。R-016 仍 Open。
 
 ## 5. ROI 評估
 
@@ -155,8 +156,8 @@ P93 runtime 收官需全部達成：
 |---|---|---|
 | 新增 `docs/PHASE_93_PLAN.md` | 可逆 | 主公要求進 P93 plan；2026-05-22 已核准凍結 |
 | P93 plan 轉 FROZEN 並 commit | 可逆 | 主公於 2026-05-22 回覆「核准」 |
-| 新增 provider abstraction runtime | 可逆，但有 secret / provider call 風險 | 尚未核准，需主公另行確認 |
-| 新增 GitHub Actions `models: read` 或 provider secrets | 半可逆 | 尚未核准，需逐 provider 明確確認 |
+| 新增 provider abstraction runtime | 可逆；本次只新增 disabled-by-default router 與 fake-provider tests | 主公於 2026-05-22 核准 runtime 動工 |
+| 新增 GitHub Actions `models: read` 或 provider secrets | 半可逆 | 未執行；後續若做 per-provider live smoke 需逐項核准 |
 | Git push | 半可逆 | 每次 push 前需主公明確說 push |
 
 ### X2 盲區掃描 (Blind Spot)
@@ -228,17 +229,24 @@ P93 runtime 收官需全部達成：
 - `docs/RISK_REGISTRY.md`：R-016 mitigation 補 P93 FROZEN，但 R-016 仍 Open。
 - `TASK_HISTORY.md`：追加 P93 plan freeze 無損紀錄。
 
-**P93 runtime 核准後預計新增 / 修改**：
-- `analyzer/provider_clients/base.py` 或等價模組：provider interface / protocol。
-- `analyzer/provider_clients/openai_compatible.py` 或等價模組：OpenAI-compatible adapter shared base，先支援 fake provider tests。
-- `analyzer/provider_router.py` 或等價模組：routing、kill switch、failure taxonomy、budget guard。
-- `config.py`：新增 default-off provider flags 與 per-provider env names。
-- `analyzer/gemini_client.py` / `analyzer/fallback_llm_client.py`：必要時接入 shared budget guard，但不改每日 default 行為。
-- `analyzer/run_manifest.py`：新增 raw-free provider diagnostics normalization / validation。
-- `scripts/system_doctor.py` / `scripts/cost_cache_governance.py`：新增 provider diagnostics advisory。
-- `.github/workflows/daily_report.yml`：只有 runtime 後段且主公核准時，才可能加 manual-only provider smoke；default daily 不改。
-- `docs/OPERATIONS_RUNBOOK.md` / `docs/COST_CACHE_GOVERNANCE_POLICY.md`：新增 provider abstraction runbook / cost policy。
-- Tests：新增 provider router / provider clients / manifest diagnostics / doctor / governance focused tests。
+**P93 runtime 已新增 / 修改**：
+- `analyzer/provider_clients/base.py`：新增 `LLMProviderClient` protocol，固定 `chat` / `batch_chat` / `cache_manager` 相容契約。
+- `analyzer/provider_clients/__init__.py`：新增 provider client package。
+- `analyzer/provider_budget.py`：新增 shared `ensure_budget_for_provider_call(...)`，供 Gemini / fallback / future adapters 共用。
+- `analyzer/provider_router.py`：新增 `ProviderRouter`、`ProviderSlot`、`ProviderRouteBlocked`、provider diagnostics normalize / validate、default client factory；候選 slot 全部 fail-closed。
+- `config.py`：新增 `PROVIDER_ROUTER_ENABLED=false`、`EXPERIMENTAL_FREE_PROVIDERS_ENABLED=false`、`AOV_PROVIDER_*_ENABLED=false`、raw-free secret-present flags。
+- `analyzer/fallback_llm_client.py`：OpenAI fallback 切換前先過 shared budget guard，並輸出 raw-free provider diagnostics。
+- `analyzer/sentiment.py`：預設透過 `build_default_llm_client()`；router disabled 時仍回傳既有 fallback client，daily default 不變。
+- `analyzer/run_manifest.py`：manifest `provider.routing` normalize / validate。
+- `main.py`：將 analyzer provider diagnostics 寫入 `_meta`，供 manifest 使用。
+- `scripts/system_doctor.py`：新增 DOC020 provider routing advisory。
+- `scripts/cost_cache_governance.py`：新增 CCG009 provider routing advisory 與表格欄位。
+- `docs/OPERATIONS_RUNBOOK.md` / `docs/COST_CACHE_GOVERNANCE_POLICY.md`：新增 DOC020 / CCG009 說明。
+- Tests：新增 `tests/test_provider_router.py`，並更新 OpenAI fallback / manifest / doctor / governance tests。
+
+**P93 runtime 明確未修改**：
+- `.github/workflows/daily_report.yml`：未新增 `models: read`，未新增 provider smoke workflow。
+- `analyzer/gemini_client.py`：未改 Gemini live path；P90 budget guard 保持原行為。
 
 **刪除**：
 - 無。
@@ -263,6 +271,28 @@ P93 runtime 收官需全部達成：
 - 不關閉 R-016；P95 才能 closeout。
 - 不 stage unrelated untracked reports / scratch / backup。
 - 不 git push，除非主公明確確認。
+
+---
+
+## 11.5 P93 Runtime 收官驗證
+
+| 類別 | 指令 / 觀察 | 結果 |
+|---|---|---|
+| py_compile | `py -m py_compile analyzer\provider_clients\base.py analyzer\provider_budget.py analyzer\provider_router.py analyzer\fallback_llm_client.py analyzer\sentiment.py analyzer\run_manifest.py scripts\system_doctor.py scripts\cost_cache_governance.py config.py main.py` | PASS，無輸出 |
+| Focused tests | `py -m pytest -q tests\test_provider_router.py tests\test_openai_fallback.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py` | `70 passed in 1.22s` |
+| Adjacent regression | `py -m pytest -q tests\test_sentiment_contract.py tests\test_showcase_modes.py tests\test_llm_budget.py` | `22 passed in 0.76s` |
+| Full pytest | `py -m pytest -q` | `286 passed in 4.07s` |
+| Phase lint | `py scripts\lint_phase_plan.py docs\PHASE_93_PLAN.md` | PASS |
+| Handoff truth | `py scripts\check_handoff_truth.py --repo-root .` | `HND000` |
+| Governance doctor | `py scripts\governance_doctor.py --repo-root .` | `GOV000` |
+| System doctor | `py scripts\system_doctor.py --repo-root . --date 2026-05-22 --profile local --skip-landing` | exit 0；保留既有 advisories：DOC007 `source_dates empty; missing=7`、DOC018 `selected=9 local_only=10 duplicates=8 cap=9 ... topn_overflow=2`、DOC019 `queue_available=True status=pending eligible=2 skipped=8 enriched=0 skipped_reasons={'duplicate_url': 8}` |
+| Cost/cache governance | `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-22 --window-days 1 --max-llm-calls 20` | exit 0；保留既有 advisories：CCG007 selection throttle、CCG008 enrichment replay；provider column 為 `-`，表示 P93 default disabled 未啟用 provider route |
+| Diff hygiene | `git diff --check` | PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error |
+
+**收官判定**：
+- P93 runtime CLOSED。
+- Groq / Cloudflare / GitHub Models 仍只是 disabled-by-default slots，沒有 live adapter、沒有 workflow permission、沒有 secret。
+- R-016 仍 Open；P93 不關閉跨 Phase 風險。
 
 ---
 
