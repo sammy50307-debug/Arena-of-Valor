@@ -1,6 +1,6 @@
-# Phase P92 計畫書 — Enrichment Replay / Local-only 補深讀（凍結版）
+# Phase P92 計畫書 — Enrichment Replay / Local-only 補深讀（收官版）
 
-> 狀態：FROZEN。主公已於 2026-05-22 核准 P92 plan freeze；本檔只凍結 enrichment replay / local-only 補深讀設計邊界。P92 runtime 尚未核准，不得修改 `main.py`、`analyzer/`、`scripts/` runtime。R-016 仍 Open，不得因 P91 實跑成功或 P92 plan 凍結而關閉。
+> 狀態：CLOSED。主公已於 2026-05-22 核准 P92 runtime 動工；本 Phase 已完成 artifact-backed enrichment queue、budget-aware manual replay、raw-free manifest `enrichment` snapshot、Actions artifact、DOC019 / CCG008。R-016 仍 Open，不得因 P92 收官而關閉。
 
 ---
 
@@ -11,7 +11,8 @@
 | **Phase 編號** | P92 |
 | **Phase 名稱** | Enrichment Replay / Local-only 補深讀 |
 | **凍結日期** | 2026-05-22 |
-| **影響半徑** | 標準 (3-9 檔) - runtime 預計新增 enrichment queue helper / replay CLI，並接入 manifest / workflow artifact / governance scripts / docs / tests |
+| **收官日期** | 2026-05-22 |
+| **影響半徑** | 重大 (10+ 檔) - runtime 新增 enrichment queue helper / replay CLI，並接入 manifest / workflow artifact / governance scripts / docs / tests |
 | **預估投入時數** | 5-8 小時 |
 | **Token budget** | 55K-85K tokens |
 | **負責模型** | GPT-5.3-Codex 高；若同一 replay/merge trace 修 3 次仍失敗，提醒主公切 GPT-5.5 高 |
@@ -21,7 +22,7 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P92 plan | DRAFT | FROZEN | 計畫邊界已固定，但 runtime 尚不可施工 | 本檔建立並通過 plan lint | 主公核准，AI 執行 |
-| P92 runtime | PENDING_APPROVAL | PENDING_APPROVAL | 補深讀 runtime 尚未動工 | 主公尚未核准 runtime；本 Phase 只完成 plan freeze | 主公保留核准權 |
+| P92 runtime | PENDING_APPROVAL | CLOSED | 補深讀 runtime 已完成本地驗證 | 主公已核准 runtime；queue / replay / manifest / workflow / governance / tests 已落地 | 主公核准，AI 執行 |
 | R-016 | Open | Open | R-016 仍是跨 Phase 風險；P92 只處理 local-only 補深讀子問題 | P92 plan 凍結不得直接關閉 R-016，需等 P95 closeout | 主公與 AI 共同裁決 |
 
 ---
@@ -55,28 +56,28 @@ P91 已在 2026-05-22 GitHub Actions 實跑成功：`llm_calls` 從 pre-P91 的 
 - [x] 風險登記簿無未解新高風險：R-016 仍 Open，但 P92 是既定修復主線；不新增不可逆操作。
 
 P92 runtime 開工前尚需另行達成：
-- [ ] 主公明確核准 P92 runtime 動工。
-- [ ] P92 plan lint 通過，且若同步 handoff / active / risk / history，需保持 R-016 Open。
-- [ ] 明確確認 queue / artifact retention 不會把 raw content commit 進 repo。
+- [x] 主公明確核准 P92 runtime 動工。
+- [x] P92 plan lint 通過，且若同步 handoff / active / risk / history，需保持 R-016 Open。
+- [x] 明確確認 queue / artifact retention 不會把 raw content commit 進 repo。
 
 ## 4. Exit Criteria（退出條件）
 
 P92 plan-only 凍結需全部達成：
 - [x] 新增本檔 `docs/PHASE_92_PLAN.md`。
-- [ ] `py scripts\lint_phase_plan.py docs\PHASE_92_PLAN.md` 通過。
-- [ ] `git diff --check` 通過。
-- [ ] P92 runtime 明確維持未核准狀態。
+- [x] `py scripts\lint_phase_plan.py docs\PHASE_92_PLAN.md` 通過。
+- [x] `git diff --check` 通過。
+- [x] P92 runtime 在 plan freeze 當下明確維持未核准狀態；後續已由主公另行核准 runtime。
 
 P92 runtime 收官需全部達成：
-- [ ] 建立 enrichment queue schema，至少包含 `schema_version`、`run_date`、`source_hash`、`source_count`、`eligible_count`、`skipped_count`、`records`、`retention_truth`。
-- [ ] Queue 可保存 replay 所需原始欄位，但只能位於 git-ignored 本機路徑或 GitHub Actions artifact；不得 commit raw content、prompt 或作者個資到 repo。
-- [ ] Manifest 寫入 raw-free `enrichment` snapshot，至少包含 `queue_available`、`eligible_posts`、`skipped_posts`、`enriched_posts`、`skipped_reason_counts`、`artifact_retention_days`、`replay_status`。
-- [ ] Replay CLI 尊重 P90 budget / cooldown；budget 不足時 no-op 或 partial，不得繞過 cooldown。
-- [ ] P92 只補可補價值高的 local-only：`topn_overflow` / budget-limited 類候選；`duplicate_url` / `duplicate_signature` 預設 skipped。
-- [ ] Enriched 結果可與既有 `analysis_YYYYMMDD.json` / report / manifest 合併，但 raw source retained 與 P91 selection truth 不被改寫。
-- [ ] 2026-05-22 這類 local-only 全為 `duplicate_url` 的日子，replay 應顯示 `eligible_posts=0` 並成功 no-op，不消耗 LLM。
-- [ ] Tests 覆蓋 queue raw-free manifest、duplicate no-op、topn_overflow eligible、budget cap、cooldown skip、partial replay、merge 不丟貼文、artifact path 不被 git add。
-- [ ] Focused tests、full `py -m pytest -q`、py_compile、governance doctor、cost/cache governance 通過；R-016 仍不得關閉。
+- [x] 建立 enrichment queue schema，至少包含 `schema_version`、`run_date`、`source_hash`、`source_count`、`eligible_count`、`skipped_count`、`records`、`retention_truth`。
+- [x] Queue 可保存 replay 所需原始欄位，但只能位於 git-ignored 本機路徑或 GitHub Actions artifact；不得 commit raw content、prompt 或作者個資到 repo。
+- [x] Manifest 寫入 raw-free `enrichment` snapshot，至少包含 `queue_available`、`eligible_posts`、`skipped_posts`、`enriched_posts`、`skipped_reason_counts`、`artifact_retention_days`、`replay_status`。
+- [x] Replay CLI 尊重 P90 budget / cooldown；budget 不足時 no-op 或 partial，不得繞過 cooldown。
+- [x] P92 只補可補價值高的 local-only：`topn_overflow` / budget-limited 類候選；`duplicate_url` / `duplicate_signature` 預設 skipped。
+- [x] Enriched 結果可與既有 `analysis_YYYYMMDD.json` / report / manifest 合併，但 raw source retained 與 P91 selection truth 不被改寫。
+- [x] 2026-05-22 這類 local-only 全為 `duplicate_url` 的日子，replay 應顯示 `eligible_posts=0` 並成功 no-op，不消耗 LLM。
+- [x] Tests 覆蓋 queue raw-free manifest、duplicate no-op、topn_overflow eligible、budget cap、cooldown skip、partial replay、merge 不丟貼文、artifact path 不被 git add。
+- [x] Focused tests、full `py -m pytest -q`、py_compile、governance doctor、cost/cache governance 通過；R-016 仍不得關閉。
 
 ## 5. ROI 評估
 
@@ -196,7 +197,7 @@ P92 runtime 收官需全部達成：
 | **P92.4 Merge + Manifest** | enriched 結果合併回 analysis/report/manifest，保留 P91 selection truth | 覆蓋既有健康報告 | dry-run / explicit write tests |
 | **P92.5 Closeout Verification** | focused tests、full pytest、doctor/governance、docs/handoff 更新 | Phase 狀態漂移 | 全驗證通過後 commit；R-016 仍 Open |
 
-目前狀態：僅 P92.0 plan freeze 可執行；P92.1-P92.5 需主公核准 runtime 後才能開始。
+目前狀態：P92.0-P92.5 已完成並通過本地驗證；後續 provider abstraction 必須另開 P93 plan，不得在 P92 追加。
 
 ---
 
@@ -317,7 +318,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-92-enrichment-replay.md`�
 
 ### 凍結後下一步
 
-P92 plan 凍結後，下一步是等待主公核准 P92 runtime 動工。核准前不得修改 `main.py`、`analyzer/`、`scripts/` runtime；R-016 仍 Open。
+P92 plan 已於同日取得主公 runtime 核准，並完成 P92.1-P92.5 runtime。後續供應商抽象化、免費 provider 插槽、SLO 重分類不得追加到 P92，需另開 P93 或後續 Phase。
 
 ---
 
@@ -325,4 +326,59 @@ P92 plan 凍結後，下一步是等待主公核准 P92 runtime 動工。核准�
 
 - **凍結人**：主公核准，AI 執行
 - **凍結時間**：2026-05-22 03:05 Asia/Taipei
-- **凍結後變更**：禁止直接改本檔既有內容；如需修改，新增章節「P92 補遺」並引用本檔
+- **凍結後變更**：主公已核准 P92 runtime 動工；runtime 收官證據見下節。
+
+---
+
+## 17. Runtime 收官證據（2026-05-22）
+
+### 17.1 物理真相
+
+- `analyzer/enrichment_queue.py`
+  - 新增 `ENRICHMENT_SCHEMA_VERSION=1`。
+  - Queue raw truth：`raw replay queue; do not commit to repo`。
+  - Snapshot raw-free truth：`raw-free enrichment snapshot only`。
+  - `duplicate_url` / `duplicate_signature` / `low_signal_local_only` 只進 skipped；`topn_overflow` 在 replay cap 內才 eligible。
+  - `build_enrichment_snapshot(...)` 只輸出 counts、digest、reason counts、budget decision，不輸出 raw title/content/url。
+- `analyzer/source_selection.py`
+  - `SourceSelection` 新增 `local_only_reasons` 與 `local_only_records`。
+  - 新增 `build_source_id(...)`：用 platform / normalized url / title signature / content signature 建立 16 字元 raw-safe digest。
+- `main.py`
+  - P91 selection 後產生 `data/enrichment_queue/<date>/enrichment_queue.json`。
+  - `daily_summary["_meta"]["enrichment"]` 進入 manifest。
+  - 無 local-only 時產生 `not_available` snapshot；duplicate-only local-only 會是 `queue_available=true` / `eligible_posts=0` / `replay_status=no_eligible`。
+- `scripts/enrichment_replay.py`
+  - 預設 dry-run。
+  - `--apply` 才寫入 `enriched_posts.json` 與更新既有 manifest `enrichment`。
+  - `--write-report` 才生成候選報告，且 `promote=False`。
+  - 使用 `FallbackLLMClient(enable_openai=False)`，不新增 OpenAI 成本。
+  - 依 P90 budget snapshot 判斷 `call_llm` / `skip_llm`，不得繞過 cooldown / exhausted。
+- `.github/workflows/daily_report.yml`
+  - 新增 `actions/upload-artifact@v4` 上傳 `data/enrichment_queue/`。
+  - `retention-days: 3`，`if-no-files-found: ignore`。
+- `analyzer/run_manifest.py`
+  - 新增 manifest `enrichment` snapshot normalize / validate。
+- `scripts/system_doctor.py`
+  - 新增 `DOC019 enrichment:replay`。
+- `scripts/cost_cache_governance.py`
+  - 新增 `CCG008 enrichment replay` 與日級 enrichment 欄位。
+- `docs/OPERATIONS_RUNBOOK.md` / `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+  - 補 P92 replay no-op / pending / budget skip / failed 處置。
+
+### 17.2 驗證
+
+| 指令 | 結果 |
+|---|---|
+| `py -m pytest -q tests\test_enrichment_queue.py tests\test_enrichment_replay.py tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py` | PASS：66 passed |
+| `py -m py_compile analyzer\enrichment_queue.py analyzer\source_selection.py analyzer\run_manifest.py scripts\enrichment_replay.py scripts\system_doctor.py scripts\cost_cache_governance.py main.py` | PASS |
+| `py -m pytest -q` | PASS：274 passed |
+| `py scripts\system_doctor.py --repo-root . --date 2026-05-22 --profile local --skip-landing` | PASS exit 0；僅既有 DOC007 / DOC018 advisory |
+| `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-22 --window-days 1 --max-llm-calls 20` | PASS exit 0；僅既有 CCG007 advisory |
+| `git diff --check` | PASS；僅 CRLF warning，無 whitespace error |
+
+### 17.3 收官狀態
+
+- ✅ P92 runtime CLOSED。
+- ✅ R-016 仍 Open。
+- ✅ Raw queue 不納入 repo；只在 git-ignored `data/enrichment_queue/` 或 short-retention Actions artifact。
+- ✅ P93 provider abstraction 尚未動工，需另開計畫。

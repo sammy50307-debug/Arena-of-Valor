@@ -6,6 +6,7 @@ from analyzer.source_selection import (
     REASON_DUPLICATE_URL,
     REASON_LOW_SIGNAL,
     REASON_TOPN_OVERFLOW,
+    build_source_id,
     build_source_selection,
     merge_local_only_entries,
     validate_selection_snapshot,
@@ -34,6 +35,8 @@ def test_source_selection_exact_url_duplicate_stays_local_only():
 
     assert len(selection.llm_posts) == 1
     assert len(selection.local_only_posts) == 1
+    assert selection.local_only_reasons == [REASON_DUPLICATE_URL]
+    assert selection.local_only_records[0]["source_id"] == build_source_id(selection.local_only_posts[0])
     assert selection.snapshot["duplicate_posts"] == 1
     assert selection.snapshot["reason_counts"][REASON_DUPLICATE_URL] == 1
     assert validate_selection_snapshot(selection.snapshot) == (True, [])

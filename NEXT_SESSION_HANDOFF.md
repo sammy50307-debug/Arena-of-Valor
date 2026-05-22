@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P92（Enrichment Replay / Local-only 補深讀 / FROZEN） |
-| **Current Step** | P92 plan 已凍結；等待主公另行核准 P92 runtime 動工，未核准前不得改 `main.py` / `analyzer/` / `scripts/` runtime |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | Plan freeze in progress：`docs/PHASE_92_PLAN.md` 已通過 lint；handoff docs 以 `git log -1 --oneline` 為準 |
+| **Current Phase** | P92（Enrichment Replay / Local-only 補深讀 / CLOSED） |
+| **Current Step** | P92 runtime 已完成本地驗證；下一步是等主公確認是否 push，或開 P93 disabled-by-default provider abstraction plan |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | P92 runtime 本地驗證完成；commit / push 狀態以 `git log -1 --oneline` 與 `git status -sb` 為準 |
 | **Updated At** | 2026-05-22 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_92_PLAN.md`（P92 凍結計畫與 runtime 邊界）
+2. `docs/PHASE_92_PLAN.md`（P92 runtime 收官真相與 replay 邊界）
 3. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
 ## Current Source Of Truth
@@ -25,7 +25,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_92_PLAN.md` | P92 Enrichment Replay / Local-only 補深讀凍結計畫 |
+| L3 | `docs/PHASE_92_PLAN.md` | P92 Enrichment Replay / Local-only 補深讀收官真相 |
 | L3-prev | `docs/PHASE_91_PLAN.md` | P91 Cache / Dedupe / Top-N 收官真相 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -33,21 +33,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P92 plan 已凍結，runtime 邊界寫入 `docs/PHASE_92_PLAN.md`，新視窗讀 active bootstrap 不會偏航。 |
-| **最舒服的換窗點** | P92 plan freeze commit 完成後換；下一窗可直接等主公核准 P92 runtime，或先做只讀設計審查。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_92_PLAN.md`；不得改 P92 runtime，除非主公明確核准。 |
-| **不要在換窗後做的事** | 不要重新修 P91；不要直接動 P92 runtime；不要把 2026-05-22 P91 實跑的 duplicate-only local-only no-op 解讀成 P92 失敗。 |
+| **現在能不能換視窗** | 可以。P92 runtime 已驗證，下一窗讀 active bootstrap 不會偏航。 |
+| **最舒服的換窗點** | P92 runtime commit 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_92_PLAN.md`；若未 push，先問主公是否 push。 |
+| **不要在換窗後做的事** | 不要重修 P91/P92；不要把 duplicate-only `no_eligible` replay 解讀成失敗；不要把 R-016 標記 Closed。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P92（FROZEN） |
-| **Current Step** | P92 enrichment replay / local-only 補深讀計畫已凍結；等待主公核准 P92 runtime |
-| **Allowed Files** | P92 plan 已封存；未核准 runtime 前只能補 closeout / handoff / risk / history 文件，不得改 `main.py` / `analyzer/` / `scripts/` runtime |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不改 P91 已封存 runtime；不直接做 P92 replay/backfill runtime；不做 P93 provider abstraction；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P92 plan 已完成 artifact-backed enrichment queue / budget-aware replay / duplicate no-op / raw-free manifest 設計，並通過 `lint_phase_plan.py`；R-016 仍 Open |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_92_PLAN.md`；下一步只可等待或請示 P92 runtime 核准，除非主公明確核准 P92 runtime |
+| **Current Phase** | P92（CLOSED） |
+| **Current Step** | P92 artifact-backed enrichment queue / budget-aware replay runtime 已完成；等待主公確認 push 或開 P93 plan |
+| **Allowed Files** | 若只接續 P92，僅可做 closeout / push；新 runtime 需另開 P93 或新 Phase plan |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不加 `OPENAI_API_KEY`；不接免費 provider；不重開 P92 runtime；不做 P93 provider abstraction runtime；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P92 runtime 已建立 queue helper / replay CLI / manifest enrichment / workflow artifact / DOC019 / CCG008，並通過 focused 66、full pytest 274、py_compile、doctor、cost governance；R-016 仍 Open |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_92_PLAN.md`；若本地 ahead 1，先等主公 push；下一個技術 Phase 應從 P93 plan 開始 |
 
 ## Required Verification Commands
 
@@ -59,7 +59,8 @@ py scripts\lint_phase_plan.py docs\PHASE_91_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_92_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
-py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
+py -m pytest -q tests\test_enrichment_queue.py tests\test_enrichment_replay.py tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
+py -m pytest -q
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
 
@@ -71,7 +72,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要回到「加 OpenAI paid fallback」當主線；主公已明確不想多花 OpenAI API 錢。
 - 不要自動接 Groq / Cloudflare / GitHub Models；免費 provider 只列 P93 disabled-by-default 候選。
 - 不要把 R-016 標記 Closed；P91 是 cache/dedupe/top-N 子問題收官，不是 R-016 closeout。
-- 不要直接改 P92 runtime code；P92 plan 已凍結，runtime 需主公另行核准。
+- 不要重開 P92 runtime；P92 已 CLOSED，新的供應商 / provider abstraction 議題應進 P93 plan。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

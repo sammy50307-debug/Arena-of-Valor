@@ -56,6 +56,7 @@ from analyzer.audio_briefing import AudioBriefingGenerator
 from analyzer.heatmap import HeatmapAnalyzer
 from analyzer.history import HistoryResolver
 from analyzer.local_analyzer import analyze_posts_locally, generate_local_summary
+from analyzer.enrichment_queue import build_enrichment_queue, build_enrichment_snapshot, write_enrichment_queue
 from analyzer.llm_budget import LLMBudgetManager
 from analyzer.run_context import build_run_context, build_source_hash
 from analyzer.run_manifest import (
@@ -390,6 +391,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     stats_scraper = HeroStatsScraper()
     pre_cache_stats = analyzer.llm.cache_manager.get_stats()
     selection_snapshot = {}
+    enrichment_snapshot = {}
 
     def _stat_delta(current: dict, previous: dict, key: str) -> int:
         return max(0, int(current.get(key, 0) or 0) - int(previous.get(key, 0) or 0))
@@ -410,6 +412,37 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             selection_snapshot.get("local_only_posts", 0),
             selection_snapshot.get("duplicate_posts", 0),
             selection_snapshot.get("max_llm_items", 0),
+        )
+        if selection.local_only_posts:
+            enrichment_queue = build_enrichment_queue(
+                run_date=run_date,
+                source_hash=source_hash,
+                local_only_posts=selection.local_only_posts,
+                local_only_reasons=selection.local_only_reasons,
+                max_replay_posts=getattr(config, "ENRICHMENT_REPLAY_MAX_POSTS", 4),
+                retention_days=getattr(config, "ENRICHMENT_ARTIFACT_RETENTION_DAYS", 3),
+            )
+            enrichment_queue_path = write_enrichment_queue(
+                getattr(config, "ENRICHMENT_QUEUE_DIR", config.DATA_DIR / "enrichment_queue"),
+                enrichment_queue,
+            )
+            enrichment_snapshot = build_enrichment_snapshot(
+                enrichment_queue,
+                queue_path=enrichment_queue_path,
+                budget_snapshot=budget_snapshot,
+                artifact_retention_days=getattr(config, "ENRICHMENT_ARTIFACT_RETENTION_DAYS", 3),
+            )
+        else:
+            enrichment_snapshot = build_enrichment_snapshot(
+                None,
+                artifact_retention_days=getattr(config, "ENRICHMENT_ARTIFACT_RETENTION_DAYS", 3),
+            )
+        logger.info(
+            "   [P92] enrichment queue: available=%s eligible=%s skipped=%s status=%s",
+            enrichment_snapshot.get("queue_available", False),
+            enrichment_snapshot.get("eligible_posts", 0),
+            enrichment_snapshot.get("skipped_posts", 0),
+            enrichment_snapshot.get("replay_status", "not_available"),
         )
 
         if selection.llm_posts:
@@ -523,6 +556,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "openai_fallback_used": bool(_provider_diag.get("openai_fallback_used", False)),
             "budget": budget_manager.snapshot(run_date),
             "selection": selection_snapshot,
+            "enrichment": enrichment_snapshot,
         }
 
         # 同步抓取戰鬥數據 - 異常隔離處理 (Phase 35.5)
@@ -593,6 +627,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "total_calls": _fb_l1_delta + _fb_l2_delta + _fb_ap_delta + _fb_miss_delta,
             "budget": budget_manager.snapshot(run_date),
             "selection": selection_snapshot,
+            "enrichment": enrichment_snapshot,
         }
         analyzed_posts = []
 

@@ -8,6 +8,7 @@ baseline; this module must never delete or redact raw source files.
 from __future__ import annotations
 
 import re
+import hashlib
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from typing import Any, Dict, Iterable, List, Optional, Tuple
@@ -36,6 +37,8 @@ ALLOWED_SELECTION_REASONS = {
 class SourceSelection:
     llm_posts: List[Any]
     local_only_posts: List[Any]
+    local_only_reasons: List[str]
+    local_only_records: List[Dict[str, Any]]
     snapshot: Dict[str, Any]
 
 
@@ -90,6 +93,8 @@ def build_source_selection(
 
     llm_posts: List[Any] = []
     local_only_posts: List[Any] = []
+    local_only_reasons: List[str] = []
+    local_only_records: List[Dict[str, Any]] = []
     reason_counts = {reason: 0 for reason in sorted(ALLOWED_SELECTION_REASONS)}
     selected_platform_counts: Dict[str, int] = {}
     local_platform_counts: Dict[str, int] = {}
@@ -103,6 +108,15 @@ def build_source_selection(
             selected_platform_counts[platform] = selected_platform_counts.get(platform, 0) + 1
         else:
             local_only_posts.append(item)
+            local_only_reasons.append(reason)
+            local_only_records.append(
+                {
+                    "source_id": build_source_id(item),
+                    "reason": reason,
+                    "platform": platform,
+                    "score": _safe_float(_get(item, "score"), 0.0),
+                }
+            )
             local_platform_counts[platform] = local_platform_counts.get(platform, 0) + 1
 
     duplicate_posts = reason_counts.get(REASON_DUPLICATE_URL, 0) + reason_counts.get(REASON_DUPLICATE_SIGNATURE, 0)
@@ -123,7 +137,26 @@ def build_source_selection(
             "local_only_platform_counts": local_platform_counts,
         }
     )
-    return SourceSelection(llm_posts=llm_posts, local_only_posts=local_only_posts, snapshot=snapshot)
+    return SourceSelection(
+        llm_posts=llm_posts,
+        local_only_posts=local_only_posts,
+        local_only_reasons=local_only_reasons,
+        local_only_records=local_only_records,
+        snapshot=snapshot,
+    )
+
+
+def build_source_id(item: Any) -> str:
+    """Return a stable raw-safe source id for replay bookkeeping."""
+    payload = "|".join(
+        [
+            _canonical_text(_get(item, "platform")),
+            _normalize_url(_get(item, "url")),
+            _signature_text(_get(item, "title")),
+            _signature_text(_get(item, "content"))[:240],
+        ]
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
 def normalize_selection_snapshot(value: Any) -> Dict[str, Any]:

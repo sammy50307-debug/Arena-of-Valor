@@ -19,6 +19,7 @@ def _write_manifest(
     mode: str = "production",
     budget: dict | None = None,
     selection: dict | None = None,
+    enrichment: dict | None = None,
 ) -> None:
     path = repo_root / "data" / "runs" / date_str / "run_manifest.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -37,6 +38,8 @@ def _write_manifest(
         payload["budget"] = budget
     if selection is not None:
         payload["selection"] = selection
+    if enrichment is not None:
+        payload["enrichment"] = enrichment
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
@@ -181,6 +184,30 @@ def test_cost_cache_advises_on_selection_throttle(tmp_path: Path):
 
     assert "CCG007" in _codes(result)
     assert result.days[0].selection_llm_selected_posts == 4
+    assert cost_cache_governance.exit_code_for(result) == 0
+
+
+def test_cost_cache_advises_on_enrichment_pending(tmp_path: Path):
+    _write_manifest(
+        tmp_path,
+        "2026-05-18",
+        cache_hit=1,
+        total_calls=5,
+        llm_calls=2,
+        enrichment={
+            "queue_available": True,
+            "eligible_posts": 2,
+            "skipped_posts": 1,
+            "enriched_posts": 0,
+            "replay_status": "pending",
+        },
+    )
+    _write_cache(tmp_path)
+
+    result = cost_cache_governance.evaluate_cost_cache(tmp_path, "2026-05-18", window_days=1)
+
+    assert "CCG008" in _codes(result)
+    assert result.days[0].enrichment_eligible_posts == 2
     assert cost_cache_governance.exit_code_for(result) == 0
 
 

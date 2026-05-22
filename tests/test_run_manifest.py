@@ -92,6 +92,7 @@ def test_build_manifest_basic_fields(tmp_path: Path):
     assert manifest["budget"]["decision"] == "call_llm"
     assert manifest["budget"]["billing_truth"] == "pipeline proxy only; not provider billing truth"
     assert manifest["selection"]["selection_truth"] == "source selection only; raw sources retained"
+    assert manifest["enrichment"]["enrichment_truth"] == "raw-free enrichment snapshot only"
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 
@@ -128,6 +129,45 @@ def test_build_manifest_with_selection_snapshot(tmp_path: Path):
     assert manifest["selection"]["llm_selected_posts"] == 4
     assert manifest["selection"]["local_only_posts"] == 4
     assert manifest["quality"]["tier"] == "production_llm_partial"
+    ok, errors = validate_manifest(manifest)
+    assert ok, errors
+
+
+def test_build_manifest_with_enrichment_snapshot(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+        meta={
+            "analysis_source": "mixed",
+            "llm_coverage": "partial",
+            "enrichment": {
+                "schema_version": 1,
+                "enrichment_truth": "raw-free enrichment snapshot only",
+                "queue_available": True,
+                "queue_ref": "data/enrichment_queue/2026-05-16/enrichment_queue.json",
+                "queue_digest": "abc123",
+                "source_count": 4,
+                "eligible_posts": 2,
+                "skipped_posts": 2,
+                "enriched_posts": 0,
+                "artifact_retention_days": 3,
+                "replay_status": "pending",
+                "eligible_reason_counts": {"topn_overflow": 2},
+                "skipped_reason_counts": {"duplicate_url": 2},
+                "budget_decision": "call_llm",
+                "budget_reason": "available",
+                "budget_remaining": 10,
+                "cooldown_active": False,
+            },
+        },
+    )
+
+    assert manifest["enrichment"]["eligible_posts"] == 2
+    assert manifest["enrichment"]["replay_status"] == "pending"
     ok, errors = validate_manifest(manifest)
     assert ok, errors
 
@@ -550,6 +590,23 @@ def test_validate_manifest_rejects_bad_budget_snapshot(tmp_path: Path):
 
     assert not ok
     assert any("budget.schema_version" in msg for msg in errors)
+
+
+def test_validate_manifest_rejects_bad_enrichment_snapshot(tmp_path: Path):
+    manifest = build_manifest(
+        run_date="2026-05-16",
+        mode="production",
+        raw_path=tmp_path / "raw_20260516.json",
+        analysis_path=tmp_path / "analysis_20260516.json",
+        report_path=tmp_path / "aov_report_2026-05-16.html",
+        source_quality=_source_quality_ok(),
+    )
+    manifest["enrichment"] = {"schema_version": 999}
+
+    ok, errors = validate_manifest(manifest)
+
+    assert not ok
+    assert any("enrichment.schema_version" in msg for msg in errors)
 
 
 def test_validate_manifest_accepts_schema_v2_without_core_contract(tmp_path: Path):
