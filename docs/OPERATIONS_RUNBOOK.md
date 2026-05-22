@@ -1,11 +1,11 @@
-# Operations Runbook（P79.2 / P84.2 / P84.3 / P84.4）
+# Operations Runbook（P79.2 / P84.2 / P84.3 / P84.4 / P94）
 
-> 更新日期：2026-05-22
+> 更新日期：2026-05-23
 > 用途：提供 `scripts/system_doctor.py` / `scripts/slo_checker.py` / `scripts/check_handoff_truth.py` / `scripts/governance_doctor.py` 的 issue code 對應處置步驟，供本地與 CI 機械化引用。
 
 ## 使用方式
 
-執行 doctor 後，直接用輸出的 `code` 對照本檔相同代碼段落執行處置，不需再人工猜測。新增任何 `DOC###` / `SLO###` / `HND###` / `GOV###` 時，同一個 commit 必須補對應 anchor，並跑 `py scripts\governance_doctor.py --repo-root .`。
+執行 doctor 後，直接用輸出的 `code` 對照本檔相同代碼段落執行處置，不需再人工猜測。P94 起，`classification=current` 代表當前仍需判讀的訊號，`classification=historical` 代表舊 window 尖峰殘影，`classification=residual` 代表 post-remediation 預期殘留。新增任何 `DOC###` / `SLO###` / `HND###` / `GOV###` 時，同一個 commit 必須補對應 anchor，並跑 `py scripts\governance_doctor.py --repo-root .`。
 
 ## Issue Code 對照
 
@@ -127,7 +127,7 @@
 - 意義：manifest `selection` 顯示 P91 已將部分來源留在 local deterministic baseline，或 duplicate/top-N 節流正在生效。
 - 處置：
   1. 查看 manifest `selection.llm_selected_posts`、`local_only_posts`、`duplicate_posts`、`reason_counts`。
-  2. 若為 advisory，代表節流正常生效；用 report 與 local baseline 檢查洞察品質即可。
+  2. 若為 `classification=residual` advisory，代表節流正常生效；用 report 與 local baseline 檢查洞察品質即可。
   3. 若 selected 超過 `max_llm_items`，先跑 `py -m pytest -q tests\test_source_selection.py tests\test_run_manifest.py`，再檢查 `analyzer/source_selection.py` 是否計算 cap 漂移。
   4. 不要因本 issue 直接開 OpenAI fallback；P91 的主線是減少 LLM 深讀候選數。
 
@@ -135,7 +135,7 @@
 - 意義：manifest `enrichment` 顯示 P92 replay queue 狀態。`no_eligible` 多半代表 local-only 來源全為 duplicate / low-signal，這是 expected no-op；`pending` 代表有可補深讀貼文但尚未手動 replay；`failed` 才是需要處理的錯誤。
 - 處置：
   1. 查看 manifest `enrichment.queue_available`、`eligible_posts`、`skipped_posts`、`enriched_posts`、`replay_status`、`skipped_reason_counts`。
-  2. 若 `replay_status=no_eligible` 且 skipped reason 是 `duplicate_url` / `duplicate_signature`，不要重送 LLM，這表示 P91 節流成功。
+  2. 若 `classification=residual` 且 `replay_status=no_eligible`，不要重送 LLM；skipped reason 是 `duplicate_url` / `duplicate_signature` 時，這表示 P91 節流成功。
   3. 若 `replay_status=pending` 且有剩餘 budget，可下載 Actions artifact 或使用本機 `data/enrichment_queue/<date>/enrichment_queue.json` 後執行 `py scripts\enrichment_replay.py --date <YYYY-MM-DD>` 先 dry-run。
   4. 若 dry-run 確認會補深讀，再執行 `py scripts\enrichment_replay.py --date <YYYY-MM-DD> --apply`；若要產候選報告才加 `--write-report`。
   5. 若 `replay_status=skipped_budget`，先看 `DOC017`，不得繞過 P90 budget/cooldown。
@@ -156,7 +156,7 @@
   3. 重跑 `py scripts\governance_doctor.py --repo-root .`。
 
 ### <a id="slo000"></a>SLO000 — no SLO issue
-- 意義：SLO checker 未檢出 freshness / manifest / doctor severity 異常。
+- 意義：SLO checker 未檢出 freshness / manifest / doctor severity 異常。P94 起 `classification=current` 代表當前 SLO window 可讀且未檢出阻塞，不代表 R-016 已自動關閉。
 - 處置：無需動作。
 
 ### <a id="slo001"></a>SLO001 — production freshness
@@ -294,8 +294,9 @@
 - 意義：window 內 LLM call proxy 超過設定門檻，可能代表成本或配額壓力升高。
 - 處置：
   1. 先確認 `total_llm_calls` 來源是 manifest 還是 report metadata。
-  2. 對照 `CCG003` 判斷是否 cache hit 低造成。
-  3. 若真實 API 費用需確認，另查供應商帳單；本 checker 不代表 billing truth。
+  2. 若 `classification=historical`，檢查 `latest_day` / `latest_llm_calls` 與 `spike_days`；這代表最新日未超標，超標來自舊日 pre-remediation spike，不應讓最新健康 run exit 1。
+  3. 若 `classification=current` 且 severity 為 degraded，對照 `CCG003` 判斷是否 cache hit 低造成。
+  4. 若真實 API 費用需確認，另查供應商帳單；本 checker 不代表 billing truth。
 
 ### <a id="ccg006"></a>CCG006 — budget cooldown
 - 意義：window 內至少一天 manifest `budget` 顯示 `skip_llm`、cooldown active、budget exhausted 或 malformed state。這是成本 / 配額停損訊號，不代表報告本身不可發布。
@@ -309,7 +310,7 @@
 - 意義：window 內 manifest `selection` 顯示 P91 節流正在生效，或 selected 數量超過 cap。
 - 處置：
   1. 查看輸出列的 `selected` / `local_only` / `duplicate`。
-  2. 若為 advisory，代表 Top-N / dedupe 正常降低 LLM call 壓力。
+  2. 若為 `classification=residual` advisory，代表 Top-N / dedupe 正常降低 LLM call 壓力。
   3. 若為 degraded，檢查 `selection.llm_selected_posts > selection.max_llm_items` 的日期，修正 source selection 後重跑。
   4. 若 local-only 比例連續過高，後續走 P92 replay/backfill 補深讀，不在 P91 直接引入新 provider。
 
@@ -317,7 +318,7 @@
 - 意義：window 內 manifest `enrichment` 顯示 P92 replay queue 有 pending / no-op / budget skip / partial / failed 狀態。
 - 處置：
   1. advisory 的 `pending` 表示有 eligible queue 尚未補深讀；先用 `scripts\enrichment_replay.py` dry-run 看 budget 與候選數。
-  2. advisory 的 `no_eligible` 表示 queue 存在但本批多為 duplicate / low-signal，不需補深讀。
+  2. `classification=residual` 的 `no_eligible` 表示 queue 存在但本批多為 duplicate / low-signal，不需補深讀。
   3. advisory 的 `skipped_budget` 依 `CCG006` 檢查 budget/cooldown。
   4. degraded 的 `failed` 才需要檢查 queue schema、provider error 或 replay merge 失敗；不要用調高 `LLM_DAILY_BUDGET` 當第一反應。
 

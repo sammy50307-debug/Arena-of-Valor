@@ -1,6 +1,6 @@
-# Phase P94 計畫書 — Doctor / SLO Reclassification（凍結版）
+# Phase P94 計畫書 — Doctor / SLO Reclassification（收官版）
 
-> 狀態：FROZEN。主公已於 2026-05-23 核准 P94 plan freeze；本 Phase 只凍結 doctor / SLO / cost governance 重分類計畫，不改 runtime code。P94 runtime 必須另行取得主公明確核准後才能動工。R-016 仍 Open，不得因 P94 plan 凍結而關閉。
+> 狀態：CLOSED。主公已於 2026-05-23 核准 P94 runtime 動工；本 Phase 已完成 doctor / SLO / cost governance 的 current / historical / residual 分類校準。P94 未改 daily pipeline、未接 provider、未降低 SLO blocking 門檻；R-016 仍 Open，交給 P95 closeout verification。
 
 ---
 
@@ -12,7 +12,7 @@
 | **Phase 名稱** | Doctor / SLO Reclassification |
 | **草案日期** | 2026-05-23 |
 | **凍結日期** | 2026-05-23 |
-| **影響半徑** | Plan-only 標準 (5 檔文件)；runtime 預估標準到重大，依實作是否同時動 `slo_checker` / `system_doctor` / `cost_cache_governance` / tests 判定 |
+| **影響半徑** | Runtime 重大（scripts / tests / policy docs / handoff / risk / history，共跨 10+ 檔） |
 | **預估投入時數** | Plan-only 1-2 小時；runtime 4-7 小時 |
 | **Token budget** | Plan-only 20K-35K；runtime 45K-75K |
 | **負責模型** | GPT-5.3-Codex 高；若 SLO / doctor 分級同題修 3 次仍不自洽，提醒主公切 GPT-5.5 高 |
@@ -22,8 +22,8 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P94 plan | NEW | FROZEN | 計畫邊界已固定，但 runtime 尚未核准 | 主公回覆「核准」後，本檔建立並同步 handoff / active / risk / history | 主公核准，AI 執行 |
-| P94 runtime | NOT_STARTED | PENDING_APPROVAL | 只能等主公另行核准，不得修改 scripts / tests / runtime docs | 本計畫 lint / governance 檢查通過並 commit 後，由主公決定是否動工 | 主公 |
-| SLO classification | P84.2 baseline | P94 proposed reclassification | 既有 SLO001/SLO002/SLO003 保留，新增或調整分類需 runtime 另審 | P94 runtime 需以 2026-05-20 至 2026-05-23 production 證據校正 | AI 實作，主公核准 |
+| P94 runtime | PENDING_APPROVAL | CLOSED | 已依核准範圍修改治理腳本 / tests / policy docs，並完成驗證 | 主公明確說「核准 P94 runtime 動工」後執行，focused / full tests 通過 | 主公核准，AI 執行 |
+| SLO classification | P84.2 baseline | P94 implemented reclassification | 既有 SLO001/SLO002/SLO003 保留；新增 `classification` 輸出，不降低 blocking 門檻 | 2026-05-23 production 證據顯示 SLO current clear，cost spike 可標 historical | AI 實作，主公核准 |
 | R-016 | Open | Open | R-016 是跨 Phase 風險；P94 只處理判讀與分類，不能 closeout | P95 才能做 R-016 closeout verification | 主公與 AI 共同裁決 |
 
 ---
@@ -64,7 +64,7 @@ doctor_degraded_days=1
 issues=[]
 ```
 
-代表 R-016 最初的「連續無 production / manifest gap / doctor blocking」已明顯收斂；但 cost/cache governance 三日視窗仍會因 2026-05-21 pre-P91 `llm_calls=28` 產生 `CCG005 total_llm_calls=35 threshold=20`。P94 的真正問題不是再接 provider，而是把「歷史窗口污染」與「當前 production 仍健康」分開，避免 P95 closeout 前的判讀混雜。
+代表 R-016 最初的「連續無 production / manifest gap / doctor blocking」已明顯收斂；但 cost/cache governance 三日視窗仍會因 2026-05-21 pre-P91 `llm_calls=28` 產生 `CCG005`。P94 plan freeze 當時為 `total_llm_calls=35 threshold=20`；同步 Actions auto-sync commit `318c1e3` 後，2026-05-23 最新真相為 `total_llm_calls=39 threshold=20 latest_llm_calls=9`，仍由 2026-05-21 舊 spike 主導。P94 的真正問題不是再接 provider，而是把「歷史窗口污染」與「當前 production 仍健康」分開，避免 P95 closeout 前的判讀混雜。
 
 ### 2.1 方案比較與採用決策
 
@@ -87,11 +87,11 @@ P94 plan-only 開工前必須全部達成：
 - [x] 2026-05-23 SLO checker 五日視窗 `issues=[]`，但 R-016 仍 Open。
 - [x] 主公於 2026-05-23 回覆「核准」，允許 P94 plan freeze。
 
-P94 runtime 開工前尚需另行達成：
-- [ ] 本檔由 FROZEN 轉 APPROVED。
-- [ ] 主公明確說「核准 P94 runtime 動工」或等價指令。
-- [ ] runtime 前重跑 `slo_checker` / `system_doctor` / `cost_cache_governance`，確認 2026-05-23 之後是否又有新 Actions commit。
-- [ ] 若 runtime 要新增 issue code，先確認 `docs/OPERATIONS_RUNBOOK.md` anchor 與 `scripts/governance_doctor.py` 規則。
+P94 runtime 開工前另行達成：
+- [x] 本檔由 FROZEN 轉 APPROVED / IN_PROGRESS（主公口頭核准）。
+- [x] 主公明確說「核准 P94 runtime 動工」或等價指令。
+- [x] runtime 前重跑 `slo_checker` / `system_doctor` / `cost_cache_governance`，確認 2026-05-23 production 證據仍為當前基準。
+- [x] 未新增 issue code；既有 runbook anchor 保持有效並補充 classification 解讀。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -105,11 +105,11 @@ P94 plan-only 凍結需全部達成：
 - [x] 不修改 runtime code、workflow、provider flags、secrets 或 data reports。
 
 P94 runtime 收官需全部達成：
-- [ ] SLO / doctor / cost governance 可以分清「current blocking」、「historical advisory」、「post-remediation residual」。
-- [ ] 2026-05-23 類型的 healthy production run 不被 pre-P91 歷史成本尖峰誤判成當前阻塞。
-- [ ] 新增或調整的 issue code 均有 runbook anchor、tests 與 governance doctor 覆蓋。
-- [ ] Focused tests、full `py -m pytest -q`、py_compile、doctor / SLO / cost governance 實跑通過。
-- [ ] R-016 保持 Open，交給 P95 closeout verification。
+- [x] SLO / doctor / cost governance 可以分清「current blocking」、「historical advisory」、「post-remediation residual」。
+- [x] 2026-05-23 類型的 healthy production run 不被 pre-P91 歷史成本尖峰誤判成當前阻塞。
+- [x] 未新增 issue code；既有 runbook anchor 已補 classification 解讀，tests 與 governance doctor 覆蓋。
+- [x] Focused tests、full `py -m pytest -q`、py_compile、doctor / SLO / cost governance 實跑通過。
+- [x] R-016 保持 Open，交給 P95 closeout verification。
 
 ## 5. ROI 評估
 
@@ -142,7 +142,7 @@ P94 runtime 收官需全部達成：
 | **6. 可觀察性層 (Observability)** | 新增或調整輸出需能說明 issue 是 current / historical / residual | 主公只看到 CCG005 或 DOC018，不知道該不該阻擋 P95 | CLI detail 要包含日期窗口與分類理由 |
 | **7. 韌性層 (Resilience)** | SLO checker 保留 blocking 對缺 manifest / 無 production 的嚴格判定 | 重分類後系統過度樂觀，漏掉真正連續故障 | 不降低 SLO001/SLO002/SLO003 blocking 門檻；只新增歷史污染標註 |
 | **13. 可維護性層 (Maintainability)** | 文件化 classification taxonomy 與 P95 closeout entry criteria | 半年後接手者不知道哪些 advisory 可接受 | 更新 `docs/SLO_POLICY.md`、runbook、P94 plan |
-| **14. 文件層 (Documentation)** | handoff / active / risk / history 同步 P94 FROZEN 與雲端證據 | 新視窗仍停在 P93 commit/push 或以為要接 provider | L1 bootstrap 指向 P94 plan；Forbidden Work 明寫不接 provider |
+| **14. 文件層 (Documentation)** | handoff / active / risk / history 同步 P94 plan freeze、runtime closeout 與雲端證據 | 新視窗仍停在 P93 commit/push 或以為要接 provider | L1 bootstrap 指向 P94 closeout；Forbidden Work 明寫不接 provider |
 | **15. 流程層 (Process)** | plan freeze 與 runtime approval 分離；push 仍需主公確認 | AI 因 plan 已核准就直接改 scripts | 狀態機寫 P94 runtime `PENDING_APPROVAL`；runtime 另需主公核准 |
 
 ### B 級層（條件式，6 層）
@@ -237,12 +237,12 @@ P94 runtime 收官需全部達成：
 ## 10. 影響檔案清單 ─ STR7
 
 **新增**：
-- `docs/PHASE_94_PLAN.md`：P94 FROZEN 計畫書。
+- `docs/PHASE_94_PLAN.md`：P94 收官計畫書。
 
 **Plan-only 修改**：
-- `NEXT_SESSION_HANDOFF.md`：ACTIVE_BOOTSTRAP 同步 P94 FROZEN。
-- `docs/ACTIVE_OPERATION.md`：L2 作戰狀態同步 P94 FROZEN。
-- `docs/RISK_REGISTRY.md`：R-016 mitigation 補 P94 FROZEN，但 R-016 仍 Open。
+- `NEXT_SESSION_HANDOFF.md`：ACTIVE_BOOTSTRAP 同步 P94 CLOSED。
+- `docs/ACTIVE_OPERATION.md`：L2 作戰狀態同步 P94 CLOSED。
+- `docs/RISK_REGISTRY.md`：R-016 mitigation 補 P94 runtime closeout，但 R-016 仍 Open。
 - `TASK_HISTORY.md`：追加 P94 plan freeze 無損紀錄。
 
 **P94 runtime 預計允許修改**：
@@ -325,12 +325,12 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-94-slo-reclassification.m
 
 | 人格 | 觸發規則 | 檢查重點 | 是否觸發 / 發現 |
 |---|---|---|---|
-| **Jarvis 型總控** | 固定必看 | 目標、邊界、派工、下一步是否清楚；結論是否先行 | 觸發；P94 只做觀測分類計畫，不做 runtime、不關 R-016。 |
+| **Jarvis 型總控** | 固定必看 | 目標、邊界、派工、下一步是否清楚；結論是否先行 | 觸發；P94 runtime 已限縮為觀測分類層，不動 pipeline、不關 R-016。 |
 | **Ken 型紅隊 / 技術長** | 固定必看 | 技術假設、安全邊界、權限、secrets、CI/CD、不可逆操作 | 觸發；主要風險是 severity 降級濫用與 raw artifact 洩漏，不是 provider token。 |
 | **Patric 型使用者端審查官** | 固定必看 | 主公 / 使用者 / 接手者是否會誤解、卡住、走到死路 | 觸發；OK 與 advisory 並存時必須說清是否阻擋 P95。 |
 | **Jimmy 型文件主筆** | 改 docs / TASK_HISTORY / handoff / 對外文字 / template 時觸發 | 文字是否可追溯、有來源、避免空泛敘事 | 觸發；P94 計畫需記錄 run id、commit、manifest 與 SLO 證據。 |
 | **Marcus 型數據分析師** | 涉及數據、趨勢、判斷依據、實驗結果時觸發 | 沒數據時是否明說；定量 / 定性是否分清楚 | 觸發；5/23 五日 SLO OK 與三日 CCG005 degraded 要分開解讀。 |
-| **Oliver 型設計審查** | 涉及 UI、報告、圖表、視覺呈現時觸發 | 視覺層級、可讀性、A11y、資訊密度是否合適 | N/A；P94 plan-only 不改報告 UI，runtime 也只預計 CLI / docs。 |
+| **Oliver 型設計審查** | 涉及 UI、報告、圖表、視覺呈現時觸發 | 視覺層級、可讀性、A11y、資訊密度是否合適 | N/A；P94 runtime 不改報告 UI，只改 CLI / JSON / docs 的觀測語意。 |
 | **Penny 型 CFO** | 涉及 API 成本、雲端成本、排程成本、付費工具時觸發 | ROI、預算上限、成本爆量與停損條件 | 觸發；CCG005 是 pipeline proxy，不是供應商帳單，P94 需避免成本恐慌與成本麻痺兩端。 |
 | **Jason 型執行 / DevOps** | 涉及部署、CI、Git、腳本、環境差異時觸發 | 可執行性、rollback、環境變數、跨 shell / 跨平台細節 | 觸發；P94 不接 CI blocking gate，不改 workflow，runtime 若改 CLI 要保留 JSON 輸出。 |
 
@@ -358,4 +358,46 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-94-slo-reclassification.m
 
 - **凍結人**：主公核准，AI 執行。
 - **凍結時間**：2026-05-23 Asia/Taipei。
-- **凍結後變更**：禁止；如需修改，新增章節「Phase P94.x 補遺」並引用本檔。
+- **凍結後變更**：主公於 2026-05-23 另行核准 P94 runtime 動工；runtime 收官記錄見 §14。後續若再修改 P94，需新增「Phase P94.x 補遺」並引用本檔。
+
+---
+
+## 14. Runtime 收官紀錄（2026-05-23）
+
+### 14.1 實作摘要
+
+| 模組 | P94 runtime 結果 |
+|---|---|
+| `scripts/slo_checker.py` | `SloResult` / `SloIssue` 增加 `classification=current`；SLO001/SLO002/SLO003 blocking 門檻未降低。 |
+| `scripts/system_doctor.py` | `DoctorIssue` 增加 `classification`；DOC018 duplicate/local-only 與 DOC019 `no_eligible` 標為 `residual`；DOC020 provider enabled 仍是 `current`。 |
+| `scripts/cost_cache_governance.py` | `CostCacheIssue` 增加 `classification`；CCG005 若最新日未超標且超標來自舊 spike，標為 `historical` advisory；CCG007 / CCG008 `no_eligible` 標為 `residual`。 |
+| Policy / runbook | `docs/SLO_POLICY.md`、`docs/COST_CACHE_GOVERNANCE_POLICY.md`、`docs/OPERATIONS_RUNBOOK.md` 補 current / historical / residual taxonomy。 |
+
+### 14.2 2026-05-23 實跑分類真相
+
+| Probe | 結果 | 是否阻擋 P95 |
+|---|---|---|
+| SLO 五日窗 | `classification=current`，`issues=[]`，`consecutive_no_production=0`，`missing_manifest_count=0`，`doctor_blocking_days=0` | 不阻擋；但不等於 R-016 已關閉 |
+| System doctor | DOC007 `current` advisory、DOC018 `residual` advisory、DOC019 `residual` advisory；無 DOC020 | 不阻擋；代表 history coverage 與 post-remediation residue 仍需觀察 |
+| Cost/cache 三日窗 | CCG005 `historical` advisory（`total_llm_calls=39`、`latest_llm_calls=9`、`2026-05-21:28` 舊 spike）、CCG007 `residual`、CCG008 `current` pending for 2026-05-22、CCG008 `residual` no_eligible for 2026-05-23 | 不因 CCG005 exit 1；P95 仍需人工裁決 current pending 是否需處置 |
+
+### 14.3 驗證矩陣
+
+| 指令 | 結果 |
+|---|---|
+| `py -m py_compile scripts\slo_checker.py scripts\cost_cache_governance.py scripts\system_doctor.py` | PASS |
+| `py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py` | PASS，32 passed |
+| `py -m pytest -q` | PASS，288 passed |
+| `py scripts\slo_checker.py --repo-root . --date 2026-05-23 --window-days 5 --json` | PASS，exit 0，`issues=[]` |
+| `py scripts\system_doctor.py --repo-root . --date 2026-05-23 --profile local` | PASS，exit 0，DOC018 / DOC019 為 `residual` |
+| `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-23 --window-days 3 --max-llm-calls 20` | PASS，exit 0，CCG005 為 `historical` advisory |
+| `py scripts\lint_phase_plan.py docs\PHASE_94_PLAN.md` | PASS |
+| `py scripts\check_handoff_truth.py --repo-root .` | PASS，`HND000` |
+| `py scripts\governance_doctor.py --repo-root .` | PASS，`GOV000` |
+| `git diff --check` | PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error |
+
+### 14.4 收官邊界
+
+- P94 未修改 `.github/workflows/daily_report.yml`、`main.py`、provider client、provider router enable flags、secrets 或 `data/reports` / `data/runs` 產物。
+- P94 未新增 issue code，只補既有 code 的 classification 欄位與 runbook 解讀。
+- P94 不關閉 R-016；P95 才能根據 P94 後的分類輸出與後續 Actions evidence 做 closeout verification。

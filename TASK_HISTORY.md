@@ -10602,3 +10602,163 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - 🔴 P94 runtime 尚未核准，不得改 scripts / tests。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：commit P94 plan；push 仍需主公明確確認。
+
+---
+
+### P94.1 Doctor / SLO Reclassification Runtime Closeout（2026-05-23）
+
+**目標**：
+- 完成 P94 runtime，把 governance tooling 的判讀語意從單純 severity 擴充為：
+  - `current`：當前 window / 最新日仍需判讀的訊號。
+  - `historical`：舊 remediation 前尖峰造成的 window aggregate 殘影。
+  - `residual`：post-remediation 預期殘留，例如 duplicate/local-only 節流與 `no_eligible` replay no-op。
+- 不降低 `SLO001` / `SLO002` / `SLO003` blocking 門檻。
+- 不修改 daily pipeline、provider router、workflow、secrets、reports/data artifacts。
+- 保持 R-016 Open，交給 P95 closeout verification。
+
+**觸發**：
+- 主公於 2026-05-23 明確回覆：「核准 P94 runtime 動工」。
+- P94 前置證據顯示：
+  - 2026-05-23 AoV Daily Monitor run `26299079187` success。
+  - `provider.routing.route_status=router_disabled_legacy_default`。
+  - 五日 SLO probe `issues=[]`。
+  - 三日 cost/cache governance 仍因 2026-05-21 pre-P91 `llm_calls=28` 造成 `CCG005`；P94 plan freeze 當時為 `total_llm_calls=35 threshold=20`。
+- 同步分岔 A 後新增遠端 Actions auto-sync commit：
+  - `318c1e3 docs: 戰略報告自動同步 2026-05-23 10:15:29 [mode:production l1:0 l2:5 hit:36%]`
+  - P94 runtime commit 已 rebase 到 `318c1e3` 之上。
+  - rebase 後 P94 commit SHA：`685612c`。
+  - 2026-05-23 最新 cost/cache truth：`total_llm_calls=39 threshold=20 latest_llm_calls=9 historical_llm_calls=30 spike_days=2026-05-21:28`，仍正確標為 `classification=historical`。
+
+**稽核表**：
+- S 級：
+  - Code：
+    - 修改 `scripts/slo_checker.py`、`scripts/system_doctor.py`、`scripts/cost_cache_governance.py`。
+    - 只新增 classification 欄位與分類邏輯，不改 daily runtime 主流程。
+  - Logic：
+    - `SLO`：`classification=current` 表示當前 SLO window 判讀；無 issue 不代表 R-016 自動關閉。
+    - `DOC018`：duplicate/local-only selection throttle advisory 標 `residual`；selected over cap 仍是 `current` degraded。
+    - `DOC019`：`no_eligible` + skipped posts 標 `residual`；`pending` / `skipped_budget` / `partial` 仍是 `current` advisory；`failed` 仍是 `current` degraded。
+    - `CCG005`：若 `total_llm_calls > threshold`，但最新日 `latest_llm_calls <= threshold` 且舊日存在 spike，改為 `historical` advisory；若最新日超標，保留 `current` degraded。
+    - `CCG007`：正常 selection throttle advisory 標 `residual`；over cap 保留 `current` degraded。
+    - `CCG008`：`no_eligible` no-op 標 `residual`；pending 類狀態保留 `current` advisory。
+  - Testing：
+    - 新增 focused assertions：
+      - SLO JSON 含 `classification=current`。
+      - `CCG005` current 超標仍 exit 1。
+      - pre-remediation old spike 只造成 `CCG005 historical advisory` 且 exit 0。
+      - `CCG007` throttle residual。
+      - `CCG008 pending current` 與 `no_eligible residual` 分流。
+      - `DOC018` / `DOC019` residual，`DOC020` current。
+  - Security：
+    - 不讀 raw enrichment artifact / raw queue。
+    - 不輸出 raw post / prompt / provider payload。
+    - 不新增 provider secret，不新增 GitHub Actions `models: read`。
+- A 級：
+  - Architecture：
+    - P94 保持在 observation / governance layer。
+    - `classification` 與 `severity` 並存，不替代既有 issue code。
+  - Data：
+    - 只讀 repo-safe manifest / report metadata / cache stats。
+    - 2026-05-23 實跑使用既有 `data/runs/2026-05-23/run_manifest.json`，未改 data artifact。
+  - Observability：
+    - CLI table 新增 `class` 欄位。
+    - JSON output 透過 dataclass `asdict` 暴露 `classification`。
+  - Resilience：
+    - 真 blocking / degraded 條件仍保留。
+    - historical advisory 只在最新日未超標且舊日 spike 明確存在時觸發。
+  - Maintainability：
+    - taxonomy 寫入 `docs/SLO_POLICY.md`、`docs/COST_CACHE_GOVERNANCE_POLICY.md`、`docs/OPERATIONS_RUNBOOK.md`。
+  - Documentation：
+    - `docs/PHASE_94_PLAN.md`、handoff、active、risk、history 同步 P94 CLOSED。
+  - Process：
+    - P94 plan freeze 與 runtime approval 分離；runtime 只在主公核准後執行。
+- B 級：
+  - Performance：
+    - 只在既有 window aggregation 上做 O(n) 分類，無額外外部呼叫。
+  - UX/A11y：
+    - CLI 表格用 `class` 欄位明確說明 current / historical / residual。
+  - DevOps：
+    - 不改 workflow，不接 CI blocking gate。
+  - Cost：
+    - CCG005 明確是 pipeline proxy，不代表 provider billing truth。
+  - Privacy：
+    - 不讀 raw queue，保留 manifest raw-free 原則。
+  - i18n：
+    - 日期仍用既有 Asia/Taipei run date 與 manifest date，不以 GitHub UTC created_at 重新判讀。
+
+**物理真相**：
+- 修改：
+  - `scripts/slo_checker.py`
+    - `SloIssue` / `SloResult` 增加 `classification`。
+    - human output 增加 `classification: current` 與 issue table `class` 欄位。
+  - `scripts/system_doctor.py`
+    - `DoctorIssue` 增加 `classification`。
+    - `_add_issue(..., classification=...)` 預設 `current`。
+    - DOC018 advisory local-only / duplicate 改標 `residual`。
+    - DOC019 `no_eligible` no-op 改標 `residual`。
+  - `scripts/cost_cache_governance.py`
+    - `CostCacheIssue` 增加 `classification`。
+    - CCG005 新增 latest-day vs historical-spike 判讀。
+    - CCG008 pending / no_eligible 拆成 current / residual 兩類 issue。
+  - `tests/test_slo_checker.py`
+  - `tests/test_system_doctor.py`
+  - `tests/test_cost_cache_governance.py`
+  - `docs/SLO_POLICY.md`
+  - `docs/COST_CACHE_GOVERNANCE_POLICY.md`
+  - `docs/OPERATIONS_RUNBOOK.md`
+  - `docs/PHASE_94_PLAN.md`
+  - `NEXT_SESSION_HANDOFF.md`
+  - `docs/ACTIVE_OPERATION.md`
+  - `docs/RISK_REGISTRY.md`
+  - `TASK_HISTORY.md`
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - `analyzer/provider_router.py`
+  - provider clients / config / secrets
+  - `data/runs/**` 與 `data/reports/**` 產物
+
+**風險**：
+- `historical` advisory 若被誤解成「成本問題不存在」，會造成成本麻痺；文件已明寫它只是舊 spike 不阻擋最新日，不是供應商帳單真相。
+- `residual` advisory 若被誤解成「不用觀察品質」，可能放任 local-only coverage 過低；P95 仍需人工看 current pending / residual trend。
+- 2026-05-23 SLO `issues=[]` 仍不能單獨關閉 R-016；R-016 必須由 P95 closeout verification 裁決。
+
+**狀態**：
+- ✅ P94 runtime CLOSED。
+- ✅ Focused tests 通過：
+  - `py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py`
+  - `32 passed`
+- ✅ Full pytest 通過：
+  - `py -m pytest -q`
+  - `288 passed`
+- ✅ py_compile 通過：
+  - `py -m py_compile scripts\slo_checker.py scripts\cost_cache_governance.py scripts\system_doctor.py`
+- ✅ Live SLO probe 通過：
+  - `py scripts\slo_checker.py --repo-root . --date 2026-05-23 --window-days 5 --json`
+  - `classification=current`
+  - `issues=[]`
+  - `consecutive_no_production=0`
+  - `missing_manifest_count=0`
+- ✅ Live system doctor probe 通過：
+  - `py scripts\system_doctor.py --repo-root . --date 2026-05-23 --profile local`
+  - DOC007 `current` advisory
+  - DOC018 `residual` advisory
+  - DOC019 `residual` advisory
+  - exit 0
+- ✅ Live cost/cache probe 通過：
+  - `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-23 --window-days 3 --max-llm-calls 20`
+  - CCG005 `historical` advisory：`total_llm_calls=39 threshold=20 latest_llm_calls=9 spike_days=2026-05-21:28`
+  - CCG007 `residual`
+  - CCG008 `current` pending for 2026-05-22
+  - CCG008 `residual` no_eligible for 2026-05-23
+  - exit 0
+- ✅ Phase lint 通過：
+  - `py scripts\lint_phase_plan.py docs\PHASE_94_PLAN.md`
+- ✅ Handoff truth 通過：
+  - `py scripts\check_handoff_truth.py --repo-root .`：`HND000`
+- ✅ Governance doctor 通過：
+  - `py scripts\governance_doctor.py --repo-root .`：`GOV000`
+- ✅ Diff hygiene 通過：
+  - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：commit P94 runtime；push 仍需主公明確確認。push 後可進 P95 closeout verification plan。

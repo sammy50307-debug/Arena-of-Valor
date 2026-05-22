@@ -27,6 +27,7 @@ from system_doctor import SEV_ADVISORY, SEV_BLOCKING, SEV_DEGRADED, run_doctor
 
 
 RUNBOOK_PATH = "docs/OPERATIONS_RUNBOOK.md"
+CLASS_CURRENT = "current"
 
 ISSUE_CATALOG = {
     "production_stale": {"code": "SLO001", "name": "production freshness"},
@@ -52,12 +53,14 @@ class SloIssue:
     name: str
     detail: str
     runbook: str
+    classification: str
 
 
 @dataclass
 class SloResult:
     date: str
     window_days: int
+    classification: str
     consecutive_no_production: int
     missing_manifest_count: int
     doctor_blocking_days: int
@@ -89,7 +92,7 @@ def _runbook_link(code: str) -> str:
     return "%s#%s" % (RUNBOOK_PATH, code.lower())
 
 
-def _issue(key: str, severity: str, detail: str) -> SloIssue:
+def _issue(key: str, severity: str, detail: str, classification: str = CLASS_CURRENT) -> SloIssue:
     entry = ISSUE_CATALOG[key]
     return SloIssue(
         code=entry["code"],
@@ -97,6 +100,7 @@ def _issue(key: str, severity: str, detail: str) -> SloIssue:
         name=entry["name"],
         detail=detail,
         runbook=_runbook_link(entry["code"]),
+        classification=classification,
     )
 
 
@@ -192,6 +196,7 @@ def evaluate_slo(
     return SloResult(
         date=date_str,
         window_days=window_days,
+        classification=CLASS_CURRENT,
         consecutive_no_production=consecutive_no_production,
         missing_manifest_count=missing_manifest_count,
         doctor_blocking_days=doctor_blocking_days,
@@ -205,6 +210,7 @@ def result_to_dict(result: SloResult) -> Dict[str, object]:
     return {
         "date": result.date,
         "window_days": result.window_days,
+        "classification": result.classification,
         "consecutive_no_production": result.consecutive_no_production,
         "missing_manifest_count": result.missing_manifest_count,
         "doctor_blocking_days": result.doctor_blocking_days,
@@ -218,17 +224,19 @@ def print_result(result: SloResult) -> None:
     print("SLO checker")
     print("date: %s" % result.date)
     print("window_days: %s" % result.window_days)
+    print("classification: %s" % result.classification)
     print("")
-    print("| severity | code | check | detail | runbook |")
-    print("|---|---|---|---|---|")
+    print("| severity | code | class | check | detail | runbook |")
+    print("|---|---|---|---|---|---|")
     if not result.issues:
-        print("| OK | SLO000 | summary | no SLO issues detected | %s#slo000 |" % RUNBOOK_PATH)
+        print("| OK | SLO000 | %s | summary | no SLO issues detected | %s#slo000 |" % (CLASS_CURRENT, RUNBOOK_PATH))
     for issue in result.issues:
         print(
-            "| %s | %s | %s | %s | %s |"
+            "| %s | %s | %s | %s | %s | %s |"
             % (
                 issue.severity,
                 issue.code,
+                issue.classification,
                 issue.name,
                 issue.detail.replace("|", "/"),
                 issue.runbook,

@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P94（Doctor / SLO Reclassification / FROZEN） |
-| **Current Step** | P94 plan 已凍結；runtime 尚未核准。下一步是 commit P94 plan，push 仍需主公明確確認 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `7da4605`（AoV Daily Monitor run `26299079187` auto-sync；P93 provider.routing 雲端驗證完成） |
+| **Current Phase** | P94（Doctor / SLO Reclassification / CLOSED） |
+| **Current Step** | P94 runtime 已完成 current / historical / residual 分類校準；下一步是主公確認後 push，之後開 P95 closeout verification plan |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | P94 runtime closeout commit（本次收官 commit；push 仍需主公明確確認） |
 | **Updated At** | 2026-05-23 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_94_PLAN.md`（P94 Doctor / SLO Reclassification 凍結真相；runtime 尚未核准）
+2. `docs/PHASE_94_PLAN.md`（P94 Doctor / SLO Reclassification 收官真相；runtime 已完成）
 3. `docs/PHASE_93_PLAN.md`（P93 provider abstraction 收官真相；runtime 已完成 disabled-by-default 抽象層）
 4. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_94_PLAN.md` | P94 Doctor / SLO Reclassification 凍結真相 |
+| L3 | `docs/PHASE_94_PLAN.md` | P94 Doctor / SLO Reclassification 收官真相 |
 | L3-prev | `docs/PHASE_93_PLAN.md` | P93 Provider Abstraction / Disabled-by-default Free Provider Slots 收官真相 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P94 plan 已凍結，下一窗讀 active bootstrap 不會偏航。 |
-| **最舒服的換窗點** | P94 plan commit 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_94_PLAN.md`；若未 commit/push，先完成 plan closeout 或問主公。 |
-| **不要在換窗後做的事** | 不要直接動 P94 runtime；不要接 provider；不要把 5/23 SLO OK 解讀成 R-016 已關閉。 |
+| **現在能不能換視窗** | 可以。P94 runtime 已收官，下一窗讀 active bootstrap 不會偏航。 |
+| **最舒服的換窗點** | P94 runtime commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_94_PLAN.md`；若本地 ahead，先等主公 push 確認。 |
+| **不要在換窗後做的事** | 不要重開 P94 runtime；不要接 provider；不要把 5/23 SLO OK 解讀成 R-016 已關閉。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P94（FROZEN） |
-| **Current Step** | P94 Doctor / SLO Reclassification plan 已凍結；runtime 尚未核准；等待 commit / push 確認或主公核准 P94 runtime |
-| **Allowed Files** | P94 plan closeout / commit / push；runtime 只可在主公另核准後依 `docs/PHASE_94_PLAN.md` 動工 |
+| **Current Phase** | P94（CLOSED） |
+| **Current Step** | P94 Doctor / SLO Reclassification runtime 已完成；等待主公確認 push，下一個工作單元是 P95 closeout verification plan |
+| **Allowed Files** | P94 runtime closeout / commit / push；P95 plan 需主公另行指示後再開 |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P94 plan-only：`docs/PHASE_94_PLAN.md` 已建立，需通過 phase lint / handoff truth / governance doctor / diff check 並 commit；P94 runtime 尚未核准 |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_94_PLAN.md`；若本地 ahead 1，先等主公 push；若主公核准 P94 runtime，才可改 scripts/tests |
+| **Exit Criteria** | P94 runtime：classification code / tests / policy docs / handoff / risk / history 已同步，需通過 focused/full pytest、py_compile、doctor/SLO/cost 實跑、phase lint、handoff truth、governance doctor、diff check 並 commit |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_94_PLAN.md`；若本地 ahead 1，先等主公 push；push 完成後才開 P95 closeout verification plan |
 
 ## Required Verification Commands
 
@@ -62,7 +62,7 @@ py scripts\lint_phase_plan.py docs\PHASE_93_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_94_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
-py -m pytest -q tests\test_enrichment_queue.py tests\test_enrichment_replay.py tests\test_source_selection.py tests\test_run_manifest.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
+py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
 py -m pytest -q
 rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_NEXT_ACTION" NEXT_SESSION_HANDOFF.md
 ```
@@ -77,7 +77,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把 R-016 標記 Closed；P91/P92/P93 都是 R-016 子問題收官，不是 R-016 closeout。
 - 不要重開 P92 runtime；P92 已 CLOSED。
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
-- 不要直接動 P94 runtime；P94 目前只是 FROZEN plan，需主公另行核准 runtime。
+- 不要重開 P94 runtime；P94 已 CLOSED。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
