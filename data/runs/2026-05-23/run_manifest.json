@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-22T16:19:00.838194Z",
+  "generated_at": "2026-05-23T10:15:29.351857Z",
   "run_date": "2026-05-23",
   "run_date_taipei": "2026-05-23",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-05-22T16:17:32.347587Z",
-  "run_id": "2026-05-23-production-b3f2d5441dac",
-  "source_hash": "b3f2d5441dacea88e5ade373d0ddee8d94224d29b048761994faa62b98aff609",
+  "scheduled_utc": "2026-05-23T10:13:30.833796Z",
+  "run_id": "2026-05-23-production-bda66f818186",
+  "source_hash": "bda66f8181863db009a753279cab0c6e70dbc74abae364e0cd45dfb959d87a19",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -20,35 +20,36 @@
     "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-05-23.html"
   },
   "metrics": {
-    "cache_hit": 8,
+    "cache_hit": 5,
     "l1_hits": 0,
-    "l2_hits": 8,
+    "l2_hits": 5,
     "apify_hits": 0,
-    "llm_calls": 5,
-    "total_calls": 13
+    "llm_calls": 9,
+    "total_calls": 14
   },
   "history": {
     "status": "ok",
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-05-22",
       "2026-05-21",
       "2026-05-20",
       "2026-05-19",
       "2026-05-18",
       "2026-05-17",
-      "2026-05-16",
-      "2026-05-15"
+      "2026-05-16"
     ]
   },
   "quality": {
     "source_health": {
       "status": "ok",
       "total_posts": 19,
-      "platform_count": 4,
+      "platform_count": 5,
       "platform_counts": {
         "youtube": 1,
-        "instagram": 2,
+        "facebook": 1,
+        "instagram": 1,
         "dcard": 8,
         "bahamut": 8
       },
@@ -59,7 +60,7 @@
       "version": 1,
       "status": "pass",
       "total_posts": 19,
-      "platform_count": 4,
+      "platform_count": 5,
       "source_count": 3,
       "has_report": true,
       "has_analysis": true,
@@ -125,8 +126,8 @@
     "billing_truth": "pipeline proxy only; not provider billing truth",
     "date": "2026-05-23",
     "max_daily_llm_calls": 20,
-    "llm_calls_used": 5,
-    "remaining_llm_calls": 15,
+    "llm_calls_used": 14,
+    "remaining_llm_calls": 6,
     "cooldown_active": false,
     "cooldown_reason": "",
     "cooldown_until_utc": "",
@@ -144,8 +145,8 @@
     "duplicate_posts": 7,
     "llm_selected_posts": 12,
     "local_only_posts": 7,
-    "max_llm_items": 18,
-    "budget_remaining": 20,
+    "max_llm_items": 15,
+    "budget_remaining": 15,
     "selection_reasons": [
       "duplicate_url",
       "llm_selected"
@@ -159,7 +160,8 @@
     },
     "selected_platform_counts": {
       "youtube": 1,
-      "instagram": 2,
+      "facebook": 1,
+      "instagram": 1,
       "dcard": 8,
       "bahamut": 1
     },
@@ -172,7 +174,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-05-23/enrichment_queue.json",
-    "queue_digest": "0483485a0b7229b5",
+    "queue_digest": "0087de03b7d9a64e",
     "source_count": 7,
     "eligible_posts": 0,
     "skipped_posts": 7,
@@ -185,7 +187,7 @@
     },
     "budget_decision": "call_llm",
     "budget_reason": "budget_available",
-    "budget_remaining": 20,
+    "budget_remaining": 15,
     "cooldown_active": false
   },
   "replay_source": "",
