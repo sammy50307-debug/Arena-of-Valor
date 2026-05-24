@@ -135,24 +135,24 @@
     "schema_version": 1,
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
-    "queue_ref": "data/enrichment_queue/2026-05-22/enrichment_queue.json",
+    "queue_ref": "enrichment_queue.json",
     "queue_digest": "156048af395938a3",
     "source_count": 10,
     "eligible_posts": 2,
     "skipped_posts": 8,
     "enriched_posts": 0,
     "artifact_retention_days": 3,
-    "replay_status": "pending",
+    "replay_status": "skipped_budget",
     "eligible_reason_counts": {
       "topn_overflow": 2
     },
     "skipped_reason_counts": {
       "duplicate_url": 8
     },
-    "budget_decision": "call_llm",
-    "budget_reason": "budget_available",
-    "budget_remaining": 9,
-    "cooldown_active": false
+    "budget_decision": "skip_llm",
+    "budget_reason": "cooldown_active",
+    "budget_remaining": 15,
+    "cooldown_active": true
   },
   "replay_source": "",
   "is_backfill": false,

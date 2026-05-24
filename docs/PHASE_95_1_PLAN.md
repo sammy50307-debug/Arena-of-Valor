@@ -417,3 +417,86 @@ Interpretation:
 | 進 P95.1B apply replay | **採用** | dry-run 顯示 `will_replay=2` 且 budget 尚可 |
 
 **P95.1A 結論**：Artifact dry-run 已完成；P95.1B 需主公另行核准後 apply replay。R-016 仍 Open。
+
+---
+
+## 15. Phase P95.1B Apply Replay 補遺（2026-05-24）
+
+> 主公於 2026-05-24 同時下令 push 並核准 P95.1B apply replay。AI 先將 P95.1A commit rebased onto latest origin 並 push，再執行 `enrichment_replay.py --apply`。本節只記錄 raw-free manifest / command / probe 結果，不輸出 raw post content，不 stage scratch artifact / raw queue。
+
+### 15.1 Push / Rebase Context
+
+| 欄位 | 結果 |
+|---|---|
+| push 前 fetch | 遠端新增 auto-sync `eb9c11f docs: 戰略報告自動同步 2026-05-24 10:20:28 [mode:production l1:0 l2:0 hit:N/A]` |
+| 同步方式 | `git rebase origin/main` |
+| rebased P95.1A commit | `b836bc0 docs: 記錄 P95.1A artifact dry-run` |
+| push result | `eb9c11f..b836bc0 main -> main` |
+
+### 15.2 Apply Replay Evidence
+
+Command:
+
+```powershell
+py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json --apply
+```
+
+Output:
+
+```text
+OK: budget skip; decision=skip_llm reason=cooldown_active
+```
+
+Manifest delta (`data/runs/2026-05-22/run_manifest.json`):
+
+| 欄位 | Apply 前 | Apply 後 |
+|---|---|---|
+| enrichment.queue_ref | `data/enrichment_queue/2026-05-22/enrichment_queue.json` | `enrichment_queue.json` |
+| enrichment.replay_status | `pending` | `skipped_budget` |
+| enrichment.budget_decision | `call_llm` | `skip_llm` |
+| enrichment.budget_reason | `budget_available` | `cooldown_active` |
+| enrichment.budget_remaining | `9` | `15` |
+| enrichment.cooldown_active | `false` | `true` |
+| enrichment.enriched_posts | `0` | `0` |
+
+### 15.3 Probe Evidence After Apply
+
+| Probe | Result | Closeout impact |
+|---|---|---|
+| 2026-05-22 manifest snapshot | `replay_status=skipped_budget`、`eligible_posts=2`、`enriched_posts=0`、`budget_decision=skip_llm`、`budget_reason=cooldown_active` | Unknown pending 已轉成明確 budget-skip state；仍未補深讀 |
+| 2026-05-24 cost 3-day | CCG006 current cooldown；CCG008 current `2026-05-22:status=skipped_budget eligible=2`；CCG008 residual 2026-05-23/24 no_eligible | R-016 仍不可 close；需 cooldown 後 retry |
+| 2026-05-24 doctor | DOC017 current cooldown；DOC018/DOC019 residual；無 blocking | production 不壞，但 budget/cooldown 仍需處理 |
+| 2026-05-24 SLO | `issues=[]`、`doctor_blocking_days=0`、`doctor_degraded_days=0` | production SLO 不阻擋 |
+| 2026-05-24 health | canonical report / landing / core contract PASS | landing 不阻擋 |
+
+Budget state:
+
+| 欄位 | 值 |
+|---|---|
+| current local time | `2026-05-24 20:35 +08:00` |
+| cooldown_until_utc | `2026-05-24T16:20:27Z` |
+| cooldown_until_taipei | `2026-05-25 00:20:27 +08:00` |
+| cooldown_reason | `quota_error` |
+
+### 15.4 P95.1B Decision
+
+| 選項 | 裁決 | 理由 |
+|---|---|---|
+| Bypass budget / force LLM | 不採用 | 會違反 P90 budget guard 與 P95.1 cost/security 邊界 |
+| 直接修 CCG008 classification | 不採用 | 目前 state 是真 `skipped_budget`，不是 resolved |
+| 等 cooldown 結束後 retry apply replay | **採用** | 符合 P90 budget guard，也能真正補掉 eligible=2 |
+
+**P95.1B 結論**：P95.1B 已把 2026-05-22 unknown pending 轉成明確 `skipped_budget/cooldown_active`；尚未 replay 成功。下一步是 P95.1C cooldown retry，需在 2026-05-25 00:20:27 +08 後重新 apply replay。R-016 仍 Open。
+
+### 15.5 Commit-time Validation
+
+| Check | Result |
+|---|---|
+| `py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md` | PASS：Pre-flight 體檢 M1 + M2 通過 |
+| `py scripts\check_handoff_truth.py --repo-root .` | PASS：`HND000 active bootstrap truth verified` |
+| `py scripts\governance_doctor.py --repo-root .` | PASS：`GOV000 runbook and risk registry governance verified` |
+| `git diff --check` | PASS：無 whitespace error；僅 Git for Windows LF -> CRLF 工作樹轉換警告 |
+| `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-24 --window-days 3 --json` | PASS exit 0；`CCG008 current` 仍正確指出 2026-05-22 `skipped_budget eligible=2` |
+| `py scripts\system_doctor.py --repo-root . --date 2026-05-24 --profile ci --require-production` | PASS exit 0；無 blocking，DOC017 current cooldown |
+| `py scripts\slo_checker.py --repo-root . --date 2026-05-24 --window-days 5 --json` | PASS exit 0；`issues=[]`、`doctor_blocking_days=0` |
+| `py scripts\check_daily_report_health.py --repo-root . --date 2026-05-24 --expected-mode production` | PASS exit 0；canonical / landing / core contract PASS |
