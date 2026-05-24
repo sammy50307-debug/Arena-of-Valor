@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-23T10:14:23.574582+00:00",
+      "last_accessed": "2026-05-24T08:55:01.489323+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -109,7 +109,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:31.970511+00:00",
-      "last_accessed": "2026-05-22T11:25:47.980955+00:00",
+      "last_accessed": "2026-05-24T08:55:01.492056+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-23T10:14:30.211045+00:00",
+      "last_accessed": "2026-05-24T08:54:42.486873+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -1380,7 +1380,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:37.032872+00:00",
-      "last_accessed": "2026-05-22T10:30:46.415133+00:00",
+      "last_accessed": "2026-05-24T08:55:01.494652+00:00",
       "ttl_days": 7
     },
     "prompt:df796bc0fc755c6e6c369798931bbf5a": {
@@ -1407,7 +1407,7 @@
         }
       },
       "stored_at": "2026-05-21T11:50:49.476208+00:00",
-      "last_accessed": "2026-05-22T16:17:47.484401+00:00",
+      "last_accessed": "2026-05-24T08:54:42.486895+00:00",
       "ttl_days": 7
     },
     "prompt:4c2cd6f486141f72bf38d136f495162b": {
@@ -2680,7 +2680,7 @@
         }
       },
       "stored_at": "2026-05-23T10:13:56.835309+00:00",
-      "last_accessed": "2026-05-23T10:13:56.835309+00:00",
+      "last_accessed": "2026-05-24T08:54:44.239594+00:00",
       "ttl_days": 7
     },
     "prompt:a12db21decff2ff4312a23935edfea53": {
@@ -2795,7 +2795,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:30.203288+00:00",
-      "last_accessed": "2026-05-23T10:14:30.203288+00:00",
+      "last_accessed": "2026-05-24T08:54:42.486884+00:00",
       "ttl_days": 7
     },
     "prompt:bcab17439c6eb565c65b8f0fa673cefa": {
@@ -2855,7 +2855,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:58.395581+00:00",
-      "last_accessed": "2026-05-23T10:14:58.395581+00:00",
+      "last_accessed": "2026-05-24T08:54:42.486910+00:00",
       "ttl_days": 7
     },
     "prompt:3310779ee0ebe63bb3cfbcefa2e862b4": {
@@ -3593,12 +3593,114 @@
       "stored_at": "2026-05-23T10:15:27.795670+00:00",
       "last_accessed": "2026-05-23T10:15:27.795670+00:00",
       "ttl_days": 7
+    },
+    "prompt:e7ab89ee4219d3961d346c7fcb166312": {
+      "result": {
+        "reasoning": "該貼文為典型的遊戲帳號買賣廣告，屬於外部商業行為，與遊戲本身的遊玩體驗或討論無關。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "帳號買賣",
+          "收購",
+          "傳說對決"
+        ],
+        "summary": "此貼文為外部帳號買賣賣場的廣告宣傳。",
+        "relevance_score": 0.2,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-24T08:54:59.540693+00:00",
+      "last_accessed": "2026-05-24T08:54:59.540693+00:00",
+      "ttl_days": 7
+    },
+    "prompt:9d130ad5f3b3f3ef08fa7111f383f73b": {
+      "result": {
+        "reasoning": "貼文內容為官方宣傳活動，語氣正向且具有號召力，旨在鼓勵玩家參與遊戲活動以獲取免費造型。",
+        "sentiment": "positive",
+        "sentiment_score": 0.9,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "朗博",
+          "保夾三千",
+          "五五好團節",
+          "免費造型",
+          "任務"
+        ],
+        "summary": "官方宣傳五五好團節活動，玩家可透過完成任務免費獲得朗博新造型。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "五五好團節",
+            "type": "限時活動"
+          }
+        ]
+      },
+      "stored_at": "2026-05-24T08:55:01.482831+00:00",
+      "last_accessed": "2026-05-24T08:55:01.482831+00:00",
+      "ttl_days": 7
+    },
+    "prompt:7ebc3fa36bef55f44b5ca547a088bdf4": {
+      "result": {
+        "reasoning": "該貼文為 Dcard 傳說對決板的標題連結，旨在提供新手教學資訊，屬於社群互動與知識分享性質，語氣中性且具建設性。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "社群互動",
+        "keywords": [
+          "新手教學",
+          "傳說對決",
+          "Dcard",
+          "攻略"
+        ],
+        "summary": "這是一篇關於傳說對決的新手教學文章分享。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-24T08:55:03.533274+00:00",
+      "last_accessed": "2026-05-24T08:55:03.533274+00:00",
+      "ttl_days": 7
+    },
+    "prompt:dc551b7a4ae084335df19dec382c1768": {
+      "result": {
+        "reasoning": "該貼文為分享關於新賽季英雄平衡性調整的數據分析心得，屬於客觀的遊戲內容探討，無明顯情緒偏向或反諷。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "新賽季",
+          "英雄平衡",
+          "數據分析",
+          "傳說對決"
+        ],
+        "summary": "玩家針對新賽季英雄平衡調整進行數據分析與心得分享。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "新賽季英雄平衡性調整",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-24T08:55:04.982740+00:00",
+      "last_accessed": "2026-05-24T08:55:04.982740+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 35,
+    "total_l2_hits": 39,
     "total_apify_hits": 0,
-    "total_misses": 50
+    "total_misses": 54
   }
 }
