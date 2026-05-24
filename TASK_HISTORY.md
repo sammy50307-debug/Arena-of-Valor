@@ -11143,3 +11143,194 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
   - 手動 dispatch post-P94 AoV Daily Monitor。
   - 等 run 完成後讀 manifest / artifact metadata / SLO / doctor / cost / health。
   - 若 CCG008 不再 current 且 landing / provider routing 維持健康，再提交 `Downgrade R-016` 或 `Close R-016` 給主公裁決。
+
+### P95.1 plan freeze — Enrichment Pending Closure（FROZEN）
+
+**目標**：
+- 凍結 P95.1 `Enrichment Pending Closure` 計畫。
+- 真正處理 P95 closeout 後殘留的 `CCG008 current pending`：
+  - 來源是 2026-05-22 enrichment queue：
+    - `replay_status=pending`
+    - `eligible_posts=2`
+    - `skipped_posts=8`
+    - `enriched_posts=0`
+  - 2026-05-23 / 2026-05-24 已連續 `no_eligible`，但三日窗仍把 2026-05-22 pending 留成 current。
+- 不靠 2026-05-22 自然掉出三日 window 假裝完美收官。
+- 只凍結計畫與交接狀態：
+  - 不下載 artifact。
+  - 不讀 raw queue。
+  - 不跑 replay。
+  - 不改 runtime code。
+  - 不關閉 R-016。
+
+**觸發**：
+- 主公指出：「這樣看起來好像還沒處理完畢 我希望的是能完美處理」。
+- AI 判斷目前不是完美收官，而是：
+  - production 已恢復。
+  - post-P95 cloud evidence 已成立。
+  - 但治理帳本仍有 2026-05-22 enrichment pending 線頭。
+- 主公核准：「核准，開 P95.1 plan」。
+- AI 提出 P95.1 plan draft。
+- 主公核准：「核准 P95.1 plan freeze」。
+
+**稽核表**：
+- S 級：
+  - Code：
+    - Plan-only 不改 code。
+    - Runtime 才可能小範圍改 `scripts/cost_cache_governance.py` 與 `tests/test_cost_cache_governance.py`。
+  - Logic：
+    - 固定順序：artifact/dry-run evidence 先於 classification 修正。
+    - 禁止只改 CCG008 分類來粉飾 pending。
+  - Testing：
+    - P95.1 runtime 必補 CCG008 pending / resolved / residual 測試。
+    - Plan-only 只跑 phase lint / handoff truth / governance doctor / diff check。
+  - Security：
+    - Artifact / raw queue access 需主公另行核准。
+    - raw post / raw prompt / raw LLM payload 不進回覆、不進 history、不進 git。
+- A 級：
+  - Architecture：
+    - 不改 pipeline 架構、不開新 provider、不改 workflow。
+  - Data：
+    - 5/22 artifact 若可得，dry-run 判讀；若過期，記 artifact unavailable。
+  - Observability：
+    - runtime 必列 run id、artifact metadata、dry-run command、exit、counts。
+  - Resilience：
+    - artifact 不可得或 replay 失敗時 R-016 保持 Open。
+  - Maintainability：
+    - runbook / tests / risk/history 需能讓半年後接手者理解 CCG008 判讀。
+  - Documentation：
+    - `docs/PHASE_95_1_PLAN.md`、handoff、active、risk、history 同步 P95.1 FROZEN。
+  - Process：
+    - plan freeze 與 runtime / artifact access approval 分離。
+- B 級：
+  - Performance：
+    - replay 使用 `--max-items` 與 existing budget guard。
+  - UX/A11y：
+    - closeout 前仍需跑 landing health，避免 report 入口 stale。
+  - DevOps：
+    - runtime 前後 fetch origin，防 auto-sync 分岔。
+  - Cost：
+    - dry-run 不花 LLM；apply replay 受 LLMBudgetManager 控制。
+    - 不啟用 OpenAI paid fallback。
+  - Privacy：
+    - artifact 可能含 raw post，因此 runtime 前另需主公核准。
+  - i18n：
+    - 以 manifest `run_date_taipei` 判讀 report date。
+
+**物理真相**：
+- 當前 git 狀態：
+  - `main...origin/main` 已同步。
+  - 最新 commit：
+    - `65b9f92 docs: 戰略報告自動同步 2026-05-24 08:55:48 [mode:production l1:0 l2:8 hit:62%]`
+  - 既有 untracked reports / skill 暫存目錄仍未納入。
+- post-P95 cloud evidence：
+  - AoV Daily Monitor run：
+    - `run_id=26356870400`
+    - event=`workflow_dispatch`
+    - status=`completed`
+    - conclusion=`success`
+    - head_sha=`8151b2bea8209ff748daa20c4898ef7566726024`
+  - auto-sync commit：
+    - `65b9f92`
+  - 2026-05-24 manifest：
+    - mode=`production`
+    - status=`ok`
+    - publish_eligible=`true`
+    - quality_tier=`production_local_only`
+    - analysis_source=`mixed`
+    - llm_coverage=`partial`
+    - core_contract=`pass`
+    - budget_llm_calls_used=`5`
+    - enrichment_status=`no_eligible`
+    - enrichment_eligible=`0`
+    - enrichment_skipped=`7`
+    - provider_route_status=`router_disabled_legacy_default`
+    - provider_router_enabled=`false`
+    - provider_enabled_slots=`0`
+    - provider_attempts=`0`
+  - 2026-05-24 probes：
+    - SLO：
+      - `issues=[]`
+      - `consecutive_no_production=0`
+      - `missing_manifest_count=0`
+      - `doctor_blocking_days=0`
+      - `doctor_degraded_days=0`
+    - System doctor：
+      - DOC007 current advisory。
+      - DOC018 residual。
+      - DOC019 residual。
+      - 無 blocking。
+    - Health：
+      - canonical report PASS。
+      - landing main link PASS。
+      - landing target mode PASS。
+    - Cost/cache 3-day：
+      - total_llm_calls=`16`
+      - aggregate_cache_hit_rate_pct=`57`
+      - CCG007 residual。
+      - CCG008 current：
+        - `2026-05-22:status=pending eligible=2 skipped=8 enriched=0`
+      - CCG008 residual：
+        - `2026-05-23` / `2026-05-24` no_eligible。
+    - Cost/cache 2-day：
+      - CCG007 residual。
+      - CCG008 residual only。
+- 新增：
+  - `docs/PHASE_95_1_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - ACTIVE_BOOTSTRAP 切到 P95.1 FROZEN。
+    - Required Minimal Reads 指向 `docs/PHASE_95_1_PLAN.md`。
+    - Forbidden Work 明寫不得下載 artifact / 讀 raw queue / 跑 replay。
+  - `docs/ACTIVE_OPERATION.md`
+    - L2 狀態切到 P95.1 FROZEN。
+    - Latest Evidence 補 post-P95 cloud success 與 CCG008 殘尾。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 保持 Open。
+    - 補 P95.1 plan frozen 與下一步 runtime/artifact approval。
+  - `TASK_HISTORY.md`
+    - 追加本段無損紀錄。
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - `scripts/cost_cache_governance.py`
+  - `tests/test_cost_cache_governance.py`
+  - provider router / clients / config
+  - secrets / env
+  - raw artifact / raw queue
+
+**風險**：
+- 若只等 5/22 掉出 window：
+  - 表面上 5/25 之後 CCG008 current 可能消失。
+  - 但 5/22 pending 未被處理或證明不可處理，不符合主公「完美處理」要求。
+- 若只改 CCG008 classification：
+  - 可能把 pending 粉飾成 historical/residual。
+  - 因此 P95.1 runtime 要先 artifact dry-run，再修分類。
+- 若讀 artifact：
+  - 可能接觸 raw post content。
+  - 因此 runtime / artifact access 需主公另行核准。
+- 若 artifact 已過期：
+  - 不可偽造 replay 結果。
+  - 需記錄 unavailable，並由主公裁決 R-016 是否 keep open / downgrade。
+
+**狀態**：
+- ✅ P95.1 plan FROZEN。
+- ✅ `docs/PHASE_95_1_PLAN.md` 已建立。
+- ✅ handoff / active / risk / history 已同步 P95.1 FROZEN。
+- 🔴 P95.1 runtime 尚未核准。
+- 🔴 artifact access / raw queue read 尚未核准。
+- 🔴 未下載 artifact。
+- 🔴 未跑 replay。
+- 🔴 未修改 CCG008 runtime logic。
+- 🔴 R-016 仍 Open。
+- ✅ Phase lint 通過：
+  - `py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md`
+- ✅ Handoff truth 通過：
+  - `py scripts\check_handoff_truth.py --repo-root .`：`HND000`
+- ✅ Governance doctor 通過：
+  - `py scripts\governance_doctor.py --repo-root .`：`GOV000`
+- ✅ Diff hygiene 通過：
+  - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
+- ⏭️ 下一步：
+  - commit P95.1 plan freeze。
+  - push 仍需主公明確確認。
