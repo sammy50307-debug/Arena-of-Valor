@@ -10762,3 +10762,122 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
   - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：commit P94 runtime；push 仍需主公明確確認。push 後可進 P95 closeout verification plan。
+
+---
+
+### P95 plan freeze — R-016 Closeout Verification（FROZEN）
+
+**目標**：
+- 凍結 P95 closeout verification 計畫。
+- P95 是 R-016 Zero-Cost Evidence-first Reliability Program 的裁決 gate，不是新功能 Phase。
+- P95 plan freeze 只建立驗證與裁決流程：
+  - 重新拉最新 Actions / manifest / report evidence。
+  - 跑 SLO / doctor / cost / health / landing probes。
+  - 建立 closeout matrix。
+  - 裁決 R-016 是 `Close`、`Downgrade` 或 `Keep Open`。
+- 本段不關閉 R-016，不改 runtime，不接 provider。
+
+**觸發**：
+- P94 runtime 已 push：
+  - `1b919b3 feat: 完成 P94 doctor SLO 重分類`
+- `main...origin/main` 已同步。
+- 主公於 2026-05-24 回覆：「核准 P95 plan freeze」。
+- R-016 仍在 `docs/RISK_REGISTRY.md` Open section。
+
+**稽核表**：
+- S 級：
+  - Code：
+    - Plan-only 不改 runtime code。
+    - P95 verification 預設只跑既有 probes，不新增功能。
+  - Logic：
+    - 裁決結果只能是：
+      - `Close R-016`
+      - `Downgrade R-016`
+      - `Keep R-016 Open`
+    - P94 的 `issues=[]` 不能自動關閉 R-016。
+  - Testing：
+    - verification 必跑：
+      - SLO checker
+      - system doctor
+      - cost/cache governance
+      - health / landing probe
+    - 必要時跑 full pytest。
+  - Security：
+    - 不讀 raw artifact / raw enrichment queue。
+    - 不新增 provider secrets。
+    - 不接 Groq / Cloudflare / GitHub Models。
+- A 級：
+  - Architecture：
+    - P95 是 closeout gate，不是新修補 Phase。
+  - Data：
+    - 使用 repo-safe manifest / report metadata / Actions evidence。
+  - Observability：
+    - closeout matrix 必列 command、exit code、核心輸出、closeout impact。
+  - Resilience：
+    - 若最新 run failed / landing stale / doctor blocking，R-016 不關。
+  - Maintainability：
+    - 裁決理由需寫入 RISK_REGISTRY 與 TASK_HISTORY。
+  - Documentation：
+    - `docs/PHASE_95_PLAN.md`、handoff、active、risk、history 同步 P95 FROZEN。
+  - Process：
+    - plan freeze 與 verification approval 分離。
+- B 級：
+  - Performance：
+    - 先跑治理 probes，full pytest 視 verification 風險決定。
+  - UX/A11y：
+    - landing 指向最新健康 report 是 closeout 必看項。
+  - DevOps：
+    - verification 前後都 `git fetch origin`，避免 auto-sync 分岔。
+  - Cost：
+    - CCG 是 pipeline proxy，不代表 provider billing truth。
+  - Privacy：
+    - 不下載 raw artifact content。
+  - i18n：
+    - 以 Asia/Taipei report date / manifest date 判讀，不直接用 GitHub UTC。
+
+**物理真相**：
+- 新增：
+  - `docs/PHASE_95_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - ACTIVE_BOOTSTRAP 切到 P95 FROZEN。
+    - Required Minimal Reads 新增 `docs/PHASE_95_PLAN.md`。
+    - Forbidden Work 明寫 P95 verification 尚未核准，不得關 R-016 / 不得接 provider。
+  - `docs/ACTIVE_OPERATION.md`
+    - Current Phase 切到 P95 FROZEN。
+    - Latest Evidence 補 P95 plan freeze 與 R-016 仍 Open。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 mitigation 補 P95 plan frozen。
+    - 明確 P95 verification 尚未執行，R-016 仍 Open。
+  - `TASK_HISTORY.md`
+    - 追加本段無損紀錄。
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - `scripts/slo_checker.py`
+  - `scripts/system_doctor.py`
+  - `scripts/cost_cache_governance.py`
+  - provider clients / config / secrets
+  - `data/runs/**` 與 `data/reports/**` 產物
+
+**風險**：
+- P95 若只看舊 evidence，可能誤關 R-016；verification 前必須重新 fetch latest origin。
+- P95 若只看 SLO `issues=[]`，可能漏掉 landing stale 或 current advisory。
+- P95 若下載 raw artifact，可能讓 raw post content 進 log；本計畫禁止。
+- P95 若發現 blocker 後直接修，會混淆 closeout gate 與新開發；需另開 Phase。
+
+**狀態**：
+- ✅ P95 plan FROZEN。
+- ✅ `docs/PHASE_95_PLAN.md` 已建立。
+- ✅ handoff / active / risk / history 已同步 P95 FROZEN。
+- ✅ Phase lint 通過：
+  - `py scripts\lint_phase_plan.py docs\PHASE_95_PLAN.md`
+- ✅ Handoff truth 通過：
+  - `py scripts\check_handoff_truth.py --repo-root .`：`HND000`
+- ✅ Governance doctor 通過：
+  - `py scripts\governance_doctor.py --repo-root .`：`GOV000`
+- ✅ Diff hygiene 通過：
+  - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
+- 🔴 P95 verification 尚未核准，不得跑 closeout 裁決。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：commit P95 plan；push 仍需主公明確確認。
