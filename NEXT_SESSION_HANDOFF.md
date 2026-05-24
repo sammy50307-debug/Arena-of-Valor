@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P95.1（Enrichment Pending Closure / FROZEN） |
-| **Current Step** | P95.1 plan 已凍結；runtime / artifact access 尚未核准。P95.1 plan 文件提交後，push 仍需主公明確確認 |
+| **Current Phase** | P95.1B（Pending Closure Apply / PENDING APPROVAL） |
+| **Current Step** | P95.1A artifact dry-run 已完成：2026-05-22 queue valid，eligible=2，will_replay=2，remaining_budget=15；下一步 P95.1B apply replay 尚未核准 |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `65b9f92`（post-P95 AoV Daily Monitor production auto-sync 已同步） |
+| **Latest Verified Commit** | `a63c7a0`（P95.1 plan freeze 已 push；P95.1A docs 尚待 commit） |
 | **Updated At** | 2026-05-24 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure 凍結真相；runtime 尚未核准）
+2. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure 真相；§14 記錄 artifact dry-run）
 3. `docs/PHASE_95_PLAN.md`（P95 R-016 closeout verification 與 keep-open 裁決）
 4. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure 凍結真相 |
+| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure 與 §14 artifact dry-run |
 | L3-prev | `docs/PHASE_95_PLAN.md` | P95 R-016 Closeout Verification 與 §14 verification 裁決 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P95.1 plan 已凍結，下一窗讀 active bootstrap 不會偏航。 |
-| **最舒服的換窗點** | P95.1 plan commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md`；若本地 ahead，先等主公 push 確認。 |
-| **不要在換窗後做的事** | 不要下載 artifact / 讀 raw queue / 跑 replay；P95.1 runtime 與 artifact access 尚未核准。 |
+| **現在能不能換視窗** | 可以。P95.1A dry-run 已完成，下一窗讀 active bootstrap 不會偏航。 |
+| **最舒服的換窗點** | P95.1A docs commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md` §14；若本地 ahead，先等主公 push 確認。 |
+| **不要在換窗後做的事** | 不要直接 apply replay；P95.1B apply replay 尚未核准。不要把 scratch raw queue stage 進 git。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P95.1（FROZEN） |
-| **Current Step** | P95.1 Enrichment Pending Closure plan 已凍結；runtime / artifact access 尚未核准；等待文件提交 / push 或主公核准 P95.1 runtime |
-| **Allowed Files** | P95.1 plan closeout / commit / push；runtime 只可在主公另核准後依 `docs/PHASE_95_1_PLAN.md` 執行 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不下載 artifact / 不讀 raw queue / 不跑 replay；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P95.1 plan-only：`docs/PHASE_95_1_PLAN.md` 已建立，需通過 phase lint / handoff truth / governance doctor / diff check 並 commit；P95.1 runtime 尚未核准 |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md`；若本地 ahead 1，先等主公 push；若主公核准 P95.1 runtime，才可處理 artifact dry-run / CCG008 pending closure |
+| **Current Phase** | P95.1B（FROZEN / PENDING APPROVAL） |
+| **Current Step** | P95.1A artifact dry-run complete；2026-05-22 queue valid、eligible=2、will_replay=2、remaining_budget=15；等待 commit / push 或主公核准 P95.1B apply replay |
+| **Allowed Files** | P95.1A documentation closeout / commit / push；P95.1B 只可在主公另核准後 apply replay |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不 apply replay；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P95.1A docs 已記錄 correct artifact id、schema/count、dry-run output、P95.1B decision；需通過 phase lint / handoff truth / governance doctor / diff check 並 commit |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md` §14；若本地 ahead 1，先等主公 push；若主公核准 P95.1B apply replay，才可執行 `--apply` |
 
 ## Required Verification Commands
 
@@ -81,7 +81,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
 - 不要把 post-P95 production success 解讀成 R-016 已完美收官；P95.1 還要處理 2026-05-22 CCG008 pending 線頭。
-- 不要下載 artifact / 讀 raw queue / 跑 replay；P95.1 runtime 與 artifact access 尚未核准。
+- 不要直接 apply replay；P95.1A 只是 dry-run，P95.1B apply 尚未核准。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

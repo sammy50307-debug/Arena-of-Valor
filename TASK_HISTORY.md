@@ -11334,3 +11334,177 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ⏭️ 下一步：
   - commit P95.1 plan freeze。
   - push 仍需主公明確確認。
+
+### P95.1A artifact dry-run — 2026-05-22 Enrichment Queue 判讀
+
+**目標**：
+- 依主公核准，讀取 2026-05-22 enrichment artifact，判斷 `CCG008 current pending eligible=2` 是否是真 pending、能否 replay。
+- 本小 Phase 只做 dry-run：
+  - 不 apply replay。
+  - 不寫 candidate report。
+  - 不 stage raw artifact / raw queue。
+  - 不輸出 raw post content。
+  - 不關閉 R-016。
+
+**觸發**：
+- 主公允許拆成多個小 Phase 完美修復。
+- AI 建議：
+  - P95.1A Artifact Dry-run
+  - P95.1B Pending Closure
+  - P95.1C CCG008 Governance Fix
+  - P95.1D R-016 Final Closeout
+- 主公回覆「核准」，視為核准 P95.1A artifact dry-run access。
+
+**稽核表**：
+- S 級：
+  - Code：
+    - 未改 runtime code。
+    - 未改 `scripts/enrichment_replay.py`。
+    - 未改 `scripts/cost_cache_governance.py`。
+  - Logic：
+    - 先定位正確 artifact，再 dry-run。
+    - 發現 run `26299079187` artifact 是 `2026-05-23/enrichment_queue.json` 後，沒有誤用它判讀 5/22。
+  - Testing：
+    - 使用 `validate_enrichment_queue(queue)` 做 schema 驗證。
+    - 使用 `scripts/enrichment_replay.py` 做 dry-run。
+  - Security：
+    - Artifact 只解壓到 git-ignored `scratch/`。
+    - 文件與回覆只記 metadata / counts / status。
+    - 未貼 raw title / content / url / prompt / LLM payload。
+- A 級：
+  - Architecture：
+    - 使用既有 P92 replay script，不新增流程。
+  - Data：
+    - 以 manifest `generated_at=2026-05-22T11:26:25Z` 對應 GitHub run `26285001843`。
+  - Observability：
+    - 記錄 artifact id / zip entry / schema counts / dry-run output。
+  - Resilience：
+    - 若 artifact 錯位，改找正確 run，不硬判。
+  - Maintainability：
+    - 將錯位 artifact 排除理由寫入 P95.1 plan §14。
+  - Documentation：
+    - `docs/PHASE_95_1_PLAN.md` / handoff / active / risk / history 同步 P95.1A 結果。
+  - Process：
+    - P95.1A 完成後，P95.1B apply replay 仍需主公另核准。
+- B 級：
+  - Performance：
+    - 只 dry-run，無 LLM call。
+  - UX/A11y：
+    - N/A，本小 Phase 不改 report UI；後續 closeout 仍需 health probe。
+  - DevOps：
+    - GitHub artifact metadata 只讀。
+  - Cost：
+    - dry-run output 顯示 remaining_budget=`15`，但未消耗。
+  - Privacy：
+    - raw artifact 內容未輸出。
+  - i18n：
+    - 用 manifest `run_date=2026-05-22` / zip entry `2026-05-22` 判讀，不用 UTC created_at 直接猜日期。
+
+**物理真相**：
+- 起始 git 狀態：
+  - `main...origin/main` synced at `a63c7a0`。
+  - 既有 untracked reports / skill 暫存目錄仍未納入。
+- Artifact 定位：
+  - 起初查 run `26299079187`：
+    - artifact id=`7165278312`
+    - zip entry=`2026-05-23/enrichment_queue.json`
+    - 判定：不能用來判讀 2026-05-22 pending。
+  - 讀 `data/runs/2026-05-22/run_manifest.json`：
+    - run_date=`2026-05-22`
+    - run_date_taipei=`2026-05-22`
+    - internal run_id=`2026-05-22-production-3e12a8fe5573`
+    - generated_at=`2026-05-22T11:26:25.492322Z`
+    - enrichment_status=`pending`
+    - enrichment_eligible=`2`
+    - enrichment_skipped=`8`
+    - enrichment_enriched=`0`
+  - 對應 GitHub run：
+    - run_id=`26285001843`
+    - run_created=`2026-05-22T11:25:11Z`
+    - run_updated=`2026-05-22T11:26:35Z`
+    - head_sha=`4f0e5b78ff96d47521eebe11e7c75885f978c5df`
+    - conclusion=`success`
+    - artifact_id=`7159368993`
+    - artifact_name=`enrichment-queue-26285001843`
+    - size=`4935`
+    - expires_at=`2026-05-25T11:26:27Z`
+- Scratch 位置：
+  - zip：
+    - `scratch/p95_1a_artifact_26285001843/enrichment-queue-26285001843.zip`
+  - extracted queue：
+    - `scratch/p95_1a_artifact_26285001843/extracted/2026-05-22/enrichment_queue.json`
+  - 這些路徑都在 `scratch/`，不得 stage。
+- Queue schema/count 驗證：
+  - `validate_enrichment_queue(queue)`：
+    - valid=`true`
+    - error_count=`0`
+  - run_date=`2026-05-22`
+  - source_count=`10`
+  - eligible_count=`2`
+  - skipped_count=`8`
+  - `eligible_records(queue, max_items=100)`：
+    - `2`
+- Dry-run：
+  - Command：
+    - `py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json`
+  - Exit：
+    - `0`
+  - Output：
+    - `DRY-RUN: eligible=2 will_replay=2 remaining_budget=15 status=dry_run`
+- 修改檔案：
+  - `docs/PHASE_95_1_PLAN.md`
+    - 新增 §14 P95.1A Artifact Dry-run 補遺。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 切到 P95.1B Pending Approval。
+    - Resume Rule 指向 P95.1 plan §14。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 P95.1A dry-run 結果。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 維持 Open。
+    - 補 P95.1A evidence 與 P95.1B next step。
+  - `TASK_HISTORY.md`
+    - 追加本段。
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - `scripts/enrichment_replay.py`
+  - `scripts/cost_cache_governance.py`
+  - `tests/test_cost_cache_governance.py`
+  - provider router / clients / config
+  - secrets / env
+  - tracked `data/runs/**`
+  - tracked `data/reports/**`
+
+**風險**：
+- P95.1B apply replay 會真正呼叫 LLM pipeline，可能消耗 budget：
+  - dry-run 已顯示 remaining_budget=`15`。
+  - 仍需主公另行核准。
+- Scratch 內有 raw queue：
+  - 不得 stage。
+  - 回覆與文件不得貼 raw content。
+- 若直接修 CCG008 classification：
+  - 會粉飾真 pending。
+  - 因 dry-run 已證明 `will_replay=2`，下一步應 apply replay 而非先改分類。
+
+**狀態**：
+- ✅ P95.1A artifact access 已依主公核准執行。
+- ✅ 正確 2026-05-22 artifact 已定位。
+- ✅ 錯誤 2026-05-23 artifact 已排除。
+- ✅ Queue schema valid。
+- ✅ Dry-run PASS。
+- ✅ Dry-run 結論：`eligible=2 will_replay=2 remaining_budget=15 status=dry_run`。
+- ✅ Phase lint 通過：
+  - `py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md`
+- ✅ Handoff truth 通過：
+  - `py scripts\check_handoff_truth.py --repo-root .`：`HND000`
+- ✅ Governance doctor 通過：
+  - `py scripts\governance_doctor.py --repo-root .`：`GOV000`
+- ✅ Diff hygiene 通過：
+  - `git diff --check`：PASS；僅 Git for Windows LF -> CRLF 工作樹轉換警告，無 whitespace error。
+- 🔴 未 apply replay。
+- 🔴 未改 CCG008 governance logic。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：
+  - commit P95.1A dry-run docs。
+  - push 仍需主公明確確認。
+  - 之後等待主公核准 P95.1B apply replay。

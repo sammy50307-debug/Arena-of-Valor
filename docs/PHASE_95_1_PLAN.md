@@ -349,3 +349,71 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-95-1-enrichment-pending.m
 - **凍結人**：主公核准，AI 執行。
 - **凍結時間**：2026-05-24 Asia/Taipei。
 - **凍結後變更**：禁止；如需修改，新增章節「Phase P95.1.x 補遺」並引用本檔。
+
+---
+
+## 14. Phase P95.1A Artifact Dry-run 補遺（2026-05-24）
+
+> 本節為凍結後補遺，不改動上方 frozen plan。主公於 2026-05-24 回覆「核准」，視為核准 P95.1A artifact dry-run access。AI 只下載 / 解壓 2026-05-22 enrichment artifact 到 git-ignored `scratch/`，只做 schema/count 驗證與 dry-run，不 apply、不寫 report、不 stage raw、不輸出 raw post content。
+
+### 14.1 Artifact Evidence
+
+| 欄位 | 值 |
+|---|---|
+| 正確 GitHub run | `26285001843` |
+| run conclusion | `success` |
+| run created_at | `2026-05-22T11:25:11Z` |
+| run updated_at | `2026-05-22T11:26:35Z` |
+| run head_sha | `4f0e5b78ff96d47521eebe11e7c75885f978c5df` |
+| artifact id | `7159368993` |
+| artifact name | `enrichment-queue-26285001843` |
+| artifact size | `4935` bytes |
+| artifact expires_at | `2026-05-25T11:26:27Z` |
+| zip entry | `2026-05-22/enrichment_queue.json` |
+| extracted path | `scratch/p95_1a_artifact_26285001843/extracted/2026-05-22/enrichment_queue.json` |
+
+錯誤排除：run `26299079187` 的 artifact 雖然也存在，但 zip entry 是 `2026-05-23/enrichment_queue.json`，不能用來判讀 2026-05-22 pending。P95.1A 已改用 manifest `generated_at=2026-05-22T11:26:25Z` 對應的 run `26285001843`。
+
+### 14.2 Queue Schema / Count Evidence
+
+| Probe | Result |
+|---|---|
+| `validate_enrichment_queue(queue)` | valid |
+| `run_date` | `2026-05-22` |
+| `source_count` | `10` |
+| `eligible_count` | `2` |
+| `skipped_count` | `8` |
+| `eligible_records(queue, max_items=100)` | `2` |
+
+未輸出 raw 欄位：title / content / url / prompt / LLM payload 皆未寫入文件或回覆。
+
+### 14.3 Dry-run Evidence
+
+Command:
+
+```powershell
+py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json
+```
+
+Output:
+
+```text
+DRY-RUN: eligible=2 will_replay=2 remaining_budget=15 status=dry_run
+```
+
+Interpretation:
+
+- 2026-05-22 pending 不是 phantom；artifact 內確實有 2 筆 eligible records。
+- dry-run 顯示這 2 筆可 replay。
+- 下一步不應先修 CCG008 classification；應進 P95.1B apply replay，讓 pending 真正收斂。
+- apply 可能消耗 LLM budget，且會產生 ignored `enriched_posts.json` / manifest snapshot mutation，因此需要主公另行核准。
+
+### 14.4 P95.1A Decision
+
+| 選項 | 裁決 | 理由 |
+|---|---|---|
+| 直接 Close / Downgrade R-016 | 不採用 | pending 已證實可 replay，尚未 apply |
+| 只改 CCG008 classification | 不採用 | 會把真 pending 粉飾成 residual/historical |
+| 進 P95.1B apply replay | **採用** | dry-run 顯示 `will_replay=2` 且 budget 尚可 |
+
+**P95.1A 結論**：Artifact dry-run 已完成；P95.1B 需主公另行核准後 apply replay。R-016 仍 Open。
