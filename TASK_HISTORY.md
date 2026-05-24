@@ -11508,3 +11508,248 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
   - commit P95.1A dry-run docs。
   - push 仍需主公明確確認。
   - 之後等待主公核准 P95.1B apply replay。
+
+---
+
+### Phase 95.1B - Apply Replay Cooldown Skip（2026-05-24）
+
+**目標**：
+- 在主公明確下令「push」並追加「核准 P95.1B apply replay」後，依 P95.1A dry-run 證據執行一次受 budget guard 保護的 replay apply。
+- 不繞過 P90 budget/cooldown guard：
+  - 若 budget guard 允許，才真正呼叫 LLM replay 2026-05-22 eligible=2。
+  - 若 budget guard 擋下，必須把 unknown `pending` 轉為可追溯的 explicit state，而不是粉飾成 resolved。
+- 維持 P95.1 的核心原則：
+  - 不改 provider routing。
+  - 不新增 secrets / PAT / Cloudflare / Groq / GitHub Models 權限。
+  - 不修改 daily workflow。
+  - 不 stage scratch artifact / raw queue。
+  - 不把 R-016 標記 Closed。
+
+**觸發**：
+- P95.1A 已完成 artifact dry-run：
+  - 正確 GitHub run：`26285001843`
+  - 正確 artifact：`7159368993`
+  - zip entry：`2026-05-22/enrichment_queue.json`
+  - queue schema valid：`true`
+  - eligible_count：`2`
+  - skipped_count：`8`
+  - dry-run output：`DRY-RUN: eligible=2 will_replay=2 remaining_budget=15 status=dry_run`
+- 主公在 2026-05-24 下令：
+  - `push`
+  - `推完後再下：核准 P95.1B apply replay`
+- push 前發現遠端已有新的 auto-sync commit：
+  - `eb9c11f docs: 戰略報告自動同步 2026-05-24 10:20:28 [mode:production l1:0 l2:0 hit:N/A]`
+- 因此 AI 先同步分岔：
+  - `git fetch origin`
+  - `git rebase origin/main`
+  - P95.1A docs commit rebased 成：
+    - `b836bc0 docs: 記錄 P95.1A artifact dry-run`
+  - push 成功：
+    - `eb9c11f..b836bc0 main -> main`
+
+**稽核表**：
+- 影響半徑：
+  - 追蹤變更 6 檔：
+    - `data/runs/2026-05-22/run_manifest.json`
+    - `docs/PHASE_95_1_PLAN.md`
+    - `NEXT_SESSION_HANDOFF.md`
+    - `docs/ACTIVE_OPERATION.md`
+    - `docs/RISK_REGISTRY.md`
+    - `TASK_HISTORY.md`
+  - 屬 P95.1 標準子 Phase：S + A 必過；因碰到 budget/cost 與 tracked run manifest，B 級 Cost / DevOps / Privacy 也列入。
+- Code：
+  - N/A，本段未修改 Python source。
+  - 執行既有 `scripts/enrichment_replay.py --apply`，不改程式碼繞過 guard。
+- Logic：
+  - 採用既有 replay decision path。
+  - 真正裁決來自 budget state，不由 AI 手動改判。
+- Architecture：
+  - 不改 provider router / analyzer / workflow 架構。
+  - P95.1B 只把歷史 run manifest 的 replay state 從 unknown pending 推進到 explicit budget skip。
+- Testing：
+  - 不新增測試，因未改 source。
+  - 以 focused probes 驗證 governance / doctor / SLO / health 行為。
+- Data：
+  - 只更新 raw-free manifest snapshot。
+  - 不提交 raw queue / artifact zip / enriched post content。
+- Observability：
+  - 補 `docs/PHASE_95_1_PLAN.md` §15。
+  - 補 handoff / active operation / risk registry / TASK_HISTORY。
+- Resilience：
+  - 尊重 cooldown guard。
+  - 若 provider quota/cooldown 未解除，不強行 retry。
+- Performance：
+  - N/A，未改 runtime hot path。
+- UX/A11y：
+  - N/A，未改 report UI。
+- Security：
+  - 未新增或暴露 secret。
+  - 未新增 GitHub Actions 權限。
+  - 未把 raw post content 寫入 repo。
+- DevOps：
+  - 已處理遠端 auto-sync 分岔後再 push。
+  - 後續 P95.1B commit/push 仍需主公另行確認。
+- Cost：
+  - apply 由 budget guard 擋下，未消耗 LLM replay。
+  - 明確記錄 cooldown reason 與 retry 時間。
+- Maintainability：
+  - 文件把 `pending -> skipped_budget` 的原因與下一步切清楚，避免下一窗誤判 R-016 已結。
+- Documentation：
+  - 同步更新計畫書補遺、handoff、active operation、risk registry、TASK_HISTORY。
+- Process：
+  - 遵守主公順序：先 push P95.1A，再執行 P95.1B apply。
+  - push 不自動延伸到 P95.1B docs，後續仍需主公確認。
+- Privacy：
+  - 只記錄 raw-free counts / status / digest-level evidence。
+  - 未輸出 raw queue content。
+- i18n：
+  - cooldown 同時以 UTC 與 Asia/Taipei 解讀，避免日界誤判。
+
+**物理真相**：
+- P95.1B apply command：
+  ```powershell
+  py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json --apply
+  ```
+- P95.1B apply output：
+  ```text
+  OK: budget skip; decision=skip_llm reason=cooldown_active
+  ```
+- `data/runs/2026-05-22/run_manifest.json` raw-free manifest delta：
+  - `enrichment.queue_ref`
+    - Before：`data/enrichment_queue/2026-05-22/enrichment_queue.json`
+    - After：`enrichment_queue.json`
+  - `enrichment.replay_status`
+    - Before：`pending`
+    - After：`skipped_budget`
+  - `enrichment.budget_decision`
+    - Before：`call_llm`
+    - After：`skip_llm`
+  - `enrichment.budget_reason`
+    - Before：`budget_available`
+    - After：`cooldown_active`
+  - `enrichment.budget_remaining`
+    - Before：`9`
+    - After：`15`
+  - `enrichment.cooldown_active`
+    - Before：`false`
+    - After：`true`
+  - `enrichment.enriched_posts`
+    - Before：`0`
+    - After：`0`
+- No enriched output file created：
+  - `data/enrichment_queue/2026-05-22/enriched_posts.json` did not exist after apply。
+- Budget state at apply time：
+  - current local time：`2026-05-24 20:35 +08:00`
+  - `cooldown_active=true`
+  - `cooldown_reason=quota_error`
+  - `cooldown_until_utc=2026-05-24T16:20:27Z`
+  - `cooldown_until_taipei=2026-05-25 00:20:27 +08:00`
+  - `llm_calls_used=5`
+- Post-apply probes：
+  - Cost governance：
+    ```powershell
+    py scripts\cost_cache_governance.py --repo-root . --date 2026-05-24 --window-days 3 --json
+    ```
+    - Exit：`0`
+    - Current issues：
+      - `CCG006 current`：2026-05-24 cooldown active。
+      - `CCG007 residual`。
+      - `CCG008 current`：`2026-05-22:status=skipped_budget eligible=2 skipped=8 enriched=0`。
+      - `CCG008 residual`：2026-05-23 / 2026-05-24 no_eligible residual。
+  - System doctor：
+    ```powershell
+    py scripts\system_doctor.py --repo-root . --date 2026-05-24 --profile ci --require-production
+    ```
+    - Exit：`0`
+    - Current advisories：
+      - `DOC007 current`
+      - `DOC017 current`
+      - `DOC018 residual`
+      - `DOC019 residual`
+    - Blocking：none。
+  - SLO checker：
+    ```powershell
+    py scripts\slo_checker.py --repo-root . --date 2026-05-24 --window-days 5 --json
+    ```
+    - Exit：`0`
+    - `issues=[]`
+    - `doctor_blocking_days=0`
+    - `doctor_degraded_days=0`
+  - Daily report health：
+    ```powershell
+    py scripts\check_daily_report_health.py --repo-root . --date 2026-05-24 --expected-mode production
+    ```
+    - Exit：`0`
+    - canonical report：PASS。
+    - landing：PASS。
+    - core contract：PASS。
+    - quality tier observed after latest auto-sync：
+      - `production_local_only`
+      - `analysis_source=local_deterministic`
+      - `llm_coverage=none`
+- 修改檔案：
+  - `data/runs/2026-05-22/run_manifest.json`
+    - 由 unknown pending 推進為 explicit skipped_budget。
+  - `docs/PHASE_95_1_PLAN.md`
+    - 新增 §15 P95.1B Apply Replay 補遺。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 切到 P95.1C Cooldown Retry / Pending Approval。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 active bootstrap。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 補 P95.1B skipped_budget evidence，維持 Open。
+  - `TASK_HISTORY.md`
+    - 追加本段。
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - provider router / clients / configs
+  - `scripts/enrichment_replay.py`
+  - `scripts/cost_cache_governance.py`
+  - `tests/test_cost_cache_governance.py`
+  - secrets / env
+  - scratch artifact / raw queue
+  - unrelated untracked reports / skill temp dirs
+
+**風險**：
+- R-016 仍 Open：
+  - P95.1B 沒有完成 LLM replay，只把狀態從 unknown pending 轉成 explicit budget skip。
+  - 不能因 2026-05-22 之後會掉出三日窗就宣告完美收官。
+- 冷卻時間未到前不應 retry：
+  - 下次 retry 最早時間是 `2026-05-25 00:20:27 +08:00` 之後。
+  - 若主公提前要求 retry，AI 必須提醒會撞上 cooldown guard。
+- 不可 bypass budget guard：
+  - 強制 LLM 可能違反 P90 成本邊界，也會讓 governance evidence 失真。
+- Cost governance 仍報 CCG008 current：
+  - 這是正確訊號，表示尚未真正 replay 成功。
+  - 不應用 classification patch 把 `skipped_budget` 偽裝成 resolved。
+- 最新 2026-05-24 production report 因 auto-sync 呈現 `production_local_only`：
+  - health/SLO pass，但 LLM coverage 不是深讀。
+  - 此事不阻擋 P95.1B commit，但不能當成 R-016 close evidence。
+
+**狀態**：
+- ✅ P95.1A docs 已 rebase 並 push 到 `main`：
+  - `b836bc0 docs: 記錄 P95.1A artifact dry-run`
+- ✅ P95.1B apply replay 已依主公核准執行。
+- ✅ P90 budget guard 正常生效：
+  - `decision=skip_llm`
+  - `reason=cooldown_active`
+- ✅ 2026-05-22 unknown pending 已轉成 explicit `skipped_budget`。
+- ✅ Commit-time validation 通過：
+  - Phase lint：PASS，Pre-flight M1 + M2 通過。
+  - Handoff truth：PASS，`HND000 active bootstrap truth verified`。
+  - Governance doctor：PASS，`GOV000 runbook and risk registry governance verified`。
+  - Diff hygiene：PASS，無 whitespace error；僅 LF -> CRLF 工作樹轉換警告。
+  - Cost governance：PASS exit 0；`CCG008 current` 仍正確指出 2026-05-22 `skipped_budget eligible=2`。
+  - System doctor：PASS exit 0；無 blocking，DOC017 current cooldown。
+  - SLO checker：PASS exit 0；`issues=[]`、`doctor_blocking_days=0`。
+  - Daily report health：PASS exit 0；canonical / landing / core contract PASS。
+- ✅ No raw queue / scratch artifact staged。
+- ✅ Provider routing / workflow / secrets 未動。
+- 🔴 P95.1B 尚未完成真正 replay。
+- 🔴 CCG008 current 仍存在，且此時是正確狀態。
+- 🔴 R-016 仍 Open。
+- ⏭️ 下一步：
+  - 完成 P95.1B docs validation / commit。
+  - push 仍需主公明確確認。
+  - 等 `2026-05-25 00:20:27 +08:00` 後，另行進 P95.1C cooldown retry。
