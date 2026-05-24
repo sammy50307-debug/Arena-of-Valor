@@ -10881,3 +10881,265 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - 🔴 P95 verification 尚未核准，不得跑 closeout 裁決。
 - 🔴 R-016 仍 Open。
 - ⏭️ 下一步：commit P95 plan；push 仍需主公明確確認。
+
+### P95 verification — R-016 Closeout Verification 第一輪裁決（Keep Open）
+
+**目標**：
+- 執行已凍結的 `docs/PHASE_95_PLAN.md` verification gate。
+- 以最新可取得的 Actions / manifest / report / artifact metadata / SLO / doctor / cost / health 證據判斷 R-016 是否可關閉、降級，或必須保持 Open。
+- 本輪只做 evidence-first 裁決與文件 closeout：
+  - 不修改 runtime code。
+  - 不修改 workflow。
+  - 不新增 secrets / PAT / provider key。
+  - 不接 Groq / Cloudflare / GitHub Models。
+  - 不下載 raw enrichment artifact content。
+
+**觸發**：
+- 主公於 2026-05-24 回覆：「完成後直接P95 verification 動工」。
+- AI 將此視為 P95 verification 開工核准，直接依 P95 plan 執行。
+- 工作時間：
+  - `Get-Date` 顯示 `2026-05-24 16:40:36 +08:00`。
+- 開工前狀態：
+  - `git fetch origin` 成功。
+  - `git status --short --branch`：
+    - `## main...origin/main`
+    - 只有既有 untracked reports / skill 暫存目錄。
+  - 最新 pushed commit：
+    - `8c1fa99 docs: 凍結 P95 closeout verification 計畫`
+
+**稽核表**：
+- S 級：
+  - Code：
+    - 未改 runtime code。
+    - 未改 `main.py`、`.github/workflows/daily_report.yml`、provider router / clients。
+  - Logic：
+    - 不把 SLO green 自動等同 R-016 可關。
+    - 裁決分三類：
+      - `Close R-016`
+      - `Downgrade R-016`
+      - `Keep R-016 Open`
+  - Testing：
+    - 跑 SLO / doctor / cost / health / landing probes。
+    - 跑 focused tests 與 full pytest。
+  - Security：
+    - 只讀 GitHub Actions run / artifact metadata。
+    - 未下載 artifact zip。
+    - 未讀 raw queue。
+    - 未輸出 secrets。
+- A 級：
+  - Architecture：
+    - P95 維持 closeout gate，不新增補丁。
+  - Data：
+    - 最新可驗證 report date 為 `2026-05-23`。
+    - 最新 Actions run metadata 由 GitHub API 取得。
+  - Observability：
+    - 每個 probe 記錄 command、exit code、核心輸出、closeout impact。
+  - Resilience：
+    - 發現缺 post-P94 cloud run，保守 keep open。
+  - Maintainability：
+    - RISK_REGISTRY / handoff / active / P95 plan §14 / TASK_HISTORY 同步裁決理由。
+  - Documentation：
+    - `docs/PHASE_95_PLAN.md` 以 §14 補遺記錄凍結後 verification，不改 frozen plan 本體。
+  - Process：
+    - R-016 不 close / 不 downgrade；後續仍需主公裁決。
+- B 級：
+  - Performance：
+    - full pytest 288 passed，無顯著耗時問題。
+  - UX/A11y：
+    - landing main link PASS，首頁指向最新 production report。
+  - DevOps：
+    - latest GitHub Actions run 成功，但 head SHA 是 pre-P94，列為 closeout blocker。
+  - Cost：
+    - CCG005 為 pipeline proxy historical advisory，不作 provider billing 裁決。
+    - CCG008 current pending 阻擋直接 close。
+  - Privacy：
+    - artifact 只讀 metadata：name / size / expiry。
+  - i18n：
+    - 判讀使用 Asia/Taipei report date；GitHub `created_at` 只作輔助。
+
+**物理真相**：
+- GitHub Actions evidence：
+  - Workflow：`daily_report.yml` / `AoV Daily Monitor`
+  - 最新 run：
+    - `run_id=26330077260`
+    - event=`schedule`
+    - status=`completed`
+    - conclusion=`success`
+    - created_at=`2026-05-23T10:12:57Z`
+    - updated_at=`2026-05-23T10:15:35Z`
+    - head_sha=`b649dc4ddf3870352c72d0224e5135975d9af97b`
+  - 關鍵判讀：
+    - `b649dc4` 是 P94 plan 附近的 commit，早於 P94 runtime `1b919b3` 與 P95 plan `8c1fa99`。
+    - 因此此 run 不能作為 post-P94 runtime closeout 的最終雲端證據。
+  - artifact metadata：
+    - id=`7176197190`
+    - name=`enrichment-queue-26330077260`
+    - size=`1406` bytes
+    - expired=`false`
+    - expires_at=`2026-05-26T10:15:31Z`
+    - 未下載 artifact content。
+- Local manifest snapshot (`data/runs/2026-05-23/run_manifest.json`)：
+  - run_date=`2026-05-23`
+  - run_date_taipei=`2026-05-23`
+  - mode=`production`
+  - status=`ok`
+  - publish_eligible=`true`
+  - quality:
+    - tier=`production_local_only`
+    - analysis_source=`mixed`
+    - llm_coverage=`partial`
+    - core_contract=`pass`
+  - budget:
+    - decision=`call_llm`
+    - decision_reason=`budget_available`
+    - llm_calls_used=`14`
+  - selection:
+    - total_input_posts=`19`
+    - llm_selected_posts=`12`
+    - local_only_posts=`7`
+    - duplicate_posts=`7`
+    - max_llm_items=`15`
+  - enrichment:
+    - queue_available=`true`
+    - replay_status=`no_eligible`
+    - eligible_posts=`0`
+    - skipped_posts=`7`
+    - enriched_posts=`0`
+  - provider.routing:
+    - route_status=`router_disabled_legacy_default`
+    - router_enabled=`false`
+    - enabled_slots=`0`
+    - attempts=`0`
+    - raw_payload_logging=`false`
+    - secrets_logged=`false`
+- Probes：
+  - SLO：
+    - Command:
+      - `py scripts\slo_checker.py --repo-root . --date 2026-05-23 --window-days 5 --json`
+    - Exit:
+      - `0`
+    - Output:
+      - `classification=current`
+      - `issues=[]`
+      - `consecutive_no_production=0`
+      - `missing_manifest_count=0`
+      - `doctor_blocking_days=0`
+      - `doctor_degraded_days=1`
+    - Closeout impact:
+      - production SLO 五日窗不阻擋。
+  - System doctor:
+    - Command:
+      - `py scripts\system_doctor.py --repo-root . --date 2026-05-23 --profile ci --require-production`
+    - Exit:
+      - `0`
+    - Output:
+      - DOC007 current advisory：source_dates empty / missing=7
+      - DOC018 residual advisory：selection throttle
+      - DOC019 residual advisory：enrichment replay no_eligible
+    - Closeout impact:
+      - 無 blocking；不阻擋 closeout，但保留觀察。
+  - Cost/cache governance:
+    - Command:
+      - `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-23 --window-days 3 --json`
+    - Exit:
+      - `0`
+    - Output:
+      - CCG005 historical advisory：
+        - `total_llm_calls=39`
+        - `latest_llm_calls=9`
+        - spike_days=`2026-05-21:28`
+      - CCG007 residual advisory。
+      - CCG008 current advisory：
+        - `2026-05-22:status=pending eligible=2 skipped=8 enriched=0`
+      - CCG008 residual advisory：
+        - `2026-05-23:eligible=0 skipped=7 enriched=0`
+    - Closeout impact:
+      - CCG008 current pending 阻擋直接 close；需 post-P94 run / replay 補證。
+  - Daily report health by date:
+    - Command:
+      - `py scripts\check_daily_report_health.py --repo-root . --date 2026-05-23 --expected-mode production`
+    - Exit:
+      - `0`
+    - Output:
+      - canonical report PASS
+      - metadata mode PASS
+      - metadata quality tier PASS
+      - core contract PASS
+      - landing main link PASS
+      - landing target mode PASS
+    - Closeout impact:
+      - landing 不 stale，不阻擋。
+  - Latest production landing:
+    - Command:
+      - `py scripts\check_daily_report_health.py --repo-root . --use-latest-production --expected-mode production`
+    - Exit:
+      - `0`
+    - Output:
+      - 2026-05-24 執行時，latest production target 為 `data/reports/aov_report_2026-05-23.html`
+    - Closeout impact:
+      - 首頁指向最新 production report，不阻擋。
+  - Focused tests:
+    - Command:
+      - `py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py tests\test_daily_report_health.py`
+    - Exit:
+      - `0`
+    - Output:
+      - `46 passed in 0.85s`
+  - Full pytest:
+    - Command:
+      - `py -m pytest -q`
+    - Exit:
+      - `0`
+    - Output:
+      - `288 passed in 6.96s`
+- 修改檔案：
+  - `docs/PHASE_95_PLAN.md`
+    - 新增 §14 verification closeout 補遺。
+  - `NEXT_SESSION_HANDOFF.md`
+    - ACTIVE_BOOTSTRAP 切為 P95 VERIFYING。
+    - Current Step 寫入 `Keep R-016 Open`。
+    - Resume Rule 改為讀 P95 plan §14。
+  - `docs/ACTIVE_OPERATION.md`
+    - L2 狀態同步 P95 verification 結果。
+    - Latest Evidence 補 post-P94 cloud run blocker。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 保持 Open。
+    - 明列 P95 verification 第一輪 evidence 與 keep-open 理由。
+  - `TASK_HISTORY.md`
+    - 追加本段。
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - provider router / clients / config
+  - secrets / env
+  - `data/runs/**`
+  - `data/reports/**`
+  - raw artifact content
+
+**風險**：
+- 若直接 Close R-016：
+  - 會把 pre-P94 run 當成 post-P94 cloud evidence，屬於證據錯置。
+  - 會忽略 CCG008 current pending。
+- 若直接 Downgrade R-016：
+  - 可用性面看起來合理，因 SLO / landing / doctor 都健康。
+  - 但治理面仍缺 post-P94 run，因此需要主公另行核准，不應由 AI 自動降級。
+- 若 Keep Open：
+  - 好處：保守，不會誤關。
+  - 代價：R-016 多保留一個補證步驟。
+  - 判斷：採用，因 closeout gate 的核心是防止錯關。
+
+**狀態**：
+- ✅ P95 verification 第一輪已執行。
+- ✅ SLO：PASS，無 current issues。
+- ✅ Doctor：PASS，無 blocking。
+- ✅ Landing health：PASS，指向 2026-05-23 production report。
+- ✅ Provider routing：disabled-by-default，無 provider attempts、無 secrets logged。
+- ✅ Focused tests：46 passed。
+- ✅ Full pytest：288 passed。
+- ⚠️ GitHub Actions 最新 run 為 pre-P94 head SHA `b649dc4`，缺 post-P94 runtime cloud evidence。
+- ⚠️ CCG008 仍有 2026-05-22 current pending evidence。
+- 🟡 裁決：`Keep R-016 Open`。
+- ⏭️ 下一步：
+  - 手動 dispatch post-P94 AoV Daily Monitor。
+  - 等 run 完成後讀 manifest / artifact metadata / SLO / doctor / cost / health。
+  - 若 CCG008 不再 current 且 landing / provider routing 維持健康，再提交 `Downgrade R-016` 或 `Close R-016` 給主公裁決。

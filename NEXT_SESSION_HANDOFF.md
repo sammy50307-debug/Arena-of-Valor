@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P95（R-016 Closeout Verification / FROZEN） |
-| **Current Step** | P95 plan 已凍結；verification 尚未核准。下一步是 commit P95 plan，push 仍需主公明確確認 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `1b919b3`（P94 doctor / SLO reclassification runtime 已 push） |
+| **Current Phase** | P95（R-016 Closeout Verification / VERIFYING） |
+| **Current Step** | P95 verification 已執行；裁決為 `Keep R-016 Open`。P95 verification docs 本地提交後，push 仍需主公明確確認 |
+| **Mode** | VERIFYING |
+| **Latest Verified Commit** | `8c1fa99`（P95 plan freeze 已 push；P95 verification docs 尚待 commit） |
 | **Updated At** | 2026-05-24 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_95_PLAN.md`（P95 R-016 closeout verification 凍結真相；verification 尚未核准）
+2. `docs/PHASE_95_PLAN.md`（P95 R-016 closeout verification 真相；§14 記錄 verification 裁決）
 3. `docs/PHASE_94_PLAN.md`（P94 Doctor / SLO Reclassification 收官真相；runtime 已完成）
 4. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_95_PLAN.md` | P95 R-016 Closeout Verification 凍結真相 |
+| L3 | `docs/PHASE_95_PLAN.md` | P95 R-016 Closeout Verification 與 §14 verification 裁決 |
 | L3-prev | `docs/PHASE_94_PLAN.md` | P94 Doctor / SLO Reclassification 收官真相 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P95 plan 已凍結，下一窗讀 active bootstrap 不會偏航。 |
-| **最舒服的換窗點** | P95 plan commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_PLAN.md`；若本地 ahead，先等主公 push 確認。 |
-| **不要在換窗後做的事** | 不要直接執行 P95 verification；不要接 provider；不要把 P94/P95 plan freeze 解讀成 R-016 已關閉。 |
+| **現在能不能換視窗** | 可以。P95 verification 已完成第一輪 evidence gate，R-016 維持 Open。 |
+| **最舒服的換窗點** | P95 verification docs commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_PLAN.md` §14；若本地 ahead，先等主公 push 確認。 |
+| **不要在換窗後做的事** | 不要把 P95 verification 解讀成 R-016 已關閉；不要接 provider；不要在沒有 post-P94 cloud run 前 close / downgrade R-016。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P95（FROZEN） |
-| **Current Step** | P95 R-016 Closeout Verification plan 已凍結；verification 尚未核准；等待 commit / push 確認或主公核准 P95 verification |
-| **Allowed Files** | P95 plan closeout / commit / push；verification 只可在主公另核准後依 `docs/PHASE_95_PLAN.md` 執行 |
+| **Current Phase** | P95（VERIFYING） |
+| **Current Step** | P95 verification 已跑完第一輪；結果 `Keep R-016 Open`，原因是缺 post-P94 cloud run 且 CCG008 仍有 2026-05-22 current pending evidence |
+| **Allowed Files** | P95 verification documentation closeout / commit / push；下一輪只可手動 dispatch AoV Daily Monitor 後讀 raw-free manifest / artifact metadata |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P95 plan-only：`docs/PHASE_95_PLAN.md` 已建立，需通過 phase lint / handoff truth / governance doctor / diff check 並 commit；P95 verification 尚未核准 |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_PLAN.md`；若本地 ahead 1，先等主公 push；若主公核准 P95 verification，才可跑 closeout probes / 裁決 R-016 |
+| **Exit Criteria** | P95 verification docs 已記錄 evidence matrix、`Keep R-016 Open` 裁決、post-P94 Daily Monitor 下一步；需通過 phase lint / handoff truth / governance doctor / diff check 並 commit |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_PLAN.md` §14；若本地 ahead 1，先等主公 push；R-016 仍 Open，下一步是 post-P94 Daily Monitor 補證 |
 
 ## Required Verification Commands
 
@@ -79,7 +79,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要重開 P92 runtime；P92 已 CLOSED。
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
-- 不要直接執行 P95 verification；P95 目前只是 FROZEN plan，需主公另行核准。
+- 不要把 P95 verification 第一輪視為 R-016 closeout；目前裁決是 `Keep R-016 Open`，仍需 post-P94 Daily Monitor 補證。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
