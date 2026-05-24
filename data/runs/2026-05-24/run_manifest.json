@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-24T08:55:48.868441Z",
+  "generated_at": "2026-05-24T10:20:28.980627Z",
   "run_date": "2026-05-24",
   "run_date_taipei": "2026-05-24",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-05-24T08:54:39.203760Z",
-  "run_id": "2026-05-24-production-1c64c970657f",
-  "source_hash": "1c64c970657fb178ba329b933f5fbb82ea826a9c634f1395c897fa3fae521214",
+  "scheduled_utc": "2026-05-24T10:20:02.057556Z",
+  "run_id": "2026-05-24-production-516661fff2bf",
+  "source_hash": "516661fff2bfd324b0652f1e1ac9de420e6314c1eb15c74d79a6a3c377a4736c",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -20,12 +20,12 @@
     "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-05-24.html"
   },
   "metrics": {
-    "cache_hit": 8,
+    "cache_hit": 0,
     "l1_hits": 0,
-    "l2_hits": 8,
+    "l2_hits": 0,
     "apify_hits": 0,
-    "llm_calls": 5,
-    "total_calls": 13
+    "llm_calls": 0,
+    "total_calls": 0
   },
   "history": {
     "status": "ok",
@@ -47,8 +47,8 @@
       "total_posts": 19,
       "platform_count": 4,
       "platform_counts": {
-        "youtube": 1,
-        "facebook": 2,
+        "youtube": 2,
+        "facebook": 1,
         "dcard": 8,
         "bahamut": 8
       },
@@ -69,15 +69,15 @@
       "reasons": []
     },
     "tier": "production_local_only",
-    "analysis_source": "mixed",
-    "llm_coverage": "partial",
+    "analysis_source": "local_deterministic",
+    "llm_coverage": "none",
     "tier_publishable": true,
     "tier_reasons": [
-      "local_deterministic_baseline"
+      "quota_error_local_baseline"
     ]
   },
   "provider": {
-    "quota_error": false,
+    "quota_error": true,
     "openai_fallback_configured": false,
     "openai_fallback_used": false,
     "routing": {
@@ -127,43 +127,44 @@
     "max_daily_llm_calls": 20,
     "llm_calls_used": 5,
     "remaining_llm_calls": 15,
-    "cooldown_active": false,
-    "cooldown_reason": "",
-    "cooldown_until_utc": "",
-    "quota_error_count": 0,
-    "last_quota_error_at_utc": "",
+    "cooldown_active": true,
+    "cooldown_reason": "quota_error",
+    "cooldown_until_utc": "2026-05-24T16:20:27Z",
+    "quota_error_count": 1,
+    "last_quota_error_at_utc": "2026-05-24T10:20:27Z",
     "budget_exhausted": false,
-    "decision": "call_llm",
-    "decision_reason": "budget_available"
+    "decision": "skip_llm",
+    "decision_reason": "cooldown_active"
   },
   "selection": {
     "schema_version": 1,
     "selection_truth": "source selection only; raw sources retained",
     "total_input_posts": 19,
-    "unique_posts": 12,
-    "duplicate_posts": 7,
-    "llm_selected_posts": 12,
-    "local_only_posts": 7,
-    "max_llm_items": 18,
-    "budget_remaining": 20,
+    "unique_posts": 11,
+    "duplicate_posts": 8,
+    "llm_selected_posts": 11,
+    "local_only_posts": 8,
+    "max_llm_items": 15,
+    "budget_remaining": 15,
     "selection_reasons": [
       "duplicate_url",
       "llm_selected"
     ],
     "reason_counts": {
       "duplicate_signature": 0,
-      "duplicate_url": 7,
-      "llm_selected": 12,
+      "duplicate_url": 8,
+      "llm_selected": 11,
       "low_signal_local_only": 0,
       "topn_overflow": 0
     },
     "selected_platform_counts": {
       "youtube": 1,
-      "facebook": 2,
+      "facebook": 1,
       "dcard": 8,
       "bahamut": 1
     },
     "local_only_platform_counts": {
+      "youtube": 1,
       "bahamut": 7
     }
   },
@@ -172,20 +173,20 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-05-24/enrichment_queue.json",
-    "queue_digest": "f8d3624e7dce376f",
-    "source_count": 7,
+    "queue_digest": "c18e85a59e5bf618",
+    "source_count": 8,
     "eligible_posts": 0,
-    "skipped_posts": 7,
+    "skipped_posts": 8,
     "enriched_posts": 0,
     "artifact_retention_days": 3,
     "replay_status": "no_eligible",
     "eligible_reason_counts": {},
     "skipped_reason_counts": {
-      "duplicate_url": 7
+      "duplicate_url": 8
     },
     "budget_decision": "call_llm",
     "budget_reason": "budget_available",
-    "budget_remaining": 20,
+    "budget_remaining": 15,
     "cooldown_active": false
   },
   "replay_source": "",
