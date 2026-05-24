@@ -324,3 +324,61 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-95-r016-closeout.md`。
 - **凍結人**：主公核准，AI 執行。
 - **凍結時間**：2026-05-24 Asia/Taipei。
 - **凍結後變更**：禁止；如需修改，新增章節「Phase P95.x 補遺」並引用本檔。
+
+---
+
+## 14. Phase P95.1 Verification Closeout 補遺（2026-05-24）
+
+> 本節為凍結後補遺，不改動上方 frozen plan。主公於 2026-05-24 回覆「完成後直接P95 verification 動工」，視為 P95 verification 開工核准。AI 依本計畫執行 evidence refresh / local verification / closeout decision / documentation closeout，未修改 runtime code、workflow、provider flags、secrets 或 data reports。
+
+### 14.1 Evidence Refresh Matrix
+
+| 證據 | 結果 | Closeout 影響 |
+|---|---|---|
+| `git fetch origin` | 2026-05-24 16:40 Asia/Taipei 執行；`main...origin/main` 同步在 `8c1fa99` | 無分岔，可驗證 P95 plan freeze 後狀態 |
+| 最新 pushed commit | `8c1fa99 docs: 凍結 P95 closeout verification 計畫` | P95 plan 已在雲端；verification 文檔尚待 commit / push |
+| 最新 AoV Daily Monitor run | GitHub API 顯示最新 run `26330077260`，event=`schedule`，status=`completed`，conclusion=`success`，created_at=`2026-05-23T10:12:57Z`，updated_at=`2026-05-23T10:15:35Z` | 雲端每日監控最新成功，但不是 2026-05-24 run |
+| 最新 run head SHA | `b649dc4ddf3870352c72d0224e5135975d9af97b` | 此 run 早於 P94 runtime commit `1b919b3` 與 P95 plan commit `8c1fa99`，不能作為 post-P94 runtime closeout 的最終雲端證據 |
+| Artifact metadata | run `26330077260` 有 artifact `enrichment-queue-26330077260`，id=`7176197190`，size=`1406` bytes，expired=`false`，expires_at=`2026-05-26T10:15:31Z` | 只讀 metadata，未下載 raw artifact，符合 security / privacy 邊界 |
+| 最新 repo run manifest | `data/runs/2026-05-23/run_manifest.json` | 目前最新可驗證 report date 是 2026-05-23 |
+| 2026-05-24 run | GitHub API latest 5 runs 中沒有 2026-05-24 run | 不視為 pipeline failure，但阻擋 `Close R-016` 的最終裁決 |
+
+### 14.2 Local Verification Matrix
+
+| Probe | Command | Exit | 核心輸出 | Closeout 影響 |
+|---|---|---|---|---|
+| SLO | `py scripts\slo_checker.py --repo-root . --date 2026-05-23 --window-days 5 --json` | 0 | `classification=current`、`issues=[]`、`consecutive_no_production=0`、`missing_manifest_count=0`、`doctor_blocking_days=0` | 不阻擋；production SLO 五日窗已恢復 |
+| System doctor | `py scripts\system_doctor.py --repo-root . --date 2026-05-23 --profile ci --require-production` | 0 | DOC007 current advisory；DOC018 residual；DOC019 residual；無 blocking | 不阻擋；仍保留 source coverage 與 local-only/enrichment 觀察 |
+| Cost/cache governance | `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-23 --window-days 3 --json` | 0 | CCG005 historical；CCG007 residual；CCG008 current for 2026-05-22 pending eligible=2；CCG008 residual no_eligible for 2026-05-23 | 阻擋直接 Close；需要 post-P94 cloud run 或 replay/next run 證明 pending 已消化或可接受 |
+| Health by date | `py scripts\check_daily_report_health.py --repo-root . --date 2026-05-23 --expected-mode production` | 0 | canonical report PASS；metadata mode production；quality_tier production_local_only；core contract PASS；landing main link PASS | 不阻擋；landing 指向最新健康 report |
+| Latest production landing | `py scripts\check_daily_report_health.py --repo-root . --use-latest-production --expected-mode production` | 0 | 2026-05-24 執行時解析到 `data/reports/aov_report_2026-05-23.html`，mode=production | 不阻擋；首頁未 stale |
+| Focused tests | `py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py tests\test_daily_report_health.py` | 0 | `46 passed` | probe test surface 未退化 |
+| Full pytest | `py -m pytest -q` | 0 | `288 passed` | repo baseline 未退化 |
+
+### 14.3 Raw-free Manifest Snapshot
+
+| 欄位 | 2026-05-23 manifest 值 |
+|---|---|
+| mode / status | `production` / `ok` |
+| publish_eligible | `true` |
+| quality | tier=`production_local_only`、analysis_source=`mixed`、llm_coverage=`partial`、core_contract=`pass` |
+| budget | decision=`call_llm`、decision_reason=`budget_available`、llm_calls_used=`14` |
+| selection | total_input_posts=`19`、llm_selected_posts=`12`、local_only_posts=`7`、duplicate_posts=`7`、max_llm_items=`15` |
+| enrichment | queue_available=`true`、replay_status=`no_eligible`、eligible_posts=`0`、skipped_posts=`7`、enriched_posts=`0` |
+| provider.routing | route_status=`router_disabled_legacy_default`、router_enabled=`false`、enabled_slots=`0`、attempts=`0`、raw_payload_logging=`false`、secrets_logged=`false` |
+
+### 14.4 Closeout Decision
+
+| 選項 | 裁決 | 理由 |
+|---|---|---|
+| Close R-016 | 不採用 | 缺 post-P94 runtime 的雲端 Daily Monitor run；最新 run head SHA 是 pre-P94 `b649dc4`；且 CCG008 仍有 2026-05-22 current pending evidence |
+| Downgrade R-016 | 暫不採用 | production SLO / landing 已健康，但 current advisory 尚未完成 post-P94 cloud evidence 驗證；降級仍需主公另行核准 |
+| Keep R-016 Open | **採用** | 最保守且符合 P95 風險門檻；避免把舊雲端 run 與 current advisory 誤判成可收官 |
+
+**P95 verification 結論**：`Keep R-016 Open`。P95 沒有發現 production/landing current blocking；真正阻擋 closeout 的是「缺 post-P94 cloud run」與「CCG008 current pending 尚未由後續 run / replay 證明消化」。
+
+### 14.5 下一步 / Reopen Trigger
+
+- 下一步：手動 dispatch 一次 AoV Daily Monitor，確認新的 run head SHA 至少包含 `1b919b3`（P94 runtime）與最好包含 `8c1fa99`（P95 plan），待 run 完成後讀 manifest / artifact metadata / SLO / doctor / cost / health。
+- 若 post-P94 run success，且 SLO current clear、landing PASS、provider routing 仍 disabled、CCG008 不再 current blocking，才可重新提交 `Downgrade R-016` 或 `Close R-016` 給主公裁決。
+- 若 post-P94 run failed、無 production、landing stale，或 CCG008 current pending 持續，R-016 維持 Open 並另開 P96 / P95.x mitigation。
