@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P95.1（Enrichment Pending Closure / FROZEN） |
-| **Current Step** | P95.1 plan 已凍結；runtime / artifact access 尚未核准。P95.1 plan 文件提交後，push 仍需主公明確確認 |
+| **Current Phase** | P95.1B（Pending Closure Apply / PENDING APPROVAL） |
+| **Current Step** | P95.1A artifact dry-run 已完成：2026-05-22 queue valid，eligible=2，will_replay=2，remaining_budget=15；下一步 P95.1B apply replay 尚未核准 |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `65b9f92`（post-P95 AoV Daily Monitor production auto-sync 已同步） |
+| **Latest Verified Commit** | `a63c7a0`（P95.1 plan freeze 已 push；P95.1A docs 尚待 commit） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-24 |
 
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P95.1（FROZEN） |
-| **Current Step** | P95.1 Enrichment Pending Closure plan 已凍結；runtime / artifact access 尚未核准；等待文件提交 / push 或主公核准 P95.1 runtime |
-| **Allowed Files** | P95.1 plan closeout / commit / push；runtime 只可在主公另核准後依 `docs/PHASE_95_1_PLAN.md` 執行 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不下載 artifact / 不讀 raw queue / 不跑 replay；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P95.1 plan-only：`docs/PHASE_95_1_PLAN.md` 已建立，需通過 phase lint / handoff truth / governance doctor / diff check 並 commit；P95.1 runtime 尚未核准 |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_95_1_PLAN.md`；若本地 ahead 1，先等主公 push；若主公核准 P95.1 runtime，才可處理 artifact dry-run / CCG008 pending closure |
+| **Current Phase** | P95.1B（FROZEN / PENDING APPROVAL） |
+| **Current Step** | P95.1A artifact dry-run complete；2026-05-22 queue valid、eligible=2、will_replay=2、remaining_budget=15；等待 commit / push 或主公核准 P95.1B apply replay |
+| **Allowed Files** | P95.1A documentation closeout / commit / push；P95.1B 只可在主公另核准後 apply replay |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不 apply replay；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P95.1A docs 已記錄 correct artifact id、schema/count、dry-run output、P95.1B decision；需通過 phase lint / handoff truth / governance doctor / diff check 並 commit |
+| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_95_1_PLAN.md` §14；若本地 ahead 1，先等主公 push；若主公核准 P95.1B apply replay，才可執行 `--apply` |
 
 ## State Machine
 
@@ -72,14 +72,14 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 ## Latest Evidence
 
-P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已 CLOSED：model list 改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，daily cron改成 UTC 08:30 / 台北 16:30。P87 已 CLOSED：manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015。P88 已 CLOSED：新增 deterministic local analyzer，LLM 429 / provider exception 會保留真實貼文並產生 `analysis_source=local_deterministic` baseline。P89 已 CLOSED：新增 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage` contract，promotion gate 改看 publishable quality tier；`production_local_only` 在 core/local baseline pass 時可 promotion，manual showcase / error fallback 不可 promotion。P90 已 CLOSED：新增 raw-free `analyzer/llm_budget.py`、budget/cooldown state、provider 呼叫前停損、429 cooldown 記帳、manifest `budget` snapshot、DOC017 / CCG006 advisory；focused tests 64 passed、full pytest 254 passed。P91 已 CLOSED：新增 source selection / dedupe / budget-aware Top-N / local-only merge / manifest selection snapshot / DOC018 / CCG007；focused tests 56 passed、full pytest 263 passed。2026-05-22 Actions 實跑已產生 P91 `selection` snapshot，`llm_calls` 從 pre-P91 的 28 降至 6，`duplicate_posts=7` 且 local-only 全由 duplicate_url 主導。P92 已 CLOSED：新增 artifact-backed `analyzer/enrichment_queue.py`、manual `scripts/enrichment_replay.py`、manifest raw-free `enrichment` snapshot、Actions short-retention artifact、DOC019 / CCG008；duplicate-only local-only 會正確 `no_eligible` no-op，不消耗 LLM；focused tests 66 passed、full pytest 274 passed。P93 已 CLOSED：新增 provider protocol、disabled-by-default provider router、shared budget guard、raw-free manifest `provider.routing`、doctor `DOC020`、cost governance `CCG009`、fake-provider / no-call / budget guard tests；focused tests 70 passed、full pytest 286 passed；Groq / Cloudflare / GitHub Models 目前只是 disabled slots，不得進 daily default。P94 已 CLOSED：新增 current / historical / residual classification；SLO 五日窗 current clear，DOC018 / DOC019 residual advisory，CCG005 historical advisory；focused tests 32 passed、full pytest 288 passed。P95 已完成第一輪 verification 與 post-P95 cloud 補證：run `26356870400` success，auto-sync `65b9f92` 產生 2026-05-24 production report；5/24 SLO `issues=[]`、doctor 無 blocking、landing PASS、provider routing disabled、5/24 LLM calls=5。剩餘未完美收官項是 CCG008 三日窗仍有 2026-05-22 pending eligible=2；P95.1 已 FROZEN，專門處理這條 enrichment pending 線頭。
+P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86 已 CLOSED：model list 改成 `gemini-3.1-flash-lite` -> `gemini-3.5-flash`，daily cron改成 UTC 08:30 / 台北 16:30。P87 已 CLOSED：manifest 會產生 `quality.core_contract`，health check 會顯示 core contract PASS/WARN，system doctor 新增 DOC015。P88 已 CLOSED：新增 deterministic local analyzer，LLM 429 / provider exception 會保留真實貼文並產生 `analysis_source=local_deterministic` baseline。P89 已 CLOSED：新增 `quality.tier` / `quality.analysis_source` / `quality.llm_coverage` contract，promotion gate 改看 publishable quality tier；`production_local_only` 在 core/local baseline pass 時可 promotion，manual showcase / error fallback 不可 promotion。P90 已 CLOSED：新增 raw-free `analyzer/llm_budget.py`、budget/cooldown state、provider 呼叫前停損、429 cooldown 記帳、manifest `budget` snapshot、DOC017 / CCG006 advisory；focused tests 64 passed、full pytest 254 passed。P91 已 CLOSED：新增 source selection / dedupe / Top-N；2026-05-22 Actions 實跑已產生 selection snapshot。P92 已 CLOSED：新增 artifact-backed enrichment queue、manual `scripts/enrichment_replay.py`、manifest raw-free `enrichment` snapshot、DOC019 / CCG008。P93 已 CLOSED：provider routing disabled-by-default。P94 已 CLOSED：current / historical / residual classification。P95 已完成 post-P95 cloud 補證：run `26356870400` success，auto-sync `65b9f92` 產生 2026-05-24 production report；5/24 SLO `issues=[]`、doctor 無 blocking、landing PASS、provider routing disabled、5/24 LLM calls=5。P95.1A artifact dry-run 已完成：正確 artifact 是 run `26285001843` / artifact `7159368993`，zip entry `2026-05-22/enrichment_queue.json`；queue valid、eligible=2、skipped=8；dry-run output `eligible=2 will_replay=2 remaining_budget=15 status=dry_run`。下一步是 P95.1B apply replay，尚未核准。
 
 ## Window Switch Guidance
 
-- 可以換視窗：P95.1 plan 已凍結，下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_95_1_PLAN.md` 即可接手。
-- 最佳換窗點：P95.1 plan commit / push 完成後換；若本地 ahead，下一窗可直接等主公確認 push。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要下載 artifact、不要讀 raw queue、不要跑 replay。
+- 可以換視窗：P95.1A dry-run 已完成，下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_95_1_PLAN.md` §14 即可接手。
+- 最佳換窗點：P95.1A docs commit / push 完成後換；若本地 ahead，下一窗可直接等主公確認 push。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要直接 apply replay。
 
 ## Next Decision
 
-下一步是 commit P95.1 plan；push 仍需主公明確確認。P95.1 runtime / artifact access 尚未核准；R-016 維持 Open，不能 close。
+下一步是 commit P95.1A dry-run docs；push 仍需主公明確確認。P95.1B apply replay 尚未核准；R-016 維持 Open，不能 close。
