@@ -12224,3 +12224,83 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ⏭️ AI 保守建議：
   - 裁決 `Downgrade R-016 to monitoring`。
   - 然後另開 R-017 / P96+ Website Content Trust Program，處理芽芽觀察室復發、舊文章、known issue guard。
+
+### Phase 95.1E - R-016 Downgrade to Monitoring（2026-05-25）
+
+**目標**：
+- 回應主公裁決：`push ee8bcba，核准 R-016 downgrade to monitoring`。
+- 先推送 P95.1D cloud evidence commit `ee8bcba`，再把 R-016 從 active blocking risk 降級為 `Open（Monitoring）`。
+- 保留 7 天觀察窗，不把 R-016 直接標 Closed；把芽芽觀察室 / 舊文章 / known issue guard 切到 R-017 / P96 Website Content Trust Program。
+
+**觸發**：
+- 主公於 2026-05-25 明確核准：
+  ```text
+  push ee8bcba，核准 R-016 downgrade to monitoring
+  ```
+- AI 先完成 push：
+  ```text
+  d89c3b9..ee8bcba  main -> main
+  ```
+
+**稽核表**：
+- S 級 / 代碼層：
+  - 本段不改 runtime code。
+  - 僅同步治理文件，避免在 R-016 裁決時順手改功能。
+- S 級 / 邏輯層：
+  - 不採 `Closed`，避免把 7-day observation 省略。
+  - 不採 `Keep active Open`，因 P95.1D 已無 active blocking evidence。
+  - 採 `Open（Monitoring）`，同時保留復發觸發條件。
+- S 級 / 測試層：
+  - 文件同步後需跑 phase lint、handoff truth、governance doctor、diff check。
+  - 本段不需 full pytest；P95.1C/P95.1D 已完成 runtime/test evidence。
+- S 級 / 安全層：
+  - 不新增 provider key / PAT / Cloudflare token / Groq key。
+  - 不加 GitHub Actions `models: read`。
+  - 不接 Groq / Cloudflare / GitHub Models 到 daily default。
+- A 級 / 文件與流程層：
+  - 同步 `NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`docs/PHASE_95_1_PLAN.md`、`TASK_HISTORY.md`。
+  - 明確下一步是 P96 plan，不直接修前台內容。
+
+**物理真相**：
+- 已推送 commit：
+  - `ee8bcba docs: 記錄 P95.1D 雲端驗證`
+- R-016 監控基線：
+  - workflow_dispatch run `26379118247` success。
+  - Strict Gate success。
+  - Auto-sync commit `d89c3b9` 產生 2026-05-25 production report。
+  - 2026-05-25 health PASS。
+  - 2026-05-25 SLO `issues=[]`。
+  - system doctor 無 blocking。
+  - budget `cooldown_active=false`、`llm_calls_used=3`、remaining=17。
+  - provider routing `router_disabled_legacy_default`、enabled slots `0`。
+  - `CCG008` 無 current blocker，僅 residual/no_eligible。
+- 文件改動：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P96 DRAFT / Website Content Trust Plan / NOT_STARTED。
+    - Current Step 寫入 R-016 monitoring 與 P96 下一步。
+  - `docs/ACTIVE_OPERATION.md`
+    - Program 改為 R-017 Website Content Trust Program。
+    - Mode 改為 `DRAFT`；`PLAN_REQUIRED` 保留在 Current Phase / workflow 語意中。
+    - Forbidden Work 明列不得未寫 P96 plan 就修 template / report / data logic。
+  - `docs/RISK_REGISTRY.md`
+    - R-016 風險級改為 🟡 中（Monitoring）。
+    - 狀態改為 `Open（Monitoring；2026-05-25 主公核准，觀察至 2026-06-01）`。
+    - 補入復發升級條件。
+  - `docs/PHASE_95_1_PLAN.md`
+    - 新增 §18 P95.1E R-016 Downgrade Decision 補遺。
+
+**風險**：
+- R-016 monitoring 被誤讀成 Closed：
+  - 緩解：risk registry 狀態保留 literal `Open`，並寫明 observation window。
+- R-017 前台內容可信度被混回 R-016：
+  - 緩解：handoff / active / phase plan 都明列 boundary。
+- 監控期內雲端再次出現 production issue：
+  - 緩解：若 latest production SLO issue、system doctor blocking/degraded、health FAIL、landing stale、`CCG008 current`、provider routing unexpected enabled、latest budget/cooldown repeated blocker 或 Daily Monitor repeated failure，立即升回 active R-016。
+
+**狀態**：
+- ✅ P95.1D commit `ee8bcba` 已 push。
+- ✅ 主公已核准 R-016 downgrade to monitoring。
+- ✅ R-016 文件裁決改為 Open（Monitoring），不是 Closed。
+- ✅ Monitoring window：2026-05-25～2026-06-01。
+- ✅ 下一主線：R-017 / P96 Website Content Trust plan。
+- ⏭️ 下一步：commit 本段 R-016 downgrade docs；push 仍需主公確認。

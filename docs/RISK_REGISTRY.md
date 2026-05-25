@@ -135,8 +135,8 @@
 ### R-016：production SLO blocking / landing stale（P84.6 收官揭露）
 
 - **來源**：P84.6 總收官驗證（2026-05-18）
-- **風險級**：🔴 高
-- **狀態**：Open
+- **風險級**：🟡 中（Monitoring；由 🔴 高降級，2026-05-25 主公核准）
+- **狀態**：Open（Monitoring；2026-05-25 主公核准，觀察至 2026-06-01）
 - **描述**：P84.6 收官矩陣顯示 governance / handoff / runbook / pytest 全數通過，但 production SLO 仍阻塞。2026-05-19 R-016.1 已修補 manifest sync contract，並由既有 canonical report 反建 5/16-5/19 report-only manifests，因此 `SLO002` manifest gap 已收斂；剩餘阻塞為 `SLO001` 連續無 production，`SLO003` 因連續 showcase_forced/degraded 超過門檻，且 landing 仍指向 `data/reports/aov_report_2026-05-16.html`。
 - **緩解策略**：
   - 短期：不要把 P84.6 CLOSED 解讀成 production SLO 已恢復；維持 `SLO###` / `DOC###` / health check 作為營運真相。
@@ -157,10 +157,11 @@
   - 已驗證：P95.1A `Artifact Dry-run` 已完成；正確 artifact 是 run `26285001843` / artifact `7159368993` / zip entry `2026-05-22/enrichment_queue.json`。queue schema valid，`eligible_count=2`，`skipped_count=8`；dry-run output 為 `eligible=2 will_replay=2 remaining_budget=15 status=dry_run`。P95.1A 未 apply replay、未寫 report、未 stage raw artifact / raw queue。R-016 仍 Open。
   - 已驗證：P95.1B `Apply Replay` 已執行，但 P90 budget guard 因 2026-05-24 `cooldown_active` 安全擋下 LLM replay；2026-05-22 manifest 已由 `replay_status=pending` 轉為 `replay_status=skipped_budget`，`budget_reason=cooldown_active`，`enriched_posts=0`。此狀態比 unknown pending 更可追溯，但尚未完成 replay；R-016 仍 Open。
   - 已驗證：P95.1C `Cooldown Retry` 已於 2026-05-25 09:35 +08 執行成功；dry-run 顯示 `eligible=2 will_replay=2 remaining_budget=20`，apply output 為 `OK: enrichment replay completed; enriched=2/2`。2026-05-22 manifest 已由 `replay_status=skipped_budget` 轉為 `replay_status=completed`，`eligible_posts=2`，`enriched_posts=2`，`budget_decision=call_llm`，`budget_reason=budget_available`，`cooldown_active=false`。Cost governance 三日窗已無 CCG008 current；只剩 2026-05-23/24 no_eligible residual。R-016 仍 Open，待主公裁決 close / downgrade / keep-open。
-  - 已驗證：P95.1D `Post-P95.1C Cloud Verification` 已完成；workflow_dispatch run `26379118247` 在 head `9188a92` 上 success，Strict Gate step success，artifact `enrichment-queue-26379118247` id=`7190334548` expires=`2026-05-28T01:53:14Z`，auto-sync commit `d89c3b9` 產生 2026-05-25 production report。2026-05-25 health PASS，SLO `issues=[]`，system doctor 無 blocking，budget `cooldown_active=false` / `llm_calls_used=3` / remaining=17，provider routing 仍 `router_disabled_legacy_default`，CCG008 僅 residual no_eligible。R-016 仍 Open，待主公裁決 close / downgrade / keep-open。
-  - 中期：P86-P95.1 分段處理 model/schedule、report core contract、本地 deterministic analysis、quality tier、budget ledger、cache/dedupe、enrichment replay、provider abstraction、doctor/SLO 重分類、closeout verification 與 enrichment pending closure；下一步是 commit / push P95.1D cloud evidence docs，之後由主公裁決 R-016 close / downgrade / keep-open。AI 保守建議是 `Downgrade R-016 to monitoring`，再另開 R-017 / P96+ 處理芽芽觀察室與舊文章等前台內容可信度問題。
+  - 已驗證：P95.1D `Post-P95.1C Cloud Verification` 已完成；workflow_dispatch run `26379118247` 在 head `9188a92` 上 success，Strict Gate step success，artifact `enrichment-queue-26379118247` id=`7190334548` expires=`2026-05-28T01:53:14Z`，auto-sync commit `d89c3b9` 產生 2026-05-25 production report。2026-05-25 health PASS，SLO `issues=[]`，system doctor 無 blocking，budget `cooldown_active=false` / `llm_calls_used=3` / remaining=17，provider routing 仍 `router_disabled_legacy_default`，CCG008 僅 residual no_eligible。
+  - 已裁決：2026-05-25 主公回覆 `push ee8bcba，核准 R-016 downgrade to monitoring`；AI 已 push `ee8bcba`。R-016 由 active blocking risk 降級為 Open（Monitoring），觀察窗 2026-05-25～2026-06-01。此裁決不是 Closed；若 monitoring 觸發條件命中，立即升回 active R-016。
+  - 監控期：每日或手動 dispatch 後檢查 latest production report、landing、SLO、system doctor、cost governance、budget/cooldown、provider routing。前台內容可信度（芽芽觀察室、舊文章、known issue guard）另開 R-017 / P96+，不得混回 R-016。
   - 長期：免費 provider 只作 P93 disabled-by-default 插槽候選；不得在未核准前接進主鏈路。
-- **觸發升級**：若 P86-P95 完成後仍連續無可發布 production tier ≥ 3 天，或 landing 指向非最新健康報告造成主公誤判 → 升級為 P95 closeout blocking issue，不得關閉 R-016。
+- **觸發升級**：monitoring window 內若出現任一條件，升回 active R-016：latest production SLO `issues` 非空、system doctor blocking/degraded、health check FAIL、landing 指向非最新 production report、`CCG008 current` 復發、provider routing 非預期啟用、Gemini budget/cooldown 連續阻斷最新 production，或 GitHub Actions Daily Monitor 連續失敗造成主公無法判讀最新報告。
 
 ---
 
