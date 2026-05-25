@@ -7,16 +7,16 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P95.1C（Cooldown Retry / PENDING APPROVAL） |
-| **Current Step** | P95.1B apply replay 已執行且 docs local commit 已準備；budget guard 安全擋下 LLM replay，2026-05-22 enrichment 已由 pending 轉 skipped_budget；若 `main ahead 1` 則先等主公 push，若已同步 origin 則等 2026-05-25 00:20:27 +08 後 retry apply |
+| **Current Phase** | P95.1D（R-016 Decision / PENDING USER DECISION） |
+| **Current Step** | P95.1C cooldown retry 已完成且 local commit 已建立：2026-05-22 enrichment `eligible=2 enriched=2 replay_status=completed`，CCG008 current blocker 已清除；下一步是等主公確認 push，然後裁決 R-016 close / downgrade / keep-open |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `b836bc0`（本段撰寫時 latest pushed；若 `git status -sb` 顯示 ahead 1，代表 P95.1B local commit 尚待 push） |
-| **Updated At** | 2026-05-24 Asia/Taipei |
+| **Latest Verified Commit** | `05be57a`（latest pushed；P95.1C local commit 已建立，若 `git status -sb` 顯示 ahead 1 代表尚待 push） |
+| **Updated At** | 2026-05-25 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure 真相；§14 記錄 artifact dry-run）
+2. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure 真相；§16 記錄 P95.1C cooldown retry）
 3. `docs/PHASE_95_PLAN.md`（P95 R-016 closeout verification 與 keep-open 裁決）
 4. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure 與 §14 artifact dry-run |
+| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure 與 §16 cooldown retry |
 | L3-prev | `docs/PHASE_95_PLAN.md` | P95 R-016 Closeout Verification 與 §14 verification 裁決 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P95.1B apply 結果已明確：skipped_budget / cooldown_active。 |
-| **最舒服的換窗點** | P95.1B local commit 已完成；push 完成後換最乾淨。若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md` §15；若本地 ahead 1，先等主公 push 確認。 |
-| **不要在換窗後做的事** | 不要繞過 budget guard；不要在 2026-05-25 00:20:27 +08 前硬 retry；不要把 scratch raw queue stage 進 git。 |
+| **現在能不能換視窗** | 可以。P95.1C 已完成補跑，2026-05-22 pending 已真正收斂為 completed。 |
+| **最舒服的換窗點** | P95.1C docs commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md` §16；若本地 ahead 1，先等主公 push 確認。 |
+| **不要在換窗後做的事** | 不要把 R-016 自行標記 Closed；R-016 close / downgrade / keep-open 需主公裁決。不要 stage scratch raw queue 或 git-ignored enriched_posts。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P95.1C（FROZEN / PENDING APPROVAL） |
-| **Current Step** | P95.1B apply replay complete with budget skip；2026-05-22 manifest now `replay_status=skipped_budget` / `budget_reason=cooldown_active`；local commit 已完成，等待 push 或主公核准 cooldown 後 retry |
-| **Allowed Files** | P95.1B documentation closeout / commit / push；P95.1C retry 只可在 cooldown 結束後、主公核准後執行 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不 bypass budget guard；不把 R-016 標記 Closed；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P95.1B docs 已記錄 skipped_budget manifest delta、cooldown_until、probes；phase lint / handoff truth / governance doctor / diff check 已通過；local commit 已完成，push 待確認 |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md` §15；若本地 ahead 1，先等主公 push；若主公核准 P95.1C retry，需確認已過 `2026-05-25 00:20:27 +08` |
+| **Current Phase** | P95.1D（FROZEN / PENDING USER DECISION） |
+| **Current Step** | P95.1C retry complete；2026-05-22 manifest now `replay_status=completed` / `eligible_posts=2` / `enriched_posts=2`；local commit 已建立；等待 push 與 R-016 裁決 |
+| **Allowed Files** | P95.1C documentation closeout / commit / push；P95.1D 只可在主公裁決後更新 R-016 close / downgrade / keep-open |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不把 R-016 標記 Closed，除非主公明確裁決；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P95.1C docs 已記錄 completed manifest delta、probes、tests；phase lint / handoff truth / governance doctor / diff check 已通過；local commit 已完成，等主公確認 push |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md` §16；若本地 ahead 1，先等主公 push；若已同步 origin，下一步是請主公裁決 R-016 close / downgrade / keep-open，或先跑 post-2026-05-25 Daily Monitor 補雲端證據 |
 
 ## Required Verification Commands
 
@@ -80,8 +80,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要重開 P92 runtime；P92 已 CLOSED。
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
-- 不要把 post-P95 production success 解讀成 R-016 已完美收官；P95.1 還要處理 2026-05-22 CCG008 pending 線頭。
-- 不要繞過 budget guard；P95.1B 已得到 `skipped_budget`，下一次 retry 必須等 cooldown 結束。
+- 不要把 P95.1C completed 自動解讀成 R-016 已 close；R-016 close / downgrade / keep-open 仍需主公裁決。
+- 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
