@@ -582,3 +582,92 @@ Generated output:
 | Commit P95.1C completed evidence, then ask for R-016 decision | **採用** | CCG008 blocker 已清除，但 latest 2026-05-24 cooldown advisory 與後續雲端證據仍需裁決 |
 
 **P95.1C 結論**：P95.1C 已成功補跑 2026-05-22 的 2 筆 eligible enrichment，`CCG008 current` 已清除；R-016 仍 Open，下一步是 P95.1D 由主公裁決 `Close R-016` / `Downgrade R-016` / `Keep R-016 Open`。若追求最保守完美收尾，建議 P95.1C push 後手動 dispatch post-2026-05-25 Daily Monitor，補最新雲端證據後再裁決。
+
+---
+
+## 17. Phase P95.1D Post-P95.1C Cloud Verification 補遺（2026-05-25）
+
+> 主公要求「最保守完美收尾」，因此 P95.1C local success 後沒有直接裁決 R-016，而是先 push `9188a92`，再手動 dispatch AoV Daily Monitor，讀雲端 workflow / artifact / auto-sync commit / post-cloud probes。本節只記錄 raw-free cloud evidence，不把前台內容可信度問題混入 R-016。
+
+### 17.1 Workflow Evidence
+
+| 欄位 | 結果 |
+|---|---|
+| workflow | `AoV Daily Monitor` |
+| event | `workflow_dispatch` |
+| run id | `26379118247` |
+| head sha | `9188a92f3302c54f996c25989c6d6517f4e0cbe4` |
+| created_at | `2026-05-25T01:51:10Z` |
+| updated_at | `2026-05-25T01:53:19Z` |
+| status / conclusion | `completed` / `success` |
+| job id | `77644855026` |
+| strict doctor step | `System Doctor (Strict Gate)` success |
+| artifact | `enrichment-queue-26379118247` |
+| artifact id | `7190334548` |
+| artifact expires_at | `2026-05-28T01:53:14Z` |
+
+Auto-sync:
+
+```text
+d89c3b9 docs: 戰略報告自動同步 2026-05-25 01:53:13 [mode:production l1:0 l2:9 hit:75%]
+```
+
+Files from auto-sync commit:
+
+| Path | Change |
+|---|---|
+| `data/reports/aov_report_2026-05-25.html` | new production report |
+| `data/runs/2026-05-25/run_manifest.json` | new cloud manifest |
+| `data/llm_budget_state.json` | budget state updated |
+| `data/llm_cache.json` | cache updated |
+| `index.html` | landing now points to 2026-05-25 report |
+
+### 17.2 Post-cloud Probe Evidence
+
+| Probe | Result |
+|---|---|
+| `check_daily_report_health.py --date 2026-05-25 --expected-mode production` | PASS：canonical / mode / tier / core contract / landing all PASS |
+| `system_doctor.py --date 2026-05-25 --profile ci --require-production` | PASS exit 0；DOC007 current only；DOC018/DOC019 residual；無 blocking |
+| `slo_checker.py --date 2026-05-25 --window-days 5 --json` | PASS exit 0；`issues=[]`、`doctor_blocking_days=0`、`doctor_degraded_days=0` |
+| `cost_cache_governance.py --date 2026-05-25 --window-days 3 --json` | PASS exit 0；CCG006 current still records 2026-05-24 cooldown；CCG008 residual only no_eligible |
+
+2026-05-25 manifest highlights:
+
+| 欄位 | 值 |
+|---|---|
+| mode | `production` |
+| publish_eligible | `true` |
+| quality.tier | `production_local_only` |
+| quality.analysis_source | `mixed` |
+| quality.llm_coverage | `partial` |
+| core_contract.status | `pass` |
+| total_posts / platform_count / source_count | `19` / `4` / `3` |
+| budget.decision | `call_llm` |
+| budget.cooldown_active | `false` |
+| budget.llm_calls_used | `3` |
+| budget.remaining_llm_calls | `17` |
+| selection.cache_hit_rate | `75%` via `l2=9` / total calls `12` |
+| enrichment.replay_status | `no_eligible` |
+| enrichment.eligible_posts | `0` |
+| enrichment.skipped_posts | `8` |
+| provider.routing.route_status | `router_disabled_legacy_default` |
+| provider.routing.enabled_slots | `0` |
+
+Content-trust quick sniff:
+
+| Check | Result |
+|---|---|
+| report title search | `芽芽觀察室` present |
+| unwanted title search | `圖倫觀察室` not found |
+
+**Boundary**：This quick sniff does not close the separate frontend/content-trust problem. 主公先前回報的「芽芽觀察室變圖倫」與「舊文章」仍應另開 R-017 / P96+，不能混入 R-016 closeout。
+
+### 17.3 R-016 Decision Options
+
+| 選項 | AI 保守建議 | 理由 |
+|---|---|---|
+| Close R-016 | 可行但較激進 | R-016 planned blockers are cleared, cloud strict gate passed, SLO clean |
+| Downgrade R-016 to monitoring | **建議採用** | 最保守：承認主線修復完成，但保留 7-day monitoring 與 latest advisory observation |
+| Keep R-016 Open | 不建議 | 目前已無 R-016 blocking evidence；繼續 Open 容易把 R-017 前台內容問題混入後端可靠性主線 |
+
+**P95.1D 結論**：Post-P95.1C cloud verification 已完成且成功。AI 建議主公裁決 `Downgrade R-016 to monitoring`，並另開 R-017 / P96+ 處理網站內容可信度（芽芽觀察室、舊文章、known issue guard）。

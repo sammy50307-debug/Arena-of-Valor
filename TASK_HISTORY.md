@@ -11989,3 +11989,238 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
     - `Downgrade R-016 to monitoring`
     - `Keep R-016 Open`
   - 若主公要最保守雲端證據，push 後手動 dispatch post-2026-05-25 Daily Monitor，再讀 artifact / manifest 後裁決。
+
+---
+
+### Phase 95.1D - Post-P95.1C Cloud Verification（2026-05-25）
+
+**目標**：
+- 依主公「最保守完美收尾」要求，不用 P95.1C 本地成功直接裁決 R-016。
+- 先 push P95.1C commit，再由主公手動 dispatch AoV Daily Monitor。
+- 讀雲端 workflow / strict doctor / artifact / auto-sync commit / manifest / local probes，確認 R-016 後端可靠性主線是否具備 close 或 downgrade 條件。
+- 明確切開 R-016 與前台內容可信度：
+  - R-016：每日 pipeline / report generation / SLO / doctor / cost / enrichment / provider routing。
+  - R-017：芽芽觀察室變圖倫、舊文章、known issue guard、網站內容可信度。
+
+**觸發**：
+- 主公下令：
+  - `push 9188a92 要最保守完美收尾`
+- AI 推送：
+  - `9188a92 docs: 完成 P95.1C cooldown retry`
+  - push result：`05be57a..9188a92 main -> main`
+- 本機限制：
+  - `gh` CLI not installed。
+  - `GH_TOKEN` / `GITHUB_TOKEN` / `GITHUB_PAT` all missing。
+  - 因此 AI 無法安全代按 workflow dispatch；由主公手動 dispatch。
+- 主公回報：
+  - `跑好了`
+
+**稽核表**：
+- 影響半徑：
+  - 雲端 auto-sync commit 5 檔：
+    - `data/llm_budget_state.json`
+    - `data/llm_cache.json`
+    - `data/reports/aov_report_2026-05-25.html`
+    - `data/runs/2026-05-25/run_manifest.json`
+    - `index.html`
+  - AI 文件補錄 5 檔：
+    - `NEXT_SESSION_HANDOFF.md`
+    - `docs/ACTIVE_OPERATION.md`
+    - `docs/PHASE_95_1_PLAN.md`
+    - `docs/RISK_REGISTRY.md`
+    - `TASK_HISTORY.md`
+- Code：
+  - N/A，未修改 source code。
+- Logic：
+  - 以 cloud run / strict doctor / manifest / probes 作為裁決前證據。
+- Architecture：
+  - 不改 workflow / provider / analyzer 架構。
+  - Provider routing 確認仍 disabled-by-default。
+- Testing：
+  - 本階段跑 post-cloud probes；未重新跑 full pytest，因 auto-sync 只改資料/report/index。
+  - P95.1C 已在同日跑過 full pytest `288 passed`。
+- Data：
+  - 新增 2026-05-25 cloud manifest/report。
+  - 不下載 raw artifact content。
+- Observability：
+  - 記錄 run id / job id / artifact id / auto-sync commit / probes。
+- Resilience：
+  - Strict doctor gate success。
+  - SLO 5-day no blocking/no degraded。
+- Performance：
+  - Cost governance aggregate hit rate `54%`；2026-05-25 day hit rate `75%`。
+- UX/A11y：
+  - R-016 不處理 UX。
+  - 快速 sniff 顯示 2026-05-25 report 有 `芽芽觀察室`，未找到 `圖倫觀察室`；但這不等於 R-017 內容可信度已解。
+- Security：
+  - 未輸出 secrets。
+  - 未新增 GitHub Actions permissions。
+- DevOps：
+  - Workflow dispatch run success。
+  - Auto-sync commit 已 fast-forward 到本地。
+- Cost：
+  - 2026-05-25 budget healthy：
+    - `cooldown_active=false`
+    - `llm_calls_used=3`
+    - `remaining_llm_calls=17`
+- Maintainability：
+  - 裁決建議明確列 close / downgrade / keep-open 三選項。
+- Documentation：
+  - 補錄到 phase plan / handoff / active / risk / history。
+- Process：
+  - R-016 不由 AI 自行 close，等待主公裁決。
+- Privacy：
+  - Artifact 只記 id/name/expires，未讀 raw queue content。
+- i18n：
+  - 使用 Taiwan date `2026-05-25` 作 report date。
+
+**物理真相**：
+- Latest workflow dispatch：
+  - workflow：`AoV Daily Monitor`
+  - run id：`26379118247`
+  - event：`workflow_dispatch`
+  - status：`completed`
+  - conclusion：`success`
+  - head_sha：`9188a92f3302c54f996c25989c6d6517f4e0cbe4`
+  - created_at：`2026-05-25T01:51:10Z`
+  - updated_at：`2026-05-25T01:53:19Z`
+  - html_url：`https://github.com/sammy50307-debug/Arena-of-Valor/actions/runs/26379118247`
+- Job:
+  - job id：`77644855026`
+  - job name：`run-pipeline`
+  - status / conclusion：`completed` / `success`
+  - Strict Gate step：
+    - `System Doctor (Strict Gate)`
+    - conclusion：`success`
+- Artifact:
+  - id：`7190334548`
+  - name：`enrichment-queue-26379118247`
+  - size：`2625`
+  - expired：`false`
+  - created_at：`2026-05-25T01:53:15Z`
+  - expires_at：`2026-05-28T01:53:14Z`
+- Auto-sync commit:
+  ```text
+  d89c3b9 docs: 戰略報告自動同步 2026-05-25 01:53:13 [mode:production l1:0 l2:9 hit:75%]
+  ```
+  - Files:
+    - `data/llm_budget_state.json`
+    - `data/llm_cache.json`
+    - `data/reports/aov_report_2026-05-25.html`
+    - `data/runs/2026-05-25/run_manifest.json`
+    - `index.html`
+- Local sync:
+  - Before pull：`main...origin/main [behind 1]`
+  - `git pull --ff-only origin main`
+  - After pull：local `main` at `d89c3b9`
+- Post-cloud health:
+  ```powershell
+  py scripts\check_daily_report_health.py --repo-root . --date 2026-05-25 --expected-mode production
+  ```
+  - Exit：`0`
+  - canonical report：PASS。
+  - metadata mode：PASS `production`。
+  - quality tier：PASS `production_local_only`。
+  - analysis_source：`mixed`
+  - llm_coverage：`partial`
+  - core contract：PASS。
+  - landing main link：PASS `data/reports/aov_report_2026-05-25.html`。
+- Post-cloud doctor:
+  ```powershell
+  py scripts\system_doctor.py --repo-root . --date 2026-05-25 --profile ci --require-production
+  ```
+  - Exit：`0`
+  - Current advisory:
+    - `DOC007 current`
+  - Residual advisory:
+    - `DOC018 residual`
+    - `DOC019 residual`
+  - Blocking：none。
+- Post-cloud SLO:
+  ```powershell
+  py scripts\slo_checker.py --repo-root . --date 2026-05-25 --window-days 5 --json
+  ```
+  - Exit：`0`
+  - `issues=[]`
+  - `consecutive_no_production=0`
+  - `doctor_blocking_days=0`
+  - `doctor_degraded_days=0`
+- Post-cloud cost/cache governance:
+  ```powershell
+  py scripts\cost_cache_governance.py --repo-root . --date 2026-05-25 --window-days 3 --json
+  ```
+  - Exit：`0`
+  - Aggregate:
+    - `total_cache_hit=14`
+    - `total_calls=26`
+    - `total_llm_calls=12`
+    - `aggregate_cache_hit_rate_pct=54`
+  - 2026-05-25:
+    - `cache_hit=9`
+    - `total_calls=12`
+    - `llm_calls=3`
+    - `cache_hit_rate_pct=75`
+    - `budget_decision=call_llm`
+    - `budget_reason=budget_available`
+    - `budget_cooldown_active=false`
+    - `enrichment_replay_status=no_eligible`
+    - `provider_route_status=router_disabled_legacy_default`
+    - `provider_enabled_slots=0`
+  - Issues:
+    - `CCG006 current`: 2026-05-24 cooldown record still inside 3-day window。
+    - `CCG007 residual`: selection throttle residual。
+    - `CCG008 residual`: 2026-05-23/24/25 no_eligible。
+  - No `CCG008 current`。
+- 2026-05-25 manifest highlights:
+  - `mode=production`
+  - `publish_eligible=true`
+  - `quality.core_contract.status=pass`
+  - `quality.tier=production_local_only`
+  - `quality.analysis_source=mixed`
+  - `quality.llm_coverage=partial`
+  - `budget.cooldown_active=false`
+  - `budget.llm_calls_used=3`
+  - `budget.remaining_llm_calls=17`
+  - `enrichment.replay_status=no_eligible`
+  - `enrichment.eligible_posts=0`
+  - `provider.routing.route_status=router_disabled_legacy_default`
+  - `provider.routing.enabled_slots=0`
+- Content-trust quick sniff:
+  - `rg "芽芽觀察室|圖倫觀察室|觀察室" data/reports/aov_report_2026-05-25.html index.html`
+  - Found:
+    - `台服旗艦監芽芽觀察室`
+    - `芽芽 觀察室`
+  - Not found:
+    - `圖倫觀察室`
+  - Boundary:
+    - This is only a quick sniff; R-017 still needed for systematic content correctness.
+
+**風險**：
+- R-016 close vs downgrade：
+  - Close is technically defensible because planned blockers are cleared and cloud strict gate passed.
+  - Downgrade to monitoring is more conservative because 2026-05-24 CCG006 current cooldown record remains in 3-day governance window.
+- R-017 must not be mixed into R-016：
+  - 主公已回報前台內容問題（芽芽觀察室、舊文章）。
+  - 這些是 Website Content Trust，不是 R-016 backend reliability。
+  - 若混在 R-016，會讓後端 reliability 無法收官，也讓前台修復失焦。
+- Artifact retention:
+  - `enrichment-queue-26379118247` expires `2026-05-28T01:53:14Z`。
+  - 若之後要深查 artifact，需在過期前處理。
+
+**狀態**：
+- ✅ P95.1C commit `9188a92` 已 push。
+- ✅ Post-P95.1C cloud workflow run `26379118247` success。
+- ✅ Strict Gate success。
+- ✅ Auto-sync commit `d89c3b9` 已產生 2026-05-25 production report。
+- ✅ 本地已 fast-forward 到 `d89c3b9`。
+- ✅ 2026-05-25 health PASS。
+- ✅ 2026-05-25 system doctor 無 blocking。
+- ✅ 2026-05-25 SLO `issues=[]`。
+- ✅ 2026-05-25 budget healthy，cooldown inactive。
+- ✅ Provider routing remains disabled-by-default。
+- ✅ CCG008 has no current blocker。
+- ✅ Quick sniff：2026-05-25 report title is 芽芽觀察室, not 圖倫觀察室。
+- 🔴 R-016 仍 Open，待主公裁決。
+- ⏭️ AI 保守建議：
+  - 裁決 `Downgrade R-016 to monitoring`。
+  - 然後另開 R-017 / P96+ Website Content Trust Program，處理芽芽觀察室復發、舊文章、known issue guard。

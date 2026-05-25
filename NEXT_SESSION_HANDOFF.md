@@ -8,15 +8,15 @@
 | **Status** | ACTIVE |
 | **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
 | **Current Phase** | P95.1D（R-016 Decision / PENDING USER DECISION） |
-| **Current Step** | P95.1C cooldown retry 已完成且 local commit 已建立：2026-05-22 enrichment `eligible=2 enriched=2 replay_status=completed`，CCG008 current blocker 已清除；下一步是等主公確認 push，然後裁決 R-016 close / downgrade / keep-open |
+| **Current Step** | Post-P95.1C cloud verification 已完成：workflow_dispatch run `26379118247` success，strict doctor success，auto-sync `d89c3b9` 產生 2026-05-25 production report；SLO `issues=[]`、doctor 無 blocking、health PASS、budget healthy、CCG008 無 current；下一步由主公裁決 R-016 close / downgrade / keep-open |
 | **Mode** | FROZEN |
-| **Latest Verified Commit** | `05be57a`（latest pushed；P95.1C local commit 已建立，若 `git status -sb` 顯示 ahead 1 代表尚待 push） |
+| **Latest Verified Commit** | `d89c3b9`（post-P95.1C cloud auto-sync；local fast-forward complete） |
 | **Updated At** | 2026-05-25 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
-2. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure 真相；§16 記錄 P95.1C cooldown retry）
+2. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure 真相；§17 記錄 post-P95.1C cloud verification）
 3. `docs/PHASE_95_PLAN.md`（P95 R-016 closeout verification 與 keep-open 裁決）
 4. `docs/ACTIVE_OPERATION.md`（需要短版狀態時）
 
@@ -26,7 +26,7 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure 與 §16 cooldown retry |
+| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure 與 §17 cloud verification |
 | L3-prev | `docs/PHASE_95_PLAN.md` | P95 R-016 Closeout Verification 與 §14 verification 裁決 |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 仍 Open 的風險真相 |
 
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P95.1C 已完成補跑，2026-05-22 pending 已真正收斂為 completed。 |
-| **最舒服的換窗點** | P95.1C docs commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md` §16；若本地 ahead 1，先等主公 push 確認。 |
-| **不要在換窗後做的事** | 不要把 R-016 自行標記 Closed；R-016 close / downgrade / keep-open 需主公裁決。不要 stage scratch raw queue 或 git-ignored enriched_posts。 |
+| **現在能不能換視窗** | 可以。P95.1C 本地補跑與 post-P95.1C 雲端實跑都已完成。 |
+| **最舒服的換窗點** | P95.1D cloud evidence docs commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md` §17；若本地 ahead 1，先等主公 push 確認。 |
+| **不要在換窗後做的事** | 不要把 R-016 自行標記 Closed；R-016 close / downgrade / keep-open 需主公裁決。不要把 R-017 前台內容可信度問題混入 R-016。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
 | **Current Phase** | P95.1D（FROZEN / PENDING USER DECISION） |
-| **Current Step** | P95.1C retry complete；2026-05-22 manifest now `replay_status=completed` / `eligible_posts=2` / `enriched_posts=2`；local commit 已建立；等待 push 與 R-016 裁決 |
-| **Allowed Files** | P95.1C documentation closeout / commit / push；P95.1D 只可在主公裁決後更新 R-016 close / downgrade / keep-open |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不把 R-016 標記 Closed，除非主公明確裁決；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P95.1C docs 已記錄 completed manifest delta、probes、tests；phase lint / handoff truth / governance doctor / diff check 已通過；local commit 已完成，等主公確認 push |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md` §16；若本地 ahead 1，先等主公 push；若已同步 origin，下一步是請主公裁決 R-016 close / downgrade / keep-open，或先跑 post-2026-05-25 Daily Monitor 補雲端證據 |
+| **Current Step** | P95.1C retry complete + post-P95.1C cloud verification complete；2026-05-25 manifest is production/publishable, budget healthy, provider routing disabled, CCG008 residual only；等待 R-016 裁決 |
+| **Allowed Files** | P95.1D cloud evidence documentation / commit / push；R-016 close/downgrade/keep-open 只可在主公裁決後更新 |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不把 R-016 標記 Closed，除非主公明確裁決；不把 R-017 前台內容可信度問題混入 R-016；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P95.1D docs 已記錄 run `26379118247`、auto-sync `d89c3b9`、strict doctor success、2026-05-25 probes；local commit 完成後等主公確認 push |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md` §17；若本地 ahead 1，先等主公 push；若已同步 origin，下一步是請主公裁決 R-016 close / downgrade / keep-open |
 
 ## Required Verification Commands
 
