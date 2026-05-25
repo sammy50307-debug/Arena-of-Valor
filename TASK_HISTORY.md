@@ -11753,3 +11753,239 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
   - 完成 P95.1B docs validation / commit。
   - push 仍需主公明確確認。
   - 等 `2026-05-25 00:20:27 +08:00` 後，另行進 P95.1C cooldown retry。
+
+---
+
+### Phase 95.1C - Cooldown Retry Completed（2026-05-25）
+
+**目標**：
+- 在 P95.1B 因 `cooldown_active` 安全擋下後，等 cooldown 到期再補跑 2026-05-22 enrichment queue 中剩餘的 2 筆 eligible。
+- 讓 P95.1 的核心 pending 線頭真正收斂：
+  - 不靠三日窗時間衰減。
+  - 不靠 CCG008 classification 粉飾。
+  - 不 bypass budget guard。
+  - 不把 raw queue / raw post / enriched content 寫入 git。
+- 完成後重跑 governance / doctor / SLO / health / tests，交付 R-016 裁決前證據。
+
+**觸發**：
+- 主公於 2026-05-25 回覆「核准」P95.1C cooldown retry。
+- AI 依 handoff 規則先查證：
+  - local time：`2026-05-25 09:33:22 +08:00`
+  - cooldown_until：`2026-05-25 00:20:27 +08:00`
+  - 結論：已過 cooldown。
+  - `git fetch origin`：無新分岔。
+  - `git status --short --branch`：`main...origin/main`，無 tracked dirty；舊 untracked reports / scratch / skill temp dirs 仍未納入。
+  - latest commit：`05be57a docs: 記錄 P95.1B apply replay cooldown`
+  - queue path 存在：
+    - `scratch/p95_1a_artifact_26285001843/extracted/2026-05-22/enrichment_queue.json`
+
+**稽核表**：
+- 影響半徑：
+  - 追蹤變更 6 檔：
+    - `data/runs/2026-05-22/run_manifest.json`
+    - `docs/PHASE_95_1_PLAN.md`
+    - `NEXT_SESSION_HANDOFF.md`
+    - `docs/ACTIVE_OPERATION.md`
+    - `docs/RISK_REGISTRY.md`
+    - `TASK_HISTORY.md`
+  - git-ignored runtime output：
+    - `data/enrichment_queue/2026-05-22/enriched_posts.json`
+  - 標準子 Phase：S + A 必過；因涉及 LLM budget 與 replay output，Cost / Privacy / DevOps 也納入。
+- Code：
+  - N/A，未修改 Python source。
+  - 使用既有 `scripts/enrichment_replay.py`。
+- Logic：
+  - 先 dry-run，再 apply。
+  - replay outcome 由既有 queue validator / budget guard / analyzer path 決定。
+- Architecture：
+  - 不改 provider routing / workflow / analyzer 架構。
+  - 不啟用 Groq / Cloudflare / GitHub Models。
+- Testing：
+  - Focused tests：`32 passed in 0.99s`。
+  - Full pytest：`288 passed in 9.30s`。
+- Data：
+  - 只提交 raw-free manifest snapshot。
+  - `enriched_posts.json` 只留本地 git-ignored，不 stage。
+- Observability：
+  - Phase plan 新增 §16 P95.1C Cooldown Retry 補遺。
+  - Handoff / active operation / risk registry / TASK_HISTORY 同步。
+- Resilience：
+  - P95.1B 不 bypass cooldown。
+  - P95.1C 等 cooldown 到期後 retry，符合 P90 guard。
+- Performance：
+  - N/A，未改 hot path。
+- UX/A11y：
+  - N/A，未改 report UI。
+  - 主公提到的「芽芽觀察室變圖倫 / 舊文章」屬前台內容可信度，另列 R-017 / P96+，不混入 R-016。
+- Security：
+  - 未新增 secrets / PAT / provider keys。
+  - 未新增 GitHub Actions `models: read`。
+  - 未輸出 raw post content。
+- DevOps：
+  - push 前已 fetch；無遠端分岔。
+  - push 仍需主公另行確認。
+- Cost：
+  - dry-run 顯示 `remaining_budget=20`。
+  - apply 成功補跑 2 筆，manifest 記錄 `budget_decision=call_llm` / `budget_reason=budget_available`。
+- Maintainability：
+  - 文件保留 P95.1B skipped_budget → P95.1C completed 的狀態轉移。
+- Documentation：
+  - 同步五份治理文件與 TASK_HISTORY。
+- Process：
+  - R-016 不自動 close；close / downgrade / keep-open 需主公裁決。
+- Privacy：
+  - raw queue 路徑只記 metadata/path/count。
+  - 不貼 raw content。
+- i18n：
+  - cooldown 用 UTC 與 Asia/Taipei 對齊，避免日期誤判。
+
+**物理真相**：
+- Dry-run command：
+  ```powershell
+  py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json
+  ```
+- Dry-run output：
+  ```text
+  DRY-RUN: eligible=2 will_replay=2 remaining_budget=20 status=dry_run
+  ```
+- Apply command：
+  ```powershell
+  py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json --apply
+  ```
+- Apply output：
+  ```text
+  OK: enrichment replay completed; enriched=2/2; manifest=D:\Coding Project\Arena of Valor\data\runs\2026-05-22\run_manifest.json
+  ```
+- Manifest delta from P95.1B to P95.1C：
+  - `enrichment.enriched_posts`
+    - Before：`0`
+    - After：`2`
+  - `enrichment.replay_status`
+    - Before：`skipped_budget`
+    - After：`completed`
+  - `enrichment.budget_decision`
+    - Before：`skip_llm`
+    - After：`call_llm`
+  - `enrichment.budget_reason`
+    - Before：`cooldown_active`
+    - After：`budget_available`
+  - `enrichment.budget_remaining`
+    - Before：`15`
+    - After：`20`
+  - `enrichment.cooldown_active`
+    - Before：`true`
+    - After：`false`
+- Generated local ignored output：
+  - `data/enrichment_queue/2026-05-22/enriched_posts.json`
+  - Size：`2942`
+  - `git check-ignore -v`：
+    - `.gitignore:25:data/*`
+  - Status：git-ignored，not staged。
+- Cost governance：
+  ```powershell
+  py scripts\cost_cache_governance.py --repo-root . --date 2026-05-24 --window-days 3 --json
+  ```
+  - Exit：`0`
+  - 2026-05-22：
+    - `enrichment_replay_status=completed`
+    - `enrichment_eligible_posts=2`
+    - `enrichment_enriched_posts=2`
+  - Issues：
+    - `CCG006 current`：2026-05-24 cooldown active。
+    - `CCG007 residual`：selection throttle。
+    - `CCG008 residual`：2026-05-23 / 2026-05-24 no_eligible。
+  - 明確變化：
+    - `CCG008 current` for 2026-05-22 removed。
+- System doctor：
+  ```powershell
+  py scripts\system_doctor.py --repo-root . --date 2026-05-24 --profile ci --require-production
+  ```
+  - Exit：`0`
+  - Current advisories：
+    - `DOC007 current`
+    - `DOC017 current`
+  - Residual advisories：
+    - `DOC018 residual`
+    - `DOC019 residual`
+  - Blocking：none。
+- SLO checker：
+  ```powershell
+  py scripts\slo_checker.py --repo-root . --date 2026-05-24 --window-days 5 --json
+  ```
+  - Exit：`0`
+  - `issues=[]`
+  - `doctor_blocking_days=0`
+  - `doctor_degraded_days=0`
+- Daily report health：
+  ```powershell
+  py scripts\check_daily_report_health.py --repo-root . --date 2026-05-24 --expected-mode production
+  ```
+  - Exit：`0`
+  - canonical report：PASS。
+  - landing：PASS。
+  - core contract：PASS。
+  - quality tier：`production_local_only`
+  - analysis_source：`local_deterministic`
+  - llm_coverage：`none`
+- Tests：
+  - Focused：
+    ```powershell
+    py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
+    ```
+    - `32 passed in 0.99s`
+  - Full：
+    ```powershell
+    py -m pytest -q
+    ```
+    - `288 passed in 9.30s`
+- 明確未修改：
+  - `.github/workflows/daily_report.yml`
+  - `main.py`
+  - provider router / clients / configs
+  - `scripts/enrichment_replay.py`
+  - `scripts/cost_cache_governance.py`
+  - `tests/test_cost_cache_governance.py`
+  - secrets / env
+  - raw queue / scratch artifact
+  - unrelated untracked reports / skill temp dirs
+
+**風險**：
+- R-016 不應由 AI 自行 close：
+  - P95.1C 已清除 2026-05-22 CCG008 current blocker。
+  - 但 R-016 是治理風險，close / downgrade / keep-open 仍需主公明確裁決。
+- 最新 production day 仍有 2026-05-24 cooldown advisory：
+  - 這不阻擋 P95.1C，但影響「是否立即 close R-016」的保守程度。
+  - 若追求完美收尾，建議 push 後手動 dispatch post-2026-05-25 Daily Monitor，補最新雲端證據。
+- 前台內容可信度問題不可混入 R-016：
+  - 主公回報「芽芽觀察室變圖倫觀察室」與「舊文章」問題，屬 R-017 / P96+ Website Content Trust Program。
+  - 若混入 P95.1，會讓後端可靠性收尾與前台內容修復互相打架。
+- `enriched_posts.json` 是本地 git-ignored 產物：
+  - 不得 stage。
+  - 不得把 raw content 複製到 TASK_HISTORY。
+
+**狀態**：
+- ✅ P95.1C cooldown retry 已依主公核准執行。
+- ✅ Dry-run PASS：
+  - `eligible=2`
+  - `will_replay=2`
+  - `remaining_budget=20`
+- ✅ Apply PASS：
+  - `enriched=2/2`
+- ✅ 2026-05-22 manifest 已從 `skipped_budget` 轉 `completed`。
+- ✅ `CCG008 current` 已清除。
+- ✅ SLO checker：`issues=[]`。
+- ✅ System doctor：無 blocking。
+- ✅ Daily report health：canonical / landing / core contract PASS。
+- ✅ Focused tests：`32 passed`。
+- ✅ Full pytest：`288 passed`。
+- ✅ Provider routing / workflow / secrets 未動。
+- ✅ Raw artifact / raw queue / enriched_posts 未 stage。
+- 🔴 R-016 仍 Open，待主公裁決。
+- ⏭️ 下一步：
+  - 完成 P95.1C docs validation / commit。
+  - push 仍需主公明確確認。
+  - 之後請主公裁決：
+    - `Close R-016`
+    - `Downgrade R-016 to monitoring`
+    - `Keep R-016 Open`
+  - 若主公要最保守雲端證據，push 後手動 dispatch post-2026-05-25 Daily Monitor，再讀 artifact / manifest 後裁決。

@@ -500,3 +500,85 @@ Budget state:
 | `py scripts\system_doctor.py --repo-root . --date 2026-05-24 --profile ci --require-production` | PASS exit 0；無 blocking，DOC017 current cooldown |
 | `py scripts\slo_checker.py --repo-root . --date 2026-05-24 --window-days 5 --json` | PASS exit 0；`issues=[]`、`doctor_blocking_days=0` |
 | `py scripts\check_daily_report_health.py --repo-root . --date 2026-05-24 --expected-mode production` | PASS exit 0；canonical / landing / core contract PASS |
+
+---
+
+## 16. Phase P95.1C Cooldown Retry 補遺（2026-05-25）
+
+> 主公於 2026-05-25 核准 P95.1C cooldown retry。AI 先確認已過 `2026-05-25 00:20:27 +08` cooldown 截止時間、遠端無分岔、queue 檔仍在，再依 P95.1A artifact queue 執行 dry-run 與 apply。本節只記錄 raw-free manifest / command / probe 結果，不輸出 raw post content，不 stage scratch artifact / raw queue / git-ignored enriched output。
+
+### 16.1 Entry Evidence
+
+| 欄位 | 結果 |
+|---|---|
+| local time | `2026-05-25 09:33:22 +08:00` |
+| cooldown_until_taipei | `2026-05-25 00:20:27 +08:00` |
+| git status | `main...origin/main`，無 tracked dirty；既有 untracked reports / scratch 仍未納入 |
+| latest commit | `05be57a docs: 記錄 P95.1B apply replay cooldown` |
+| queue path | `scratch/p95_1a_artifact_26285001843/extracted/2026-05-22/enrichment_queue.json` |
+| queue exists | `true` |
+
+Dry-run:
+
+```powershell
+py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json
+```
+
+Output:
+
+```text
+DRY-RUN: eligible=2 will_replay=2 remaining_budget=20 status=dry_run
+```
+
+### 16.2 Apply Replay Evidence
+
+Command:
+
+```powershell
+py scripts\enrichment_replay.py --date 2026-05-22 --queue-path scratch\p95_1a_artifact_26285001843\extracted\2026-05-22\enrichment_queue.json --apply
+```
+
+Output:
+
+```text
+OK: enrichment replay completed; enriched=2/2; manifest=D:\Coding Project\Arena of Valor\data\runs\2026-05-22\run_manifest.json
+```
+
+Manifest delta from P95.1B to P95.1C (`data/runs/2026-05-22/run_manifest.json`):
+
+| 欄位 | P95.1B | P95.1C |
+|---|---|---|
+| enrichment.enriched_posts | `0` | `2` |
+| enrichment.replay_status | `skipped_budget` | `completed` |
+| enrichment.budget_decision | `skip_llm` | `call_llm` |
+| enrichment.budget_reason | `cooldown_active` | `budget_available` |
+| enrichment.budget_remaining | `15` | `20` |
+| enrichment.cooldown_active | `true` | `false` |
+
+Generated output:
+
+| Path | Status |
+|---|---|
+| `data/enrichment_queue/2026-05-22/enriched_posts.json` | Created locally, git-ignored by `.gitignore:25 data/*`, not staged |
+
+### 16.3 Probe Evidence After Retry
+
+| Probe | Result | Closeout impact |
+|---|---|---|
+| 2026-05-22 manifest snapshot | `replay_status=completed`、`eligible_posts=2`、`enriched_posts=2`、`budget_decision=call_llm`、`budget_reason=budget_available` | P95.1 target pending 已真正補跑完成 |
+| 2026-05-24 cost 3-day | CCG008 current removed；CCG008 residual only `2026-05-23/24 no_eligible`；CCG006 current remains for 2026-05-24 cooldown | 2026-05-22 blocker cleared；latest-day cooldown advisory remains separate |
+| 2026-05-24 doctor | DOC007 current、DOC017 current cooldown、DOC018 residual、DOC019 residual；無 blocking | production SLO 不阻擋，但 R-016 裁決仍需主公 |
+| 2026-05-24 SLO | `issues=[]`、`doctor_blocking_days=0`、`doctor_degraded_days=0` | SLO gate clean |
+| 2026-05-24 health | canonical report / landing / core contract PASS；tier=`production_local_only` | report health clean；LLM coverage remains local-only for latest report |
+| Focused tests | `32 passed in 0.99s` | SLO / doctor / cost governance tests pass |
+| Full pytest | `288 passed in 9.30s` | full regression pass |
+
+### 16.4 P95.1C Decision
+
+| 選項 | 裁決 | 理由 |
+|---|---|---|
+| Keep treating 2026-05-22 as pending | 不採用 | manifest 已 `completed` 且 `enriched_posts=2` |
+| Close R-016 automatically | 不採用 | R-016 close / downgrade / keep-open 是治理裁決，需主公明確同意 |
+| Commit P95.1C completed evidence, then ask for R-016 decision | **採用** | CCG008 blocker 已清除，但 latest 2026-05-24 cooldown advisory 與後續雲端證據仍需裁決 |
+
+**P95.1C 結論**：P95.1C 已成功補跑 2026-05-22 的 2 筆 eligible enrichment，`CCG008 current` 已清除；R-016 仍 Open，下一步是 P95.1D 由主公裁決 `Close R-016` / `Downgrade R-016` / `Keep R-016 Open`。若追求最保守完美收尾，建議 P95.1C push 後手動 dispatch post-2026-05-25 Daily Monitor，補最新雲端證據後再裁決。
