@@ -671,3 +671,48 @@ Content-trust quick sniff:
 | Keep R-016 Open | 不建議 | 目前已無 R-016 blocking evidence；繼續 Open 容易把 R-017 前台內容問題混入後端可靠性主線 |
 
 **P95.1D 結論**：Post-P95.1C cloud verification 已完成且成功。AI 建議主公裁決 `Downgrade R-016 to monitoring`，並另開 R-017 / P96+ 處理網站內容可信度（芽芽觀察室、舊文章、known issue guard）。
+
+---
+
+## 18. Phase P95.1E R-016 Downgrade Decision 補遺（2026-05-25）
+
+> 主公回覆 `push ee8bcba，核准 R-016 downgrade to monitoring`。AI 已先完成 `ee8bcba` push，接著只更新治理文件。本節不改 runtime、不新增 provider、不調整 SLO blocking 門檻。
+
+### 18.1 Push / Decision Evidence
+
+Push result for P95.1D cloud evidence docs:
+
+```text
+d89c3b9..ee8bcba  main -> main
+```
+
+Decision trigger:
+
+```text
+主公：push ee8bcba，核准 R-016 downgrade to monitoring
+```
+
+### 18.2 Decision Matrix
+
+| 選項 | 裁決 | 理由 |
+|---|---|---|
+| Close R-016 | 不採用 | 技術上可辯護，但 2026-05-24 cooldown advisory 仍在 3-day governance window，直接 close 較激進 |
+| Downgrade R-016 to monitoring | **採用** | planned blockers 已清除、cloud strict gate passed、SLO clean，同時保留 7-day observation |
+| Keep R-016 active Open | 不採用 | 目前沒有 active blocking evidence；繼續 Open 會把 R-017 前台內容可信度問題混進後端可靠性主線 |
+
+### 18.3 Monitoring Contract
+
+| 欄位 | 值 |
+|---|---|
+| Risk registry status | `Open（Monitoring）` |
+| Monitoring window | 2026-05-25～2026-06-01 |
+| Baseline evidence | P95.1D run `26379118247` success；strict doctor success；SLO `issues=[]`；health PASS；budget healthy；provider routing disabled |
+| Reopen trigger | latest production SLO issue、system doctor blocking/degraded、health FAIL、landing stale、`CCG008 current`、provider routing unexpected enabled、latest production budget/cooldown repeated blocker、Daily Monitor repeated failure |
+| Boundary | R-017 / P96 handles Website Content Trust：芽芽觀察室、舊文章、known issue guard |
+
+### 18.4 Exit / Next Program
+
+- R-016 不標 Closed；保留 Open（Monitoring）直到 2026-06-01 或主公另行裁決。
+- 下一條主線是 R-017 / P96 Website Content Trust plan。
+- P96 plan 前禁止直接改 template / report / data logic。
+- RTK 評估與安裝仍排在 R-017/P96 之後，不插隊 R-016 monitoring。

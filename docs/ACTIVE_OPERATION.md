@@ -1,4 +1,4 @@
-# ACTIVE OPERATION — R-016 Zero-Cost Reliability Program
+# ACTIVE OPERATION — R-017 Website Content Trust Program
 
 > 本檔是 L2 短版狀態真相。新視窗一般只需讀 `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`；只有 bootstrap 要求時才讀本檔。
 
@@ -6,11 +6,11 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Program** | R-016 Zero-Cost Evidence-first Reliability Program |
-| **Current Phase** | P95.1D（R-016 Decision / PENDING USER DECISION） |
-| **Current Step** | Post-P95.1C cloud verification 已完成：workflow_dispatch run `26379118247` success，strict doctor success，auto-sync `d89c3b9` 產生 2026-05-25 production report；SLO `issues=[]`、doctor 無 blocking、health PASS、budget healthy、CCG008 無 current；下一步由主公裁決 R-016 close / downgrade / keep-open |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `d89c3b9`（post-P95.1C cloud auto-sync；local fast-forward complete） |
+| **Program** | R-017 Website Content Trust Program |
+| **Current Phase** | P96（DRAFT / Website Content Trust Plan / NOT_STARTED） |
+| **Current Step** | R-016 已依主公核准降級為 monitoring：post-P95.1C cloud verification success，SLO `issues=[]`、doctor 無 blocking、health PASS、budget healthy、CCG008 無 current；下一步是開 P96 plan，處理芽芽觀察室 / 舊文章 / known issue guard |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `ee8bcba`（P95.1D cloud evidence docs 已 push；R-016 downgrade docs 尚待 commit） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-25 |
 
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P95.1D（FROZEN / PENDING USER DECISION） |
-| **Current Step** | P95.1C retry complete + post-P95.1C cloud verification complete；2026-05-25 manifest is production/publishable, budget healthy, provider routing disabled, CCG008 residual only；等待 R-016 裁決 |
-| **Allowed Files** | P95.1D cloud evidence documentation / commit / push；R-016 close/downgrade/keep-open 只可在主公裁決後更新 |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不把 R-016 標記 Closed，除非主公明確裁決；不把 R-017 前台內容可信度問題混入 R-016；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P95.1D docs 已記錄 run `26379118247`、auto-sync `d89c3b9`、strict doctor success、2026-05-25 probes；local commit 完成後等主公確認 push |
-| **Resume Rule** | 新視窗先讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_95_1_PLAN.md` §17；若本地 ahead 1，先等主公 push；若已同步 origin，下一步是請主公裁決 R-016 close / downgrade / keep-open |
+| **Current Phase** | P96（DRAFT / PLAN_REQUIRED / NOT_STARTED） |
+| **Current Step** | R-016 downgrade to monitoring approved by 主公；monitoring window 2026-05-25～2026-06-01；下一步開 R-017 / P96 Website Content Trust plan |
+| **Allowed Files** | R-016 downgrade documentation / commit / push；P96 只能先寫 plan，未核准不得動 runtime/template/data logic |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
+| **Exit Criteria** | R-016 risk registry status 已改為 `Open（Monitoring）`；handoff / active / phase plan / history 已同步 downgrade 裁決；local commit 完成後等主公確認 push |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_95_1_PLAN.md` §18；若本地 ahead 1，先等主公 push；若已同步 origin，下一步是開 P96 Website Content Trust plan |
 
 ## State Machine
 
@@ -72,14 +72,14 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 
 ## Latest Evidence
 
-P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86-P94 已完成 model/schedule、report core contract、local deterministic analyzer、quality tier、budget ledger、cache/dedupe、enrichment queue、provider disabled slots、doctor/SLO reclassification。P95 已完成 post-P95 cloud 補證。P95.1A artifact dry-run 已完成；P95.1B apply replay 因 2026-05-24 cooldown active 安全轉成 `skipped_budget`；P95.1C cooldown retry 已於 2026-05-25 09:35 +08 成功補跑，2026-05-22 manifest 現為 `replay_status=completed`、`eligible_posts=2`、`enriched_posts=2`。Post-P95.1C cloud verification：workflow_dispatch run `26379118247` success，strict doctor success，auto-sync `d89c3b9` 產生 2026-05-25 production report；2026-05-25 health PASS，SLO `issues=[]`，doctor 無 blocking，budget `cooldown_active=false` / `llm_calls_used=3` / remaining=17，provider routing disabled，CCG008 僅 residual no_eligible。R-016 仍 Open，等待主公裁決 close / downgrade / keep-open。
+P85 已把 R-016 修復方向凍結為 Evidence-first + Quality-tiered Production + LLM Enrichment Queue。P86-P94 已完成 model/schedule、report core contract、local deterministic analyzer、quality tier、budget ledger、cache/dedupe、enrichment queue、provider disabled slots、doctor/SLO reclassification。P95 已完成 post-P95 cloud 補證。P95.1A artifact dry-run 已完成；P95.1B apply replay 因 2026-05-24 cooldown active 安全轉成 `skipped_budget`；P95.1C cooldown retry 已於 2026-05-25 09:35 +08 成功補跑，2026-05-22 manifest 現為 `replay_status=completed`、`eligible_posts=2`、`enriched_posts=2`。Post-P95.1C cloud verification：workflow_dispatch run `26379118247` success，strict doctor success，auto-sync `d89c3b9` 產生 2026-05-25 production report；2026-05-25 health PASS，SLO `issues=[]`，doctor 無 blocking，budget `cooldown_active=false` / `llm_calls_used=3` / remaining=17，provider routing disabled，CCG008 僅 residual no_eligible。主公於 2026-05-25 核准 `R-016 downgrade to monitoring`；R-016 不標 Closed，保留 Open（Monitoring）至 2026-06-01，若 production SLO / doctor / CCG008 current / landing stale / provider routing 異常復發則升回 active。
 
 ## Window Switch Guidance
 
-- 可以換視窗：P95.1D cloud verification 已完成，下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_95_1_PLAN.md` §17 即可接手。
-- 最佳換窗點：P95.1D cloud evidence docs commit / push 完成後換；若本地 ahead，下一窗可直接等主公確認 push。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要自行 close R-016。
+- 可以換視窗：R-016 已降級為 monitoring；下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_95_1_PLAN.md` §18 即可接手。
+- 最佳換窗點：R-016 downgrade docs commit / push 完成後換；若本地 ahead，下一窗可直接等主公確認 push。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要重開 R-016，除非 monitoring 觸發條件命中。
 
 ## Next Decision
 
-下一步是 commit P95.1D cloud evidence docs；push 仍需主公確認。之後請主公裁決 R-016 close / downgrade / keep-open；AI 的保守建議是 `Downgrade R-016 to monitoring`，再開 R-017 / P96+ 處理芽芽觀察室與舊文章等前台內容可信度問題。
+下一步是 commit R-016 downgrade docs；push 仍需主公確認。之後開 R-017 / P96+ Website Content Trust plan，處理芽芽觀察室與舊文章等前台內容可信度問題；不得在沒有 P96 plan 的狀態下直接改 template / report / data logic。
