@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-24T08:55:01.489323+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010051+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -136,7 +136,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:34.268233+00:00",
-      "last_accessed": "2026-05-22T16:17:46.164091+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010076+00:00",
       "ttl_days": 7
     },
     "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-24T08:54:42.486873+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010064+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -2588,7 +2588,7 @@
         }
       },
       "stored_at": "2026-05-22T16:17:46.153991+00:00",
-      "last_accessed": "2026-05-23T10:14:23.577243+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010036+00:00",
       "ttl_days": 7
     },
     "prompt:953664bddd24fb3cf3bb85b3e5629a49": {
@@ -2620,7 +2620,7 @@
         }
       },
       "stored_at": "2026-05-22T16:17:47.479125+00:00",
-      "last_accessed": "2026-05-23T10:14:23.571723+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010100+00:00",
       "ttl_days": 7
     },
     "prompt:6695126c50d5c7fb0f0c77c715e2cd3a": {
@@ -2647,7 +2647,7 @@
         }
       },
       "stored_at": "2026-05-22T16:17:48.665952+00:00",
-      "last_accessed": "2026-05-23T10:14:30.213756+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010112+00:00",
       "ttl_days": 7
     },
     "prompt:028d939e48a60bdefd8f3c41ea726781": {
@@ -2768,7 +2768,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:25.190987+00:00",
-      "last_accessed": "2026-05-23T10:14:25.190987+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010088+00:00",
       "ttl_days": 7
     },
     "prompt:5fb489b035e87250da966e424aeb2e46": {
@@ -2822,7 +2822,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:44.267694+00:00",
-      "last_accessed": "2026-05-23T10:14:44.267694+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010124+00:00",
       "ttl_days": 7
     },
     "prompt:3d6fb30faa35e7588d5acf9828a4a1a6": {
@@ -2855,7 +2855,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:58.395581+00:00",
-      "last_accessed": "2026-05-24T08:54:42.486910+00:00",
+      "last_accessed": "2026-05-25T01:51:53.010140+00:00",
       "ttl_days": 7
     },
     "prompt:3310779ee0ebe63bb3cfbcefa2e862b4": {
@@ -3695,12 +3695,63 @@
       "stored_at": "2026-05-24T08:55:04.982740+00:00",
       "last_accessed": "2026-05-24T08:55:04.982740+00:00",
       "ttl_days": 7
+    },
+    "prompt:6d884e2cd4b0831c3f39156bd9240d26": {
+      "result": {
+        "reasoning": "該貼文為遊戲實況主娘子的影片標題與內容摘要，主要討論5/21版本更新後史蘭茲的強度調整，並邀請觀眾討論，屬於正常的遊戲內容創作與社群互動。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "傳說對決",
+          "史蘭茲",
+          "娘子",
+          "版本更新",
+          "英雄調整"
+        ],
+        "summary": "實況主娘子針對5/21版本更新中史蘭茲的增強進行實戰分析與討論。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "5/21不停機更新",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-25T01:52:13.390423+00:00",
+      "last_accessed": "2026-05-25T01:52:13.390423+00:00",
+      "ttl_days": 7
+    },
+    "prompt:f695f4a74711dcb6ece91478ae4cf7d0": {
+      "result": {
+        "reasoning": "該貼文為典型的遊戲帳號交易或代儲服務的廣告推廣，旨在引導玩家前往外部平台進行交易，並非正常的玩家遊戲心得分享。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "帳號交易",
+          "代儲",
+          "廣告"
+        ],
+        "summary": "此貼文為遊戲帳號交易平台的廣告推廣資訊。",
+        "relevance_score": 0.2,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-25T01:52:14.735947+00:00",
+      "last_accessed": "2026-05-25T01:52:14.735947+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
     "total_l2_hits": 39,
     "total_apify_hits": 0,
-    "total_misses": 54
+    "total_misses": 56
   }
 }
