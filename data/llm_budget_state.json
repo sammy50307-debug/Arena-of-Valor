@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "billing_truth": "pipeline proxy only; not provider billing truth",
-  "updated_at_utc": "2026-05-24T10:20:27Z",
+  "updated_at_utc": "2026-05-25T01:52:14Z",
   "retention_days": 14,
   "days": {
     "2026-05-22": {
@@ -35,6 +35,17 @@
       "cooldown_until_utc": "2026-05-24T16:20:27Z",
       "quota_error_count": 1,
       "last_quota_error_at_utc": "2026-05-24T10:20:27Z",
+      "budget_exhausted": false
+    },
+    "2026-05-25": {
+      "date": "2026-05-25",
+      "max_daily_llm_calls": 20,
+      "llm_calls_used": 3,
+      "cooldown_active": false,
+      "cooldown_reason": "",
+      "cooldown_until_utc": "",
+      "quota_error_count": 0,
+      "last_quota_error_at_utc": "",
       "budget_exhausted": false
     }
   }
