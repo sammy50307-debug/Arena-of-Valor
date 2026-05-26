@@ -13004,3 +13004,133 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P97 plan freeze 已本地更新。
 - ⏳ 尚待 lint / handoff truth / governance doctor / diff check。
 - ⏭️ 下一步：跑 checks，commit P97 freeze docs；push 仍需主公確認。
+
+#### P97 evaluation runtime — RTK Token Savings Evaluation（2026-05-27）
+
+**觸發**：
+- 主公核准：
+  - `push 2d45f28 推完後再走：核准 P97 evaluation runtime。`
+- 前置狀態：
+  - `2d45f28 docs: 凍結 P97 RTK evaluation plan` 已推送。
+  - P97 plan 已 FROZEN。
+  - R-018 Open，RTK 尚未安裝、尚未初始化、尚未接入全域。
+
+**Runtime 邊界**：
+- 允許：
+  - 下載 RTK release binary 到 `scratch/rtk_eval/`。
+  - 驗證 checksum。
+  - 跑 `rtk --version` / `rtk gain` / `rtk telemetry status`。
+  - 跑 `rtk init --codex --dry-run -v`。
+  - 做 raw vs RTK baseline。
+- 禁止：
+  - 不執行非 dry-run `rtk init`。
+  - 不把 RTK 加入 PATH。
+  - 不改 shell profile。
+  - 不改全域 `AGENTS.md` / `CLAUDE.md` / `GEMINI.md`。
+  - 不改 GitHub Actions / Daily Monitor。
+  - 不 stage `scratch/rtk_eval/`。
+
+**官方 / release 物理真相**：
+- GitHub latest release API：
+  - `tag_name = v0.42.0`
+  - `published_at = 2026-05-24T15:42:11Z`
+  - `prerelease = false`
+- Windows asset：
+  - `rtk-x86_64-pc-windows-msvc.zip`
+- Checksum：
+  - expected：`527552ec419988ff4a862415ba28d5aa7c1148ef3dc926ae11a4c133e63a7491`
+  - actual：`527552ec419988ff4a862415ba28d5aa7c1148ef3dc926ae11a4c133e63a7491`
+  - verdict：PASS
+- Binary：
+  - `scratch/rtk_eval/bin/rtk.exe`
+  - `rtk --version` -> `rtk 0.42.0`
+- 全域安裝狀態：
+  - `Get-Command rtk` runtime 前後皆 `NOT_FOUND`。
+
+**Dry-run 物理真相**：
+- Command：
+  - `.\scratch\rtk_eval\bin\rtk.exe init --codex --dry-run -v`
+- Would-change：
+  - `[dry-run] would create RTK.md: RTK.md`
+  - `[dry-run] would add @RTK.md reference to AGENTS.md: AGENTS.md`
+  - `[dry-run] Nothing written.`
+- Git tracked diff：
+  - `git status --porcelain=v1 --untracked-files=no` before：empty。
+  - 同 command after：empty。
+  - verdict：dry-run 沒寫 tracked repo files。
+- 裁決：
+  - 真正 `rtk init --codex` 會修改專案 instruction，因此 P97 不套用。
+
+**Telemetry / local residue 物理真相**：
+- Environment：
+  - `RTK_TELEMETRY_DISABLED=1`
+- `rtk telemetry status`：
+  - `consent: never asked`
+  - `enabled: no`
+  - `env override: RTK_TELEMETRY_DISABLED=1 (blocked)`
+  - `device hash: (no salt file)`
+- RTK runtime 副作用：
+  - `C:\Users\sammy\AppData\Local\rtk\history.db`
+  - `C:\Users\sammy\AppData\Local\rtk\.hook_warn_last`
+- Cleanup：
+  - P97 保存 evidence 後精確移除上述兩檔。
+  - `C:\Users\sammy\AppData\Local\rtk` cleanup 後不存在。
+
+**Baseline matrix（raw vs RTK）**：
+
+| Sample | Raw chars | RTK chars | Savings | Exit match | 裁決 |
+|---|---:|---:|---:|---|---|
+| `git status --short --branch` | 1132 | 1131 | 0.1% | true | PASS but no practical savings |
+| `git log -20 --oneline --decorate` | 1097 | 1097 | 0.0% | true | PASS but no savings |
+| `git grep -n -E P97\|R-018\|RTK -- docs NEXT_SESSION_HANDOFF.md` | 15654 | 15654 | 0.0% | true | PASS but no savings |
+| `Get-Content docs\PHASE_97_PLAN.md -TotalCount 180` vs `rtk read docs\PHASE_97_PLAN.md` | 12842 | 14664 | -14.2% | true | FAIL for savings |
+| `py -m pytest -q tests\test_report_content_trust_checker.py` vs `rtk pytest ...` | 100 | 17 | 83.0% | true | PASS; useful narrow lane |
+| `py -m pytest -q tests\__p97_rtk_missing_file__.py` vs `rtk pytest ...` | 98 | 27 | 72.4% | true | WARNING; missing path detail lost |
+
+**Failure diagnostics 物理真相**：
+- Missing file sample：
+  - raw stderr：`ERROR: file or directory not found: tests\__p97_rtk_missing_file__.py`
+  - RTK stdout：`Pytest: No tests collected`
+  - verdict：exit code preserved，但 actionable path 被壓掉。
+- Python traceback sample：
+  - raw stderr 包含：`RuntimeError: RTK_EVAL_SENTINEL_FAILURE stack trace marker`
+  - `rtk err py -c ...` stderr 變成：`RuntimeError: No active exception to reraise`
+  - `rtk proxy py -c ...` 保留 raw sentinel。
+  - verdict：`rtk err` 不可用於 Windows/PowerShell Python inline failure diagnostics。
+
+**文件更新**：
+- 新增：
+  - `docs/PHASE_97_RTK_EVALUATION.md`
+- 修改：
+  - `docs/PHASE_97_PLAN.md`
+    - 狀態改為 `CLOSED / INSTALL BLOCKED`。
+    - 新增 P97 runtime 實測裁決。
+    - evaluation runtime exit criteria 全數完成，其中 failure diagnostics 為驗證完成但結果 FAIL，故阻擋部署。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 `P97（CLOSED / RTK Evaluation Runtime Complete / INSTALL BLOCKED）`。
+    - 下一步改為可選 P98 manual-prefix pilot。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 P97 CLOSED / install blocked。
+  - `docs/RISK_REGISTRY.md`
+    - R-018 狀態改為 `Open（P97 CLOSED / INSTALL BLOCKED；尚未安裝，尚未初始化）`。
+    - 補入 failure diagnostics 真實風險與 P98 限制。
+  - `TASK_HISTORY.md`
+    - 追加本段 P97 runtime 物理真相。
+
+**P97 final 裁決**：
+- 不全域部署 RTK。
+- 不執行 `rtk init --codex`。
+- 不把 `@RTK.md` 寫入 AOV `AGENTS.md`。
+- 不把 RTK 加入 PATH。
+- 不用 RTK 壓縮 unknown debug failure、traceback、missing file、security-sensitive output。
+- 若主公想繼續 RTK，只能另開 P98 project-local/manual-prefix pilot，且限定已知 noisy passing tests；debug 必須 raw 或 `rtk proxy`。
+
+**狀態**：
+- ✅ P97 evaluation runtime 已完成。
+- ✅ RTK binary checksum PASS。
+- ✅ dry-run 無 tracked writes。
+- ✅ telemetry disabled。
+- ✅ local AppData residue 已清除。
+- ⚠️ failure diagnostics fidelity 未通過，因此 install/global deployment blocked。
+- ⏳ 尚待 lint / handoff truth / governance doctor / diff check。
+- ⏭️ 下一步：commit P97 runtime closeout docs；push 仍需主公確認。

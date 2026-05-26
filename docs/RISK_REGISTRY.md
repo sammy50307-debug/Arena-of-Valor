@@ -22,12 +22,19 @@
 
 - **來源**：主公 2026-05-26 要求評估 RTK；RTK 是會壓縮 / 改寫 CLI 輸出的 token-saving 工具，可能影響 Codex / Claude / Gemini 的終端真相。
 - **風險級**：🔴 高
-- **狀態**：Open（P97 FROZEN；尚未安裝，尚未初始化）
-- **描述**：RTK 可能降低 terminal output token 成本，但它位於 AI 與命令輸出之間，若壓縮掉 traceback、測試失敗細節、警告或 security-relevant output，AI 可能做出錯誤判斷。全域部署還會影響所有專案與多代理行為；Windows 原生 hook 能力與官方宣稱 savings 也可能有落差。
+- **狀態**：Open（P97 CLOSED / INSTALL BLOCKED；尚未安裝，尚未初始化）
+- **描述**：RTK 可能降低 terminal output token 成本，但它位於 AI 與命令輸出之間，若壓縮掉 traceback、測試失敗細節、警告或 security-relevant output，AI 可能做出錯誤判斷。P97 runtime 已證實此風險不是理論：Windows/PowerShell 下 `rtk pytest` 會壓掉 missing file path，`rtk err py -c ...` 會遺失 sentinel error message。全域部署還會影響所有專案與多代理行為；Windows 原生 hook 能力與官方宣稱 savings 也可能有落差。
 - **緩解策略**：
-  - 短期：開 P97 evaluation plan；只允許官方資料查證、本機盤點、dry-run 設計，不安裝、不初始化、不全域部署。
-  - 中期：若主公核准 runtime，先做 project-local / isolated binary 評估，量測 savings、failure readability、telemetry status、rollback path。
-  - 長期：只有在實測收益高且不損失 debug fidelity 時，另開 P98 討論是否全域部署。
+  - 短期：P97 已完成 isolated binary 評估；不安裝、不初始化、不全域部署，不把 `@RTK.md` 寫入 AOV `AGENTS.md`。
+  - 中期：若主公想繼續，只能另開 P98 project-local/manual-prefix pilot；限制在已知 noisy passing tests，debug / traceback / missing file / security-sensitive output 必須 raw 或 `rtk proxy`。
+  - 長期：只有在 P98 證明收益穩定且 failure fidelity 不退化時，才可重新討論全域部署；目前 global deployment blocked。
+- **最新證據（2026-05-27）**：
+  - RTK latest release `v0.42.0` Windows zip checksum PASS；binary 僅位於 `scratch/rtk_eval/bin/rtk.exe`。
+  - `Get-Command rtk` runtime 前後皆 `NOT_FOUND`，未加入 PATH。
+  - `rtk init --codex --dry-run -v` would create `RTK.md` and patch `AGENTS.md` with `@RTK.md`；tracked diff before/after empty，未套用。
+  - Baseline：pytest pass 省 83.0%，pytest missing file 省 72.4%；Git/search 類 0-0.1%；`rtk read` 對 P97 plan 樣本為 -14.2%。
+  - Failure diagnostics：missing file path 被壓成 `Pytest: No tests collected`；Python sentinel traceback 被 `rtk err` 改成 `RuntimeError: No active exception to reraise`；`rtk proxy` 保留 raw traceback。
+  - Telemetry：`RTK_TELEMETRY_DISABLED=1 (blocked)`；runtime 產生的 local AppData `history.db` / `.hook_warn_last` 已清除。
 - **觸發升級**：若未經核准出現 RTK binary、PATH/profile/hook 被修改、AGENTS/CLAUDE/GEMINI 被 RTK patch、telemetry 未關閉、或任何測試錯誤因 RTK 壓縮而被漏判 → 升為 active blocking，立即回滾並寫 Postmortem。
 
 ---
