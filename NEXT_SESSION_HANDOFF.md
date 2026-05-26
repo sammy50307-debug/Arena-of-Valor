@@ -6,20 +6,20 @@
 | 欄位 | 內容 |
 |---|---|
 | **Status** | ACTIVE |
-| **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（CLOSED / R-017 Website Content Trust Monitoring） |
-| **Current Step** | 主公已核准 `R-017 downgrade to monitoring`；R-017 保留 Open（Monitoring）至 2026-06-02；待本裁決文件 commit / push 後可轉入下一 Program（RTK 評估或主公指定任務） |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `9d998c2` 已推送；cloud report commit `0618717` content trust checker 全 PASS |
+| **Program** | R-018 RTK Token Savings Evaluation Program |
+| **Current Phase** | P97（DRAFT / RTK Token Savings Evaluation Plan） |
+| **Current Step** | P97 evaluation plan draft 已建立；只允許評估，不安裝 RTK、不執行 `rtk init`、不改全域規則；等待主公審核是否 `核准 P97 plan freeze` |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `6c4880c` 已推送；R-017 Open（Monitoring）至 2026-06-02 |
 | **Updated At** | 2026-05-26 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_96_PLAN.md`（P96 Website Content Trust plan/runtime status）
-4. `docs/PHASE_96_EVIDENCE_INVENTORY.md`（P96.0 raw-free evidence matrix）
-5. `docs/PHASE_95_1_PLAN.md`（R-016 monitoring 裁決來源：§18 downgrade decision）
+3. `docs/PHASE_97_PLAN.md`（P97 RTK evaluation plan）
+4. `docs/RISK_REGISTRY.md` 的 R-018 / R-017（RTK toolchain risk；content trust monitoring）
+5. `docs/PHASE_96_PLAN.md`（P96 已收官；R-017 monitoring 裁決來源）
 
 ## Current Source Of Truth
 
@@ -27,30 +27,29 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_96_PLAN.md` | P96 Website Content Trust plan/runtime status |
-| L3-evidence | `docs/PHASE_96_EVIDENCE_INVENTORY.md` | P96.0 evidence inventory / fail-before |
-| L3-prev | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure、§17 cloud verification、§18 downgrade decision |
-| L4 | `docs/RISK_REGISTRY.md` 的 R-017 / R-016 | R-017 content trust；R-016 monitoring / reopen triggers |
+| L3 | `docs/PHASE_97_PLAN.md` | P97 RTK evaluation plan |
+| L3-prev | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
+| L4 | `docs/RISK_REGISTRY.md` 的 R-018 / R-017 / R-016 | RTK tooling risk；content trust monitoring；backend monitoring |
 
 ## Window Switch Timing
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P96 已收官，R-017 已降級 monitoring；若本地 ahead 1，下一窗可直接等主公確認 push downgrade docs。 |
-| **最舒服的換窗點** | R-017 downgrade docs commit / push 完成後換。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 若 local ahead 1 是 R-017 monitoring docs，先等主公 push。 |
-| **不要在換窗後做的事** | 不要重開 R-016 或 R-017，除非 monitoring 觸發條件命中；不要重做 P96 plan/evidence；不要把 P96 說成全站永不再壞。 |
+| **現在能不能換視窗** | 可以。P97 只是 draft plan；若本地 ahead 1，下一窗可直接等主公確認 push P97 plan docs。 |
+| **最舒服的換窗點** | P97 plan draft commit / push 完成，等待主公裁決是否 freeze。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_97_PLAN.md`。 |
+| **不要在換窗後做的事** | 不要安裝 RTK；不要執行 `rtk init`；不要改全域 AGENTS/CLAUDE/GEMINI；不要把 RTK 接進 Daily Monitor。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P96（CLOSED / R-017_CONTENT_TRUST_MONITORING） |
-| **Current Step** | R-017 已由 active content-trust risk 降級 Open（Monitoring）；觀察窗 2026-05-26～2026-06-02 |
-| **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | ✅ focused tests pass；✅ content trust checker fail-before/pass-after；✅ cloud report `0618717` PASS；✅ R-017 monitoring 裁決已取得；待本裁決文件 commit/push |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/RISK_REGISTRY.md` 的 R-017；若 downgrade docs 已 push，下一步可開 RTK 評估 Program 或主公指定任務 |
+| **Current Phase** | P97（DRAFT / RTK_EVALUATION_PLAN） |
+| **Current Step** | 建立 P97 plan draft；等待 lint / governance checks / commit，接著請主公決定是否 push 與 freeze |
+| **Allowed Files** | P97 plan scope：`docs/PHASE_97_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不安裝 RTK；不執行 `rtk init`；不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI；不啟用 telemetry；不改 GitHub Actions / Daily Monitor；不 git push，除非主公明確確認 |
+| **Exit Criteria** | `docs/PHASE_97_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-018 Open；plan draft committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_97_PLAN.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 plan docs，等待主公 push；若已推，下一步是 `核准 P97 plan freeze` |
 
 ## Required Verification Commands
 
