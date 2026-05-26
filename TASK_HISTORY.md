@@ -12825,3 +12825,69 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **裁決**：
 - P96 runtime 已通過雲端驗證。
 - R-017 不自動標 Closed；下一步應請主公人工抽看 latest site，或明文核准 `R-017 downgrade to monitoring`。
+
+#### R-017 downgrade to monitoring — Website Content Trust（2026-05-26）
+
+**觸發**：
+- 主公下令：
+  - `push 9d998c2 然後核准 R-017 downgrade to monitoring`
+- AI 先推送：
+  - `9d998c2 docs: 記錄 P96 cloud content trust pass`
+
+**裁決內容**：
+- R-017 不標 Closed。
+- R-017 由 active Website Content Trust risk 降級為：
+  - `Open（Monitoring）`
+- 監控窗：
+  - `2026-05-26` ～ `2026-06-02`
+- 此裁決語義：
+  - P96 runtime 已通過雲端驗證。
+  - 已知的 `wrong_focus_hero_title` / `stale_article_pollution` 已有 docs + config + checker + tests。
+  - 仍保留監控，因為前台內容可信度不是一次修完就永遠不可能壞。
+
+**降級依據**：
+- GitHub Actions：
+  - AoV Daily Monitor run `26455966515`
+  - `workflow_dispatch`
+  - conclusion `success`
+  - head sha `f61628386b43a8ce0e80565de04e64375fbb4f2d`
+- Cloud auto-sync：
+  - `0618717 docs: 戰略報告自動同步 2026-05-26 14:54:58 [mode:production l1:0 l2:12 hit:92%]`
+- Content trust checker：
+  - `focus room title`: PASS
+  - `forbidden focus title`: PASS
+  - `report unknown dates`: PASS
+  - `focus recent section`: PASS
+- Manifest：
+  - `status=ok`
+  - `mode=production`
+  - `llm_calls=1`
+  - `cache_hit=12`
+  - provider routing disabled
+
+**監控期升級條件**：
+- latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題。
+- latest production report 出現 `圖倫觀察室` / 非焦點觀察室。
+- latest production report 出現 `時間未知`。
+- Top-5 / hero focus / general feed 出現不可解釋的舊文章污染。
+- `scripts/check_report_content_trust.py --repo-root . --date <latest>` FAIL。
+- checker PASS 但主公人工驗收發現內容不可信。
+
+**文件更新**：
+- `docs/RISK_REGISTRY.md`
+  - R-017 風險級由 🔴 高降為 🟡 中（Monitoring）。
+  - 狀態改為 `Open（Monitoring；2026-05-26 主公核准，觀察至 2026-06-02）`。
+  - 新增監控期與升級條件。
+- `docs/PHASE_96_PLAN.md`
+  - 標題改為 `CLOSED / R-017 MONITORING`。
+  - 狀態轉換表記錄 R-017 `Open -> Open（Monitoring）` 與 P96 runtime `VERIFIED -> CLOSED`。
+- `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md`
+  - Current Phase 改為 P96 CLOSED。
+  - Mode 改為 MONITORING。
+  - Resume Rule 改為下一步可開 RTK 評估 Program 或主公指定任務。
+
+**狀態**：
+- ✅ `9d998c2` 已推上 GitHub。
+- ✅ 主公已核准 `R-017 downgrade to monitoring`。
+- ✅ R-017 monitoring 文件已本地更新。
+- ⏭️ 下一步：跑 governance checks，commit 本段 downgrade docs；push 仍需主公確認。
