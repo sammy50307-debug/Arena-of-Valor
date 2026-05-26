@@ -82,7 +82,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:30.707385+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513152+00:00",
+      "last_accessed": "2026-05-26T14:35:41.622515+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -109,7 +109,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:31.970511+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513168+00:00",
+      "last_accessed": "2026-05-26T14:35:41.624933+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -136,7 +136,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:34.268233+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513192+00:00",
+      "last_accessed": "2026-05-26T14:35:41.627467+00:00",
       "ttl_days": 7
     },
     "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
@@ -163,7 +163,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:35.585176+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513226+00:00",
+      "last_accessed": "2026-05-26T14:35:41.632219+00:00",
       "ttl_days": 7
     },
     "prompt:76befbb8d168c291b9d7ee56421d423b": {
@@ -190,7 +190,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:36.651838+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513181+00:00",
+      "last_accessed": "2026-05-26T14:35:41.629842+00:00",
       "ttl_days": 7
     },
     "prompt:6189de4128f44c9295e549e4e89a3aa4": {
@@ -217,7 +217,7 @@
         }
       },
       "stored_at": "2026-05-20T05:57:37.977642+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513215+00:00",
+      "last_accessed": "2026-05-26T14:35:41.634599+00:00",
       "ttl_days": 7
     },
     "prompt:1008d06f8dc662092fa1690b58d1b9e1": {
@@ -2795,7 +2795,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:30.203288+00:00",
-      "last_accessed": "2026-05-25T12:05:54.513204+00:00",
+      "last_accessed": "2026-05-26T14:35:41.636942+00:00",
       "ttl_days": 7
     },
     "prompt:bcab17439c6eb565c65b8f0fa673cefa": {
@@ -3775,12 +3775,143 @@
       "stored_at": "2026-05-25T12:05:57.602997+00:00",
       "last_accessed": "2026-05-25T12:05:57.602997+00:00",
       "ttl_days": 7
+    },
+    "prompt:098779cd897b943e4366c3a9d67bb0dd": {
+      "result": {
+        "reasoning": "作者針對5/21的不停機更新進行評論，標題以『他終究被動刀了』表達對英雄削弱的關注，並透過『新版本還可以玩嗎』引發玩家對平衡性的討論，屬於中立偏向探討性質的內容。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "不停機更新",
+          "版本更新",
+          "英雄削弱",
+          "脆皮"
+        ],
+        "summary": "創作者針對5/21遊戲不停機更新後的英雄平衡性進行分析與討論。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "5/21不停機更新",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-26T14:35:34.875800+00:00",
+      "last_accessed": "2026-05-26T14:35:34.875800+00:00",
+      "ttl_days": 7
+    },
+    "prompt:959c0ae70af75093cbfa0a9d3238dc54": {
+      "result": {
+        "reasoning": "該貼文為 Facebook 貼文列表的截圖或摘要，包含帳號買賣資訊、帳號安全疑慮以及對遊戲角色性別的調侃，整體呈現社群雜亂的討論氛圍。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "社群互動",
+        "keywords": [
+          "帳號買賣",
+          "帳號安全",
+          "萊納",
+          "性別歧視"
+        ],
+        "summary": "貼文彙整了帳號買賣資訊、帳號安全諮詢以及對遊戲角色性別的討論。",
+        "relevance_score": 0.8,
+        "is_hero_focus": true,
+        "events": []
+      },
+      "stored_at": "2026-05-26T14:35:36.829723+00:00",
+      "last_accessed": "2026-05-26T14:35:36.829723+00:00",
+      "ttl_days": 7
+    },
+    "prompt:a82cb706afe9a29517062c47a9e74b5d": {
+      "result": {
+        "reasoning": "貼文內容為官方預告新英雄技能機制，屬於資訊分享性質，不帶有玩家情緒或反諷。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "角色討論",
+        "keywords": [
+          "新英雄",
+          "技能機制",
+          "靈體",
+          "傳說對決"
+        ],
+        "summary": "官方預告四位新英雄即將登場，並介紹了靈體召喚與技能變異機制。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "新英雄登場",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-26T14:35:41.615402+00:00",
+      "last_accessed": "2026-05-26T14:35:41.615402+00:00",
+      "ttl_days": 7
+    },
+    "prompt:3e67de1a8a65b19040275171ed62a75d": {
+      "result": {
+        "reasoning": "貼文標題提及『霸凌歧視人』，顯示玩家在遊戲內遭遇了負面的社交互動，屬於對遊戲社群環境的負面反饋。",
+        "sentiment": "negative",
+        "sentiment_score": 0.2,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "社群互動",
+        "keywords": [
+          "霸凌",
+          "歧視",
+          "社群環境",
+          "遊戲體驗"
+        ],
+        "summary": "玩家在傳說對決板分享關於遊戲內遭受霸凌與歧視的負面心得。",
+        "relevance_score": 0.9,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-26T14:35:55.442109+00:00",
+      "last_accessed": "2026-05-26T14:35:55.442109+00:00",
+      "ttl_days": 7
+    },
+    "prompt:ad30662420166c3d325897fadff07d01": {
+      "result": {
+        "reasoning": "貼文為官方或玩家分享的聯名活動資訊，內容客觀陳述活動延長的情報，不帶有個人情緒或反諷。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "星展銀行",
+          "聯名卡",
+          "緹莉",
+          "星夢展航",
+          "活動延長"
+        ],
+        "summary": "星展傳說對決聯名卡專屬活動延長至2026年6月30日，開卡可獲得緹莉造型。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "星展傳說對決聯名卡專屬活動",
+            "type": "合作活動"
+          }
+        ]
+      },
+      "stored_at": "2026-05-26T14:35:56.882622+00:00",
+      "last_accessed": "2026-05-26T14:35:56.882622+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 39,
+    "total_l2_hits": 46,
     "total_apify_hits": 0,
-    "total_misses": 57
+    "total_misses": 62
   }
 }
