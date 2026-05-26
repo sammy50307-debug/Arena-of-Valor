@@ -95,7 +95,7 @@ def test_decay_old_post_floored():
 
 
 def test_decay_missing_timestamp():
-    assert _compute_decay(None) == pytest.approx(1.0)
+    assert _compute_decay(None) == pytest.approx(0.3)
 
 
 def test_decay_dateonly_format():

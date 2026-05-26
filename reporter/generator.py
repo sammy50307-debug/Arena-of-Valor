@@ -56,6 +56,26 @@ def _copy_entry_with_safe_url(entry):
     return copied
 
 
+def _focus_text_evidence(entry: dict, hero_focus: str) -> bool:
+    """True only when user-visible text explicitly contains the focus hero."""
+    if not hero_focus:
+        return False
+    post = entry.get("post", entry) if isinstance(entry, dict) else {}
+    analysis = entry.get("analysis", {}) if isinstance(entry, dict) else {}
+    texts = (
+        post.get("title", ""),
+        post.get("content", ""),
+        analysis.get("summary", ""),
+    )
+    return any(hero_focus in (text or "") for text in texts)
+
+
+def _has_known_post_date(entry: dict) -> bool:
+    post = entry.get("post", entry) if isinstance(entry, dict) else {}
+    value = str(post.get("published_date") or post.get("timestamp") or "").strip()
+    return bool(value) and value.lower() not in {"unknown", "n/a", "none"} and value != "時間未知"
+
+
 class ReportGenerator:
     """將每日分析結果轉化為 HTML 報告。"""
 
@@ -89,6 +109,14 @@ class ReportGenerator:
         analyzed_posts = [_copy_entry_with_safe_url(p) for p in (analyzed_posts or [])]
 
         report_date = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
+        hero_focus_name = getattr(config, "HERO_FOCUS_NAME", "芽芽")
+        raw_hero_focus = daily_summary.get("hero_focus") if isinstance(daily_summary.get("hero_focus"), dict) else {}
+        hero_focus = {
+            "name": hero_focus_name,
+            "summary": raw_hero_focus.get("summary", "今日無特定焦點分析"),
+            "sentiment_score": raw_hero_focus.get("sentiment_score", 0.5),
+            "top_comments": raw_hero_focus.get("top_comments", []),
+        }
 
         raw_pb = daily_summary.get("platform_breakdown", {})
         platform_breakdown = {
@@ -201,16 +229,10 @@ class ReportGenerator:
                 "TH": {"summary": "數據解析中...", "hot_hero": "待確認"},
                 "VN": {"summary": "數據解析中...", "hot_hero": "待確認"}
             }),
-            "hero_focus": daily_summary.get("hero_focus", {
-                "name": getattr(config, "HERO_FOCUS_NAME", "芽芽"),
-                "summary": "今日無特定焦點分析",
-                "sentiment_score": 0.5,
-                "top_comments": []
-            }),
+            "hero_focus": hero_focus,
             "hero_focus_posts": [
                 p for p in analyzed_posts 
-                if (p.get("post", {}).get("is_hero_focus") or p.get("analysis", {}).get("is_hero_focus"))
-                or any(k in p.get("post", {}).get("content", "") for k in ["芽", "造型", "可愛", "萌"])
+                if _focus_text_evidence(p, hero_focus_name)
             ][:8],
             "posts": analyzed_posts,
             "combat_stats": combat_stats,
@@ -222,7 +244,7 @@ class ReportGenerator:
             "dynamic_alerts": dynamic_alerts,
             "overflow_alerts": overflow_alerts,
             "config": {
-                "HERO_FOCUS_NAME": getattr(config, "HERO_FOCUS_NAME", "芽芽"),
+                "HERO_FOCUS_NAME": hero_focus_name,
                 "ALERT_VOL_DELTA": getattr(config, "ALERT_VOL_DELTA", 20),
                 "ALERT_NEG_RATIO": getattr(config, "ALERT_NEG_RATIO", 30),
             }
@@ -233,19 +255,11 @@ class ReportGenerator:
         top5_yaya: list = []
         if getattr(config, "ENABLE_TOP5_NEWS", True):
             try:
-                hero = getattr(config, "HERO_FOCUS_NAME", "芽芽")
+                hero = hero_focus_name
                 bypass = daily_summary.get("_meta", {}).get("is_showcase", False)
 
                 def _is_yaya(p: dict) -> bool:
-                    post = p.get("post", p)
-                    an = p.get("analysis", {})
-                    return bool(
-                        post.get("is_hero_focus")
-                        or an.get("is_hero_focus")
-                        or hero in (post.get("title", "") or "")
-                        or hero in (post.get("content", "") or "")
-                        or hero in (an.get("summary", "") or "")
-                    )
+                    return _focus_text_evidence(p, hero) and _has_known_post_date(p)
 
                 yaya_pool = [p for p in analyzed_posts if _is_yaya(p)]
                 other_pool = [p for p in analyzed_posts if not _is_yaya(p)]
@@ -276,6 +290,9 @@ class ReportGenerator:
                 other_cards = enforce_diversity(
                     yaya_cards, other_cards, all_other_cards,
                 )
+
+                for card in yaya_cards + other_cards:
+                    card.setdefault("picker", {})["is_focus_hero_text"] = _focus_text_evidence(card, hero)
 
                 # 把最終選中的一般卡 URL 寫進 history_index
                 final_other_urls = [c["post"].get("url", "#")

@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（FROZEN / Website Content Trust Plan / RUNTIME_NOT_STARTED） |
-| **Current Step** | P96 Website Content Trust plan 已凍結；等待主公另行核准 `P96 runtime 動工`。runtime 第一動作必須是 P96.0 Evidence Inventory，不動 R-016 monitoring runtime |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | local `HEAD`（P96 plan freeze docs，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `2818b88`（P96 draft docs） |
+| **Current Phase** | P96（IN_PROGRESS / Website Content Trust Runtime） |
+| **Current Step** | P96.0 Evidence Inventory 完成；content trust minimal fix / guard 已 commit 到 local HEAD，待 push 後重新產生報告或手動 dispatch 驗證 |
+| **Mode** | IN_PROGRESS |
+| **Latest Verified Commit** | local `HEAD`（P96 runtime guard，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `61f03a1`（P96 plan freeze） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-26 |
 
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P96（FROZEN / RUNTIME_APPROVAL_REQUIRED / NOT_STARTED） |
-| **Current Step** | P96 Website Content Trust plan 已凍結；等待主公核准 `P96 runtime 動工`，未核准不得動 runtime/template/data logic |
-| **Allowed Files** | P96 freeze documentation / handoff / active / history；未核准 runtime 前不得動 runtime/template/data logic |
+| **Current Phase** | P96（IN_PROGRESS / CONTENT_TRUST_RUNTIME） |
+| **Current Step** | P96.0 evidence 完成；minimal fix、known issue memory、checker/tests 已 commit 到 local HEAD；待 push / regenerated report verification |
+| **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_96_PLAN.md` 已凍結並通過 lint；handoff / active / history 已同步 P96 freeze；local commit 完成後等主公確認 push |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 freeze docs，先等主公 push；若已同步 origin，下一步是請主公裁決是否 `核准 P96 runtime 動工` |
+| **Exit Criteria** | focused tests pass；content trust checker produces fail-before on old report and pass-after on regenerated/new report；handoff / active / history synchronized; runtime commit pushed |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若本地 ahead 1 是 P96 runtime guard，先等主公 push；若已 pushed，下一步是重新產生報告或手動 dispatch verification |
 
 ## State Machine
 
@@ -77,10 +77,10 @@ P85-P95.1 已把 R-016 後端可靠性主線推進到 monitoring：post-P95.1C c
 
 ## Window Switch Guidance
 
-- 可以換視窗：P96 plan 已凍結；下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_96_PLAN.md` 即可接手。
-- 最佳換窗點：P96 plan freeze docs commit / push 完成後換；若本地 ahead commit 是 P96 freeze docs，下一窗可直接等主公確認 push。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部即可；不要進 P96 runtime，除非主公核准 `P96 runtime 動工`。
+- 可以換視窗：P96 runtime guard 已 commit；若本地 ahead 1，下一窗可直接等主公 push。
+- 最佳換窗點：P96 runtime commit / push 完成，且 latest report 重新產生驗證後換。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_96_EVIDENCE_INVENTORY.md`，先確認是否 push local runtime commit。
 
 ## Next Decision
 
-下一步是等待主公裁決是否 `核准 P96 runtime 動工`。runtime 第一動作必須是 P96.0 Evidence Inventory；runtime 前仍不得改 template / report / data logic。
+下一步是完成 P96 runtime commit / push，然後重新產生 report 或手動 dispatch AoV Daily Monitor，確認 `scripts/check_report_content_trust.py --repo-root . --date <latest>` 通過。

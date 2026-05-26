@@ -92,7 +92,7 @@ def _extract_score(post_entry: dict) -> float:
 def _compute_decay(timestamp_str: str | None, *, now: datetime | None = None) -> float:
     """時間衰減因子：越新越接近 1.0，最低 DECAY_MIN。"""
     if not timestamp_str:
-        return 1.0
+        return _DECAY_MIN
     now = now or datetime.now()
     _FMTS = [
         ("%Y-%m-%d %H:%M:%S", 19),
@@ -107,7 +107,7 @@ def _compute_decay(timestamp_str: str | None, *, now: datetime | None = None) ->
         except ValueError:
             continue
     if dt is None:
-        return 1.0
+        return _DECAY_MIN
     age_hours = max(0.0, (now - dt).total_seconds() / 3600)
     return max(_DECAY_MIN, 1.0 - age_hours / _DECAY_HOURS)
 

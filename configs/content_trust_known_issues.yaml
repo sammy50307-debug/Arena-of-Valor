@@ -1,0 +1,26 @@
+# P96 / R-017 Website Content Trust known issue registry.
+#
+# Keep this file small and machine-readable. Each issue should map to at least
+# one test, checker rule, or report evidence item.
+
+issues:
+  - id: wrong_focus_hero_title
+    status: active
+    severity: high
+    expected_focus_hero: "芽芽"
+    forbidden_focus_hero_titles:
+      - "圖倫 觀察室"
+      - "圖倫觀察室"
+    forbidden_focus_recent_terms:
+      - "圖倫"
+    action: fail
+    regression_test: "tests/test_report_content_trust.py::test_report_locks_focus_title_to_config_and_filters_false_focus_cards"
+  - id: stale_article_pollution
+    status: active
+    severity: high
+    expected_focus_hero: "芽芽"
+    freshness:
+      unknown_date_allowed_in_focus_recent: false
+    forbidden_focus_recent_terms: []
+    action: warn
+    regression_test: "tests/test_report_content_trust.py::test_report_excludes_unknown_date_from_focus_recent_cards"

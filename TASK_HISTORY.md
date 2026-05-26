@@ -12610,3 +12610,104 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ freeze docs 已通過 lint / handoff truth / governance doctor / diff check。
 - ⏳ freeze docs 尚待 local commit。
 - ⏭️ 下一步：完成 freeze docs commit；之後等待主公是否 push freeze commit，或核准 `P96 runtime 動工`。
+
+#### P96 runtime — Evidence Inventory + Content Trust Guard（2026-05-26）
+
+**觸發**：
+- 主公明確下令：
+  ```text
+  push 61f03a1
+  推完後才進下一個門：核准 P96 runtime 動工
+  ```
+
+**入口狀態**：
+- `61f03a1 docs: 凍結 P96 content trust plan` 已成功推上 GitHub。
+- P96 runtime 已核准。
+- 第一動作依計畫執行 P96.0 Evidence Inventory，不直接盲改。
+
+**P96.0 Evidence Inventory 物理真相**：
+- `config.py`
+  - `HERO_FOCUS_NAME = HERO_WATCHLIST[0]`，預設焦點英雄為 `芽芽`。
+- `data/reports/aov_report_2026-05-25.html`
+  - focus room title：`芽芽 觀察室`，此項 PASS。
+  - `芽芽近期動態` 區塊出現非芽芽卡：
+    - `圖倫完整教學` 類文章。
+    - 日期顯示 `時間未知`。
+  - 同一張卡在 general feed 也出現 `AI: POSITIVE [芽芽]`，顯示 template highlight 曾過度相信 picker boost。
+- `data/runs/2026-05-25/run_manifest.json`
+  - mode：production。
+  - status：ok。
+  - report：`data/reports/aov_report_2026-05-25.html`。
+  - quality tier：`production_local_only`。
+- Evidence gap：
+  - 本地沒有 `data/analysis_20260525.json` / `data/raw_20260525.json`。
+  - 因此本地只能證明「rendered report 壞了」，無法由 raw/analysis JSON 完整追到上游分析原因。
+
+**根因判定**：
+- 不是單純前端 CSS / UI 問題。
+- 是 Content Trust / Report Contract 問題：
+  - `reporter/generator.py` 原本直接相信 `daily_summary.hero_focus.name`，上游若給錯名就會變成錯觀察室。
+  - `reporter/generator.py` 的 `hero_focus_posts` / `top5_yaya` 過度相信 `is_hero_focus` 與寬鬆關鍵字。
+  - `analyzer/top5_picker.py` 原本把缺日期 / 壞日期 decay 當 `1.0`，等於未知日期被視為最新。
+  - `reporter/templates/report.html` 原本用 `picker.boost > 1.0` 決定是否顯示 `[芽芽]`，導致 false-positive focus metadata 可滲到畫面。
+
+**Runtime 修法**：
+- `reporter/generator.py`
+  - 新增 `_focus_text_evidence(entry, hero_focus)`：
+    - 只有 title / content / analysis.summary 這類使用者可見文字明確包含焦點英雄時，才算有焦點英雄證據。
+  - 新增 `_has_known_post_date(entry)`：
+    - `""` / `unknown` / `n/a` / `none` / `時間未知` 都不算已知日期。
+  - `hero_focus.name` 鎖定 `config.HERO_FOCUS_NAME`，不再信任 daily summary 覆寫焦點英雄名稱。
+  - `hero_focus_posts` 只收有 visible focus text evidence 的文章。
+  - `top5_yaya` 只收「有 visible focus text evidence + known date」的文章。
+  - `picker.is_focus_hero_text` 寫入 card metadata，供 template 顯示使用。
+- `analyzer/top5_picker.py`
+  - `_compute_decay(None)` 與 invalid timestamp 改回傳 `TOP5_SCORE_DECAY_MIN`。
+  - 未知日期不再默默當新文。
+- `reporter/templates/report.html`
+  - `is_yaya` 不再靠 `pk.boost > 1.0`。
+  - 改依 `pk.is_focus_hero_text` 或畫面可見 title/content/summary 是否包含焦點英雄。
+- `docs/CONTENT_TRUST_KNOWN_ISSUES.md`
+  - 新增 CT-001 `wrong_focus_hero_title`。
+  - 新增 CT-002 `stale_article_pollution`。
+- `configs/content_trust_known_issues.yaml`
+  - 新增機器可讀 issue registry。
+- `scripts/check_report_content_trust.py`
+  - 新增 rendered HTML checker。
+  - 可檢查 focus room title、forbidden focus title、focus recent forbidden terms、focus recent unknown dates。
+- `tests/test_report_content_trust.py`
+  - 新增 regression tests：
+    - 鎖定 focus title 到 config。
+    - false-positive `is_hero_focus` 的圖倫卡不得進 `芽芽近期動態`。
+    - unknown date 的 focus card 不得進 `芽芽近期動態`。
+- `tests/test_report_content_trust_checker.py`
+  - 新增 checker tests。
+- `tests/test_top5_picker.py`
+  - 更新 missing timestamp decay expectation。
+
+**驗證**：
+- `py -m pytest -q tests\test_report_content_trust.py tests\test_report_content_trust_checker.py tests\test_top5_picker.py tests\test_report_security.py tests\test_report_generator_landing.py tests\test_generator_landing.py tests\test_local_analyzer.py`
+  - 結果：`60 passed`。
+- `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-25`
+  - 預期 fail-before：
+    - `focus room title`: PASS。
+    - `forbidden focus title`: PASS。
+    - `focus recent forbidden terms`: FAIL，visible `圖倫`。
+    - `focus recent unknown dates`: WARN，contains `時間未知`。
+- `git diff --check`
+  - PASS。
+
+**尚未完成**：
+- 現有 `data/reports/aov_report_2026-05-25.html` 是舊 render，仍會被 checker 抓到。
+- P96 不能 close，直到重新產生 report 或手動 dispatch AoV Daily Monitor 後，latest report 通過 content trust checker。
+
+**狀態**：
+- ✅ P96 runtime minimal fix / guard 已本地落地。
+- ✅ known issue memory 已落到 docs + config + tests + checker。
+- ✅ P96.0 evidence 已寫入 `docs/PHASE_96_EVIDENCE_INVENTORY.md`。
+- ✅ 全套 pytest 通過：`292 passed`。
+- ✅ P96 lint / handoff truth / governance doctor / diff check 通過。
+- ✅ content trust checker 對舊報告產生預期 fail-before。
+- ✅ runtime changes 已 commit 到 local HEAD（commit hash 以 `git log -1 --oneline` 為準）。
+- ⏳ runtime commit 尚未 push。
+- ⏭️ 下一步：等待主公確認 push P96 runtime commit；push 後手動 dispatch AoV Daily Monitor，讀 latest artifact/report。
