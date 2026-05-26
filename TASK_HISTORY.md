@@ -12891,3 +12891,81 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ 主公已核准 `R-017 downgrade to monitoring`。
 - ✅ R-017 monitoring 文件已本地更新。
 - ⏭️ 下一步：跑 governance checks，commit 本段 downgrade docs；push 仍需主公確認。
+
+### P97 plan draft — RTK Token Savings Evaluation（2026-05-26）
+
+**目標**：
+- 開啟 R-018 / P97 RTK Token Savings Evaluation Program。
+- 本 Phase 只做評估計畫，不安裝 RTK、不執行 `rtk init`、不改全域 `AGENTS.md` / `CLAUDE.md` / `GEMINI.md`。
+
+**觸發**：
+- 主公下令：
+  - `開 RTK evaluation plan`
+- 前置狀態：
+  - P96 已收官。
+  - R-017 已降級 Open（Monitoring）至 2026-06-02。
+  - `6c4880c docs: 降級 R-017 為 content trust monitoring` 已推上 GitHub。
+
+**官方資料查證（2026-05-26）**：
+- `https://github.com/rtk-ai/rtk`
+  - RTK 是 CLI proxy，會在命令輸出進入 LLM context 前過濾 / 壓縮。
+  - README 宣稱常見 dev commands 可節省 60-90% token。
+  - Windows 有 prebuilt binary：`rtk-x86_64-pc-windows-msvc.zip`。
+- `https://www.rtk-ai.app/docs/getting-started/installation/`
+  - `rtk` 名稱有碰撞風險；需用 `rtk gain` 驗證是否為 Rust Token Killer。
+  - Cargo 安裝需用 explicit Git URL，不可只跑 `cargo install rtk`。
+- `https://www.rtk-ai.app/docs/getting-started/quick-start/`
+  - `rtk init --global` 是全域。
+  - `rtk init` 可專案層。
+  - `--dry-run` 可列出會改哪些檔，且不寫入。
+- `https://www.rtk-ai.app/docs/getting-started/supported-agents/`
+  - Codex CLI 屬 AGENTS.md instructions 類，不是透明 full hook。
+  - Windows native shell hook 能力有限；WSL 才接近完整 hook。
+- `https://www.rtk-ai.app/docs/getting-started/configuration/` 與 `https://www.rtk-ai.app/docs/resources/telemetry/`
+  - telemetry / config 需要保守處理。
+  - P97 裁決：runtime 預設 `RTK_TELEMETRY_DISABLED=1`，不啟用 telemetry。
+
+**本機初始盤點**：
+- `Get-Command rtk`
+  - NOT_FOUND。
+- `Get-Command cargo`
+  - NOT_FOUND。
+- `Get-Command winget`
+  - FOUND：`C:\Users\sammy\AppData\Local\Microsoft\WindowsApps\winget.exe`。
+- `git status -sb`
+  - `main...origin/main` 同步。
+  - 仍有舊 untracked reports / scratch / skills 暫存，不納入 P97。
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_97_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Program 改為 R-018 RTK Token Savings Evaluation Program。
+    - Current Phase 改為 P97 DRAFT。
+    - Forbidden Work 明列不安裝 RTK、不執行 `rtk init`、不改全域規則。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-018 / P97 DRAFT。
+  - `docs/RISK_REGISTRY.md`
+    - 新增 R-018：RTK token-saving proxy / toolchain output fidelity。
+  - `TASK_HISTORY.md`
+    - 追加本段 P97 plan draft 物理真相。
+
+**P97 核心裁決**：
+- 不直接全域安裝 RTK。
+- 不使用 `curl | sh`。
+- 不啟用 telemetry。
+- 不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI。
+- P97 runtime 若被核准，只能先做：
+  - dry-run。
+  - isolated binary / project-local 評估。
+  - raw vs compressed output baseline。
+  - failure diagnostics readability check。
+  - telemetry disabled / rollback check。
+- 若評估結果優秀，再另開 P98 討論全域部署。
+
+**狀態**：
+- ✅ P97 plan draft 已建立。
+- ✅ R-018 風險已入 Open registry。
+- ⏳ 尚待 P97 lint / handoff truth / governance doctor / diff check。
+- ⏭️ 下一步：跑 checks，commit P97 plan draft；push 仍需主公確認。

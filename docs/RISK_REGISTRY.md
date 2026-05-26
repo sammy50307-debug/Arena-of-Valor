@@ -18,6 +18,20 @@
 
 ## 開放風險（Open）
 
+### R-018：RTK token-saving proxy / toolchain output fidelity（P97 開案）
+
+- **來源**：主公 2026-05-26 要求評估 RTK；RTK 是會壓縮 / 改寫 CLI 輸出的 token-saving 工具，可能影響 Codex / Claude / Gemini 的終端真相。
+- **風險級**：🔴 高
+- **狀態**：Open（P97 DRAFT；尚未安裝，尚未初始化）
+- **描述**：RTK 可能降低 terminal output token 成本，但它位於 AI 與命令輸出之間，若壓縮掉 traceback、測試失敗細節、警告或 security-relevant output，AI 可能做出錯誤判斷。全域部署還會影響所有專案與多代理行為；Windows 原生 hook 能力與官方宣稱 savings 也可能有落差。
+- **緩解策略**：
+  - 短期：開 P97 evaluation plan；只允許官方資料查證、本機盤點、dry-run 設計，不安裝、不初始化、不全域部署。
+  - 中期：若主公核准 runtime，先做 project-local / isolated binary 評估，量測 savings、failure readability、telemetry status、rollback path。
+  - 長期：只有在實測收益高且不損失 debug fidelity 時，另開 P98 討論是否全域部署。
+- **觸發升級**：若未經核准出現 RTK binary、PATH/profile/hook 被修改、AGENTS/CLAUDE/GEMINI 被 RTK patch、telemetry 未關閉、或任何測試錯誤因 RTK 壓縮而被漏判 → 升為 active blocking，立即回滾並寫 Postmortem。
+
+---
+
 ### R-017：Website Content Trust / focus hero mismatch / stale articles（P96 monitoring）
 
 - **來源**：主公 2026-05-24～2026-05-26 回報：網站曾多次出現「芽芽觀察室」莫名變「圖倫觀察室」，且頁面中有很多舊文章。

@@ -1,4 +1,4 @@
-# ACTIVE OPERATION — R-017 Website Content Trust Program
+# ACTIVE OPERATION — R-018 RTK Token Savings Evaluation Program
 
 > 本檔是 L2 短版狀態真相。新視窗一般只需讀 `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`；只有 bootstrap 要求時才讀本檔。
 
@@ -6,11 +6,11 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（CLOSED / R-017 Website Content Trust Monitoring） |
-| **Current Step** | 主公已核准 `R-017 downgrade to monitoring`；R-017 保留 Open（Monitoring）至 2026-06-02；待本裁決文件 commit / push 後可轉入下一 Program（RTK 評估或主公指定任務） |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `9d998c2` 已推送；cloud report commit `0618717` content trust checker 全 PASS |
+| **Program** | R-018 RTK Token Savings Evaluation Program |
+| **Current Phase** | P97（DRAFT / RTK Token Savings Evaluation Plan） |
+| **Current Step** | P97 evaluation plan draft 已建立；只允許評估，不安裝 RTK、不執行 `rtk init`、不改全域規則；等待主公審核是否 `核准 P97 plan freeze` |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `6c4880c` 已推送；R-017 Open（Monitoring）至 2026-06-02 |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-26 |
 
@@ -20,21 +20,21 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_96_PLAN.md`
-4. 最近裁決 Phase 計畫：`docs/PHASE_95_1_PLAN.md`
-5. 最近收官 Phase 計畫：`docs/PHASE_95_PLAN.md`
+3. 當前 Phase 計畫：`docs/PHASE_97_PLAN.md`
+4. 最近收官 Phase 計畫：`docs/PHASE_96_PLAN.md`
+5. 最近裁決 Phase 計畫：`docs/PHASE_95_1_PLAN.md`
 6. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P96（CLOSED / R-017_CONTENT_TRUST_MONITORING） |
-| **Current Step** | R-017 已由 active content-trust risk 降級 Open（Monitoring）；觀察窗 2026-05-26～2026-06-02 |
-| **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | ✅ focused tests pass；✅ content trust checker fail-before/pass-after；✅ cloud report `0618717` PASS；✅ R-017 monitoring 裁決已取得；待本裁決文件 commit/push |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap 與 `docs/RISK_REGISTRY.md` 的 R-017；若 downgrade docs 已 push，下一步可開 RTK 評估 Program 或主公指定任務 |
+| **Current Phase** | P97（DRAFT / RTK_EVALUATION_PLAN） |
+| **Current Step** | 建立 P97 plan draft；等待 lint / governance checks / commit，接著請主公決定是否 push 與 freeze |
+| **Allowed Files** | P97 plan scope：`docs/PHASE_97_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不安裝 RTK；不執行 `rtk init`；不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI；不啟用 telemetry；不改 GitHub Actions / Daily Monitor；不 git push，除非主公明確確認 |
+| **Exit Criteria** | `docs/PHASE_97_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-018 Open；plan draft committed |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_97_PLAN.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 plan docs，等待主公 push；若已推，下一步是 `核准 P97 plan freeze` |
 
 ## State Machine
 
@@ -77,12 +77,14 @@ P85-P95.1 已把 R-016 後端可靠性主線推進到 monitoring：post-P95.1C c
 
 P96/R-017 已完成 Website Content Trust runtime：cloud commit `0618717` content trust checker 全 PASS，主公於 2026-05-26 核准 `R-017 downgrade to monitoring`。R-017 不標 Closed，保留 Open（Monitoring）至 2026-06-02；若 latest report 再出現錯觀察室、`時間未知`、舊文污染或 checker FAIL，升回 active R-017。
 
+P97/R-018 是新工具鏈戰線：RTK token-saving proxy 評估。P97 plan 階段不安裝、不初始化、不全域部署；只建立評估矩陣與風險門檻。
+
 ## Window Switch Guidance
 
-- 可以換視窗：P96 已收官，R-017 已降級 monitoring；若本地 ahead 1，下一窗可直接等主公 push downgrade docs。
-- 最佳換窗點：R-017 downgrade docs commit / push 完成後換。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/RISK_REGISTRY.md` 的 R-017，先確認是否 push local downgrade docs commit。
+- 可以換視窗：P97 plan draft 是文件階段；若本地 ahead 1，下一窗可直接等主公 push P97 plan docs。
+- 最佳換窗點：P97 plan draft commit / push 完成後，等待主公裁決是否 freeze。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_97_PLAN.md`，先確認是否 push local P97 plan docs commit。
 
 ## Next Decision
 
-下一步是 commit / push R-017 monitoring 裁決文件；完成後可開 RTK 評估 Program，或依主公指定進下一任務。
+下一步是跑 P97 plan lint / governance checks，commit P97 plan draft；push 仍需主公確認。推完後才進下一門：`核准 P97 plan freeze`。
