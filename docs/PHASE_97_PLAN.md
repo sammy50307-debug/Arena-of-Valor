@@ -1,6 +1,6 @@
-# Phase P97 計畫書 — RTK Token Savings Evaluation（FROZEN）
+# Phase P97 計畫書 — RTK Token Savings Evaluation（CLOSED / INSTALL BLOCKED）
 
-> 狀態：FROZEN，主公已於 2026-05-26 核准 `P97 plan freeze`。本 Phase 只凍結 RTK 評估與安裝決策計畫；不安裝 RTK、不執行 `rtk init`、不改全域 AGENTS / CLAUDE / GEMINI、不加入 shell hook。進入 evaluation runtime 前仍需主公另行核准。
+> 狀態：CLOSED / INSTALL BLOCKED。主公已於 2026-05-26 核准 `P97 plan freeze`，並於 2026-05-27 核准 `P97 evaluation runtime`。P97 已完成隔離 binary 實測、dry-run、baseline matrix、failure diagnostics、telemetry 與 rollback 檢查；結論是不全域部署、不執行 `rtk init --codex`、不把 `@RTK.md` 寫入 AOV `AGENTS.md`。完整證據見 `docs/PHASE_97_RTK_EVALUATION.md`。
 
 ---
 
@@ -11,7 +11,7 @@
 | **Phase 編號** | P97 |
 | **Phase 名稱** | RTK Token Savings Evaluation |
 | **建立日期** | 2026-05-26 |
-| **影響半徑** | 標準 (plan 4 檔；runtime 可能碰本機工具設定，需另核准) |
+| **影響半徑** | 標準 (plan 4 檔；runtime docs 6 檔；RTK binary / logs 僅在 git-ignored scratch，未 stage) |
 | **預估投入時數** | plan 0.8h；evaluation runtime 1.5-2.5h；installation runtime 視結果另開 |
 | **Token budget** | plan 18K；evaluation runtime 35K |
 | **負責模型** | GPT-5.3-Codex（repo 文件 / 本機檢查）；若涉及全域設定與多代理衝突，升 GPT-5.5 高 |
@@ -21,10 +21,10 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | R-018 RTK Token Savings Tooling | New | Open | RTK 被列入待評估工具風險，不代表已安裝 | 主公開 P97 plan | AI 建帳，主公審核 |
-| P97 plan | DRAFT | FROZEN | 評估計畫已凍結，但不可動 runtime | 主公核准 `P97 plan freeze` | 主公 / AI |
-| RTK binary | Not installed | Evaluation candidate | 只允許檢查安裝路徑與 dry-run，不放入 PATH | 主公核准 P97 runtime 後 | 主公 / AI |
-| RTK project integration | Not enabled | Pending evaluation | 只允許 project-local / dry-run 先行，不碰全域 | P97 runtime 通過 evidence gate | 主公 |
-| RTK global deployment | Not enabled | Blocked by default | 全域 hook / 全域規則仍禁止 | 需另開 install phase 並由主公明文核准 | 主公 |
+| P97 plan | FROZEN | CLOSED | 評估 runtime 已完成，並做出 install blocked 裁決 | 主公核准 `P97 evaluation runtime` 且 evidence gate 完成 | 主公 / AI |
+| RTK binary | Not installed | Isolated evaluation completed | 僅下載到 `scratch/rtk_eval/bin/rtk.exe`，未加入 PATH，runtime 後不留下 AppData residue | P97 runtime 完成 | AI |
+| RTK project integration | Not enabled | Blocked pending optional P98 | `rtk init --codex --dry-run` 顯示會新增 `RTK.md` 並 patch `AGENTS.md`，P97 不套用 | P97 failure diagnostics 未通過 | 主公 |
+| RTK global deployment | Not enabled | Blocked | 全域 hook / 全域規則仍禁止 | 需另開 P98+ 並由主公明文核准 | 主公 |
 
 ---
 
@@ -65,6 +65,27 @@
 | D. WSL full hook 評估 | 在 WSL 裡評估透明 hook | 最接近官方 full hook | 需新增環境變因，可能影響 Codex Windows workflow | 延後 |
 | E. 全域部署 | 三家代理都套 RTK | 若成功收益最大 | 影響半徑最大，回滾與誤壓縮成本高 | 只允許 P98+，需另核准 |
 
+## 2.4 P97 runtime 實測裁決（2026-05-27）
+
+完整證據見 `docs/PHASE_97_RTK_EVALUATION.md`。本段只保留收官裁決。
+
+| 檢查 | 結果 | 裁決 |
+|---|---|---|
+| Release / checksum | `v0.42.0` Windows zip；SHA256 `527552ec419988ff4a862415ba28d5aa7c1148ef3dc926ae11a4c133e63a7491` match | binary 來源 PASS |
+| 安裝範圍 | 只解壓到 `scratch/rtk_eval/bin/rtk.exe`；`Get-Command rtk` 前後皆 `NOT_FOUND` | 未全域安裝 PASS |
+| Dry-run | `rtk init --codex --dry-run -v` would create `RTK.md` and add `@RTK.md` to `AGENTS.md`; tracked diff before/after empty | 可預覽 PASS；但 real init 仍 blocked |
+| Telemetry | `consent=never asked`、`enabled=no`、`RTK_TELEMETRY_DISABLED=1 (blocked)` | PASS |
+| Local residue | RTK runtime 建立 `C:\Users\sammy\AppData\Local\rtk\history.db` / `.hook_warn_last`；已移除 | rollback PASS；但列為副作用 |
+| Baseline | 6 samples；pytest pass 省 83.0%，pytest missing file 省 72.4%，Git/search 幾乎 0%，`rtk read` 反而 -14.2% | 只適合窄場景 |
+| Failure diagnostics | missing file path 被壓成 `No tests collected`；`rtk err py -c ...` sentinel 變成 `No active exception to reraise`；`rtk proxy` 保留 raw | FAIL；禁止全域部署 |
+
+P97 final decision:
+- 不全域部署 RTK。
+- 不執行 `rtk init --codex`。
+- 不把 `@RTK.md` 寫入 AOV `AGENTS.md`。
+- 不把 RTK 加入 PATH。
+- 若主公想繼續，只能另開 P98 project-local/manual-prefix pilot，且限定已知 noisy passing tests；任何 debug / traceback / missing file / security-sensitive output 必須 raw 或 `rtk proxy`。
+
 ## 3. Entry Criteria（入口條件）
 
 開工前必須全部達成：
@@ -73,7 +94,7 @@
 - [x] 已查官方 RTK repo / docs，不憑印象寫安裝建議。
 - [x] 已確認 P97 plan 階段不安裝、不初始化、不改全域規則。
 - [x] 主公核准 P97 plan freeze。
-- [ ] 主公另行核准 P97 evaluation runtime，才可下載或執行 RTK binary。
+- [x] 主公另行核准 P97 evaluation runtime，才可下載或執行 RTK binary。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -84,12 +105,12 @@ P97 plan freeze 退出條件：
 - [x] `TASK_HISTORY.md` 追加 P97 plan / freeze 物理真相。
 
 P97 evaluation runtime 未來退出條件：
-- [ ] 用 dry-run 證明 RTK 會改哪些檔，且沒有未核准全域寫入。
-- [ ] 建立 baseline：至少 6 類命令的 raw output tokens / lines 與 RTK output tokens / lines 對照。
-- [ ] 驗證失敗診斷不被壓到無法修 bug：至少包含一個故意失敗或既有失敗樣本。
-- [ ] 驗證 telemetry 關閉：`RTK_TELEMETRY_DISABLED=1` 或 config `telemetry.enabled=false`。
-- [ ] 驗證回滾路徑：project-local uninstall / 移除規則 / 移除 binary。
-- [ ] 明確裁決三選一：不裝、只專案層試用、另開 P98 全域部署計畫。
+- [x] 用 dry-run 證明 RTK 會改哪些檔，且沒有未核准全域寫入。
+- [x] 建立 baseline：至少 6 類命令的 raw output tokens / lines 與 RTK output tokens / lines 對照。
+- [x] 驗證失敗診斷不被壓到無法修 bug：已完成驗證，但結果 **FAIL**，因此阻擋 install/global deployment。
+- [x] 驗證 telemetry 關閉：`RTK_TELEMETRY_DISABLED=1`，`telemetry status` 顯示 blocked。
+- [x] 驗證回滾路徑：isolated binary 未加入 PATH；AppData residue 已清除；project-local init 未套用。
+- [x] 明確裁決三選一：P97 不裝；若要繼續，另開 P98 project-local/manual-prefix pilot，不開全域部署。
 
 ## 5. ROI 評估
 
@@ -122,7 +143,7 @@ P97 evaluation runtime 未來退出條件：
 | **6. 可觀察性層 (Observability)** | 使用 `rtk gain`、line count、token estimate、failure readability 表 | 只憑感覺說省 token | runtime 需產出 `docs/PHASE_97_RTK_EVALUATION.md` 或等價矩陣 |
 | **7. 韌性層 (Resilience)** | 保留 `RTK_DISABLED=1` 和 uninstall / remove-rule 路徑 | RTK 壓縮錯誤導致 AI 誤判 | 高風險命令可列 exclude；失敗時讀 tee/raw output |
 | **13. 可維護性層 (Maintainability)** | 先專案層再全域層；全域需另 phase | 多工具全域規則互相打架 | Codex / Claude / Gemini 分別建評估與回滾清單 |
-| **14. 文件層 (Documentation)** | P97 plan / handoff / active / risk / history 同步 | 下一窗以為已經可以安裝 | Mode 維持 DRAFT；runtime / install 都需另核准 |
+| **14. 文件層 (Documentation)** | P97 plan / evaluation evidence / handoff / active / risk / history 同步 | 下一窗以為已經可以安裝 | Mode 維持 CLOSED / INSTALL BLOCKED；P98 pilot / install 仍需另核准 |
 | **15. 流程層 (Process)** | Plan -> freeze -> evaluation runtime -> install decision -> optional P98 | 評估和安裝混在一起 | P97 禁止全域部署；只給決策依據 |
 
 ### B 級層（條件式，6 層）
@@ -172,7 +193,7 @@ P97 evaluation runtime 未來退出條件：
 ### X3 時間敏感性 (Time Decay)
 
 - 本計畫建立日期：2026-05-26。
-- 本計畫過期日期：2026-06-02；若一週內未進 runtime，需重新查 RTK 官方 docs / releases。
+- 本計畫原過期日期：2026-06-02；P97 runtime 已於 2026-05-27 完成。若未來開 P98，需重新查 RTK 官方 docs / releases。
 - R-017 monitoring window：2026-05-26～2026-06-02；RTK 評估不得干擾監控。
 - 風險記錄帶日期：✅。
 
@@ -211,7 +232,7 @@ P97 evaluation runtime 未來退出條件：
 | **S0 Plan / Source Verification** | 查官方 docs、記錄本機狀態、建立 R-018 | 避免靠印象安裝 | plan lint / handoff truth / governance doctor 通過 |
 | **S1 Dry-run Only** | 若 runtime 核准，只跑 `rtk init --codex --dry-run -v` 或等價 dry-run | 確認會改哪些檔 | 無磁碟寫入，列出 would-change |
 | **S2 Isolated Binary Evaluation** | 不放 PATH；用 isolated binary 手動測 `rtk git status` 等 | 測收益且不污染全域 | baseline matrix 完成 |
-| **S3 Failure Diagnostics Check** | 用失敗命令測 RTK 是否保留關鍵錯誤 | 避免省 token 造成修錯 | failure readability PASS |
+| **S3 Failure Diagnostics Check** | 用失敗命令測 RTK 是否保留關鍵錯誤 | 避免省 token 造成修錯 | 已驗證；failure readability FAIL，阻擋 install |
 | **S4 Privacy / Rollback Check** | telemetry disable、uninstall、remove-rule、RTK_DISABLED | 確認可逆 | rollback checklist PASS |
 | **S5 Decision Gate** | 不裝 / project-local / P98 global plan 三選一 | 防止滑坡到全域 | 主公裁決 |
 
@@ -221,12 +242,14 @@ P97 evaluation runtime 未來退出條件：
 
 **新增**：
 - `docs/PHASE_97_PLAN.md`
+- `docs/PHASE_97_RTK_EVALUATION.md`
 
 **修改**：
-- `NEXT_SESSION_HANDOFF.md`：切到 R-018 / P97 DRAFT。
-- `docs/ACTIVE_OPERATION.md`：切到 R-018 / P97 DRAFT。
-- `docs/RISK_REGISTRY.md`：新增 R-018 Open。
-- `TASK_HISTORY.md`：追加 P97 plan 物理真相。
+- `NEXT_SESSION_HANDOFF.md`：切到 R-018 / P97 CLOSED / INSTALL BLOCKED。
+- `docs/ACTIVE_OPERATION.md`：切到 R-018 / P97 CLOSED / INSTALL BLOCKED。
+- `docs/RISK_REGISTRY.md`：新增並更新 R-018 Open / install blocked。
+- `TASK_HISTORY.md`：追加 P97 plan / freeze / runtime 物理真相。
+- P97 runtime closeout：上述 4 檔同步切到 P97 CLOSED / install blocked。
 
 **刪除**：
 - 無。
@@ -235,6 +258,8 @@ P97 evaluation runtime 未來退出條件：
 - 全域 `AGENTS.md` / `CLAUDE.md` / `GEMINI.md`（P97 禁止修改）。
 - Windows PATH / shell profile / Codex CLI behavior（P97 禁止修改）。
 - GitHub Actions / Daily Monitor（P97 禁止修改）。
+- `scratch/rtk_eval/`：保存下載、checksum、command output 與 matrix 證據；git-ignored，不 stage。
+- `C:\Users\sammy\AppData\Local\rtk`：runtime 曾短暫產生 local savings DB；已在 P97 rollback 中移除。
 
 ---
 

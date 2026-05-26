@@ -7,19 +7,20 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-018 RTK Token Savings Evaluation Program |
-| **Current Phase** | P97（FROZEN / RTK Token Savings Evaluation Plan） |
-| **Current Step** | 主公已核准 `P97 plan freeze`；只允許等待 freeze docs commit / push，不安裝 RTK、不執行 `rtk init`、不改全域規則；下一門是 `核准 P97 evaluation runtime` |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `ad9f761` 已推送；R-017 Open（Monitoring）至 2026-06-02 |
-| **Updated At** | 2026-05-26 Asia/Taipei |
+| **Current Phase** | P97（CLOSED / RTK Evaluation Runtime Complete / INSTALL BLOCKED） |
+| **Current Step** | P97 runtime 已完成；RTK 不全域部署、不 project init、不 patch `AGENTS.md`。下一步若主公要繼續 RTK，只能另開 P98 project-local/manual-prefix pilot；否則回到 R-016/R-017 monitoring。 |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | `2d45f28` 已推送；P97 runtime closeout docs 本地同步中 |
+| **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_97_PLAN.md`（P97 RTK evaluation plan）
-4. `docs/RISK_REGISTRY.md` 的 R-018 / R-017（RTK toolchain risk；content trust monitoring）
-5. `docs/PHASE_96_PLAN.md`（P96 已收官；R-017 monitoring 裁決來源）
+3. `docs/PHASE_97_RTK_EVALUATION.md`（P97 RTK runtime evidence）
+4. `docs/PHASE_97_PLAN.md`（P97 RTK evaluation plan / closed decision）
+5. `docs/RISK_REGISTRY.md` 的 R-018 / R-017（RTK toolchain risk；content trust monitoring）
+6. `docs/PHASE_96_PLAN.md`（P96 已收官；R-017 monitoring 裁決來源）
 
 ## Current Source Of Truth
 
@@ -27,7 +28,8 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_97_PLAN.md` | P97 RTK evaluation plan |
+| L3 | `docs/PHASE_97_RTK_EVALUATION.md` | P97 runtime evidence / install blocked 裁決 |
+| L3-plan | `docs/PHASE_97_PLAN.md` | P97 RTK evaluation plan / closed state |
 | L3-prev | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-018 / R-017 / R-016 | RTK tooling risk；content trust monitoring；backend monitoring |
 
@@ -35,21 +37,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P97 plan 已核准 freeze；若本地 ahead 1，下一窗可直接等主公確認 push P97 freeze docs。 |
-| **最舒服的換窗點** | P97 freeze docs commit / push 完成，等待主公裁決是否啟動 evaluation runtime。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_97_PLAN.md`。 |
-| **不要在換窗後做的事** | 不要安裝 RTK；不要執行 `rtk init`；不要改全域 AGENTS/CLAUDE/GEMINI；不要把 RTK 接進 Daily Monitor。 |
+| **現在能不能換視窗** | 可以。P97 runtime closeout docs 若本地 ahead 1，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P97 runtime closeout docs commit / push 完成，等待主公裁決是否開 P98 manual-prefix pilot。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_97_RTK_EVALUATION.md`。 |
+| **不要在換窗後做的事** | 不要安裝 RTK；不要執行非 dry-run `rtk init`；不要改全域 AGENTS/CLAUDE/GEMINI；不要把 RTK 接進 Daily Monitor；不要把 RTK 全域部署。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P97（FROZEN / RTK_EVALUATION_PLAN / RUNTIME_NOT_STARTED） |
-| **Current Step** | P97 plan freeze 已核准；等待 freeze docs commit / push，接著請主公決定是否核准 evaluation runtime |
-| **Allowed Files** | P97 plan scope：`docs/PHASE_97_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不安裝 RTK；不執行 `rtk init`；不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI；不啟用 telemetry；不改 GitHub Actions / Daily Monitor；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_97_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-018 Open；freeze docs committed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_97_PLAN.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 freeze docs，等待主公 push；若已推，下一步是 `核准 P97 evaluation runtime` |
+| **Current Phase** | P97（CLOSED / RTK_EVALUATION_RUNTIME_COMPLETE / INSTALL_BLOCKED） |
+| **Current Step** | P97 runtime evidence 已完成；等待 closeout docs checks / commit / 主公確認 push |
+| **Allowed Files** | P97 closeout scope：`docs/PHASE_97_PLAN.md`、`docs/PHASE_97_RTK_EVALUATION.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage `scratch/rtk_eval/`；不安裝 RTK；不執行非 dry-run `rtk init`；不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI；不啟用 telemetry；不改 GitHub Actions / Daily Monitor；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P97 runtime evidence doc exists；handoff / active / risk / history synchronized；R-018 Open（install blocked）；governance checks PASS；closeout docs committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_97_RTK_EVALUATION.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 runtime closeout docs，等待主公 push；若已推，下一步由主公裁決是否開 P98 project-local/manual-prefix pilot |
 
 ## Required Verification Commands
 
@@ -64,6 +66,7 @@ py scripts\lint_phase_plan.py docs\PHASE_94_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_95_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_96_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_97_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
 py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
@@ -83,7 +86,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
 - 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
-- 不要未經主公核准 P96 runtime 動工就開始修前台內容；計畫已凍結，但 runtime 仍需另行核准。
+- 不要未經主公另開 P98 並核准，就安裝 RTK、執行非 dry-run `rtk init`、patch `AGENTS.md` 或部署到全域。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
