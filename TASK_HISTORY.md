@@ -12711,3 +12711,54 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ runtime changes 已 commit 到 local HEAD（commit hash 以 `git log -1 --oneline` 為準）。
 - ⏳ runtime commit 尚未 push。
 - ⏭️ 下一步：等待主公確認 push P96 runtime commit；push 後手動 dispatch AoV Daily Monitor，讀 latest artifact/report。
+
+#### P96 runtime follow-up — General Feed Unknown Date Guard（2026-05-26）
+
+**觸發**：
+- 主公回報 AoV Daily Monitor 已跑完。
+- 遠端新增 commit：
+  - `0065755 docs: 戰略報告自動同步 2026-05-26 14:36:32 [mode:production l1:0 l2:7 hit:54%]`
+
+**雲端驗證結果**：
+- `data/runs/2026-05-26/run_manifest.json`
+  - `status=ok`
+  - `mode=production`
+  - `tier=production_local_only`
+  - `analysis_source=mixed`
+  - `llm_calls=6`
+  - `cache_hit=7`
+  - `provider.routing.router_enabled=False`
+  - `enrichment.replay_status=no_eligible`
+- `data/reports/aov_report_2026-05-26.html`
+  - `芽芽 觀察室`：PASS。
+  - `芽芽近期動態`：section absent，焦點區不再塞圖倫：PASS。
+  - general feed 仍出現：
+    - `圖倫教學`
+    - 多個 `時間未知`
+  - 結論：第一層 guard 修掉焦點區錯置，但 P96 仍未滿足「無日期不可默默當新文」退出條件。
+
+**Follow-up 修法**：
+- `reporter/generator.py`
+  - 新增 `dated_posts = [p for p in analyzed_posts if _has_known_post_date(p)]`。
+  - `template_vars["posts"]` 改用 `dated_posts`。
+  - `top5_yaya` / `other_pool` 都從 `dated_posts` 取候選。
+  - general feed 不再渲染 unknown-date posts。
+- `scripts/check_report_content_trust.py`
+  - 新增 `report unknown dates` 檢查。
+  - rendered HTML 中只要有 `時間未知` 即 FAIL。
+- `tests/test_report_content_trust.py`
+  - 新增 `test_report_excludes_unknown_date_from_general_feed`。
+- `tests/test_report_content_trust_checker.py`
+  - 加強 checker 對 `時間未知` 的 FAIL 斷言。
+
+**驗證**：
+- Focused tests：
+  - `61 passed`。
+- Old cloud report fail-before：
+  - `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26`
+  - `report unknown dates`: FAIL。
+
+**狀態**：
+- ✅ P96 second guard 已本地落地。
+- ⏳ 尚待全測試 / governance checks / commit。
+- ⏭️ 下一步：跑全測試與治理檢查，commit second guard，push 後再次手動 dispatch。

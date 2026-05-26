@@ -110,6 +110,7 @@ class ReportGenerator:
 
         report_date = daily_summary.get("date", datetime.now().strftime("%Y-%m-%d"))
         hero_focus_name = getattr(config, "HERO_FOCUS_NAME", "芽芽")
+        dated_posts = [p for p in analyzed_posts if _has_known_post_date(p)]
         raw_hero_focus = daily_summary.get("hero_focus") if isinstance(daily_summary.get("hero_focus"), dict) else {}
         hero_focus = {
             "name": hero_focus_name,
@@ -234,7 +235,7 @@ class ReportGenerator:
                 p for p in analyzed_posts 
                 if _focus_text_evidence(p, hero_focus_name)
             ][:8],
-            "posts": analyzed_posts,
+            "posts": dated_posts,
             "combat_stats": combat_stats,
             "wordcloud": wordcloud_data,
             "heatmap_data": heatmap_data,
@@ -261,8 +262,8 @@ class ReportGenerator:
                 def _is_yaya(p: dict) -> bool:
                     return _focus_text_evidence(p, hero) and _has_known_post_date(p)
 
-                yaya_pool = [p for p in analyzed_posts if _is_yaya(p)]
-                other_pool = [p for p in analyzed_posts if not _is_yaya(p)]
+                yaya_pool = [p for p in dated_posts if _is_yaya(p)]
+                other_pool = [p for p in dated_posts if not _is_yaya(p)]
 
                 # Top-3 芽芽（最多 3 篇）
                 yaya_cards, idx_after_yaya = pick_top5(

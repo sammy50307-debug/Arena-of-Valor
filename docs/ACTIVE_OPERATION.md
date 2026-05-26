@@ -8,9 +8,9 @@
 |---|---|
 | **Program** | R-017 Website Content Trust Program |
 | **Current Phase** | P96（IN_PROGRESS / Website Content Trust Runtime） |
-| **Current Step** | P96.0 Evidence Inventory 完成；content trust minimal fix / guard 已 commit 到 local HEAD，待 push 後重新產生報告或手動 dispatch 驗證 |
+| **Current Step** | P96.0 Evidence Inventory 完成；first cloud run 0065755 證明焦點區已改善但 general feed 仍有 `時間未知`；second local guard 已補，待 commit / push / dispatch 驗證 |
 | **Mode** | IN_PROGRESS |
-| **Latest Verified Commit** | local `HEAD`（P96 runtime guard，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `61f03a1`（P96 plan freeze） |
+| **Latest Verified Commit** | origin 最新已推送為 `0065755`（2026-05-26 production report after first P96 guard）；本地有 second guard changes 尚待 commit |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-26 |
 
@@ -30,11 +30,11 @@
 | 欄位 | 當前值 |
 |---|---|
 | **Current Phase** | P96（IN_PROGRESS / CONTENT_TRUST_RUNTIME） |
-| **Current Step** | P96.0 evidence 完成；minimal fix、known issue memory、checker/tests 已 commit 到 local HEAD；待 push / regenerated report verification |
+| **Current Step** | P96.0 evidence 完成；second guard 正在處理 general feed `時間未知`；待 commit / push / regenerated report verification |
 | **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
 | **Exit Criteria** | focused tests pass；content trust checker produces fail-before on old report and pass-after on regenerated/new report；handoff / active / history synchronized; runtime commit pushed |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若本地 ahead 1 是 P96 runtime guard，先等主公 push；若已 pushed，下一步是重新產生報告或手動 dispatch verification |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若本地有 second guard changes，先完成 tests/commit；若已 pushed，下一步是重新產生報告或手動 dispatch verification |
 
 ## State Machine
 

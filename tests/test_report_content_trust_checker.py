@@ -48,4 +48,5 @@ def test_content_trust_checker_fails_tulen_in_focus_recent(tmp_path: Path):
     by_name = {r.name: r for r in results}
 
     assert by_name["focus recent forbidden terms"].status == "FAIL"
+    assert by_name["report unknown dates"].status == "FAIL"
     assert by_name["focus recent unknown dates"].status == "WARN"
