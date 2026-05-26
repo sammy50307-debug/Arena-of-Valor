@@ -156,6 +156,109 @@ Claude Code 透過 `settings.json` hooks 自動執行以下防呆，Codex 終端
 
 ---
 
+## 🔁 AOV 專案自我優化飛輪
+
+> 本章是 AOV 專案級規則，不是全域規則。可跨專案複用的只有抽象原則；AOV 特有的 Phase、report、scratch、known issue registry、Daily Monitor 與內容可信度規則，必須留在本專案內。
+
+### 核心目標
+
+把專案從「同類問題反覆修」推進到：
+
+```text
+發現問題 -> 定位根因 -> 記錄錯誤 -> 寫成測試 / checker / registry -> 修復 -> 驗證 -> 觀察 -> 下次自動擋住
+```
+
+### 強制觸發條件
+
+遇到任一條件時，AI 必須啟動本章流程，不能只做單點修補：
+
+- 同一類 bug 第二次復發，例如焦點英雄錯標、舊文章污染、manifest / landing 漂移、provider routing 誤開。
+- 主公問「還有沒有更好的做法 / 方法」相關語句第二次以上，且問題牽涉長期品質或可防復發性。
+- 修 bug 需要跨前端、後端、資料、部署、治理任兩層以上。
+- 新工具、新模型、新 provider、新自動化可能改變 AI 判斷輸入或 production 行為。
+- Phase 收官後仍需要人工記得某個 caveat，代表缺少機器化防線。
+
+### 飛輪七步
+
+| 步驟 | 要做什麼 | 最小產出 |
+|---|---|---|
+| Detect | 用 checker、test、artifact、report 或主公回報確認症狀 | 具體檔案 / run id / report date / command |
+| Diagnose | 分清根因層：前端、後端、資料、LLM、選文、模板、部署、治理或工具鏈 | 根因層與證據，不靠猜 |
+| Record | 把問題寫成 known issue、risk registry、phase note 或 runbook 條目 | issue id / 症狀 / 復發條件 / 預期行為 |
+| Codify | 把人腦記憶轉成 test、checker、schema、fixture 或 lint | 可重跑命令 |
+| Verify | 先證明舊錯會被抓到，再證明修法通過 | focused test + 必要時 full test / cloud evidence |
+| Observe | 收官後保留 monitoring window 或 artifact snapshot | 觀察期限與升級條件 |
+| Promote | 穩定後才升級成 strict gate；無效規則要刪或降級 | gate / advisory / deprecated 裁決 |
+
+### Known Issue Memory 規則
+
+- 任何復發型 bug，不能只寫在對話或 TASK_HISTORY。
+- 至少要落到一個人類可讀位置與一個機器可檢查位置。
+- 人類可讀位置：`docs/*KNOWN_ISSUES*.md`、`docs/RISK_REGISTRY.md`、phase closeout 或 runbook。
+- 機器可檢查位置：`tests/`、`scripts/check_*.py`、`configs/*known_issues*.yaml|json`、schema / fixture。
+- 若暫時無法 codify，必須在風險登記簿標明「尚未機器化」與下一個補強 Phase。
+
+### 生成物與核心程式分層
+
+每次改動前先分清檔案屬於哪一層，避免核心邏輯被報告、預覽或暫存淹沒：
+
+| 層 | 例子 | 預設處理 |
+|---|---|---|
+| Core code | `analyzer/`、`scrapers/`、`reporter/`、`notifier/`、`configs/` | 可改，但要有測試或 checker |
+| Tests / checks | `tests/`、`scripts/check_*.py` | 修 bug 優先補 |
+| Governance docs | `NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` | 只同步當前 phase 必要真相 |
+| Generated reports | `data/reports/`、`ui_previews/`、`index.html` | 非必要不 stage；需要 stage 時要說明為何 |
+| Scratch / artifacts | `scratch/`、downloaded artifacts、raw logs | 預設不 stage；只保存證據摘要到 docs |
+| Agent / skill layer | `.agent/`、`.agents/`、`skills/` | 與任務無關不得順手納入 |
+
+### Phase 文件瘦身規則
+
+- Handoff 只保留下一窗必讀真相，不把整個 Phase 重寫一遍。
+- `TASK_HISTORY.md` 保留物理真相，但查詢仍遵守 anchor search / tail，不全讀。
+- 若一次 Phase 需要同步超過 5 個治理檔，收官時必須問：是否能把重複內容降為引用單一 source of truth。
+- 每次新增長規則都要能回答：它防哪個已發生或高風險問題？若答不出，先不加。
+
+### 跨戰線分流
+
+主公回報「網站怪怪的」或「系統壞了」時，AI 不得直接猜修法，必須先分類：
+
+| 戰線 | 例子 | 插隊判斷 |
+|---|---|---|
+| 前端 / UX | 畫面錯位、標題顯示錯、按鈕不可用 | 若只影響呈現，可開前端 phase |
+| 資料 / 內容可信度 | 舊文章、錯英雄、時間未知、重複文 | 優先 content trust checker |
+| 後端 / pipeline | 爬蟲、分析、manifest、promotion gate | 需看 run / artifact / manifest |
+| 部署 / CI | GitHub Actions fail、Pages stale、landing 指錯 | 需雲端證據 |
+| 治理 / 記憶 | handoff 漂移、risk 狀態錯、phase 混線 | 先修 source of truth |
+| 工具鏈 | RTK、provider、模型、hook、PATH | 先 ROI / rollback / fidelity gate |
+
+若新問題與當前 Phase 不同戰線，AI 必須主動提醒主公是否插隊、登記下個 Program，或等主線收尾。
+
+### 新工具導入 ROI Gate
+
+任何新工具、CLI proxy、AI provider、hook、全域規則或自動化，必須先過 gate：
+
+| Gate | 問題 | 未通過時 |
+|---|---|---|
+| ROI | 實測收益是否打到目前主要成本？ | 不導入 |
+| Fidelity | 是否保留 debug / traceback / security-relevant truth？ | 不全域、不預設 |
+| Reversibility | 能否不污染 PATH、profile、全域規則並快速回滾？ | 只允許 dry-run |
+| Scope | 是否只影響本專案，還是影響所有專案 / 模型？ | 全域改動另開 Phase |
+| Privacy | 是否送出 code、path、command、metadata？ | 預設 opt-out |
+
+P97 RTK 裁決是本規則範例：pytest pass 有收益，但 failure diagnostics 失真，因此不全域部署。
+
+### 定期復盤
+
+- 每 5-10 個 Phase，或一次大 Program 收官後，必須檢查：
+  - 哪些規則真的防止復發？
+  - 哪些規則增加成本但沒有效益？
+  - 哪些 known issue 已該升成 checker？
+  - 哪些 checker 太吵，應從 blocking 降為 advisory？
+  - 哪些生成物應移出 repo、改為 artifact 或 git-ignored？
+- 復盤結果要產生明確裁決：keep / revise / downgrade / remove。
+
+---
+
 ## 🖥️ 終端機環境與操作規範（Codex 專用）
 
 > Codex 的所有操作都在終端機中完成，以下規範**必須嚴格遵守**。
