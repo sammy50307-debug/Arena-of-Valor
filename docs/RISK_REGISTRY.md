@@ -28,6 +28,11 @@
   - 短期：開 P96 Website Content Trust plan；先定義 hero/title/freshness contract，不直接手改 HTML。
   - 中期：P96 runtime 新增內容可信度 checker / regression tests，覆蓋焦點英雄錯標、舊文/unknown date、known issue guard。
   - 長期：若 checker 穩定，評估是否接入 Daily Monitor advisory 或 strict gate。
+- **最新證據（2026-05-26）**：
+  - P96 runtime commit `f616283` 已推送。
+  - 手動 dispatch AoV Daily Monitor run `26455966515` success；cloud auto-sync commit `0618717` 產生 latest report。
+  - `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26` 全 PASS：focus room title PASS、forbidden focus title PASS、`report unknown dates` PASS、focus recent section PASS。
+  - R-017 尚未標 Closed；待主公人工抽看或核准降級為 monitoring。
 - **觸發升級**：若 latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題、Top-5 / hero focus 區出現不可解釋的舊文章污染、或 checker 通過但主公人工驗收失敗 → 升為 P96 runtime blocking，禁止收官。
 
 ---

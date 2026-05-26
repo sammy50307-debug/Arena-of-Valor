@@ -13,6 +13,8 @@
 | Latest report | `data/reports/aov_report_2026-05-25.html` | `芽芽近期動態` contains `時間未知`. | WARN |
 | Cloud report after first guard | `data/reports/aov_report_2026-05-26.html` from `0065755` | Focus room title is `芽芽 觀察室`, and focus recent section is absent. | PASS |
 | Cloud report after first guard | `data/reports/aov_report_2026-05-26.html` from `0065755` | General feed still contains `時間未知`. | FAIL |
+| Cloud report after second guard | `data/reports/aov_report_2026-05-26.html` from `0618717` | Focus room title is `芽芽 觀察室`; forbidden focus title absent; report has no `時間未知`; focus recent section absent. | PASS |
+| Manifest after second guard | `data/runs/2026-05-26/run_manifest.json` from `0618717` | `status=ok`, `mode=production`, `llm_calls=1`, `cache_hit=12`, provider routing disabled. | PASS |
 | Manifest | `data/runs/2026-05-25/run_manifest.json` | Mode is production, status ok, report path is canonical. | PASS |
 | Local artifacts | `data/analysis_20260525.json`, `data/raw_20260525.json` | Missing locally, so root cause cannot be proven from raw/analysis JSON. | EVIDENCE_GAP |
 | Generator | `reporter/generator.py` | Prior logic trusted `hero_focus.name`, `is_hero_focus`, broad keywords, and missing dates too much. | FIXED_LOCAL |
@@ -52,8 +54,11 @@ The production page failure is not a pure frontend styling issue. It is a conten
 | `py scripts\governance_doctor.py --repo-root .` | PASS |
 | `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-25` | Expected fail-before: `focus recent forbidden terms=FAIL`, `focus recent unknown dates=WARN` |
 | `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26` | Expected fail-before after first guard: `report unknown dates=FAIL` |
+| `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26` after cloud commit `0618717` | PASS: `focus room title`, `forbidden focus title`, `report unknown dates`, `focus recent section` |
 | `git diff --check` | PASS |
 
 ## Remaining Gap
 
-The existing committed 2026-05-25 production report still contains the old rendered HTML. P96 cannot be closed until a regenerated or newly dispatched report passes `scripts/check_report_content_trust.py`.
+The old 2026-05-25 report remains useful as fail-before evidence. The regenerated 2026-05-26 production report from cloud commit `0618717` passes `scripts/check_report_content_trust.py`; no P96 runtime blocker remains from the known `wrong_focus_hero_title` / `stale_article_pollution` cases.
+
+R-017 should still keep a monitoring posture until主公人工抽看 latest site accepts the page and a later daily run does not reintroduce unknown-date or wrong-focus output.

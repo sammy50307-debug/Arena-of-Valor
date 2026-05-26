@@ -12762,3 +12762,66 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P96 second guard 已本地落地。
 - ⏳ 尚待全測試 / governance checks / commit。
 - ⏭️ 下一步：跑全測試與治理檢查，commit second guard，push 後再次手動 dispatch。
+
+#### P96 cloud verification — Content Trust PASS（2026-05-26）
+
+**觸發**：
+- 主公核准並要求 `push f616283`。
+- AI 推送：
+  - `f616283 fix: 阻止 unknown-date 文章進入報告 feed`
+- 主公手動 dispatch AoV Daily Monitor，回報「好了」。
+
+**GitHub Actions 物理真相**：
+- Workflow：
+  - `AoV Daily Monitor`
+  - run id：`26455966515`
+  - event：`workflow_dispatch`
+  - status：`completed`
+  - conclusion：`success`
+  - head branch：`main`
+  - head sha：`f61628386b43a8ce0e80565de04e64375fbb4f2d`
+  - html_url：`https://github.com/sammy50307-debug/Arena-of-Valor/actions/runs/26455966515`
+- Auto-sync commit：
+  - `0618717 docs: 戰略報告自動同步 2026-05-26 14:54:58 [mode:production l1:0 l2:12 hit:92%]`
+- Auto-sync file stats：
+  - `data/llm_budget_state.json`
+  - `data/reports/aov_report_2026-05-26.html`
+  - `data/reports/aov_report_2026-05-26_v2.html`
+  - `data/runs/2026-05-26/run_manifest.json`
+
+**Manifest 物理真相**：
+- `data/runs/2026-05-26/run_manifest.json`
+  - `status=ok`
+  - `mode=production`
+  - `publish_eligible=true`
+  - `tier=production_local_only`
+  - `analysis_source=mixed`
+  - `llm_calls=1`
+  - `cache_hit=12`
+  - `total_calls=13`
+  - `provider.routing.router_enabled=false`
+  - `experimental_free_providers_enabled=false`
+  - active provider：`gemini_primary`
+  - route status：`router_disabled_legacy_default`
+
+**Content Trust Checker 物理真相**：
+- 指令：
+  - `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26`
+- 結果：
+  - `focus room title`: PASS
+  - `forbidden focus title`: PASS
+  - `report unknown dates`: PASS
+  - `focus recent section`: PASS（section absent）
+
+**人工字串抽查**：
+- 指令：
+  - `Select-String -Path data\reports\aov_report_2026-05-26.html -Pattern "時間未知|圖倫觀察室|圖倫 觀察室|芽芽觀察室|芽芽 觀察室|圖倫教學|圖倫"`
+- 結果：
+  - `芽芽 觀察室` 出現在 hero focus title。
+  - `圖倫觀察室` / `圖倫 觀察室` 未出現。
+  - `時間未知` 未出現。
+  - `圖倫` 仍出現在一般詞雲 / 標籤；這不是 focus title 污染，也不是 `芽芽近期動態` 錯置。
+
+**裁決**：
+- P96 runtime 已通過雲端驗證。
+- R-017 不自動標 Closed；下一步應請主公人工抽看 latest site，或明文核准 `R-017 downgrade to monitoring`。

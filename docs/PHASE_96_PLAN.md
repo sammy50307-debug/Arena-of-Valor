@@ -1,6 +1,6 @@
-# Phase P96 計畫書 — Website Content Trust（FROZEN）
+# Phase P96 計畫書 — Website Content Trust（RUNTIME VERIFIED）
 
-> 狀態：FROZEN，主公已於 2026-05-26 核准 `P96 plan freeze`。本 Phase 建立「網站內容可信度」修復計畫，針對主公回報的「芽芽觀察室變成圖倫觀察室」與「很多文章是舊文章」設計根因追查、測試護欄與收官驗證。2026-05-26 主公要求採最保守、品質最高做法，因此 runtime 前新增 **P96.0 Evidence Inventory** 與 **Known Issue Memory / Regression Guard**。未經 runtime 核准前，不改 `reporter/`、`analyzer/`、template、data pipeline。
+> 狀態：RUNTIME VERIFIED，主公已於 2026-05-26 核准 `P96 plan freeze` 與 `P96 runtime 動工`。本 Phase 建立「網站內容可信度」修復計畫，針對主公回報的「芽芽觀察室變成圖倫觀察室」與「很多文章是舊文章」設計根因追查、測試護欄與收官驗證。2026-05-26 cloud commit `0618717` 已通過 content trust checker；R-017 是否降級為 monitoring 仍待主公裁決。
 
 ---
 
@@ -24,7 +24,7 @@
 | P96 plan | FROZEN | PASSED | 計畫已建立並凍結，但不可動 runtime | 主公下令「開 P96 plan」與「核准 P96 plan freeze」 | AI 執行 |
 | P96.0 Evidence Inventory | NOT_STARTED | REQUIRED_BEFORE_RUNTIME | runtime 前必讀完整關聯鏈並留下 evidence matrix | 主公要求最保守品質最高做法 | AI 執行，主公審核 |
 | Known Issue Memory / Regression Guard | New | PLANNED | 把復發型錯誤寫成機器可檢查規則與測試 | P96.0 找到根因與最小可測 contract | AI 實作，主公核准 runtime |
-| P96 runtime | IN_PROGRESS | APPROVED | P96.0 Evidence Inventory 已完成；minimal fix / guard 已本地落地，待重新產生報告驗證 | 主公回覆「核准 P96 runtime 動工」後進入 | 主公 |
+| P96 runtime | IN_PROGRESS | VERIFIED | P96.0 Evidence Inventory 已完成；minimal fix / guard 已落地；cloud commit `0618717` 通過 checker | 主公回覆「核准 P96 runtime 動工」後進入；手動 dispatch AoV Daily Monitor 完成 | 主公 / AI |
 
 ---
 
@@ -181,10 +181,10 @@ P96 runtime 收官退出條件：
 - [x] 新增或更新 stale article guard，可檢出 Top-5 / hero focus article 過舊或重複污染。
 - [x] 新增 known issue memory：可讀文件 + 機器可讀規則 + regression test 三者至少兩者落地；若暫緩，需主公明文豁免。
 - [x] 自我優化飛輪至少對 `wrong_focus_hero_title` 與 `stale_article_pollution` 建立 issue id、可讀紀錄、機器規則或測試、驗證輸出。
-- [ ] 最新 production report 檢查：標題為芽芽觀察室，且未出現圖倫觀察室。
+- [x] 最新 production report 檢查：標題為芽芽觀察室，且未出現圖倫觀察室。
 - [x] report 文章清單可解釋其日期來源；無日期時不可默默當新文。
 - [x] focused tests 通過；若動到 report generator / picker，至少跑相關 tests。
-- [ ] 若需要雲端確認，手動 dispatch AoV Daily Monitor 後讀 artifact/report。
+- [x] 若需要雲端確認，手動 dispatch AoV Daily Monitor 後讀 artifact/report。
 
 ## 5. ROI 評估
 
