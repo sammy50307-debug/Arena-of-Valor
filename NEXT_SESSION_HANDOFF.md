@@ -7,10 +7,10 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（DRAFT / Website Content Trust Plan / NOT_STARTED） |
-| **Current Step** | P96 Website Content Trust plan draft 已建立並補入自我優化飛輪規格，等待主公核准 `P96 plan freeze`；P96 針對芽芽觀察室錯標、舊文章、known issue guard，不動 R-016 monitoring runtime |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | local `HEAD`（P96 draft docs，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `180d648`（R-016 downgrade to monitoring docs） |
+| **Current Phase** | P96（FROZEN / Website Content Trust Plan / RUNTIME_NOT_STARTED） |
+| **Current Step** | P96 Website Content Trust plan 已凍結；等待主公另行核准 `P96 runtime 動工`。runtime 第一動作必須是 P96.0 Evidence Inventory，不動 R-016 monitoring runtime |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | local `HEAD`（P96 plan freeze docs，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `2818b88`（P96 draft docs） |
 | **Updated At** | 2026-05-26 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -34,21 +34,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P96 plan draft 已建立並補入自我優化飛輪規格；下一條指令應是主公是否核准 plan freeze。 |
-| **最舒服的換窗點** | P96 plan draft docs commit / push 完成後換；目前本地 `main ahead 1` 是 P96 draft docs，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 draft docs，先等主公 push 確認。 |
+| **現在能不能換視窗** | 可以。P96 plan 已凍結；下一條指令應是主公是否核准 `P96 runtime 動工`。 |
+| **最舒服的換窗點** | P96 plan freeze docs commit / push 完成後換；若本地 `main ahead 1` 是 P96 freeze docs，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 freeze docs，先等主公 push 確認。 |
 | **不要在換窗後做的事** | 不要重開 R-016，除非 monitoring 觸發條件命中；不要未寫 P96 plan 就開始改前台內容可信度。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P96（DRAFT / PLAN_REQUIRED / NOT_STARTED） |
-| **Current Step** | P96 Website Content Trust plan draft 已建立並補入自我優化飛輪規格；等待主公核准 `P96 plan freeze`，未核准不得動 runtime/template/data logic |
-| **Allowed Files** | P96 plan documentation / handoff / active / risk / history；P96 只能先寫 plan，未核准不得動 runtime/template/data logic |
+| **Current Phase** | P96（FROZEN / RUNTIME_APPROVAL_REQUIRED / NOT_STARTED） |
+| **Current Step** | P96 Website Content Trust plan 已凍結；等待主公核准 `P96 runtime 動工`，未核准不得動 runtime/template/data logic |
+| **Allowed Files** | P96 freeze documentation / handoff / active / history；未核准 runtime 前不得動 runtime/template/data logic |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_96_PLAN.md` 已建立並通過 lint；handoff / active / risk / history 已同步 P96 draft 與自我優化飛輪補強；local commit 完成後等主公確認 push |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 draft docs，先等主公 push；若已同步 origin，下一步是請主公裁決是否 `核准 P96 plan freeze` |
+| **Exit Criteria** | `docs/PHASE_96_PLAN.md` 已凍結並通過 lint；handoff / active / history 已同步 P96 freeze；local commit 完成後等主公確認 push |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 freeze docs，先等主公 push；若已同步 origin，下一步是請主公裁決是否 `核准 P96 runtime 動工` |
 
 ## Required Verification Commands
 
@@ -82,7 +82,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
 - 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
-- 不要未經主公核准 P96 plan freeze 就開始修前台內容；計畫先行鐵律仍有效。
+- 不要未經主公核准 P96 runtime 動工就開始修前台內容；計畫已凍結，但 runtime 仍需另行核准。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

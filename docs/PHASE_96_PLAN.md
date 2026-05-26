@@ -1,6 +1,6 @@
-# Phase P96 計畫書 — Website Content Trust（DRAFT）
+# Phase P96 計畫書 — Website Content Trust（FROZEN）
 
-> 狀態：DRAFT，等待主公核准 plan freeze。本 Phase 只建立「網站內容可信度」修復計畫，針對主公回報的「芽芽觀察室變成圖倫觀察室」與「很多文章是舊文章」設計根因追查、測試護欄與收官驗證。2026-05-26 主公要求採最保守、品質最高做法，因此 runtime 前新增 **P96.0 Evidence Inventory** 與 **Known Issue Memory / Regression Guard**。未經 freeze / runtime 核准前，不改 `reporter/`、`analyzer/`、template、data pipeline。
+> 狀態：FROZEN，主公已於 2026-05-26 核准 `P96 plan freeze`。本 Phase 建立「網站內容可信度」修復計畫，針對主公回報的「芽芽觀察室變成圖倫觀察室」與「很多文章是舊文章」設計根因追查、測試護欄與收官驗證。2026-05-26 主公要求採最保守、品質最高做法，因此 runtime 前新增 **P96.0 Evidence Inventory** 與 **Known Issue Memory / Regression Guard**。未經 runtime 核准前，不改 `reporter/`、`analyzer/`、template、data pipeline。
 
 ---
 
@@ -10,7 +10,7 @@
 |---|---|
 | **Phase 編號** | P96 |
 | **Phase 名稱** | Website Content Trust Plan |
-| **凍結日期** | DRAFT；待主公核准 |
+| **凍結日期** | 2026-05-26（主公核准 P96 plan freeze） |
 | **影響半徑** | 標準 (預估 runtime 3-9 檔) |
 | **預估投入時數** | plan 0.8h；runtime 2.5-4h |
 | **Token budget** | plan 20K；runtime 50K |
@@ -21,10 +21,10 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | R-017 Website Content Trust | New | Open | 前台內容正確性風險已建帳 | 主公回報頁面標題錯置與舊文章問題 | AI 建帳，主公核准 Phase |
-| P96 plan | NOT_STARTED | DRAFT | 計畫已建立但不可動 runtime | 主公下令「開 P96 plan」 | AI 執行 |
+| P96 plan | FROZEN | PASSED | 計畫已建立並凍結，但不可動 runtime | 主公下令「開 P96 plan」與「核准 P96 plan freeze」 | AI 執行 |
 | P96.0 Evidence Inventory | NOT_STARTED | REQUIRED_BEFORE_RUNTIME | runtime 前必讀完整關聯鏈並留下 evidence matrix | 主公要求最保守品質最高做法 | AI 執行，主公審核 |
 | Known Issue Memory / Regression Guard | New | PLANNED | 把復發型錯誤寫成機器可檢查規則與測試 | P96.0 找到根因與最小可測 contract | AI 實作，主公核准 runtime |
-| P96 runtime | NOT_STARTED | PENDING_APPROVAL | 需另行核准才能改程式或模板 | 主公回覆「核准 P96 plan freeze」後，另核准 runtime | 主公 |
+| P96 runtime | NOT_STARTED | PENDING_RUNTIME_APPROVAL | 需另行核准才能改程式或模板 | 主公回覆「核准 P96 runtime 動工」後才可進入 | 主公 |
 
 ---
 
@@ -163,17 +163,17 @@ P96 freeze 前的品質線：先把「最便宜但可防復發」的設計凍住
 - [x] R-016 已降級為 monitoring，可靠性主線不再阻擋 P96 plan。
 - [x] 主公已明確下令「開 P96 plan」。
 - [x] 已讀 handoff / active / phase template / R-016 risk registry。
-- [ ] 主公核准 `P96 plan freeze` 後，才能進 runtime。
+- [x] 主公已核准 `P96 plan freeze`；runtime 仍需另行核准。
 - [ ] runtime 前完成 P96.0 Evidence Inventory，並把 evidence matrix 寫入 P96 plan 補遺或 TASK_HISTORY。
 - [ ] runtime 前先確認最新 production report、manifest、`config.HERO_FOCUS_NAME` 與可重現樣本。
 
 ## 4. Exit Criteria（退出條件）
 
 P96 plan freeze 退出條件：
-- [ ] `docs/PHASE_96_PLAN.md` 通過 `scripts/lint_phase_plan.py`。
-- [ ] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 P96 plan。
-- [ ] `docs/RISK_REGISTRY.md` 建立 R-017 Open 風險。
-- [ ] `TASK_HISTORY.md` 追加 P96 plan 物理真相。
+- [x] `docs/PHASE_96_PLAN.md` 通過 `scripts/lint_phase_plan.py`。
+- [x] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 P96 plan。
+- [x] `docs/RISK_REGISTRY.md` 建立 R-017 Open 風險。
+- [x] `TASK_HISTORY.md` 追加 P96 plan 物理真相。
 
 P96 runtime 收官退出條件：
 - [ ] 新增或更新內容可信度 checker / tests，可檢出焦點英雄錯標。
@@ -216,7 +216,7 @@ P96 runtime 收官退出條件：
 | **6. 可觀察性層 (Observability)** | report / manifest / checker 輸出內容健康狀態 | 使用者只看到錯，不知道哪層壞 | checker 印 hero、date、stale counts、offender titles |
 | **7. 韌性層 (Resilience)** | checker fail 時阻止錯誤結論，不硬說修完 | Daily report 成功但內容錯 | P96 收官需本地與必要雲端雙證據 |
 | **13. 可維護性層 (Maintainability)** | known issue guard 條文化 + 機器可讀記憶 | 下次 AI 忘記舊解法 | regression test 名稱與 R-017 風險對齊；known issue registry 保存錯誤/根因/修法 |
-| **14. 文件層 (Documentation)** | plan / active / handoff / risk / history 同步 | 下一窗誤把 P96 當 runtime 已核准 | Mode 保持 DRAFT/FROZEN 流程，不跳過核准 |
+| **14. 文件層 (Documentation)** | plan / active / handoff / risk / history 同步 | 下一窗誤把 P96 當 runtime 已核准 | Mode 保持 FROZEN，runtime 需另行核准 |
 | **15. 流程層 (Process)** | Plan -> freeze -> runtime -> verify -> closeout | 前端內容修復插隊 R-016 monitoring | R-016 只監控；P96 只處理內容可信度 |
 
 ### B 級層（條件式，6 層）
@@ -264,7 +264,7 @@ P96 runtime 收官退出條件：
 ### X3 時間敏感性 (Time Decay)
 
 - 本計畫建立日期：2026-05-26。
-- 本計畫過期日期：2026-06-02；若一週內未 freeze，需重新讀 latest report。
+- 本計畫過期日期：2026-06-02；若一週內未進 runtime，需重新讀 latest report。
 - R-016 monitoring window：2026-05-25～2026-06-01；P96 不改 R-016 狀態。
 - 風險記錄帶日期：✅。
 
