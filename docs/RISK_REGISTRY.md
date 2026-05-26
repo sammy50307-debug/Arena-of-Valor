@@ -18,6 +18,20 @@
 
 ## 開放風險（Open）
 
+### R-017：Website Content Trust / focus hero mismatch / stale articles（P96 開案）
+
+- **來源**：主公 2026-05-24～2026-05-26 回報：網站曾多次出現「芽芽觀察室」莫名變「圖倫觀察室」，且頁面中有很多舊文章。
+- **風險級**：🔴 高
+- **狀態**：Open
+- **描述**：R-016 已使 Daily Monitor / production SLO / doctor 進入 monitoring，但這只能證明 pipeline 可發布，不保證前台語意正確。若 `hero_focus.name`、template 標題、Top-5 picker、news history index、`published_date` / `timestamp` 或 LLM summary 任一層漂移，使用者仍會看到錯英雄標題或過期文章，造成網站可信度受損。
+- **緩解策略**：
+  - 短期：開 P96 Website Content Trust plan；先定義 hero/title/freshness contract，不直接手改 HTML。
+  - 中期：P96 runtime 新增內容可信度 checker / regression tests，覆蓋焦點英雄錯標、舊文/unknown date、known issue guard。
+  - 長期：若 checker 穩定，評估是否接入 Daily Monitor advisory 或 strict gate。
+- **觸發升級**：若 latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題、Top-5 / hero focus 區出現不可解釋的舊文章污染、或 checker 通過但主公人工驗收失敗 → 升為 P96 runtime blocking，禁止收官。
+
+---
+
 ### R-001：模型選擇指引三檔同步無自動檢測（G5-4）
 
 - **來源**：P69（2026-05-07）
