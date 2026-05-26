@@ -12553,3 +12553,60 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ 已 amend 到 local P96 draft docs commit（commit hash 以 `git log -1 --oneline` 為準）。
 - ✅ 仍未動 runtime。
 - ⏭️ 下一步：等待主公確認 push local P96 draft docs commit（以 `git log -1 --oneline` 為準），或在 push 後裁決是否 `核准 P96 plan freeze`。
+
+#### P96 plan freeze — Website Content Trust（2026-05-26）
+
+**觸發**：
+- 主公明確下令：
+  ```text
+  push 9676d18。推完後再走 核准 P96 plan freeze。
+  ```
+
+**推送物理真相**：
+- 初次 `git push` 被 GitHub 拒絕：
+  - 原因：遠端 `main` 已多出一顆自動同步報告 commit。
+  - 遠端新 commit：`2db17cb docs: 戰略報告自動同步 2026-05-25 12:06:51 [mode:production l1:0 l2:9 hit:82%]`
+  - 影響檔案：
+    - `data/llm_budget_state.json`
+    - `data/llm_cache.json`
+    - `data/reports/aov_report_2026-05-25.html`
+    - `data/reports/aov_report_2026-05-25_v2.html`
+    - `data/runs/2026-05-25/run_manifest.json`
+- 整合方式：
+  - `git fetch origin`
+  - `git rebase origin/main`
+  - 本地 P96 draft commit 從 `9676d18` 重寫為 `2818b88`。
+  - `git push` 成功：`2db17cb..2818b88 main -> main`
+
+**Freeze 內容**：
+- `docs/PHASE_96_PLAN.md`
+  - 標題從 `DRAFT` 改為 `FROZEN`。
+  - 狀態改為主公已於 2026-05-26 核准 `P96 plan freeze`。
+  - 凍結日期改為 `2026-05-26`。
+  - P96 plan 狀態改為 `FROZEN / PASSED`。
+  - P96 runtime 狀態維持 `NOT_STARTED / PENDING_RUNTIME_APPROVAL`。
+  - Entry Criteria 標記主公已核准 plan freeze，但 runtime 仍需另行核准。
+  - P96 plan freeze 退出條件全數打勾。
+  - 文件層風險緩解改為 Mode 保持 FROZEN，runtime 需另行核准。
+  - 計畫過期條件改為若一週內未進 runtime，需重新讀 latest report。
+- `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P96（FROZEN / Website Content Trust Plan / RUNTIME_NOT_STARTED）`。
+  - Current Step 改為等待主公另行核准 `P96 runtime 動工`。
+  - Mode 改為 `FROZEN`。
+  - origin 最新已推送 commit 記為 `2818b88`。
+  - Resume Rule 改為若 local ahead 是 freeze docs，先等主公 push；若已同步 origin，下一步是 `核准 P96 runtime 動工`。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步改為 P96 FROZEN / runtime not started。
+  - Next Decision 改為等待主公裁決是否 `核准 P96 runtime 動工`。
+
+**邊界**：
+- 未動 `reporter/`、`analyzer/`、template、data pipeline。
+- 未開始 P96.0 Evidence Inventory。
+- P96 plan 已凍結不等於 runtime 已核准；runtime 第一動作必須是 P96.0 Evidence Inventory。
+
+**狀態**：
+- ✅ P96 draft docs 已推上 GitHub：`2818b88`。
+- ✅ P96 plan freeze 文件已更新。
+- ✅ freeze docs 已通過 lint / handoff truth / governance doctor / diff check。
+- ⏳ freeze docs 尚待 local commit。
+- ⏭️ 下一步：完成 freeze docs commit；之後等待主公是否 push freeze commit，或核准 `P96 runtime 動工`。
