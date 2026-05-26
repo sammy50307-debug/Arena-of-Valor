@@ -1,6 +1,6 @@
-# Phase P97 計畫書 — RTK Token Savings Evaluation（DRAFT）
+# Phase P97 計畫書 — RTK Token Savings Evaluation（FROZEN）
 
-> 狀態：DRAFT。主公於 2026-05-26 下令「開 RTK evaluation plan」。本 Phase 只建立 RTK 評估與安裝決策計畫；不安裝 RTK、不執行 `rtk init`、不改全域 AGENTS / CLAUDE / GEMINI、不加入 shell hook。
+> 狀態：FROZEN，主公已於 2026-05-26 核准 `P97 plan freeze`。本 Phase 只凍結 RTK 評估與安裝決策計畫；不安裝 RTK、不執行 `rtk init`、不改全域 AGENTS / CLAUDE / GEMINI、不加入 shell hook。進入 evaluation runtime 前仍需主公另行核准。
 
 ---
 
@@ -21,7 +21,7 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | R-018 RTK Token Savings Tooling | New | Open | RTK 被列入待評估工具風險，不代表已安裝 | 主公開 P97 plan | AI 建帳，主公審核 |
-| P97 plan | NOT_STARTED | DRAFT | 只完成評估計畫，不可動 runtime | 主公下令「開 RTK evaluation plan」 | AI |
+| P97 plan | DRAFT | FROZEN | 評估計畫已凍結，但不可動 runtime | 主公核准 `P97 plan freeze` | 主公 / AI |
 | RTK binary | Not installed | Evaluation candidate | 只允許檢查安裝路徑與 dry-run，不放入 PATH | 主公核准 P97 runtime 後 | 主公 / AI |
 | RTK project integration | Not enabled | Pending evaluation | 只允許 project-local / dry-run 先行，不碰全域 | P97 runtime 通過 evidence gate | 主公 |
 | RTK global deployment | Not enabled | Blocked by default | 全域 hook / 全域規則仍禁止 | 需另開 install phase 並由主公明文核准 | 主公 |
@@ -72,16 +72,16 @@
 - [x] 主公已明確下令「開 RTK evaluation plan」。
 - [x] 已查官方 RTK repo / docs，不憑印象寫安裝建議。
 - [x] 已確認 P97 plan 階段不安裝、不初始化、不改全域規則。
-- [ ] 主公核准 P97 plan freeze。
+- [x] 主公核准 P97 plan freeze。
 - [ ] 主公另行核准 P97 evaluation runtime，才可下載或執行 RTK binary。
 
 ## 4. Exit Criteria（退出條件）
 
-P97 plan draft 退出條件：
-- [ ] `docs/PHASE_97_PLAN.md` 通過 `scripts/lint_phase_plan.py`。
-- [ ] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 R-018 / P97 DRAFT。
-- [ ] `docs/RISK_REGISTRY.md` 建立 R-018 Open 風險。
-- [ ] `TASK_HISTORY.md` 追加 P97 plan 物理真相。
+P97 plan freeze 退出條件：
+- [x] `docs/PHASE_97_PLAN.md` 通過 `scripts/lint_phase_plan.py`。
+- [x] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 R-018 / P97 FROZEN。
+- [x] `docs/RISK_REGISTRY.md` 建立 R-018 Open 風險。
+- [x] `TASK_HISTORY.md` 追加 P97 plan / freeze 物理真相。
 
 P97 evaluation runtime 未來退出條件：
 - [ ] 用 dry-run 證明 RTK 會改哪些檔，且沒有未核准全域寫入。

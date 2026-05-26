@@ -7,10 +7,10 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-018 RTK Token Savings Evaluation Program |
-| **Current Phase** | P97（DRAFT / RTK Token Savings Evaluation Plan） |
-| **Current Step** | P97 evaluation plan draft 已建立；只允許評估，不安裝 RTK、不執行 `rtk init`、不改全域規則；等待主公審核是否 `核准 P97 plan freeze` |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `6c4880c` 已推送；R-017 Open（Monitoring）至 2026-06-02 |
+| **Current Phase** | P97（FROZEN / RTK Token Savings Evaluation Plan） |
+| **Current Step** | 主公已核准 `P97 plan freeze`；只允許等待 freeze docs commit / push，不安裝 RTK、不執行 `rtk init`、不改全域規則；下一門是 `核准 P97 evaluation runtime` |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `ad9f761` 已推送；R-017 Open（Monitoring）至 2026-06-02 |
 | **Updated At** | 2026-05-26 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -35,8 +35,8 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P97 只是 draft plan；若本地 ahead 1，下一窗可直接等主公確認 push P97 plan docs。 |
-| **最舒服的換窗點** | P97 plan draft commit / push 完成，等待主公裁決是否 freeze。 |
+| **現在能不能換視窗** | 可以。P97 plan 已核准 freeze；若本地 ahead 1，下一窗可直接等主公確認 push P97 freeze docs。 |
+| **最舒服的換窗點** | P97 freeze docs commit / push 完成，等待主公裁決是否啟動 evaluation runtime。 |
 | **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_97_PLAN.md`。 |
 | **不要在換窗後做的事** | 不要安裝 RTK；不要執行 `rtk init`；不要改全域 AGENTS/CLAUDE/GEMINI；不要把 RTK 接進 Daily Monitor。 |
 
@@ -44,12 +44,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P97（DRAFT / RTK_EVALUATION_PLAN） |
-| **Current Step** | 建立 P97 plan draft；等待 lint / governance checks / commit，接著請主公決定是否 push 與 freeze |
+| **Current Phase** | P97（FROZEN / RTK_EVALUATION_PLAN / RUNTIME_NOT_STARTED） |
+| **Current Step** | P97 plan freeze 已核准；等待 freeze docs commit / push，接著請主公決定是否核准 evaluation runtime |
 | **Allowed Files** | P97 plan scope：`docs/PHASE_97_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不安裝 RTK；不執行 `rtk init`；不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI；不啟用 telemetry；不改 GitHub Actions / Daily Monitor；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_97_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-018 Open；plan draft committed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_97_PLAN.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 plan docs，等待主公 push；若已推，下一步是 `核准 P97 plan freeze` |
+| **Exit Criteria** | `docs/PHASE_97_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-018 Open；freeze docs committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_97_PLAN.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 freeze docs，等待主公 push；若已推，下一步是 `核准 P97 evaluation runtime` |
 
 ## Required Verification Commands
 

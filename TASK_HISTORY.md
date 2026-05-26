@@ -12969,3 +12969,38 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ R-018 風險已入 Open registry。
 - ⏳ 尚待 P97 lint / handoff truth / governance doctor / diff check。
 - ⏭️ 下一步：跑 checks，commit P97 plan draft；push 仍需主公確認。
+
+#### P97 plan freeze — RTK Token Savings Evaluation（2026-05-26）
+
+**觸發**：
+- 主公核准：
+  - `核准 P97 plan freeze`
+
+**裁決內容**：
+- P97 plan 由 DRAFT 轉為 FROZEN。
+- P97 仍不進 runtime。
+- RTK 仍未安裝、未初始化、未加入 PATH、未改全域 AGENTS / CLAUDE / GEMINI。
+- 下一門改為：
+  - `核准 P97 evaluation runtime`
+
+**文件更新**：
+- `docs/PHASE_97_PLAN.md`
+  - 標題改為 `FROZEN`。
+  - 狀態說明改為主公已於 2026-05-26 核准 `P97 plan freeze`。
+  - `P97 plan` 狀態轉換改為 `DRAFT -> FROZEN`。
+  - Entry Criteria 勾選 `主公核准 P97 plan freeze`。
+  - Plan freeze exit criteria 全數勾選。
+- `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P97（FROZEN / RTK Token Savings Evaluation Plan）`。
+  - Mode 改為 `FROZEN`。
+  - Current Step 改為等待 freeze docs commit / push，下一門是 `核准 P97 evaluation runtime`。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步 P97 FROZEN / runtime not started。
+- `docs/RISK_REGISTRY.md`
+  - R-018 狀態改為 `Open（P97 FROZEN；尚未安裝，尚未初始化）`。
+  - 修正 R-017 復發時的 follow-up phase 用語，避免與 P97 RTK 戰線混淆。
+
+**狀態**：
+- ✅ P97 plan freeze 已本地更新。
+- ⏳ 尚待 lint / handoff truth / governance doctor / diff check。
+- ⏭️ 下一步：跑 checks，commit P97 freeze docs；push 仍需主公確認。
