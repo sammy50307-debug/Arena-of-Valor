@@ -8,17 +8,17 @@
 | **Status** | ACTIVE |
 | **Program** | R-017 Website Content Trust Program |
 | **Current Phase** | P96（DRAFT / Website Content Trust Plan / NOT_STARTED） |
-| **Current Step** | R-016 已依主公核准降級為 monitoring：post-P95.1C cloud verification success，SLO `issues=[]`、doctor 無 blocking、health PASS、budget healthy、CCG008 無 current；下一步是開 P96 plan，處理芽芽觀察室 / 舊文章 / known issue guard |
+| **Current Step** | P96 Website Content Trust plan draft 已建立並補入自我優化飛輪規格，等待主公核准 `P96 plan freeze`；P96 針對芽芽觀察室錯標、舊文章、known issue guard，不動 R-016 monitoring runtime |
 | **Mode** | DRAFT |
-| **Latest Verified Commit** | `ee8bcba`（P95.1D cloud evidence docs 已 push；R-016 downgrade docs 尚待 commit） |
-| **Updated At** | 2026-05-25 Asia/Taipei |
+| **Latest Verified Commit** | local `HEAD`（P96 draft docs，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `180d648`（R-016 downgrade to monitoring docs） |
+| **Updated At** | 2026-05-26 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_95_1_PLAN.md`（P95.1 CCG008 pending closure、§17 cloud verification、§18 downgrade decision）
-4. `docs/PHASE_95_PLAN.md`（P95 R-016 closeout verification 與 keep-open 裁決）
+3. `docs/PHASE_96_PLAN.md`（P96 Website Content Trust draft plan）
+4. `docs/PHASE_95_1_PLAN.md`（R-016 monitoring 裁決來源：§18 downgrade decision）
 
 ## Current Source Of Truth
 
@@ -26,17 +26,17 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure、§17 cloud verification、§18 downgrade decision |
-| L3-prev | `docs/PHASE_95_PLAN.md` | P95 R-016 Closeout Verification 與 §14 verification 裁決 |
-| L4 | `docs/RISK_REGISTRY.md` 的 R-016 | R-016 monitoring / reopen triggers |
+| L3 | `docs/PHASE_96_PLAN.md` | P96 Website Content Trust draft plan |
+| L3-prev | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure、§17 cloud verification、§18 downgrade decision |
+| L4 | `docs/RISK_REGISTRY.md` 的 R-017 / R-016 | R-017 content trust；R-016 monitoring / reopen triggers |
 
 ## Window Switch Timing
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。R-016 已降級為 monitoring；下一條主線是 R-017 / P96 plan。 |
-| **最舒服的換窗點** | R-016 downgrade docs commit / push 完成後換；若本地 `main ahead 1`，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → 讀 `docs/PHASE_95_1_PLAN.md` §18；若本地 ahead 1，先等主公 push 確認。 |
+| **現在能不能換視窗** | 可以。P96 plan draft 已建立並補入自我優化飛輪規格；下一條指令應是主公是否核准 plan freeze。 |
+| **最舒服的換窗點** | P96 plan draft docs commit / push 完成後換；目前本地 `main ahead 1` 是 P96 draft docs，下一窗可直接等主公確認 push。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 draft docs，先等主公 push 確認。 |
 | **不要在換窗後做的事** | 不要重開 R-016，除非 monitoring 觸發條件命中；不要未寫 P96 plan 就開始改前台內容可信度。 |
 
 ## Six Anti-Drift Fields
@@ -44,11 +44,11 @@
 | 欄位 | 內容 |
 |---|---|
 | **Current Phase** | P96（DRAFT / PLAN_REQUIRED / NOT_STARTED） |
-| **Current Step** | R-016 downgrade to monitoring approved by 主公；monitoring window 2026-05-25～2026-06-01；下一步開 R-017 / P96 Website Content Trust plan |
-| **Allowed Files** | R-016 downgrade documentation / commit / push；P96 只能先寫 plan，未核准不得動 runtime/template/data logic |
+| **Current Step** | P96 Website Content Trust plan draft 已建立並補入自我優化飛輪規格；等待主公核准 `P96 plan freeze`，未核准不得動 runtime/template/data logic |
+| **Allowed Files** | P96 plan documentation / handoff / active / risk / history；P96 只能先寫 plan，未核准不得動 runtime/template/data logic |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | R-016 risk registry status 已改為 `Open（Monitoring）`；handoff / active / phase plan / history 已同步 downgrade 裁決；local commit 完成後等主公確認 push |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_95_1_PLAN.md` §18；若本地 ahead 1，先等主公 push；若已同步 origin，下一步是開 P96 Website Content Trust plan |
+| **Exit Criteria** | `docs/PHASE_96_PLAN.md` 已建立並通過 lint；handoff / active / risk / history 已同步 P96 draft 與自我優化飛輪補強；local commit 完成後等主公確認 push |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 draft docs，先等主公 push；若已同步 origin，下一步是請主公裁決是否 `核准 P96 plan freeze` |
 
 ## Required Verification Commands
 
@@ -62,6 +62,7 @@ py scripts\lint_phase_plan.py docs\PHASE_93_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_94_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_95_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_96_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
 py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
@@ -81,7 +82,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
 - 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
-- 不要未寫 P96 plan 就開始修前台內容；計畫先行鐵律仍有效。
+- 不要未經主公核准 P96 plan freeze 就開始修前台內容；計畫先行鐵律仍有效。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

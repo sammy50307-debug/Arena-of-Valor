@@ -12304,3 +12304,252 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ Monitoring window：2026-05-25～2026-06-01。
 - ✅ 下一主線：R-017 / P96 Website Content Trust plan。
 - ⏭️ 下一步：commit 本段 R-016 downgrade docs；push 仍需主公確認。
+
+### P96 plan draft — Website Content Trust（2026-05-26）
+
+**目標**：
+- 開啟 R-017 / P96 Website Content Trust 計畫，不動 runtime。
+- 將主公回報的前台問題納入可追蹤戰線：
+  - `芽芽觀察室` 曾多次莫名變成 `圖倫觀察室`。
+  - 頁面中有很多舊文章。
+  - 需要 known issue guard，避免已修過的錯誤下一次復發。
+- 明確切開：
+  - R-016：Daily Monitor / production SLO / doctor / budget / provider routing，現為 Open（Monitoring）。
+  - R-017：網站內容語意是否可信，含焦點英雄標題、文章新鮮度、模板與資料契約。
+
+**觸發**：
+- 主公問「阿所以 RTK 呢」後，AI 解釋 RTK 仍排在 R-017/P96 之後。
+- 主公下令：
+  ```text
+  好開 P96 plan
+  ```
+
+**稽核表**：
+- S 級 / 代碼層：
+  - 本段只新增 plan，不改 `reporter/`、`analyzer/`、template、workflow。
+  - runtime 候選檔案先列入計畫，不進實作。
+- S 級 / 邏輯層：
+  - 不採「手改 HTML」方案。
+  - 採「content contract + evidence + regression guard」方案。
+  - 以 `config.HERO_FOCUS_NAME` 作焦點英雄權威，不讓 LLM summary 任意改觀察室標題。
+- S 級 / 測試層：
+  - P96 runtime exit criteria 要求焦點英雄錯標與舊文污染 regression tests / checker。
+  - plan draft 後先跑 phase lint / handoff truth / governance doctor / diff check。
+- S 級 / 安全層：
+  - 不新增 secrets / PAT / Cloudflare / Groq / GitHub Models 權限。
+  - 不把 raw artifact / 原始貼文全文寫入 repo 文件。
+- A/B 層：
+  - UX/A11y 觸發：若 runtime 動 template，需確認前台文字與區塊語意。
+  - Data 觸發：`published_date` / `timestamp` / `first_seen` 必須分清楚。
+  - DevOps 觸發：若要證明雲端不覆蓋修復，後續需手動 dispatch。
+
+**物理真相**：
+- 新增：
+  - `docs/PHASE_96_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Latest Verified Commit 改為 `180d648`。
+    - Current Step 改為 P96 plan draft 已建立，等待主公核准 `P96 plan freeze`。
+  - `docs/ACTIVE_OPERATION.md`
+    - 指向 `docs/PHASE_96_PLAN.md` 作為當前 Phase 計畫。
+    - Next Decision 改為主公審核 P96 plan draft。
+  - `docs/RISK_REGISTRY.md`
+    - 新增 `R-017：Website Content Trust / focus hero mismatch / stale articles（P96 開案）`。
+    - 風險級：🔴 高。
+    - 狀態：Open。
+  - `TASK_HISTORY.md`
+    - 追加本段 P96 plan draft 紀錄。
+- 已定位的 runtime 候選區：
+  - `reporter/generator.py`
+    - 產出 `hero_focus`、`hero_focus_posts`、Top-5、landing history。
+  - `reporter/templates/report.html`
+    - 同時有硬編碼 `芽芽` 文案與 `{{ hero_focus.name }} 觀察室`。
+  - `analyzer/top5_picker.py`
+    - 依 `published_date` / `timestamp` 算 decay，舊文可能因日期缺失而被當新文。
+    - 目前芽芽重複文章有 bonus，可能需重新界定何時合理、何時污染。
+  - `analyzer/news_history_indexer.py`
+    - 以 `first_seen` 做跨日去重，且 index 可能是本地狀態。
+  - 相關 tests：
+    - `tests/test_top5_picker.py`
+    - `tests/test_generator_landing.py`
+    - `tests/test_report_generator_landing.py`
+
+**風險**：
+- R-016 與 R-017 混線：
+  - 緩解：P96 plan 明列 R-016 只 monitoring，不把內容錯誤當作後端可靠性 blocker。
+- 只修眼前字串：
+  - 緩解：plan 已明確不採單點 HTML 替換，runtime 必須建 regression guard。
+- 舊文判定誤殺正常 evergreen 文章：
+  - 緩解：runtime 要設計 freshness contract，區分 stale / duplicate / evergreen / unknown date。
+- RTK 插隊污染 debug：
+  - 緩解：P96 Forbidden Work 明列不安裝或全域部署 RTK。
+
+**狀態**：
+- ✅ P96 plan draft 已建立。
+- ✅ R-017 風險已入 Open registry。
+- ✅ R-016 維持 Open（Monitoring），不標 Closed。
+- ⏭️ 下一步：
+  - 跑 P96 plan lint / handoff truth / governance doctor / diff check。
+  - 若通過，等待主公裁決是否 `核准 P96 plan freeze`。
+
+#### P96 plan draft 補強 — Evidence Inventory / Known Issue Memory（2026-05-26）
+
+**觸發**：
+- 主公追問：
+  ```text
+  等等，你在做這個plan的時候需不需要讀全部文件? 畢竟這部分看起來是個橫跨多的檔案的bug?
+  ```
+- AI 回答不需要全讀，但 runtime 前要讀完整關聯鏈。
+- 主公補充：
+  ```text
+  對，我想要最保守 出來東西品質會最好的做法 然後你是不是要做一個犯錯能夠記得錯在哪並且解決的程式?
+  ```
+
+**補強內容**：
+- `docs/PHASE_96_PLAN.md` 新增：
+  - `P96.0 Evidence Inventory`
+    - runtime 前必讀完整關聯鏈：
+      - `config.py`
+      - scraper / analyzer hero focus path
+      - `analyzer/top5_picker.py`
+      - `analyzer/news_history_indexer.py`
+      - `reporter/generator.py`
+      - `reporter/templates/report.html`
+      - latest production report / manifest / relevant tests
+    - 產出 raw-free evidence matrix。
+  - `Known Issue Memory / Regression Guard`
+    - 人類記憶：`docs/CONTENT_TRUST_KNOWN_ISSUES.md` 或 R-017 條目。
+    - 機器記憶：`configs/content_trust_known_issues.yaml` 或等價 JSON/YAML。
+    - 執行記憶：`scripts/check_report_content_trust.py` + tests。
+- 明確原則：
+  - AI 換視窗不會自帶永久腦內記憶。
+  - 專案必須把錯誤寫進 repo 文件、規則與測試，讓未來任一模型都能讀到並執行。
+
+**狀態**：
+- ✅ P96 plan 已升級為更保守版本。
+- ✅ 仍未動 runtime。
+- ⏭️ 下一步仍是檢查通過後，等待主公裁決是否 `核准 P96 plan freeze`。
+
+#### P96 plan draft 補強 — 跨層級歸屬與邊際效益優化（2026-05-26）
+
+**觸發**：
+- 主公追問：
+  ```text
+  這東西屬於前端還是後端?　有沒有更好的做法？想辦法直接優化至更各層級邊際效益
+  ```
+
+**補強內容**：
+- `docs/PHASE_96_PLAN.md` 新增 `2.8 跨層級歸屬與邊際效益優化`。
+- 明確分類：
+  - 不是單純前端。
+  - 不是單純後端。
+  - 是 `Content Trust / Report Contract` 橫切面問題。
+- 分層職責：
+  - 資料層：文章 title / url / date 真實性。
+  - 分析層：`hero_focus.name` / detected heroes / summary。
+  - 選文層：Top-5 / hero focus posts freshness。
+  - 報告生成層：template variables contract。
+  - 前端模板層：只呈現已驗證內容。
+  - 治理層：known issue registry + checker + regression tests。
+- 最佳邊際效益順序：
+  1. checker / evidence matrix。
+  2. known issue memory。
+  3. 只在根因層小修。
+  4. checker 穩定後才考慮接 CI / Daily Monitor gate。
+
+**狀態**：
+- ✅ P96 plan 已補上跨層級 ROI 策略。
+- ✅ 仍未動 runtime。
+- ⏭️ 下一步仍是等待主公裁決是否 `核准 P96 plan freeze`。
+
+#### P96 plan draft 補強 — Layer × Viewpoint Frontier（2026-05-26）
+
+**觸發**：
+- 主公再次追問：
+  ```text
+  還有沒有更好的做法? 直接把各層級各視角優化至邊際效益
+  ```
+
+**補強內容**：
+- `docs/PHASE_96_PLAN.md` 新增 `2.9 邊際效益前緣（Layer × Viewpoint Frontier）`。
+- 建立 runtime 候選改動的決策門檻：
+  - 必做：低成本、低 blast radius、可防高影響復發。
+  - 延後：高成本但 evidence 尚未證明收益。
+  - 拒絕：只能修表面、不能防復發。
+- 分層前緣：
+  - 資料層：只做到 freshness / unknown-date offenders 可追溯，不先重建資料模型。
+  - 分析層：只把 `hero_focus.name` 權威鎖到 config，不先重寫 prompt 大系統。
+  - 選文層：stale/duplicate/unknown-date guard 先 shadow，不先亂調 scoring 常數。
+  - 生成層：render 前做 content contract snapshot。
+  - 模板層：只呈現已驗證欄位與必要 badge，不在 template 內推理。
+  - 治理層：known issue registry + regression tests。
+  - 部署層：advisory shadow 先行，strict gate 後置。
+- 多視角前緣：
+  - 主公 / 使用者：latest report 要可讀可信。
+  - 接手者：錯誤要被 repo 記住。
+  - 紅隊：raw-free、safe URL、HTML checker。
+  - 數據分析師：舊文判定要有 freshness reason。
+  - 設計審查：不為內容 guard 大改 UI。
+  - DevOps：不誤擋 Daily Monitor。
+  - CFO：優先本地 deterministic checker，不靠重跑 LLM。
+
+**狀態**：
+- ✅ P96 plan 已補上各層級各視角的邊際效益前緣。
+- ✅ 仍未動 runtime。
+- ⏭️ 下一步仍是檢查通過後，等待主公裁決是否 `核准 P96 plan freeze`。
+
+#### P96 plan draft 補強 — 自我優化飛輪落地規格（2026-05-26）
+
+**觸發**：
+- 主公確認把「內容契約 + 已知錯誤記憶庫 + 自動檢查器」正式補進 P96：
+  ```text
+  好的聽起來不錯 補吧
+  ```
+
+**目標**：
+- 不只修「芽芽觀察室變圖倫觀察室」與「舊文章污染」兩個單點。
+- 把 P96 升級成可重跑、可交接、可升級的內容可信度飛輪：
+  - 錯一次要留下可讀紀錄。
+  - 錯一次要留下機器規則或測試。
+  - 錯一次要讓下一次 checker / artifact / report manifest 能抓到復發。
+
+**物理真相**：
+- `docs/PHASE_96_PLAN.md` 新增 `2.7.1 自我優化飛輪落地規格`：
+  - 四種落點：
+    - 人看得懂：`docs/CONTENT_TRUST_KNOWN_ISSUES.md` 或 P96 closeout section。
+      - 欄位：issue id、症狀、根因層、修法、復發訊號。
+    - 機器讀得懂：`configs/content_trust_known_issues.yaml` 或等價 JSON/YAML。
+      - 欄位：expected focus hero、forbidden title pattern、freshness threshold、severity/action。
+    - 程式跑得動：`scripts/check_report_content_trust.py` + focused tests。
+      - fixture 必須可重現 `wrong_focus_hero_title` / `stale_article_pollution`。
+    - 線上看得到：report manifest / content trust snapshot / Daily Monitor artifact。
+      - latest report 的 content trust status、reason、offenders 必須可追溯。
+  - 飛輪閉環：
+    - Detect：checker / evidence matrix 抓出症狀，不輸出 raw 全文。
+    - Diagnose：判斷根因層，不跨層猜修。
+    - Record：把錯誤寫成 known issue 條目。
+    - Codify：轉成機器規則或 regression test。
+    - Verify：先證明錯誤會被抓到，再證明修法後通過。
+    - Observe：檢 latest local / production report 與 artifact。
+    - Promote：shadow advisory 穩定後，才評估 strict gate。
+- `docs/PHASE_96_PLAN.md` runtime 退出條件新增：
+  - 自我優化飛輪至少對 `wrong_focus_hero_title` 與 `stale_article_pollution` 建立 issue id、可讀紀錄、機器規則或測試、驗證輸出。
+- `docs/PHASE_96_PLAN.md` Stage 表補強：
+  - S2 Known Issue Memory Design：新增 issue id / recurrence signal 驗收。
+  - S3 Regression Tests / Checker：新增 fail-before / pass-after evidence 驗收。
+- `NEXT_SESSION_HANDOFF.md` 與 `docs/ACTIVE_OPERATION.md` 同步：
+  - Current Step 改為 P96 draft 已補入自我優化飛輪規格。
+  - Exit Criteria 改為 handoff / active / risk / history 已同步 P96 draft 與自我優化飛輪補強。
+
+**邊界**：
+- 仍未動 runtime / template / data logic。
+- P96 的「自我修復」定義是自動偵測、記錄、驗證並阻止已知錯誤復發；不是讓程式自行改 production code，也不是新增泛用 AI 自動修 code 代理。
+- 若 runtime 發現需要更大規模自動修復系統，需另開 P97+，不可塞進 P96。
+
+**狀態**：
+- ✅ P96 plan 已補上自我優化飛輪落地規格。
+- ✅ handoff / active / history 已同步。
+- ✅ P96 plan lint / handoff truth / governance doctor / diff check 通過。
+- ✅ 已 amend 到 local P96 draft docs commit（commit hash 以 `git log -1 --oneline` 為準）。
+- ✅ 仍未動 runtime。
+- ⏭️ 下一步：等待主公確認 push local P96 draft docs commit（以 `git log -1 --oneline` 為準），或在 push 後裁決是否 `核准 P96 plan freeze`。
