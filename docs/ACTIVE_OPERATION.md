@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（IN_PROGRESS / Website Content Trust Runtime） |
-| **Current Step** | P96.0 Evidence Inventory 完成；first cloud run 0065755 證明焦點區已改善但 general feed 仍有 `時間未知`；second local guard 已補，待 commit / push / dispatch 驗證 |
-| **Mode** | IN_PROGRESS |
-| **Latest Verified Commit** | origin 最新已推送為 `0065755`（2026-05-26 production report after first P96 guard）；本地有 second guard changes 尚待 commit |
+| **Current Phase** | P96（VERIFYING / Website Content Trust Runtime） |
+| **Current Step** | second guard 已推送並經 AoV Daily Monitor 驗證；cloud commit `0618717` content trust checker 全 PASS；待收官文件 commit / push，並請主公裁決 R-017 是否降級 monitoring |
+| **Mode** | VERIFYING |
+| **Latest Verified Commit** | `0618717`（2026-05-26 production report after P96 second guard；workflow_dispatch success on head `f616283`） |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-26 |
 
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P96（IN_PROGRESS / CONTENT_TRUST_RUNTIME） |
-| **Current Step** | P96.0 evidence 完成；second guard 正在處理 general feed `時間未知`；待 commit / push / regenerated report verification |
+| **Current Phase** | P96（VERIFYING / CONTENT_TRUST_RUNTIME） |
+| **Current Step** | cloud commit `0618717` 已證明 latest report 無 `圖倫觀察室` 與 `時間未知`；closeout docs 正在同步 |
 | **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
 | **Exit Criteria** | focused tests pass；content trust checker produces fail-before on old report and pass-after on regenerated/new report；handoff / active / history synchronized; runtime commit pushed |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若本地有 second guard changes，先完成 tests/commit；若已 pushed，下一步是重新產生報告或手動 dispatch verification |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若 closeout docs 已 commit/pushed，下一步請主公裁決 `R-017 downgrade to monitoring` 或補人工網站抽看 |
 
 ## State Machine
 
@@ -77,7 +77,7 @@ P85-P95.1 已把 R-016 後端可靠性主線推進到 monitoring：post-P95.1C c
 
 ## Window Switch Guidance
 
-- 可以換視窗：P96 runtime guard 已 commit；若本地 ahead 1，下一窗可直接等主公 push。
+- 可以換視窗：P96 runtime guard 已通過雲端驗證；若本地 ahead 1，下一窗可直接等主公 push closeout docs。
 - 最佳換窗點：P96 runtime commit / push 完成，且 latest report 重新產生驗證後換。
 - 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_96_EVIDENCE_INVENTORY.md`，先確認是否 push local runtime commit。
 
