@@ -182,7 +182,7 @@ P96 runtime 收官退出條件：
 - [x] 新增 known issue memory：可讀文件 + 機器可讀規則 + regression test 三者至少兩者落地；若暫緩，需主公明文豁免。
 - [x] 自我優化飛輪至少對 `wrong_focus_hero_title` 與 `stale_article_pollution` 建立 issue id、可讀紀錄、機器規則或測試、驗證輸出。
 - [ ] 最新 production report 檢查：標題為芽芽觀察室，且未出現圖倫觀察室。
-- [ ] report 文章清單可解釋其日期來源；無日期時不可默默當新文。
+- [x] report 文章清單可解釋其日期來源；無日期時不可默默當新文。
 - [x] focused tests 通過；若動到 report generator / picker，至少跑相關 tests。
 - [ ] 若需要雲端確認，手動 dispatch AoV Daily Monitor 後讀 artifact/report。
 

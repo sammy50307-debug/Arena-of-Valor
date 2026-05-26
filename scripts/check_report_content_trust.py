@@ -96,6 +96,13 @@ def run_checks(repo_root: Path, date_str: str, report_file: Optional[Path] = Non
             "visible=%s" % (visible_forbidden_titles or []),
         )
     )
+    results.append(
+        CheckResult(
+            "report unknown dates",
+            "FAIL" if "時間未知" in html else "PASS",
+            "contains_time_unknown=%s" % ("時間未知" in html),
+        )
+    )
 
     focus_section = _focus_recent_section(html, expected)
     if not focus_section:
