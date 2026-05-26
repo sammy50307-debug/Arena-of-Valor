@@ -7,18 +7,19 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（FROZEN / Website Content Trust Plan / RUNTIME_NOT_STARTED） |
-| **Current Step** | P96 Website Content Trust plan 已凍結；等待主公另行核准 `P96 runtime 動工`。runtime 第一動作必須是 P96.0 Evidence Inventory，不動 R-016 monitoring runtime |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | local `HEAD`（P96 plan freeze docs，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `2818b88`（P96 draft docs） |
+| **Current Phase** | P96（IN_PROGRESS / Website Content Trust Runtime） |
+| **Current Step** | P96.0 Evidence Inventory 完成；content trust minimal fix / guard 已 commit 到 local HEAD，待 push 後重新產生報告或手動 dispatch 驗證 |
+| **Mode** | IN_PROGRESS |
+| **Latest Verified Commit** | local `HEAD`（P96 runtime guard，尚未 push；以 `git log -1 --oneline` 為準）；origin 最新已推送為 `61f03a1`（P96 plan freeze） |
 | **Updated At** | 2026-05-26 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_96_PLAN.md`（P96 Website Content Trust draft plan）
-4. `docs/PHASE_95_1_PLAN.md`（R-016 monitoring 裁決來源：§18 downgrade decision）
+3. `docs/PHASE_96_PLAN.md`（P96 Website Content Trust plan/runtime status）
+4. `docs/PHASE_96_EVIDENCE_INVENTORY.md`（P96.0 raw-free evidence matrix）
+5. `docs/PHASE_95_1_PLAN.md`（R-016 monitoring 裁決來源：§18 downgrade decision）
 
 ## Current Source Of Truth
 
@@ -26,7 +27,8 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_96_PLAN.md` | P96 Website Content Trust draft plan |
+| L3 | `docs/PHASE_96_PLAN.md` | P96 Website Content Trust plan/runtime status |
+| L3-evidence | `docs/PHASE_96_EVIDENCE_INVENTORY.md` | P96.0 evidence inventory / fail-before |
 | L3-prev | `docs/PHASE_95_1_PLAN.md` | P95.1 Enrichment Pending Closure、§17 cloud verification、§18 downgrade decision |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-017 / R-016 | R-017 content trust；R-016 monitoring / reopen triggers |
 
@@ -34,21 +36,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P96 plan 已凍結；下一條指令應是主公是否核准 `P96 runtime 動工`。 |
-| **最舒服的換窗點** | P96 plan freeze docs commit / push 完成後換；若本地 `main ahead 1` 是 P96 freeze docs，下一窗可直接等主公確認 push。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 freeze docs，先等主公 push 確認。 |
-| **不要在換窗後做的事** | 不要重開 R-016，除非 monitoring 觸發條件命中；不要未寫 P96 plan 就開始改前台內容可信度。 |
+| **現在能不能換視窗** | 可以。P96 runtime guard 已 commit；若本地 ahead 1，下一窗可直接等主公確認 push。 |
+| **最舒服的換窗點** | P96 runtime commit / push 完成，且 latest report 重新產生驗證後換。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_96_EVIDENCE_INVENTORY.md`；若 local ahead 1 是 P96 runtime guard，先等主公 push。 |
+| **不要在換窗後做的事** | 不要重開 R-016，除非 monitoring 觸發條件命中；不要重做 P96 plan/evidence；不要未完成驗證就宣告 P96 closed。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P96（FROZEN / RUNTIME_APPROVAL_REQUIRED / NOT_STARTED） |
-| **Current Step** | P96 Website Content Trust plan 已凍結；等待主公核准 `P96 runtime 動工`，未核准不得動 runtime/template/data logic |
-| **Allowed Files** | P96 freeze documentation / handoff / active / history；未核准 runtime 前不得動 runtime/template/data logic |
+| **Current Phase** | P96（IN_PROGRESS / CONTENT_TRUST_RUNTIME） |
+| **Current Step** | P96.0 evidence 完成；minimal fix、known issue memory、checker/tests 已 commit 到 local HEAD；待 push / regenerated report verification |
+| **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_96_PLAN.md` 已凍結並通過 lint；handoff / active / history 已同步 P96 freeze；local commit 完成後等主公確認 push |
-| **Resume Rule** | 新視窗讀本區塊與 `docs/PHASE_96_PLAN.md`；若本地 ahead 1 是 P96 freeze docs，先等主公 push；若已同步 origin，下一步是請主公裁決是否 `核准 P96 runtime 動工` |
+| **Exit Criteria** | focused tests pass；content trust checker produces fail-before on old report and pass-after on regenerated/new report；handoff / active / history synchronized; runtime commit pushed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若本地 ahead 1 是 P96 runtime guard，先等主公 push；若已 pushed，下一步是重新產生報告或手動 dispatch verification |
 
 ## Required Verification Commands
 

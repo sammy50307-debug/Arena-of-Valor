@@ -24,7 +24,7 @@
 | P96 plan | FROZEN | PASSED | 計畫已建立並凍結，但不可動 runtime | 主公下令「開 P96 plan」與「核准 P96 plan freeze」 | AI 執行 |
 | P96.0 Evidence Inventory | NOT_STARTED | REQUIRED_BEFORE_RUNTIME | runtime 前必讀完整關聯鏈並留下 evidence matrix | 主公要求最保守品質最高做法 | AI 執行，主公審核 |
 | Known Issue Memory / Regression Guard | New | PLANNED | 把復發型錯誤寫成機器可檢查規則與測試 | P96.0 找到根因與最小可測 contract | AI 實作，主公核准 runtime |
-| P96 runtime | NOT_STARTED | PENDING_RUNTIME_APPROVAL | 需另行核准才能改程式或模板 | 主公回覆「核准 P96 runtime 動工」後才可進入 | 主公 |
+| P96 runtime | IN_PROGRESS | APPROVED | P96.0 Evidence Inventory 已完成；minimal fix / guard 已本地落地，待重新產生報告驗證 | 主公回覆「核准 P96 runtime 動工」後進入 | 主公 |
 
 ---
 
@@ -164,8 +164,9 @@ P96 freeze 前的品質線：先把「最便宜但可防復發」的設計凍住
 - [x] 主公已明確下令「開 P96 plan」。
 - [x] 已讀 handoff / active / phase template / R-016 risk registry。
 - [x] 主公已核准 `P96 plan freeze`；runtime 仍需另行核准。
-- [ ] runtime 前完成 P96.0 Evidence Inventory，並把 evidence matrix 寫入 P96 plan 補遺或 TASK_HISTORY。
-- [ ] runtime 前先確認最新 production report、manifest、`config.HERO_FOCUS_NAME` 與可重現樣本。
+- [x] 主公已核准 `P96 runtime 動工`。
+- [x] runtime 前完成 P96.0 Evidence Inventory，並把 evidence matrix 寫入 `docs/PHASE_96_EVIDENCE_INVENTORY.md`。
+- [x] runtime 前先確認最新 production report、manifest、`config.HERO_FOCUS_NAME` 與可重現樣本。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -176,13 +177,13 @@ P96 plan freeze 退出條件：
 - [x] `TASK_HISTORY.md` 追加 P96 plan 物理真相。
 
 P96 runtime 收官退出條件：
-- [ ] 新增或更新內容可信度 checker / tests，可檢出焦點英雄錯標。
-- [ ] 新增或更新 stale article guard，可檢出 Top-5 / hero focus article 過舊或重複污染。
-- [ ] 新增 known issue memory：可讀文件 + 機器可讀規則 + regression test 三者至少兩者落地；若暫緩，需主公明文豁免。
-- [ ] 自我優化飛輪至少對 `wrong_focus_hero_title` 與 `stale_article_pollution` 建立 issue id、可讀紀錄、機器規則或測試、驗證輸出。
+- [x] 新增或更新內容可信度 checker / tests，可檢出焦點英雄錯標。
+- [x] 新增或更新 stale article guard，可檢出 Top-5 / hero focus article 過舊或重複污染。
+- [x] 新增 known issue memory：可讀文件 + 機器可讀規則 + regression test 三者至少兩者落地；若暫緩，需主公明文豁免。
+- [x] 自我優化飛輪至少對 `wrong_focus_hero_title` 與 `stale_article_pollution` 建立 issue id、可讀紀錄、機器規則或測試、驗證輸出。
 - [ ] 最新 production report 檢查：標題為芽芽觀察室，且未出現圖倫觀察室。
 - [ ] report 文章清單可解釋其日期來源；無日期時不可默默當新文。
-- [ ] focused tests 通過；若動到 report generator / picker，至少跑相關 tests。
+- [x] focused tests 通過；若動到 report generator / picker，至少跑相關 tests。
 - [ ] 若需要雲端確認，手動 dispatch AoV Daily Monitor 後讀 artifact/report。
 
 ## 5. ROI 評估

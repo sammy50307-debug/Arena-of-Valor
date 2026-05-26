@@ -1777,7 +1777,7 @@
                         {% set pk = card.get('picker', {}) %}
                         {% set region = post_data.get('region', 'TW') %}
                         {% set focus_hero = config.HERO_FOCUS_NAME or "芽芽" %}
-                        {% set is_yaya = (focus_hero in (post_data.get('title','') or '')) or (focus_hero in (post_data.get('content','') or '')) or pk.get('boost',1.0) > 1.0 %}
+                        {% set is_yaya = pk.get('is_focus_hero_text', False) or (focus_hero in (post_data.get('title','') or '')) or (focus_hero in (post_data.get('content','') or '')) or (focus_hero in (a.get('summary','') or '')) %}
                         {% set sentiment = a.get('sentiment', 'neutral') %}
                         {% set is_dup = pk.get('is_duplicate', False) %}
                         {% set dup_badge = pk.get('dup_badge', '') %}
