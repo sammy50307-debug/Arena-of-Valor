@@ -22,7 +22,7 @@
 
 - **來源**：主公 2026-05-26 要求評估 RTK；RTK 是會壓縮 / 改寫 CLI 輸出的 token-saving 工具，可能影響 Codex / Claude / Gemini 的終端真相。
 - **風險級**：🔴 高
-- **狀態**：Open（P97 DRAFT；尚未安裝，尚未初始化）
+- **狀態**：Open（P97 FROZEN；尚未安裝，尚未初始化）
 - **描述**：RTK 可能降低 terminal output token 成本，但它位於 AI 與命令輸出之間，若壓縮掉 traceback、測試失敗細節、警告或 security-relevant output，AI 可能做出錯誤判斷。全域部署還會影響所有專案與多代理行為；Windows 原生 hook 能力與官方宣稱 savings 也可能有落差。
 - **緩解策略**：
   - 短期：開 P97 evaluation plan；只允許官方資料查證、本機盤點、dry-run 設計，不安裝、不初始化、不全域部署。
@@ -48,7 +48,7 @@
   - `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26` 全 PASS：focus room title PASS、forbidden focus title PASS、`report unknown dates` PASS、focus recent section PASS。
   - 2026-05-26 主公明文核准 `R-017 downgrade to monitoring`；R-017 由 active content-trust risk 降級為 Open（Monitoring），不是 Closed。
 - **監控期**：每日或手動 dispatch 後檢查 latest production report、content trust checker、focus room title、`時間未知`、focus recent section、Top-5/general feed 日期可信度。
-- **觸發升級**：若 latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題、`圖倫觀察室` / 非焦點觀察室、`時間未知`、Top-5 / hero focus / general feed 出現不可解釋的舊文章污染、content trust checker FAIL、或 checker 通過但主公人工驗收失敗 → 升回 active R-017，另開 P97+ 修復。
+- **觸發升級**：若 latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題、`圖倫觀察室` / 非焦點觀察室、`時間未知`、Top-5 / hero focus / general feed 出現不可解釋的舊文章污染、content trust checker FAIL、或 checker 通過但主公人工驗收失敗 → 升回 active R-017，另開 content trust follow-up phase 修復。
 
 ---
 
