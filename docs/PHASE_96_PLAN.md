@@ -1,6 +1,6 @@
-# Phase P96 計畫書 — Website Content Trust（RUNTIME VERIFIED）
+# Phase P96 計畫書 — Website Content Trust（CLOSED / R-017 MONITORING）
 
-> 狀態：RUNTIME VERIFIED，主公已於 2026-05-26 核准 `P96 plan freeze` 與 `P96 runtime 動工`。本 Phase 建立「網站內容可信度」修復計畫，針對主公回報的「芽芽觀察室變成圖倫觀察室」與「很多文章是舊文章」設計根因追查、測試護欄與收官驗證。2026-05-26 cloud commit `0618717` 已通過 content trust checker；R-017 是否降級為 monitoring 仍待主公裁決。
+> 狀態：CLOSED / R-017 MONITORING。主公已於 2026-05-26 核准 `P96 plan freeze`、`P96 runtime 動工`、`R-017 downgrade to monitoring`。本 Phase 建立「網站內容可信度」修復計畫，針對主公回報的「芽芽觀察室變成圖倫觀察室」與「很多文章是舊文章」完成根因追查、測試護欄與雲端收官驗證。2026-05-26 cloud commit `0618717` 已通過 content trust checker；R-017 保留 Open（Monitoring）至 2026-06-02，不標 Closed。
 
 ---
 
@@ -20,11 +20,11 @@
 
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
-| R-017 Website Content Trust | New | Open | 前台內容正確性風險已建帳 | 主公回報頁面標題錯置與舊文章問題 | AI 建帳，主公核准 Phase |
+| R-017 Website Content Trust | Open | Open（Monitoring） | 前台內容正確性風險已通過 P96 雲端驗證，進 7 天監控 | 主公核准 `R-017 downgrade to monitoring` | 主公 |
 | P96 plan | FROZEN | PASSED | 計畫已建立並凍結，但不可動 runtime | 主公下令「開 P96 plan」與「核准 P96 plan freeze」 | AI 執行 |
 | P96.0 Evidence Inventory | NOT_STARTED | REQUIRED_BEFORE_RUNTIME | runtime 前必讀完整關聯鏈並留下 evidence matrix | 主公要求最保守品質最高做法 | AI 執行，主公審核 |
 | Known Issue Memory / Regression Guard | New | PLANNED | 把復發型錯誤寫成機器可檢查規則與測試 | P96.0 找到根因與最小可測 contract | AI 實作，主公核准 runtime |
-| P96 runtime | IN_PROGRESS | VERIFIED | P96.0 Evidence Inventory 已完成；minimal fix / guard 已落地；cloud commit `0618717` 通過 checker | 主公回覆「核准 P96 runtime 動工」後進入；手動 dispatch AoV Daily Monitor 完成 | 主公 / AI |
+| P96 runtime | VERIFIED | CLOSED | P96.0 Evidence Inventory 已完成；minimal fix / guard 已落地；cloud commit `0618717` 通過 checker；R-017 降級 monitoring | 主公回覆「核准 R-017 downgrade to monitoring」 | 主公 / AI |
 
 ---
 

@@ -18,11 +18,11 @@
 
 ## 開放風險（Open）
 
-### R-017：Website Content Trust / focus hero mismatch / stale articles（P96 開案）
+### R-017：Website Content Trust / focus hero mismatch / stale articles（P96 monitoring）
 
 - **來源**：主公 2026-05-24～2026-05-26 回報：網站曾多次出現「芽芽觀察室」莫名變「圖倫觀察室」，且頁面中有很多舊文章。
-- **風險級**：🔴 高
-- **狀態**：Open
+- **風險級**：🟡 中（Monitoring；由 🔴 高降級，2026-05-26 主公核准）
+- **狀態**：Open（Monitoring；2026-05-26 主公核准，觀察至 2026-06-02）
 - **描述**：R-016 已使 Daily Monitor / production SLO / doctor 進入 monitoring，但這只能證明 pipeline 可發布，不保證前台語意正確。若 `hero_focus.name`、template 標題、Top-5 picker、news history index、`published_date` / `timestamp` 或 LLM summary 任一層漂移，使用者仍會看到錯英雄標題或過期文章，造成網站可信度受損。
 - **緩解策略**：
   - 短期：開 P96 Website Content Trust plan；先定義 hero/title/freshness contract，不直接手改 HTML。
@@ -32,8 +32,9 @@
   - P96 runtime commit `f616283` 已推送。
   - 手動 dispatch AoV Daily Monitor run `26455966515` success；cloud auto-sync commit `0618717` 產生 latest report。
   - `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26` 全 PASS：focus room title PASS、forbidden focus title PASS、`report unknown dates` PASS、focus recent section PASS。
-  - R-017 尚未標 Closed；待主公人工抽看或核准降級為 monitoring。
-- **觸發升級**：若 latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題、Top-5 / hero focus 區出現不可解釋的舊文章污染、或 checker 通過但主公人工驗收失敗 → 升為 P96 runtime blocking，禁止收官。
+  - 2026-05-26 主公明文核准 `R-017 downgrade to monitoring`；R-017 由 active content-trust risk 降級為 Open（Monitoring），不是 Closed。
+- **監控期**：每日或手動 dispatch 後檢查 latest production report、content trust checker、focus room title、`時間未知`、focus recent section、Top-5/general feed 日期可信度。
+- **觸發升級**：若 latest production report 再次出現非 `config.HERO_FOCUS_NAME` 的觀察室標題、`圖倫觀察室` / 非焦點觀察室、`時間未知`、Top-5 / hero focus / general feed 出現不可解釋的舊文章污染、content trust checker FAIL、或 checker 通過但主公人工驗收失敗 → 升回 active R-017，另開 P97+ 修復。
 
 ---
 

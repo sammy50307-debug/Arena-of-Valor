@@ -7,10 +7,10 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-017 Website Content Trust Program |
-| **Current Phase** | P96（VERIFYING / Website Content Trust Runtime） |
-| **Current Step** | second guard 已推送並經 AoV Daily Monitor 驗證；cloud commit `0618717` content trust checker 全 PASS；待收官文件 commit / push，並請主公裁決 R-017 是否降級 monitoring |
-| **Mode** | VERIFYING |
-| **Latest Verified Commit** | `0618717`（2026-05-26 production report after P96 second guard；workflow_dispatch success on head `f616283`） |
+| **Current Phase** | P96（CLOSED / R-017 Website Content Trust Monitoring） |
+| **Current Step** | 主公已核准 `R-017 downgrade to monitoring`；R-017 保留 Open（Monitoring）至 2026-06-02；待本裁決文件 commit / push 後可轉入下一 Program（RTK 評估或主公指定任務） |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | `9d998c2` 已推送；cloud report commit `0618717` content trust checker 全 PASS |
 | **Updated At** | 2026-05-26 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -36,21 +36,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P96 runtime guard 已通過雲端驗證；若本地 ahead 1，下一窗可直接等主公確認 push closeout docs。 |
-| **最舒服的換窗點** | P96 closeout docs commit / push 完成，且主公裁決 R-017 是否降級 monitoring 後換。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_96_EVIDENCE_INVENTORY.md`；若 local ahead 1 是 P96 closeout docs，先等主公 push。 |
-| **不要在換窗後做的事** | 不要重開 R-016，除非 monitoring 觸發條件命中；不要重做 P96 plan/evidence；不要未完成驗證就宣告 P96 closed。 |
+| **現在能不能換視窗** | 可以。P96 已收官，R-017 已降級 monitoring；若本地 ahead 1，下一窗可直接等主公確認 push downgrade docs。 |
+| **最舒服的換窗點** | R-017 downgrade docs commit / push 完成後換。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 若 local ahead 1 是 R-017 monitoring docs，先等主公 push。 |
+| **不要在換窗後做的事** | 不要重開 R-016 或 R-017，除非 monitoring 觸發條件命中；不要重做 P96 plan/evidence；不要把 P96 說成全站永不再壞。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P96（VERIFYING / CONTENT_TRUST_RUNTIME） |
-| **Current Step** | cloud commit `0618717` 已證明 latest report 無 `圖倫觀察室` 與 `時間未知`；closeout docs 正在同步 |
+| **Current Phase** | P96（CLOSED / R-017_CONTENT_TRUST_MONITORING） |
+| **Current Step** | R-017 已由 active content-trust risk 降級 Open（Monitoring）；觀察窗 2026-05-26～2026-06-02 |
 | **Allowed Files** | P96 runtime scope：`reporter/generator.py`、`reporter/templates/report.html`、`analyzer/top5_picker.py`、content trust checker/tests/docs/config、handoff/active/history |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch artifact / raw queue / git-ignored enriched_posts；不新增 provider key / PAT / Cloudflare token / Groq key；不加 GitHub Actions `models: read`；不接 Groq / Cloudflare / GitHub Models 到 daily default；不改 workflow；不降低 SLO001/SLO002/SLO003 blocking 門檻；不重開 R-016，除非 monitoring 觸發條件命中；不未經計畫就修芽芽觀察室或舊文章；不 git push，除非主公明確確認 |
-| **Exit Criteria** | focused tests pass；content trust checker produces fail-before on old report and pass-after on regenerated/new report；handoff / active / history synchronized; runtime commit pushed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_96_PLAN.md`、`docs/PHASE_96_EVIDENCE_INVENTORY.md`；若 closeout docs 已 commit/pushed，下一步請主公裁決 `R-017 downgrade to monitoring` 或補人工網站抽看 |
+| **Exit Criteria** | ✅ focused tests pass；✅ content trust checker fail-before/pass-after；✅ cloud report `0618717` PASS；✅ R-017 monitoring 裁決已取得；待本裁決文件 commit/push |
+| **Resume Rule** | 新視窗讀本區塊與 `docs/RISK_REGISTRY.md` 的 R-017；若 downgrade docs 已 push，下一步可開 RTK 評估 Program 或主公指定任務 |
 
 ## Required Verification Commands
 
