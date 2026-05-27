@@ -6,22 +6,22 @@
 | 欄位 | 內容 |
 |---|---|
 | **Status** | ACTIVE |
-| **Program** | R-019 Project Self-Optimization Flywheel Program / R-020 Artifact Hygiene Risk |
-| **Current Phase** | P99（CLOSED / Generated Artifact Hygiene Policy / Stage Guard Runtime Complete） |
-| **Current Step** | P99 runtime 已完成：policy + path-only advisory checker + focused tests 已建立；runtime commit 建立於本地後，push 仍需主公確認。下一門候選是 P100 Root Legacy / Debug Debris Quarantine Plan。 |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `edbc0f7` 已推送；P99 runtime commit 建立於本地後，push 仍需主公確認 |
+| **Program** | R-019 Project Self-Optimization Flywheel Program / R-021 Root Legacy Quarantine Risk |
+| **Current Phase** | P100（DRAFT / Root Legacy / Debug Debris Quarantine Plan） |
+| **Current Step** | P100 plan draft 已建立；等待主公裁決 `核准 P100 plan freeze`。本階段仍不可 cleanup。 |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `b88a846` 已推送；P100 plan draft commit 建立後，push 仍需主公確認 |
 | **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_99_PLAN.md`（P99 Generated Artifact Hygiene Policy / Stage Guard）
-4. `docs/GENERATED_ARTIFACT_POLICY.md`（P99 path-only advisory guard policy）
-5. `scripts/check_generated_artifact_hygiene.py`（P99 advisory checker）
-6. `docs/PHASE_98_AUDIT.md`（P98 runtime audit evidence / P99 來源）
-7. `docs/RISK_REGISTRY.md` 的 R-020 / R-019 / R-017（artifact hygiene；project flywheel；content trust monitoring）
+3. `docs/PHASE_100_PLAN.md`（P100 Root Legacy / Debug Debris Quarantine Plan）
+4. `docs/GENERATED_ARTIFACT_POLICY.md`（P99 path-only advisory guard policy / P100 依據）
+5. `docs/PHASE_98_AUDIT.md`（P98 runtime audit evidence / P100 來源）
+6. `docs/RISK_REGISTRY.md` 的 R-021 / R-020 / R-019 / R-017（root quarantine；artifact hygiene；project flywheel；content trust monitoring）
+7. `docs/PHASE_99_PLAN.md`（P99 closed / checker boundary）
 8. `docs/PHASE_97_RTK_EVALUATION.md`（P97 RTK runtime evidence）
 
 ## Current Source Of Truth
@@ -30,10 +30,11 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_99_PLAN.md` | P99 Generated Artifact Hygiene Policy / Stage Guard |
+| L3 | `docs/PHASE_100_PLAN.md` | P100 Root Legacy / Debug Debris Quarantine Plan |
 | L3-policy | `docs/GENERATED_ARTIFACT_POLICY.md` | P99 generated artifact classification / promote criteria / stop rules |
 | L3-checker | `scripts/check_generated_artifact_hygiene.py` | P99 path-only advisory stage guard |
 | L3-audit | `docs/PHASE_98_AUDIT.md` | P98 runtime audit evidence / P99 來源 |
+| L3-p99 | `docs/PHASE_99_PLAN.md` | P99 closed / P100 前置 guard |
 | L3-rtk | `docs/PHASE_97_RTK_EVALUATION.md` | P97 RTK runtime evidence / install blocked 裁決 |
 | L3-content | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
 | L4 | `docs/RISK_REGISTRY.md` 的 R-020 / R-019 / R-018 / R-017 / R-016 | artifact hygiene；project flywheel；RTK tooling；content trust monitoring；backend monitoring |
@@ -42,21 +43,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P99 runtime commit，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P99 runtime commit 推送後，等待主公裁決是否開 P100。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_99_PLAN.md` 與 `docs/GENERATED_ARTIFACT_POLICY.md`。 |
-| **不要在換窗後做的事** | 不要清理 generated reports；不要搬檔或刪檔；不要改 `.gitignore`；不要改 runtime code；不要把 P98 改成 RTK pilot。 |
+| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P100 plan draft commit，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P100 plan draft commit / push 完成，等待主公裁決是否核准 `P100 plan freeze`。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_100_PLAN.md`。 |
+| **不要在換窗後做的事** | 不要清理 root files；不要搬檔或刪檔；不要 rename；不要改 `.gitignore`；不要改 runtime code；不要改 GitHub Actions / Pages。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P99（CLOSED / GENERATED_ARTIFACT_HYGIENE_POLICY_STAGE_GUARD / RUNTIME_COMPLETE） |
-| **Current Step** | P99 runtime 已完成；若 local ahead 是 runtime commit，等待主公確認 push；下一門候選是 P100 Root Legacy / Debug Debris Quarantine Plan |
-| **Allowed Files** | P99 runtime scope：`docs/GENERATED_ARTIFACT_POLICY.md`、`scripts/check_generated_artifact_hygiene.py`、`tests/test_generated_artifact_hygiene.py`、`docs/PHASE_99_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理、不搬檔、不 rename、不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不導入 RTK 或新工具；不把 checker 接成 strict gate；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P99 policy / checker / tests created；focused tests PASS；handoff / active / risk / history synchronized；R-020 Open（P99 CLOSED / ADVISORY GUARD ACTIVE）；P99 runtime committed locally |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_99_PLAN.md`、`docs/GENERATED_ARTIFACT_POLICY.md`、`docs/RISK_REGISTRY.md` R-020；若 local ahead 是 P99 runtime commit，等待主公 push；若已推，由主公裁決是否開 P100 |
+| **Current Phase** | P100（DRAFT / ROOT_LEGACY_DEBUG_DEBRIS_QUARANTINE_PLAN / RUNTIME_NOT_STARTED） |
+| **Current Step** | P100 plan draft 已建立；等待主公裁決 `核准 P100 plan freeze` |
+| **Allowed Files** | P100 plan scope：`docs/PHASE_100_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理 root files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不讀 raw debug log content；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
+| **Exit Criteria** | `docs/PHASE_100_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-021 Open（P100 DRAFT）；P100 plan draft committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_100_PLAN.md`、`docs/RISK_REGISTRY.md` R-021；若 local ahead 是 P100 plan draft commit，等待主公 push；若已推，下一步是由主公裁決是否核准 `P100 plan freeze` |
 
 ## Required Verification Commands
 
@@ -74,6 +75,7 @@ py scripts\lint_phase_plan.py docs\PHASE_96_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_97_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_100_PLAN.md
 py -m pytest -q tests\test_generated_artifact_hygiene.py
 py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_99_PLAN.md analyzer/source_selection.py tests/test_source_selection.py
 py scripts\check_generated_artifact_hygiene.py --repo-root . --paths scratch/demo.txt data/reports/PREVIEW_yaya.html run_log.txt
@@ -98,6 +100,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
 - 不要未經主公另開 RTK pilot phase 並核准，就安裝 RTK、執行非 dry-run `rtk init`、patch `AGENTS.md` 或部署到全域。
 - 不要把 P98 Project Flywheel Audit 和 future RTK pilot 混線；RTK 若要繼續應另開 P99+ 或獨立 phase。
+- 不要把 P100 plan 解讀成 root cleanup 已核准；P100 DRAFT 只允許計畫與治理同步。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
