@@ -13648,3 +13648,53 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_100_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md` PASS / no advisories。
 - ⏭️ 下一步：建立 P100 plan draft commit；push 仍需主公確認。推送後由主公裁決是否核准 `P100 plan freeze`。
+
+#### P100 plan freeze — Root Legacy / Debug Debris Quarantine Plan（2026-05-27）
+
+**目標**：
+- 依主公指令 `核准 P100 plan freeze`，將 P100 從 DRAFT 凍結為 FROZEN。
+- 本次只同步治理文件狀態，不進入 runtime，不新增 inventory / checker，不清理、不搬檔、不 rename、不刪檔、不改 `.gitignore`、不改 GitHub Actions / Pages、不讀 raw debug log content。
+
+**推送真相**：
+- 已推送：
+  - `e92ad76 docs: 開 P100 root legacy quarantine plan`
+  - remote：`b88a846..e92ad76 main -> main`
+
+**本次凍結同步檔案**：
+- `docs/PHASE_100_PLAN.md`
+  - 標題改為 `FROZEN`。
+  - 狀態段落標明主公已核准 `P100 plan freeze`。
+  - P100 plan draft / freeze 退出條件改為完成。
+- `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P100（FROZEN / Root Legacy / Debug Debris Quarantine Plan）`。
+  - 下一門改為 `核准 P100 runtime`。
+  - 明確 runtime 仍不可自動開始。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步 R-019 / R-021 / P100 FROZEN。
+- `docs/RISK_REGISTRY.md`
+  - R-021 狀態改為 `Open（P100 FROZEN；runtime 未開始，cleanup blocked）`。
+- `TASK_HISTORY.md`
+  - 追加本段 P100 plan freeze 物理真相。
+
+**禁止事項仍有效**：
+- 不刪檔。
+- 不搬檔。
+- 不 rename。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages deployment。
+- 不讀 raw debug log content。
+- 不 stage generated reports、scratch、raw artifact、舊 untracked skill 暫存。
+- 不導入 RTK 或新工具。
+- 不把 advisory guard 升 strict gate。
+- 不把 root static asset / generated reports / skill layer cleanup 混進 P100。
+
+**狀態**：
+- ✅ `e92ad76` 已推送。
+- ✅ P100 plan freeze 已核准並寫入治理文件。
+- ✅ `git diff --check` PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_100_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_100_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md` PASS / no advisories。
+- ⏭️ 下一步：建立 P100 plan freeze commit；push 仍需主公確認。推送後下一門才是 `核准 P100 runtime`。
