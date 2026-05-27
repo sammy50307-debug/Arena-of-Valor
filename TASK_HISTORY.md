@@ -13134,3 +13134,74 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ⚠️ failure diagnostics fidelity 未通過，因此 install/global deployment blocked。
 - ⏳ 尚待 lint / handoff truth / governance doctor / diff check。
 - ⏭️ 下一步：commit P97 runtime closeout docs；push 仍需主公確認。
+
+#### P98 plan draft — Project Flywheel Audit Plan（2026-05-27）
+
+**目標**：
+- 開啟 R-019 / P98 Project Self-Optimization Flywheel Program。
+- 本 Phase 只建立「Project Flywheel Audit」計畫，不清理檔案、不搬移 generated reports、不改 runtime code、不改 GitHub Actions、不導入 RTK。
+
+**觸發**：
+- 主公選取並要求：
+  - `開 P98 Project Flywheel Audit Plan`
+- 前置狀態：
+  - P97 RTK 評估已完成並推送至 `e883117`。
+  - AOV 專案版自我優化飛輪已寫入 `AGENTS.md`。
+  - 全域自我優化飛輪已同步至 Codex / Claude / Gemini 全域規則。
+
+**問題定義**：
+- AOV 專案目前的痛點不是單純程式碼行數過大，而是 core code、generated outputs、治理文件、skills、scratch、history、Daily Monitor / Pages artifact 彼此混線。
+- 若不先 audit，直接清理或重構可能：
+  - 誤刪歷史證據。
+  - 破壞 Pages / report link。
+  - 讓 TASK_HISTORY / handoff 真相漂移。
+  - 把新工具導入變成新的 debug 變因。
+
+**P98 方案裁決**：
+- 採用：Project Flywheel Audit。
+- 不採用：
+  - 直接清理 generated files。
+  - 直接大重構。
+  - 只靠全域規則。
+- P98 runtime 未來只做盤點與排序：
+  - repo layer inventory。
+  - known issue memory gap。
+  - generated artifact hygiene。
+  - governance slimdown audit。
+  - verification ladder。
+  - P99+ next phase ranking。
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_98_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Program 改為 R-019 Project Self-Optimization Flywheel Program。
+    - Current Phase 改為 P98 DRAFT。
+    - Forbidden Work 明列不清理、不搬檔、不改 runtime、不改 workflow。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-019 / P98 DRAFT。
+  - `docs/RISK_REGISTRY.md`
+    - 新增 R-019：Project self-optimization flywheel / repo entropy。
+    - R-018 的 future RTK pilot 改稱 P99+ 或獨立 phase，避免與 P98 混線。
+  - `TASK_HISTORY.md`
+    - 追加本段 P98 plan draft 物理真相。
+
+**P98 Forbidden Work**：
+- 不搬移、不刪除、不 rename 檔案。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages deployment。
+- 不 stage generated reports、scratch、raw artifact、舊 untracked skill 暫存。
+- 不導入 RTK 或任何新工具。
+- 不把 R-016 / R-017 monitoring 標 Closed。
+- 不把 P98 改成 RTK pilot；RTK 若要繼續，另開 P99+ 或獨立 phase。
+
+**狀態**：
+- ✅ P98 plan draft 已建立。
+- ✅ R-019 風險已入 Open registry。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ `git diff --check` PASS。
+- ⏭️ 下一步：commit P98 plan draft；push 仍需主公確認。

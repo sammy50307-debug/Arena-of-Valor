@@ -6,20 +6,20 @@
 | 欄位 | 內容 |
 |---|---|
 | **Status** | ACTIVE |
-| **Program** | R-018 RTK Token Savings Evaluation Program |
-| **Current Phase** | P97（CLOSED / RTK Evaluation Runtime Complete / INSTALL BLOCKED） |
-| **Current Step** | P97 runtime 已完成；RTK 不全域部署、不 project init、不 patch `AGENTS.md`。下一步若主公要繼續 RTK，只能另開 P98 project-local/manual-prefix pilot；否則回到 R-016/R-017 monitoring。 |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `2d45f28` 已推送；P97 runtime closeout docs 本地同步中 |
+| **Program** | R-019 Project Self-Optimization Flywheel Program |
+| **Current Phase** | P98（DRAFT / Project Flywheel Audit Plan） |
+| **Current Step** | 主公已要求開 `P98 Project Flywheel Audit Plan`；只允許建立 plan / handoff / active / risk / history，不清理、不搬檔、不改 runtime、不動 GitHub Actions。下一門是 `核准 P98 plan freeze`。 |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `e883117` 已推送；P98 plan draft 本地同步中 |
 | **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_97_RTK_EVALUATION.md`（P97 RTK runtime evidence）
-4. `docs/PHASE_97_PLAN.md`（P97 RTK evaluation plan / closed decision）
-5. `docs/RISK_REGISTRY.md` 的 R-018 / R-017（RTK toolchain risk；content trust monitoring）
+3. `docs/PHASE_98_PLAN.md`（P98 Project Flywheel Audit Plan）
+4. `docs/RISK_REGISTRY.md` 的 R-019 / R-018 / R-017（project flywheel；RTK toolchain；content trust monitoring）
+5. `docs/PHASE_97_RTK_EVALUATION.md`（P97 RTK runtime evidence）
 6. `docs/PHASE_96_PLAN.md`（P96 已收官；R-017 monitoring 裁決來源）
 
 ## Current Source Of Truth
@@ -28,30 +28,30 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_97_RTK_EVALUATION.md` | P97 runtime evidence / install blocked 裁決 |
-| L3-plan | `docs/PHASE_97_PLAN.md` | P97 RTK evaluation plan / closed state |
-| L3-prev | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
-| L4 | `docs/RISK_REGISTRY.md` 的 R-018 / R-017 / R-016 | RTK tooling risk；content trust monitoring；backend monitoring |
+| L3 | `docs/PHASE_98_PLAN.md` | P98 Project Flywheel Audit Plan |
+| L3-rtk | `docs/PHASE_97_RTK_EVALUATION.md` | P97 RTK runtime evidence / install blocked 裁決 |
+| L3-content | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
+| L4 | `docs/RISK_REGISTRY.md` 的 R-019 / R-018 / R-017 / R-016 | project flywheel；RTK tooling；content trust monitoring；backend monitoring |
 
 ## Window Switch Timing
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P97 runtime closeout docs 若本地 ahead 1，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P97 runtime closeout docs commit / push 完成，等待主公裁決是否開 P98 manual-prefix pilot。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_97_RTK_EVALUATION.md`。 |
-| **不要在換窗後做的事** | 不要安裝 RTK；不要執行非 dry-run `rtk init`；不要改全域 AGENTS/CLAUDE/GEMINI；不要把 RTK 接進 Daily Monitor；不要把 RTK 全域部署。 |
+| **現在能不能換視窗** | 可以。P98 plan draft 若本地 ahead 1，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P98 plan draft commit / push 完成，等待主公裁決是否核准 `P98 plan freeze`。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_98_PLAN.md`。 |
+| **不要在換窗後做的事** | 不要清理 generated reports；不要搬檔或刪檔；不要改 `.gitignore`；不要改 runtime code；不要把 P98 改成 RTK pilot。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P97（CLOSED / RTK_EVALUATION_RUNTIME_COMPLETE / INSTALL_BLOCKED） |
-| **Current Step** | P97 runtime evidence 已完成；等待 closeout docs checks / commit / 主公確認 push |
-| **Allowed Files** | P97 closeout scope：`docs/PHASE_97_PLAN.md`、`docs/PHASE_97_RTK_EVALUATION.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage `scratch/rtk_eval/`；不安裝 RTK；不執行非 dry-run `rtk init`；不改 PATH / shell profile / global AGENTS / CLAUDE / GEMINI；不啟用 telemetry；不改 GitHub Actions / Daily Monitor；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P97 runtime evidence doc exists；handoff / active / risk / history synchronized；R-018 Open（install blocked）；governance checks PASS；closeout docs committed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_97_RTK_EVALUATION.md`、`docs/RISK_REGISTRY.md` R-018；若 local ahead 是 P97 runtime closeout docs，等待主公 push；若已推，下一步由主公裁決是否開 P98 project-local/manual-prefix pilot |
+| **Current Phase** | P98（DRAFT / PROJECT_FLYWHEEL_AUDIT_PLAN / RUNTIME_NOT_STARTED） |
+| **Current Step** | P98 plan draft 建立中；等待 checks / commit / 主公確認 push，下一門是 `核准 P98 plan freeze` |
+| **Allowed Files** | P98 plan scope：`docs/PHASE_98_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理、不搬檔、不 rename、不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
+| **Exit Criteria** | `docs/PHASE_98_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-019 Open；P98 plan draft committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_98_PLAN.md`、`docs/RISK_REGISTRY.md` R-019；若 local ahead 是 P98 plan draft，等待主公 push；若已推，下一步是 `核准 P98 plan freeze` |
 
 ## Required Verification Commands
 
@@ -67,6 +67,7 @@ py scripts\lint_phase_plan.py docs\PHASE_95_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_96_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_97_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
 py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py
@@ -86,7 +87,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把 P93 provider candidates 當成已啟用；Groq / Cloudflare / GitHub Models 目前只允許 disabled-by-default slot 與 manual-only future smoke。
 - 不要重開 P94 runtime；P94 已 CLOSED。
 - 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
-- 不要未經主公另開 P98 並核准，就安裝 RTK、執行非 dry-run `rtk init`、patch `AGENTS.md` 或部署到全域。
+- 不要未經主公另開 RTK pilot phase 並核准，就安裝 RTK、執行非 dry-run `rtk init`、patch `AGENTS.md` 或部署到全域。
+- 不要把 P98 Project Flywheel Audit 和 future RTK pilot 混線；RTK 若要繼續應另開 P99+ 或獨立 phase。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
