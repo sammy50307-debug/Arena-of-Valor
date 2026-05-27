@@ -13698,3 +13698,90 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_100_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md` PASS / no advisories。
 - ⏭️ 下一步：建立 P100 plan freeze commit；push 仍需主公確認。推送後下一門才是 `核准 P100 runtime`。
+
+#### P100 runtime — Root Legacy / Debug Debris Quarantine（2026-05-27）
+
+**目標**：
+- 依主公指令 `核准 P100 runtime`，在不 cleanup 的前提下完成 root legacy / debug debris 的 runtime evidence。
+- Runtime 只新增 root quarantine evidence、path-only advisory checker、focused tests 與治理文件收官；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不讀 raw debug log content、不接 strict gate。
+
+**推送真相**：
+- 已推送：
+  - `a60618b docs: 凍結 P100 root legacy quarantine plan`
+  - remote：`e92ad76..a60618b main -> main`
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/ROOT_LEGACY_QUARANTINE.md`
+    - root inventory summary。
+    - safe reference check summary。
+    - quarantine decision table。
+    - future cleanup gate / rollback requirements。
+  - `scripts/check_root_legacy_hygiene.py`
+    - path-only staged-path advisory checker。
+    - 支援 `--paths`、`--json`、`--strict`。
+    - default findings exit 0；顯式 `--strict` 才在 findings 時 exit 1。
+  - `tests/test_root_legacy_hygiene.py`
+    - 覆蓋 root debug output、loose legacy script、root test/health helper、root static asset。
+    - 覆蓋 normal root entry / nested docs/scripts/tests quiet。
+    - 覆蓋 JSON output 與 strict/default exit behavior。
+- 修改：
+  - `docs/PHASE_100_PLAN.md`
+    - 狀態改為 CLOSED。
+    - P100 runtime exit criteria 全數完成。
+    - 追加 runtime physical truth。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P100 CLOSED / runtime complete。
+    - 下一門候選改為 P101 Known Issue Guard Index。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 P100 runtime complete 與 P101 候選。
+  - `docs/RISK_REGISTRY.md`
+    - R-021 狀態改為 Open（P100 CLOSED / ADVISORY GUARD ACTIVE；cleanup still blocked）。
+  - `TASK_HISTORY.md`
+    - 追加本段 P100 runtime 物理真相。
+
+**safe reference check 物理真相**：
+- 搜尋範圍：
+  - `docs`、`scripts`、`tests`、`.github`、`analyzer`、`reporter`、`scrapers`、`notifier`、`configs` 與 root governance/config files。
+- 明確排除：
+  - raw debug log content。
+  - `TASK_HISTORY.md` 全讀。
+- 結果：
+  - `run_log.txt`：safe-scope references 主要在 P99/P100治理文件、P99 checker、P99 tests。
+  - `full_diff.txt`、`diff_result.txt`、`output.log`：references 主要在 generated artifact policy、P98/P99/P100 docs、P99 checker。
+  - zero-byte/tiny debug outputs：多數只被 P99 checker reference；`err.log` 也出現在 `AGENTS.md` 的錯誤日誌範例。
+  - loose preview/generation scripts：未找到 active safe-scope references。
+  - `check_health.py`：被 `README.md` reference，不能列 cleanup candidate。
+  - root static assets：不在 P100 cleanup 範圍。
+
+**checker 分類物理真相**：
+- root debug outputs -> `root_debug_output` advisory。
+- loose preview/generation/manual helper scripts -> `root_loose_legacy_script` advisory。
+- root test/health helpers -> `root_test_health_helper` advisory。
+- root static assets -> `root_static_asset_decision` advisory。
+- keep paths：`main.py`、`config.py`、`index.html`、governance docs、config files 等 quiet。
+
+**focused verification 證據**：
+- `git diff --check`
+  - PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py -m pytest -q tests\test_root_legacy_hygiene.py`
+  - `5 passed`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths main.py config.py index.html docs/PHASE_100_PLAN.md`
+  - `No root legacy hygiene advisories.`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths run_log.txt preview_report_script.py check_health.py yaya_bg.png`
+  - advisory findings：`root_debug_output`、`root_loose_legacy_script`、`root_test_health_helper`、`root_static_asset_decision`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths run_log.txt --strict`
+  - expected strict behavior：finding 存在時 exit 1；wrapper 確認為 `EXPECTED_STRICT_EXIT_1`。
+- `py scripts\lint_phase_plan.py docs\PHASE_100_PLAN.md`
+  - PASS。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - `HND000` active bootstrap truth verified。
+- `py scripts\governance_doctor.py --repo-root .`
+  - `GOV000` runbook and risk registry governance verified。
+
+**收官裁決**：
+- ✅ P100 runtime 已把 root legacy / debug debris 從「憑檔名猜」轉成 evidence doc + advisory checker + tests。
+- ✅ P100 runtime 沒有刪檔、搬檔、rename、改 `.gitignore`、改 runtime code、改 GitHub Actions / Pages。
+- ✅ P100 checker 不讀 raw content、不自動 unstage、不自動 delete。
+- ✅ P100 不升 strict gate；strict 只保留為顯式手動模式與未來 promote 評估。
+- ⏭️ 下一步：P100 runtime commit 建立後仍需主公確認 push。推送後由主公裁決是否開 P101 Known Issue Guard Index。
