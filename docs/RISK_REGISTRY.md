@@ -22,10 +22,10 @@
 
 - **來源**：P98 audit 裁決下一個最高 ROI 候選為 `P99 Generated Artifact Hygiene Policy / Stage Guard`；主公於 2026-05-27 要求開 P99。
 - **風險級**：🟡 中
-- **狀態**：Open（P99 DRAFT；只允許 plan，不清理、不搬檔、不改 `.gitignore`）
+- **狀態**：Open（P99 FROZEN；runtime 未開始，不清理、不搬檔、不改 `.gitignore`）
 - **描述**：AOV repo 內存在 tracked generated/deploy artifacts、old report variants、tracked previews、local untracked reports 與 ignored scratch。若沒有 stage guard，未來 commit 容易誤納 generated/scratch；但若 guard 過早升級為 blocking，也可能因 false positive 讓正常 docs/code commit 變痛苦。
 - **緩解策略**：
-  - 短期：P99 plan 只建立 policy / advisory guard 計畫；不刪檔、不搬檔、不改 `.gitignore`。
+  - 短期：P99 plan 已凍結為 FROZEN；不刪檔、不搬檔、不改 `.gitignore`。
   - 中期：若主公核准 runtime，只新增 raw-free path-only advisory checker 與 focused tests；不自動 unstage / delete。
   - 長期：觀察 false positive / missed-risk 後，再決定 keep / revise / promote / remove；strict gate 需另行核准。
 - **觸發升級**：若 P99 未經核准刪除或移動 reports/previews/assets、修改 `.gitignore` 或 Actions、checker 輸出 raw content、或 advisory guard 阻擋正常 commit → 升為 active blocking，立即回滾並寫 Postmortem。

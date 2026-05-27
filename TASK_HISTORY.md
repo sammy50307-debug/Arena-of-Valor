@@ -13421,3 +13421,51 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ P99 plan draft commit 已建立於本地。
 - ⏭️ 下一步：push 仍需主公確認。推送後由主公裁決是否核准 `P99 plan freeze`。
+
+#### P99 plan freeze — Generated Artifact Hygiene Policy / Stage Guard（2026-05-27）
+
+**目標**：
+- 依主公指令 `push 0eb3c60，推完後進 核准 P99 plan freeze`，先確認 `0eb3c60` 已推送，再將 P99 從 DRAFT 凍結為 FROZEN。
+- 本次只同步治理文件狀態，不進入 runtime，不新增 checker，不清理、不搬檔、不改 `.gitignore`、不改 GitHub Actions。
+
+**推送真相**：
+- 已推送：
+  - `0eb3c60 docs: 開 P99 artifact hygiene plan`
+  - remote：`84012c0..0eb3c60 main -> main`
+
+**本次凍結同步檔案**：
+- `docs/PHASE_99_PLAN.md`
+  - 標題改為 `FROZEN`。
+  - 狀態段落標明主公已核准 `P99 plan freeze`。
+  - 新增 P99 plan freeze 退出條件。
+- `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 `P99（FROZEN / Generated Artifact Hygiene Policy / Stage Guard）`。
+  - 下一門改為 `核准 P99 runtime`。
+  - 明確 runtime 仍不可自動開始。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步 R-019 / R-020 / P99 FROZEN。
+- `docs/RISK_REGISTRY.md`
+  - R-020 狀態改為 `Open（P99 FROZEN；runtime 未開始，不清理、不搬檔、不改 .gitignore）`。
+- `TASK_HISTORY.md`
+  - 追加本段 P99 plan freeze 物理真相。
+
+**禁止事項仍有效**：
+- 不刪檔。
+- 不搬檔。
+- 不 rename。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages deployment。
+- 不 stage generated reports、scratch、raw artifact、舊 untracked skill 暫存。
+- 不導入 RTK 或新工具。
+- 不把 advisory guard 升 strict gate。
+
+**狀態**：
+- ✅ `0eb3c60` 已推送。
+- ✅ P99 plan freeze 已核准並寫入治理文件。
+- ✅ `git diff --check` PASS。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ P99 plan freeze commit 已建立於本地。
+- ⏭️ 下一步：push 仍需主公確認。推送後下一門才是 `核准 P99 runtime`。
