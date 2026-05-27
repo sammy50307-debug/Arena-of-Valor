@@ -13545,3 +13545,106 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P99 checker 不讀 raw content、不自動 unstage、不自動 delete。
 - ✅ P99 不升 strict gate；strict 只保留為顯式手動模式與未來 promote 評估。
 - ⏭️ 下一步：P99 runtime commit 建立後仍需主公確認 push。推送後由主公裁決是否開 P100 Root Legacy / Debug Debris Quarantine Plan。
+
+#### P100 plan draft — Root Legacy / Debug Debris Quarantine Plan（2026-05-27）
+
+**目標**：
+- 開啟 P100 `Root Legacy / Debug Debris Quarantine Plan`。
+- 本 Phase 只建立 plan，不清理、不搬檔、不 rename、不刪檔、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不讀 raw debug log content。
+
+**觸發**：
+- 主公要求：
+  - `開 P100 Root Legacy / Debug Debris Quarantine Plan。`
+- 前置狀態：
+  - P99 runtime commit `b88a846` 已推送至 origin/main。
+  - P98 audit 將 P100 排為 P99 後的下一個最高 ROI 候選。
+  - P99 generated artifact policy 已將 root debug outputs 標為 quarantine candidate，但 cleanup 仍 blocked。
+
+**P100 問題定義**：
+- P100 解的是 root-level legacy/debug debris boundary，不是網站內容 bug、generated reports cleanup、skill layer cleanup 或 deployment 問題。
+- 目標是讓 future runtime 能先證明：
+  - 哪些 root 檔是 product entry / config / canonical docs。
+  - 哪些是 debug outputs / diff logs / temporary outputs。
+  - 哪些 loose scripts 仍被引用。
+  - 哪些可進 quarantine decision table。
+- P100 plan draft 不負責：
+  - 刪除 root debug files。
+  - 搬移 scripts 到 archive。
+  - rename root files。
+  - 改 `.gitignore`。
+  - 清 `data/reports` / `ui_previews`。
+  - 整理 `.agents` skill layer。
+
+**metadata 物理真相**：
+- 目前 tracked file count：799。
+- root tracked files 約 56 個。
+- root high-weight / debug candidates：
+  - `run_log.txt`：154.1 KB。
+  - `full_diff.txt`：74.9 KB。
+  - `diff_result.txt`：53.9 KB。
+  - `output.log`：15.8 KB。
+- root zero / tiny debug outputs：
+  - `compile_errors.txt`。
+  - `debug_output.txt`。
+  - `encoding_errors.txt`。
+  - `err.log`。
+  - `err.txt`。
+  - `error.txt`。
+  - `out.txt`。
+  - `syntax_out.txt`。
+  - `test_handoff_out.txt`。
+  - `ver.txt`。
+- root loose script candidates：
+  - `preview_report_script.py`。
+  - `generate_final_demo.py`。
+  - `generate_flagship_report.py`。
+  - `generate_final_full_preview.py`。
+  - `force_gen.py`。
+  - `quick_demo.py`。
+  - `patch.py`。
+  - `patch_generate.py`。
+  - `push_now.py`。
+  - `diag_boot.py`。
+  - `css_compare.py`。
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_100_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P100 DRAFT。
+    - 下一門改為 `核准 P100 plan freeze`。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-019 / R-021 / P100 DRAFT。
+  - `docs/RISK_REGISTRY.md`
+    - 新增 R-021：Root legacy / debug debris quarantine false deletion。
+  - `TASK_HISTORY.md`
+    - 追加本段 P100 plan draft 物理真相。
+
+**P100 future runtime 候選**：
+- `docs/ROOT_LEGACY_QUARANTINE.md`
+- `scripts/check_root_legacy_hygiene.py`（只有需要 advisory checker 時）
+- `tests/test_root_legacy_hygiene.py`（只有新增 checker 時）
+
+**P100 Forbidden Work**：
+- 不刪檔。
+- 不搬檔。
+- 不 rename。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages deployment。
+- 不讀 raw debug log content。
+- 不 stage generated reports、scratch、raw artifact、舊 untracked skill 暫存。
+- 不導入 RTK 或新工具。
+- 不把 advisory guard 升 strict gate。
+- 不把 root static asset / generated reports / skill layer cleanup 混進 P100。
+
+**狀態**：
+- ✅ P100 plan draft 已建立。
+- ✅ R-021 風險已入 Open registry。
+- ✅ `git diff --check` PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_100_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_100_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md` PASS / no advisories。
+- ⏭️ 下一步：建立 P100 plan draft commit；push 仍需主公確認。推送後由主公裁決是否核准 `P100 plan freeze`。

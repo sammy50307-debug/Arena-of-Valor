@@ -18,6 +18,20 @@
 
 ## 開放風險（Open）
 
+### R-021：Root legacy / debug debris quarantine false deletion（P100 開案）
+
+- **來源**：P98 audit 將 `P100 Root Legacy / Debug Debris Quarantine Plan` 排為 P99 後的下一個最高 ROI 候選；主公於 2026-05-27 要求開 P100。
+- **風險級**：🟡 中
+- **狀態**：Open（P100 DRAFT；cleanup blocked，不刪檔、不搬檔、不 rename、不改 `.gitignore`）
+- **描述**：AOV root 目錄混有 product entry、治理文件、debug logs、diff outputs、loose preview/helper scripts 與 static assets。若未先做 reference-first quarantine plan，AI 或未來 cleanup 可能把仍被引用或仍有證據價值的檔案誤刪；但若完全不治理，root 噪音會持續影響接手判斷。
+- **緩解策略**：
+  - 短期：P100 plan 只建立 quarantine plan 與 forbidden work；不執行任何 cleanup。
+  - 中期：若主公核准 runtime，先做 root inventory + `rg` reference check + decision table；任何 move/delete 需逐項核准與 rollback plan。
+  - 長期：只將穩定、低風險、高 ROI 的 root hygiene 規則升成 advisory checker；strict gate 需另行核准。
+- **觸發升級**：若 P100 未經核准刪除、移動、rename root files，修改 `.gitignore` / Actions，讀出 raw debug content，或把 product entry / deployment truth 誤標為可刪 → 升為 active blocking，立即回滾並寫 Postmortem。
+
+---
+
 ### R-020：Generated artifact hygiene / stage guard false positives（P99 開案）
 
 - **來源**：P98 audit 裁決下一個最高 ROI 候選為 `P99 Generated Artifact Hygiene Policy / Stage Guard`；主公於 2026-05-27 要求開 P99。
