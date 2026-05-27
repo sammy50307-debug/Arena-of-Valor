@@ -7,10 +7,10 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-019 Project Self-Optimization Flywheel Program |
-| **Current Phase** | P98（DRAFT / Project Flywheel Audit Plan） |
-| **Current Step** | 主公已要求開 `P98 Project Flywheel Audit Plan`；只允許建立 plan / handoff / active / risk / history，不清理、不搬檔、不改 runtime、不動 GitHub Actions。下一門是 `核准 P98 plan freeze`。 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `e883117` 已推送；P98 plan draft 本地同步中 |
+| **Current Phase** | P98（FROZEN / Project Flywheel Audit Plan） |
+| **Current Step** | 主公已核准 `P98 plan freeze`；P98 plan freeze commit 已建立於本地，等待主公確認 push。下一門是 `核准 P98 audit runtime`，且 audit runtime 仍不可自動開始。 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `ae74f4e` 已推送；P98 plan freeze commit 已建立於本地，push 仍需主公確認 |
 | **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -37,8 +37,8 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。P98 plan draft 若本地 ahead 1，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P98 plan draft commit / push 完成，等待主公裁決是否核准 `P98 plan freeze`。 |
+| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P98 plan freeze commit，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P98 plan freeze commit / push 完成，等待主公裁決是否核准 `P98 audit runtime`。 |
 | **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_98_PLAN.md`。 |
 | **不要在換窗後做的事** | 不要清理 generated reports；不要搬檔或刪檔；不要改 `.gitignore`；不要改 runtime code；不要把 P98 改成 RTK pilot。 |
 
@@ -46,12 +46,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P98（DRAFT / PROJECT_FLYWHEEL_AUDIT_PLAN / RUNTIME_NOT_STARTED） |
-| **Current Step** | P98 plan draft 建立中；等待 checks / commit / 主公確認 push，下一門是 `核准 P98 plan freeze` |
+| **Current Phase** | P98（FROZEN / PROJECT_FLYWHEEL_AUDIT_PLAN / RUNTIME_NOT_STARTED） |
+| **Current Step** | P98 plan freeze commit 已建立於本地；等待主公確認 push，下一門是 `核准 P98 audit runtime` |
 | **Allowed Files** | P98 plan scope：`docs/PHASE_98_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理、不搬檔、不 rename、不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_98_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-019 Open；P98 plan draft committed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_98_PLAN.md`、`docs/RISK_REGISTRY.md` R-019；若 local ahead 是 P98 plan draft，等待主公 push；若已推，下一步是 `核准 P98 plan freeze` |
+| **Exit Criteria** | `docs/PHASE_98_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-019 Open（P98 FROZEN）；P98 plan freeze committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_98_PLAN.md`、`docs/RISK_REGISTRY.md` R-019；若 local ahead 是 P98 plan freeze commit，等待主公 push；若已推，下一步是由主公裁決是否核准 `P98 audit runtime` |
 
 ## Required Verification Commands
 

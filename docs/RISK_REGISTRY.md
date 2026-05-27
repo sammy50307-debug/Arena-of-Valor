@@ -22,10 +22,10 @@
 
 - **來源**：主公 2026-05-27 要求開 `P98 Project Flywheel Audit Plan`，希望把 AOV 專案從反覆修舊問題推進到可記憶、可檢查、可防復發的飛輪式優化。
 - **風險級**：🔴 高
-- **狀態**：Open（P98 DRAFT；只允許 plan，不清理、不搬檔、不改 runtime）
+- **狀態**：Open（P98 FROZEN；audit runtime 未開始，不清理、不搬檔、不改 runtime）
 - **描述**：AOV 專案的複雜度主要來自跨爬蟲、LLM、報告、GitHub Actions、內容可信度、治理文件、skills 與 generated artifacts。若不先分層 audit，直接清理或重構可能誤刪歷史證據、破壞 Pages/report link、讓 TASK_HISTORY / handoff 真相漂移，或把新工具導入變成新的 debug 變因。
 - **緩解策略**：
-  - 短期：P98 只建立 Project Flywheel Audit plan；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
+  - 短期：P98 plan 已凍結為 FROZEN；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
   - 中期：若主公核准 runtime，先產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序。
   - 長期：依 audit 結果拆小 Phase，把高 ROI 問題轉成 checker / test / registry / policy；低 ROI 或高風險清理不推進。
 - **觸發升級**：若 P98 未經核准就清理檔案、改 runtime、改 workflow、stage 舊 untracked reports/scratch，或把 R-016/R-017 monitoring 誤標 Closed → 升為 active blocking，立即回滾並寫 Postmortem。

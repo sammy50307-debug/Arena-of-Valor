@@ -7,10 +7,10 @@
 | 欄位 | 內容 |
 |---|---|
 | **Program** | R-019 Project Self-Optimization Flywheel Program |
-| **Current Phase** | P98（DRAFT / Project Flywheel Audit Plan） |
-| **Current Step** | 主公已要求開 `P98 Project Flywheel Audit Plan`；只允許建立 plan / handoff / active / risk / history，不清理、不搬檔、不改 runtime、不動 GitHub Actions。下一門是 `核准 P98 plan freeze`。 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `e883117` 已推送；P98 plan draft 本地同步中 |
+| **Current Phase** | P98（FROZEN / Project Flywheel Audit Plan） |
+| **Current Step** | 主公已核准 `P98 plan freeze`；P98 plan freeze commit 已建立於本地，等待主公確認 push。下一門是 `核准 P98 audit runtime`，且 audit runtime 仍不可自動開始。 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `ae74f4e` 已推送；P98 plan freeze commit 已建立於本地，push 仍需主公確認 |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-27 |
 
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P98（DRAFT / PROJECT_FLYWHEEL_AUDIT_PLAN / RUNTIME_NOT_STARTED） |
-| **Current Step** | P98 plan draft 建立中；等待 checks / commit / 主公確認 push，下一門是 `核准 P98 plan freeze` |
+| **Current Phase** | P98（FROZEN / PROJECT_FLYWHEEL_AUDIT_PLAN / RUNTIME_NOT_STARTED） |
+| **Current Step** | P98 plan freeze commit 已建立於本地；等待主公確認 push，下一門是 `核准 P98 audit runtime` |
 | **Allowed Files** | P98 plan scope：`docs/PHASE_98_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理、不搬檔、不 rename、不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_98_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-019 Open；P98 plan draft committed |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_98_PLAN.md`、`docs/RISK_REGISTRY.md` R-019；若 local ahead 是 P98 plan draft，等待主公 push；若已推，下一步是 `核准 P98 plan freeze` |
+| **Exit Criteria** | `docs/PHASE_98_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-019 Open（P98 FROZEN）；P98 plan freeze committed |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_98_PLAN.md`、`docs/RISK_REGISTRY.md` R-019；若 local ahead 是 P98 plan freeze commit，等待主公 push；若已推，下一步是由主公裁決是否核准 `P98 audit runtime` |
 
 ## State Machine
 
@@ -85,10 +85,10 @@ P98/R-019 是新專案飛輪戰線：Project Flywheel Audit Plan。P98 只建立
 
 ## Window Switch Guidance
 
-- 可以換視窗：P98 plan draft commit / push 後最穩；若本地 ahead 1，下一窗可先等主公 push。
-- 最佳換窗點：P98 plan draft 已推送後，等待主公裁決是否核准 `P98 plan freeze`。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_98_PLAN.md`，先確認是否 push local P98 plan draft commit。
+- 可以換視窗：P98 plan freeze commit / push 後最穩；若本地 ahead 1，下一窗可先等主公 push。
+- 最佳換窗點：P98 plan freeze 已推送後，等待主公裁決是否核准 `P98 audit runtime`。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部與 `docs/PHASE_98_PLAN.md`，先確認是否 push local P98 plan freeze commit。
 
 ## Next Decision
 
-下一步是跑 P98 plan draft checks，commit P98 plan draft；push 仍需主公確認。推完後由主公裁決是否核准 `P98 plan freeze`。
+下一步是等主公確認是否 push P98 plan freeze commit。推完後由主公裁決是否核准 `P98 audit runtime`。

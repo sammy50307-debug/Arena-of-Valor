@@ -13205,3 +13205,47 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ `git diff --check` PASS。
 - ⏭️ 下一步：commit P98 plan draft；push 仍需主公確認。
+
+#### P98 plan freeze — Project Flywheel Audit Plan（2026-05-27）
+
+**目標**：
+- 依主公指令 `push ae74f4e，推完後再走 核准 P98 plan freeze`，先確認 `ae74f4e` 已推送，再將 P98 從 DRAFT 凍結為 FROZEN。
+- 本次只同步治理文件狀態，不進入 audit runtime，不清理、不搬檔、不改 runtime、不改 GitHub Actions。
+
+**物理真相**：
+- 已推送：
+  - `ae74f4e docs: 開 P98 project flywheel audit plan`
+- 本次凍結同步檔案：
+  - `docs/PHASE_98_PLAN.md`
+    - 標題改為 `FROZEN`。
+    - 狀態段落標明主公已核准 `P98 plan freeze`。
+    - 新增 P98 plan freeze 退出條件。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 `P98（FROZEN / Project Flywheel Audit Plan）`。
+    - 下一門改為 `核准 P98 audit runtime`。
+    - 明確 audit runtime 仍不可自動開始。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-019 / P98 FROZEN。
+    - Resume Rule 改為若本地 ahead 是 P98 plan freeze commit，等待主公確認 push。
+  - `docs/RISK_REGISTRY.md`
+    - R-019 狀態改為 `Open（P98 FROZEN；audit runtime 未開始，不清理、不搬檔、不改 runtime）`。
+  - `TASK_HISTORY.md`
+    - 追加本段 P98 plan freeze 物理真相。
+
+**禁止事項仍有效**：
+- 不全讀 `TASK_HISTORY.md`。
+- 不 stage unrelated untracked reports、scratch、raw artifacts、舊 untracked skill 暫存。
+- 不清理、不搬檔、不 rename、不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages。
+- 不導入 RTK 或新工具。
+
+**狀態**：
+- ✅ `ae74f4e` 已推送。
+- ✅ P98 plan freeze 已核准並寫入治理文件。
+- ✅ `git diff --check` PASS。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ P98 plan freeze commit 已建立於本地。
+- ⏭️ 下一步：push 仍需主公確認。推送後下一門才是 `核准 P98 audit runtime`。
