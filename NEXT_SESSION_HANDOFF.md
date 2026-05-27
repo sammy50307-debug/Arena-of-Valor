@@ -6,22 +6,21 @@
 | 欄位 | 內容 |
 |---|---|
 | **Status** | ACTIVE |
-| **Program** | R-019 Project Self-Optimization Flywheel Program |
-| **Current Phase** | P98（CLOSED / Project Flywheel Audit Complete） |
-| **Current Step** | P98 audit runtime 已完成為 report-only audit；本地 runtime commit 尚未推送。下一門建議是開 `P99 Generated Artifact Hygiene Policy / Stage Guard`，仍需主公明確核准。 |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `5207e8e` 已推送；P98 runtime audit commit 尚未推送 |
+| **Program** | R-019 Project Self-Optimization Flywheel Program / R-020 Artifact Hygiene Risk |
+| **Current Phase** | P99（DRAFT / Generated Artifact Hygiene Policy / Stage Guard） |
+| **Current Step** | P99 plan draft commit 已建立於本地，等待主公確認 push。下一門是 `核准 P99 plan freeze`；runtime 仍不可開始。 |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `84012c0` 已推送；P99 plan draft commit 已建立於本地，push 仍需主公確認 |
 | **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_98_PLAN.md`（P98 Project Flywheel Audit Plan / CLOSED）
-4. `docs/PHASE_98_AUDIT.md`（P98 runtime audit evidence / P99+ ranking）
-5. `docs/RISK_REGISTRY.md` 的 R-019 / R-018 / R-017（project flywheel；RTK toolchain；content trust monitoring）
+3. `docs/PHASE_99_PLAN.md`（P99 Generated Artifact Hygiene Policy / Stage Guard）
+4. `docs/PHASE_98_AUDIT.md`（P98 runtime audit evidence / P99 來源）
+5. `docs/RISK_REGISTRY.md` 的 R-020 / R-019 / R-017（artifact hygiene；project flywheel；content trust monitoring）
 6. `docs/PHASE_97_RTK_EVALUATION.md`（P97 RTK runtime evidence）
-7. `docs/PHASE_96_PLAN.md`（P96 已收官；R-017 monitoring 裁決來源）
 
 ## Current Source Of Truth
 
@@ -29,31 +28,31 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_98_PLAN.md` | P98 Project Flywheel Audit Plan / CLOSED |
-| L3-audit | `docs/PHASE_98_AUDIT.md` | P98 runtime audit evidence / P99+ ranking |
+| L3 | `docs/PHASE_99_PLAN.md` | P99 Generated Artifact Hygiene Policy / Stage Guard |
+| L3-audit | `docs/PHASE_98_AUDIT.md` | P98 runtime audit evidence / P99 來源 |
 | L3-rtk | `docs/PHASE_97_RTK_EVALUATION.md` | P97 RTK runtime evidence / install blocked 裁決 |
 | L3-content | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
-| L4 | `docs/RISK_REGISTRY.md` 的 R-019 / R-018 / R-017 / R-016 | project flywheel；RTK tooling；content trust monitoring；backend monitoring |
+| L4 | `docs/RISK_REGISTRY.md` 的 R-020 / R-019 / R-018 / R-017 / R-016 | artifact hygiene；project flywheel；RTK tooling；content trust monitoring；backend monitoring |
 
 ## Window Switch Timing
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P98 runtime audit commit，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P98 runtime audit commit / push 完成，等待主公裁決是否開 P99。 |
-| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_98_AUDIT.md`。 |
+| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P99 plan draft commit，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P99 plan draft commit / push 完成，等待主公裁決是否核准 `P99 plan freeze`。 |
+| **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_99_PLAN.md`。 |
 | **不要在換窗後做的事** | 不要清理 generated reports；不要搬檔或刪檔；不要改 `.gitignore`；不要改 runtime code；不要把 P98 改成 RTK pilot。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P98（CLOSED / PROJECT_FLYWHEEL_AUDIT_COMPLETE） |
-| **Current Step** | P98 audit runtime completed；等待主公確認 push runtime commit，下一門建議是 `開 P99 Generated Artifact Hygiene Policy / Stage Guard` |
-| **Allowed Files** | P98 closeout scope：`docs/PHASE_98_PLAN.md`、`docs/PHASE_98_AUDIT.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Current Phase** | P99（DRAFT / GENERATED_ARTIFACT_HYGIENE_POLICY_STAGE_GUARD / RUNTIME_NOT_STARTED） |
+| **Current Step** | P99 plan draft commit 已建立於本地；等待主公確認 push，下一門是 `核准 P99 plan freeze` |
+| **Allowed Files** | P99 plan scope：`docs/PHASE_99_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理、不搬檔、不 rename、不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P98 audit report complete；handoff / active / risk / history synchronized；R-019 Open（P98 CLOSED / P99 selection pending）；runtime commit created |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_98_AUDIT.md`、`docs/RISK_REGISTRY.md` R-019；若 local ahead 是 P98 runtime audit commit，等待主公 push；若已推，下一步是由主公裁決是否開 P99 |
+| **Exit Criteria** | `docs/PHASE_99_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-020 Open；P99 plan draft committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_99_PLAN.md`、`docs/RISK_REGISTRY.md` R-020；若 local ahead 是 P99 plan draft，等待主公 push；若已推，下一步是 `核准 P99 plan freeze` |
 
 ## Required Verification Commands
 
@@ -70,6 +69,7 @@ py scripts\lint_phase_plan.py docs\PHASE_95_1_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_96_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_97_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md
 py scripts\check_handoff_truth.py --repo-root .
 py scripts\governance_doctor.py --repo-root .
 py -m pytest -q tests\test_slo_checker.py tests\test_system_doctor.py tests\test_cost_cache_governance.py

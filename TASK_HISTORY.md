@@ -13352,3 +13352,72 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ P98 runtime audit commit 已建立於本地。
 - ⏭️ 下一步：push 仍需主公確認。推送後由主公裁決是否開 P99。
+
+#### P99 plan draft — Generated Artifact Hygiene Policy / Stage Guard（2026-05-27）
+
+**目標**：
+- 開啟 P99 `Generated Artifact Hygiene Policy / Stage Guard`。
+- 本 Phase 只建立 plan，不清理、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages。
+
+**觸發**：
+- 主公要求：
+  - `開 P99 Generated Artifact Hygiene Policy / Stage Guard。`
+- 前置狀態：
+  - P98 runtime audit commit `84012c0` 已推送至 origin/main。
+  - P98 audit 裁決下一個最高 ROI 候選為 P99。
+
+**P99 問題定義**：
+- P99 解的是 commit hygiene / artifact boundary，不是網站內容 bug。
+- 目標是讓未來 commit 前可看見是否誤 stage：
+  - generated reports。
+  - previews。
+  - scratch。
+  - backups。
+  - local artifact。
+- P99 不負責：
+  - 刪 old reports。
+  - 改 `.gitignore`。
+  - 清 root debug logs。
+  - 修芽芽 / 舊文內容。
+  - 整理 `.agents` skill layer。
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_99_PLAN.md`
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P99 DRAFT。
+    - 下一門改為 `核准 P99 plan freeze`。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-019 / R-020 / P99 DRAFT。
+  - `docs/RISK_REGISTRY.md`
+    - 新增 R-020：Generated artifact hygiene / stage guard false positives。
+  - `TASK_HISTORY.md`
+    - 追加本段 P99 plan draft 物理真相。
+
+**P99 future runtime 候選**：
+- `docs/GENERATED_ARTIFACT_POLICY.md`
+- `scripts/check_generated_artifact_hygiene.py`
+- `tests/test_generated_artifact_hygiene.py`
+- `docs/OPERATIONS_RUNBOOK.md`（只有新增 issue code 時）
+
+**P99 Forbidden Work**：
+- 不刪檔。
+- 不搬檔。
+- 不 rename。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages deployment。
+- 不 stage generated reports、scratch、raw artifact、舊 untracked skill 暫存。
+- 不導入 RTK 或新工具。
+- 不把 advisory guard 升 strict gate。
+
+**狀態**：
+- ✅ P99 plan draft 已建立。
+- ✅ R-020 風險已入 Open registry。
+- ✅ `git diff --check` PASS。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ P99 plan draft commit 已建立於本地。
+- ⏭️ 下一步：push 仍需主公確認。推送後由主公裁決是否核准 `P99 plan freeze`。
