@@ -1,6 +1,6 @@
-# Phase P99 計畫書 — Generated Artifact Hygiene Policy / Stage Guard（FROZEN）
+# Phase P99 計畫書 — Generated Artifact Hygiene Policy / Stage Guard（CLOSED）
 
-> 狀態：FROZEN。主公於 2026-05-27 要求「開 P99 Generated Artifact Hygiene Policy / Stage Guard」，並已核准 `P99 plan freeze`。本 Phase 只凍結 generated artifact hygiene policy 與 stage guard 的計畫；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked reports。進入 runtime 前仍需主公另行核准。
+> 狀態：CLOSED。主公於 2026-05-27 要求「開 P99 Generated Artifact Hygiene Policy / Stage Guard」，並已核准 `P99 plan freeze` 與 `P99 runtime`。本 Phase 已產出 generated artifact policy、path-only advisory stage guard 與 focused tests；未刪檔、未搬檔、未 rename、未改 `.gitignore`、未改 runtime code、未改 GitHub Actions / Pages、未清理既有 tracked reports。
 
 ---
 
@@ -13,8 +13,8 @@
 | **建立日期** | 2026-05-27 |
 | **所屬 Program** | R-019 Project Self-Optimization Flywheel Program |
 | **新風險帳** | R-020 Generated artifact hygiene / stage guard false positives |
-| **影響半徑** | 標準（plan 5 檔；future runtime 約 3-5 檔，仍需另核准） |
-| **預估投入時數** | plan 0.8h；runtime 1.5-2.5h |
+| **影響半徑** | 標準（plan 5 檔；runtime 新增/修改 8 檔；無 cleanup / deploy / runtime code diff） |
+| **預估投入時數** | plan 0.8h；runtime 1.5-2.5h（已完成） |
 | **Token budget** | plan 16K；runtime 35K |
 | **負責模型** | GPT-5.3-Codex（metadata / docs / checker plan）；若涉及刪檔或 `.gitignore` 變更，升 GPT-5.5 高並另開 Phase |
 
@@ -24,7 +24,7 @@
 |---|---|---|---|---|---|
 | P98 audit | CLOSED / report-only | Reference only | P98 只作為 P99 證據來源，不再修改 | `84012c0` 已推送 | AI / 主公 |
 | P99 plan | DRAFT | FROZEN | stage guard 計畫已凍結，尚不可實作 checker | 主公核准 `P99 plan freeze` | 主公 / AI |
-| P99 runtime | Not started | Pending approval | 未來可新增 policy doc / advisory checker / tests，但仍不得刪檔 | 主公核准 P99 plan freeze 後另行核准 runtime | 主公 |
+| P99 runtime | Pending approval | CLOSED | 已新增 policy doc / advisory checker / tests；未刪檔、未搬檔、未改 `.gitignore` | 主公核准 `P99 runtime`，focused checks PASS | 主公 / AI |
 | Cleanup actions | Blocked | Blocked | 任何刪除、搬移、rename、`.gitignore` 改動都不屬 P99 plan | 需另開 P100+ 或 P99.x cleanup plan | 主公 |
 
 ---
@@ -76,7 +76,7 @@ P99 解的是「commit hygiene / artifact boundary」問題，不是「網站內
 - [x] P99 plan 明確限制為 plan，不執行刪檔 / 搬檔 / `.gitignore` / runtime code 改動。
 - [x] P99 plan draft 已推送：`0eb3c60` 已在 origin/main。
 - [x] 主公核准 `P99 plan freeze`。
-- [ ] 主公另行核准 `P99 runtime` 後，才可進下一門 runtime。
+- [x] 主公另行核准 `P99 runtime` 後，才可進下一門 runtime。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -95,12 +95,12 @@ P99 plan freeze 退出條件：
 - [x] `TASK_HISTORY.md` 追加 P99 plan freeze 物理真相。
 - [x] `git diff --check`、phase plan lint、handoff truth、governance doctor 通過。
 
-P99 runtime 未來退出條件：
-- [ ] 產出 generated artifact policy：分清 keep / generated / scratch / artifact / quarantine / requires主公裁決。
-- [ ] 產出 advisory stage guard design：先只檢查 staged diff，不改 stage、不 auto delete。
-- [ ] 覆蓋最小測試：誤 stage `scratch/`、`data/reports/PREVIEW_*.html`、root debug logs 時能提示；正常 docs/code commit 不吵。
-- [ ] 明確不升 strict gate；只列未來 promote 條件。
-- [ ] P99 runtime 收官時不產生任何 file deletion / move / `.gitignore` diff。
+P99 runtime 退出條件：
+- [x] 產出 generated artifact policy：分清 keep / generated / scratch / artifact / quarantine / requires主公裁決。
+- [x] 產出 advisory stage guard design：先只檢查 staged diff，不改 stage、不 auto delete。
+- [x] 覆蓋最小測試：誤 stage `scratch/`、`data/reports/PREVIEW_*.html`、root debug logs 時能提示；正常 docs/code commit 不吵。
+- [x] 明確不升 strict gate；只列未來 promote 條件。
+- [x] P99 runtime 收官時不產生任何 file deletion / move / `.gitignore` diff。
 
 ## 5. ROI 評估
 
@@ -216,8 +216,8 @@ P99 runtime 未來退出條件：
 | **S0 Plan / Boundary Lock** | 建立 P99 plan、R-020、handoff、active、history | 避免和 cleanup 混線 | plan lint / governance checks PASS |
 | **S1 Artifact Policy Draft** | 定義 keep/generated/scratch/artifact/quarantine/decision classes | 路徑判斷靠人腦 | policy table |
 | **S2 Stage Guard Design** | 設計只看 staged paths 的 advisory checker | 誤 stage 無提醒 | checker spec |
-| **S3 Runtime Guard Implementation（future）** | 新增小型 script + tests | 防復發 | tests + sample output |
-| **S4 Observation / Promote Criteria（future）** | 定義何時 advisory 可升級 | checker 過早 blocking | promotion criteria |
+| **S3 Runtime Guard Implementation** | 新增小型 script + tests | 防復發 | tests + sample output PASS |
+| **S4 Observation / Promote Criteria** | 定義何時 advisory 可升級 | checker 過早 blocking | promotion criteria 寫入 policy |
 
 ---
 
@@ -232,11 +232,20 @@ P99 runtime 未來退出條件：
 - `docs/RISK_REGISTRY.md`
 - `TASK_HISTORY.md`
 
-**P99 future runtime 候選，不在 plan draft 實作**：
+**P99 runtime 新增**：
 - `docs/GENERATED_ARTIFACT_POLICY.md`
 - `scripts/check_generated_artifact_hygiene.py`
 - `tests/test_generated_artifact_hygiene.py`
-- `docs/OPERATIONS_RUNBOOK.md`（只有新增 issue code 時）
+
+**P99 runtime 修改**：
+- `docs/PHASE_99_PLAN.md`
+- `NEXT_SESSION_HANDOFF.md`
+- `docs/ACTIVE_OPERATION.md`
+- `docs/RISK_REGISTRY.md`
+- `TASK_HISTORY.md`
+
+**未修改**：
+- `docs/OPERATIONS_RUNBOOK.md`（未新增 issue code，故不需要）
 
 **明確不修改**：
 - `.gitignore`
@@ -272,6 +281,46 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-99-generated-artifact-hyg
 - 不 stage generated reports、scratch、raw artifact、舊 untracked skill 暫存。
 - 不導入 RTK 或新工具。
 - 不把 advisory guard 升 strict gate。
+
+## 13. P99 Runtime Physical Truth（2026-05-27）
+
+### 新增 policy
+
+- `docs/GENERATED_ARTIFACT_POLICY.md`
+  - 明列 keep / production truth / generated review / scratch raw artifact / quarantine candidate / decision required。
+  - 明確規定 checker 預設只 advisory、只看 path、不讀檔內容、不修改 index、不刪除、不搬移、不改 `.gitignore`。
+  - 明列 promotion criteria 與 stop rules。
+
+### 新增 checker
+
+- `scripts/check_generated_artifact_hygiene.py`
+  - 預設讀 staged paths：`git diff --name-only --cached --diff-filter=ACMR`。
+  - 支援 `--paths` dry-run / tests。
+  - 支援 `--json` machine-readable output。
+  - 支援 `--strict`，僅在顯式 strict 時 findings 轉 exit 1。
+  - 分類規則覆蓋：`scratch/**`、`data/enrichment_queue/**`、`data/reports/PREVIEW_*.html`、`data/reports/*_vN*.html`、`data/reports/*-preview.html`、`ui_previews/**`、`backups/**`、root debug outputs、`.gitignore`、`.github/workflows/**`。
+
+### 新增 tests
+
+- `tests/test_generated_artifact_hygiene.py`
+  - positive cases：`scratch/`、preview report、root debug output、report variants、`ui_previews/`、`backups/`、decision-required paths。
+  - negative cases：normal docs/code/tests/canonical report quiet。
+  - CLI cases：`--json` 可 parse、default advisory exit 0、`--strict` 有 finding exit 1。
+
+### 驗證命令
+
+```powershell
+py -m pytest -q tests\test_generated_artifact_hygiene.py
+py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_99_PLAN.md analyzer/source_selection.py tests/test_source_selection.py
+py scripts\check_generated_artifact_hygiene.py --repo-root . --paths scratch/demo.txt data/reports/PREVIEW_yaya.html run_log.txt
+py scripts\check_generated_artifact_hygiene.py --repo-root . --paths scratch/demo.txt --strict
+```
+
+### 收官裁決
+
+- P99 成功把 generated artifact hygiene 從「人腦記路徑」轉成「policy + advisory checker + tests」。
+- P99 不代表 repo cleanup 已完成；root debug debris、tracked report variants、old previews、`.agents` skill layer 仍需另開 Phase。
+- 下一個最高 ROI 候選仍是 P100 Root Legacy / Debug Debris Quarantine Plan，但需主公另行開案。
 
 ---
 
