@@ -1,6 +1,6 @@
-# Phase P98 計畫書 — Project Flywheel Audit Plan（DRAFT）
+# Phase P98 計畫書 — Project Flywheel Audit Plan（FROZEN）
 
-> 狀態：DRAFT。主公於 2026-05-27 選取並要求「開 P98 Project Flywheel Audit Plan」。本 Phase 只建立專案自我優化飛輪盤點計畫；不清理檔案、不搬移 generated reports、不改 runtime code、不改 GitHub Actions、不導入 RTK。
+> 狀態：FROZEN。主公於 2026-05-27 選取並要求「開 P98 Project Flywheel Audit Plan」，並已核准 `P98 plan freeze`。本 Phase 只凍結專案自我優化飛輪 audit 計畫；不清理檔案、不搬移 generated reports、不改 runtime code、不改 GitHub Actions、不導入 RTK。進入 audit runtime 前仍需主公另行核准。
 
 ---
 
@@ -21,7 +21,7 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | R-019 Project Self-Optimization Flywheel | New | Open | 專案結構、生成物、治理文件、known issue 與工具導入流程進入盤點計畫 | 主公開 P98 plan | AI 建帳，主公審核 |
-| P98 plan | Not started | DRAFT | 只建立 audit 計畫，尚不可執行清理或 runtime 改動 | 主公選取「開 P98 Project Flywheel Audit Plan」 | 主公 / AI |
+| P98 plan | DRAFT | FROZEN | audit 計畫已凍結，尚不可執行清理或 runtime 改動 | 主公核准 `P98 plan freeze` | 主公 / AI |
 | P98 audit runtime | Not started | Pending approval | 未來只做盤點與報告，不做清理 | 主公核准 P98 plan freeze 後另行核准 runtime | 主公 |
 | Cleanup / refactor actions | Not allowed | Blocked by default | 任何搬檔、刪檔、gitignore 大改、checker 升級都不屬 P98 plan | 需依 audit 結果另開 P99+ | 主公 |
 
@@ -62,11 +62,13 @@ P98 要解的不是單一 bug，而是「返工成本高、AI 接手容易迷路
 
 開工前必須全部達成：
 - [x] P97 已收官並推送：`e883117` 已在 origin/main。
+- [x] P98 plan draft 已推送：`ae74f4e` 已在 origin/main。
 - [x] AOV 專案版自我優化飛輪已寫入 `AGENTS.md`。
 - [x] 全域自我優化飛輪已同步至 Codex / Claude / Gemini 全域規則。
 - [x] 主公已要求：`開 P98 Project Flywheel Audit Plan`。
 - [x] 本 Phase 明確限制為 plan，不執行清理 / 搬檔 / runtime code 改動。
-- [ ] 主公核准 `P98 plan freeze` 後，才可進下一門 runtime。
+- [x] 主公核准 `P98 plan freeze`。
+- [ ] 主公另行核准 `P98 audit runtime` 後，才可進下一門 runtime。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -76,6 +78,14 @@ P98 plan draft 退出條件：
 - [x] `docs/RISK_REGISTRY.md` 建立 R-019 Open 風險。
 - [x] `TASK_HISTORY.md` 追加 P98 plan 物理真相。
 - [x] `git diff --check`、handoff truth、governance doctor 通過。
+
+P98 plan freeze 退出條件：
+- [x] 主公核准 `P98 plan freeze`。
+- [x] `docs/PHASE_98_PLAN.md` 狀態改為 FROZEN。
+- [x] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 R-019 / P98 FROZEN。
+- [x] `docs/RISK_REGISTRY.md` 標記 R-019 為 P98 FROZEN / audit runtime 未開始。
+- [x] `TASK_HISTORY.md` 追加 P98 plan freeze 物理真相。
+- [x] `git diff --check`、phase plan lint、handoff truth、governance doctor 通過。
 
 P98 audit runtime 未來退出條件：
 - [ ] 產出 repo 分層 inventory：core / tests / scripts / governance docs / generated outputs / skills / scratch。
@@ -116,7 +126,7 @@ P98 audit runtime 未來退出條件：
 | **6. 可觀察性層 (Observability)** | 產出 audit matrix、known issue gap、verification ladder | 沒有量化，只靠感覺排序 | 每項候選需有 evidence、ROI、風險 |
 | **7. 韌性層 (Resilience)** | 建立「下次不再靠人記」的 guard 候選 | 飛輪規則太多反而變成負擔 | 定期復盤列 keep / revise / remove |
 | **13. 可維護性層 (Maintainability)** | 降低 AI 接手成本與 Phase 同步成本 | 文件越補越厚，維護成本更高 | P98 明列文件瘦身與 single source of truth 候選 |
-| **14. 文件層 (Documentation)** | 新增 P98 plan，handoff / active / risk / history 同步 | 下一窗誤以為已開始清理 runtime | DRAFT / runtime not started 明確標記 |
+| **14. 文件層 (Documentation)** | 新增 P98 plan，handoff / active / risk / history 同步 | 下一窗誤以為已開始清理 runtime | FROZEN / runtime not started 明確標記 |
 | **15. 流程層 (Process)** | Plan -> freeze -> audit runtime -> P99+ execution | audit 與清理混在一起 | P98 只盤點與排序，清理由 P99+ 承接 |
 
 ### B 級層（條件式，6 層）
@@ -147,7 +157,7 @@ P98 audit runtime 未來退出條件：
 | 動作 | 可逆性 | 主公確認 |
 |---|---|---|
 | 新增 `docs/PHASE_98_PLAN.md` | 可逆 | 主公已要求開 plan |
-| 更新 handoff / active / risk / history | 可逆 | 本次同步 DRAFT 狀態 |
+| 更新 handoff / active / risk / history | 可逆 | 本次同步 FROZEN 狀態 |
 | audit runtime 讀取 repo metadata | 可逆 | 未來需主公核准 runtime |
 | 搬移 / 刪除 generated files | 半可逆到不可逆 | P98 禁止，需 P99+ 明文核准 |
 | 改 `.gitignore` 或 GitHub Actions | 半可逆 | P98 禁止，需另開 phase |
@@ -164,7 +174,7 @@ P98 audit runtime 未來退出條件：
 ### X3 時間敏感性 (Time Decay)
 
 - 本計畫建立日期：2026-05-27。
-- 本計畫過期日期：2026-06-03；若一週內未 freeze，需重新確認 P97/P98 handoff 與 R-016/R-017 monitoring 狀態。
+- 本計畫過期日期：2026-06-03；若一週內未開始 audit runtime，需重新確認 P97/P98 handoff 與 R-016/R-017 monitoring 狀態。
 - R-016 monitoring 至 2026-06-01；R-017 monitoring 至 2026-06-02。
 - 風險記錄帶日期：✅。
 
@@ -172,7 +182,7 @@ P98 audit runtime 未來退出條件：
 
 - **主公視角**：這份計畫要把「為什麼一直返工」拆成可看懂的清單，而不是用更多術語堆高壓力。
 - **世界頂尖駭客 / 紅隊攻擊者視角**：風險在於 audit 誤碰 secrets、raw user data、CI permissions 或刪除部署依賴；P98 只讀 metadata 且禁止清理。
-- **接手者視角**：接手者需要看到 P98 是 DRAFT / audit plan，不是已經開始移檔或重構。
+- **接手者視角**：接手者需要看到 P98 是 FROZEN / audit runtime not started，不是已經開始移檔或重構。
 - **X4-J 自動化建議性工具邊界**：line count / file count / grep inventory 只能輔助排序，不能單獨判定可刪或可降級。
 - **X4-K 使用者端審查官 / Patric 型人格**：主公最容易誤解的是「audit 等於馬上清理」；計畫需明說 P98 不做清理，清理由 P99+ 承接。
 
@@ -216,8 +226,8 @@ P98 audit runtime 未來退出條件：
 - `docs/PHASE_98_PLAN.md`
 
 **修改**：
-- `NEXT_SESSION_HANDOFF.md`：切到 R-019 / P98 DRAFT。
-- `docs/ACTIVE_OPERATION.md`：切到 R-019 / P98 DRAFT。
+- `NEXT_SESSION_HANDOFF.md`：切到 R-019 / P98 FROZEN。
+- `docs/ACTIVE_OPERATION.md`：切到 R-019 / P98 FROZEN。
 - `docs/RISK_REGISTRY.md`：新增 R-019 Open，並避免 R-018 future RTK pilot 與 P98 編號混線。
 - `TASK_HISTORY.md`：追加 P98 plan draft 物理真相。
 
@@ -282,7 +292,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-98-project-flywheel-audit
 | **Jarvis 型總控** | 固定必看 | 目標、邊界、下一步 | 觸發；P98 只做 audit plan，runtime / cleanup 分門處理。 |
 | **Ken 型紅隊 / 技術長** | 固定必看 | secrets、CI、不可逆操作 | 觸發；禁止刪檔、搬檔、改 workflow。 |
 | **Patric 型使用者端審查官** | 固定必看 | 主公是否誤解流程 | 觸發；文件明說 audit 不是清理。 |
-| **Jimmy 型文件主筆** | 改 docs / TASK_HISTORY / handoff 時觸發 | 文件可追溯與 source of truth | 觸發；handoff / active / risk / history 同步 DRAFT。 |
+| **Jimmy 型文件主筆** | 改 docs / TASK_HISTORY / handoff 時觸發 | 文件可追溯與 source of truth | 觸發；handoff / active / risk / history 同步 FROZEN。 |
 | **Marcus 型數據分析師** | 涉及數據、判斷依據時觸發 | 定量 / 定性是否分清 | 觸發；runtime 需產出 inventory 與 ROI。 |
 | **Oliver 型設計審查** | 涉及 UI、報告、圖表時觸發 | 報告與內容信任 | 條件觸發；P98 只盤點 report artifacts，不改 UI。 |
 | **Penny 型 CFO** | 涉及成本、付費工具時觸發 | ROI、token、CI 成本 | 觸發；P98 建立工具 ROI gate 與治理成本排序。 |
