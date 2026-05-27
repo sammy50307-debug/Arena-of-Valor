@@ -22,13 +22,14 @@
 
 - **來源**：主公 2026-05-27 要求開 `P98 Project Flywheel Audit Plan`，希望把 AOV 專案從反覆修舊問題推進到可記憶、可檢查、可防復發的飛輪式優化。
 - **風險級**：🔴 高
-- **狀態**：Open（P98 FROZEN；audit runtime 未開始，不清理、不搬檔、不改 runtime）
+- **狀態**：Open（P98 CLOSED / P99 selection pending；不清理、不搬檔、不改 runtime）
 - **描述**：AOV 專案的複雜度主要來自跨爬蟲、LLM、報告、GitHub Actions、內容可信度、治理文件、skills 與 generated artifacts。若不先分層 audit，直接清理或重構可能誤刪歷史證據、破壞 Pages/report link、讓 TASK_HISTORY / handoff 真相漂移，或把新工具導入變成新的 debug 變因。
 - **緩解策略**：
-  - 短期：P98 plan 已凍結為 FROZEN；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
-  - 中期：若主公核准 runtime，先產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序。
+  - 短期：P98 runtime 已完成 report-only audit；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
+  - 中期：P98 已產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序；下一個最高 ROI 候選是 P99 Generated Artifact Hygiene Policy / Stage Guard。
   - 長期：依 audit 結果拆小 Phase，把高 ROI 問題轉成 checker / test / registry / policy；低 ROI 或高風險清理不推進。
 - **觸發升級**：若 P98 未經核准就清理檔案、改 runtime、改 workflow、stage 舊 untracked reports/scratch，或把 R-016/R-017 monitoring 誤標 Closed → 升為 active blocking，立即回滾並寫 Postmortem。
+- **最新證據（2026-05-27）**：`docs/PHASE_98_AUDIT.md` 完成 metadata audit。核心 runtime 約 49 tracked files / 0.44 MB；generated/deploy artifacts 約 123 files / 22.18 MB；agent/skill layer 約 383 files / 9.30 MB；local `scratch/` 66 files / 12.31 MB 且保持 ignored。P98 裁決為先開 P99 policy/checker，不直接刪檔。
 
 ---
 

@@ -13249,3 +13249,106 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ P98 plan freeze commit 已建立於本地。
 - ⏭️ 下一步：push 仍需主公確認。推送後下一門才是 `核准 P98 audit runtime`。
+
+#### P98 runtime audit — Project Flywheel Audit（2026-05-27）
+
+**目標**：
+- 依主公指令 `push 5207e8e 推完後才進下一門：核准 P98 audit runtime`，先推送 P98 plan freeze commit，再進入 P98 audit runtime。
+- Runtime 只做 metadata audit / focused checks / 報告與 P99+ 候選排序；不清理、不搬檔、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions、不導入 RTK。
+
+**推送真相**：
+- 已推送：
+  - `5207e8e docs: 凍結 P98 project flywheel audit plan`
+  - remote：`ae74f4e..5207e8e main -> main`
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_98_AUDIT.md`
+    - repo layer inventory。
+    - known issue memory gap。
+    - generated artifact hygiene。
+    - verification ladder。
+    - P99+ candidate ranking。
+- 修改：
+  - `docs/PHASE_98_PLAN.md`
+    - 狀態改為 `CLOSED / REPORT ONLY`。
+    - P98 audit runtime exit criteria 全數完成。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 `P98（CLOSED / Project Flywheel Audit Complete）`。
+    - 下一門建議改為 `開 P99 Generated Artifact Hygiene Policy / Stage Guard`。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 P98 CLOSED / P99 selection pending。
+  - `docs/RISK_REGISTRY.md`
+    - R-019 狀態改為 `Open（P98 CLOSED / P99 selection pending；不清理、不搬檔、不改 runtime）`。
+  - `TASK_HISTORY.md`
+    - 追加本段 P98 runtime audit 物理真相。
+
+**metadata audit 物理真相**：
+- tracked total：794 files。
+- 分層：
+  - Generated / deploy artifacts：123 files / 22.18 MB。
+  - Agent / skill layer：383 files / 9.30 MB。
+  - Static assets：3 files / 7.89 MB。
+  - Governance docs：87 files / 1.71 MB。
+  - Root legacy / other：59 files / 0.48 MB。
+  - Core runtime：49 files / 0.44 MB。
+  - Automation scripts / CI：30 files / 0.22 MB。
+  - Tests：44 files / 0.22 MB。
+  - Data / cache / manifests：16 files / 0.20 MB。
+- generated / artifact 訊號：
+  - `data/reports` tracked 88 files。
+  - `ui_previews` tracked 27 files。
+  - `backups` tracked 7 files。
+  - local `scratch/`：66 files / 12.31 MB，且被 `.gitignore` ignore。
+  - untracked top-level：`data` 21、`.agents` 2、`.claude` 1、`.codex` 1、`backups` 1、`scratch` 1。
+- root legacy / debug 訊號：
+  - `run_log.txt` 154.1 KB。
+  - `full_diff.txt` 74.9 KB。
+  - `diff_result.txt` 53.9 KB。
+  - `output.log` 15.8 KB。
+- known issue guard 訊號：
+  - R-017 CT-001 / CT-002 已有人類文件 `docs/CONTENT_TRUST_KNOWN_ISSUES.md`、機器設定 `configs/content_trust_known_issues.yaml`、checker `scripts/check_report_content_trust.py`、regression tests。
+  - R-016 已有 SLO / doctor / runbook / tests。
+  - R-018 RTK 已有 evaluation evidence，但尚無機器 checker 阻擋 `rtk` PATH 或 `@RTK.md` 進 repo。
+  - R-019 repo entropy 目前只有 plan/audit，尚無 stage guard。
+
+**focused verification 證據**：
+- `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-26`
+  - focus room title PASS。
+  - forbidden focus title PASS。
+  - report unknown dates PASS。
+  - focus recent section PASS / section absent。
+- `py scripts\slo_checker.py --repo-root . --date 2026-05-26`
+  - `SLO000` OK，2026-05-20～2026-05-26 皆有 manifest / production，doctor blocking/degraded 均 0。
+- `py scripts\system_doctor.py --repo-root . --date 2026-05-26 --profile local --require-production`
+  - only advisory/residual：DOC007 current、DOC018 residual、DOC019 residual。
+- `py scripts\cost_cache_governance.py --repo-root . --date 2026-05-26 --window-days 3`
+  - CCG006 current advisory for 2026-05-24 cooldown。
+  - CCG007 / CCG008 residual。
+  - 2026-05-26 `total_llm_calls=1`、cache hit rate 92%、provider `router_disabled_legacy_default`。
+- `py scripts\lint_skill_registry.py`
+  - 22 warnings, 0 blocking errors。
+
+**P98 裁決**：
+- AOV 的主要問題不是核心 runtime 太大；核心 runtime 只有約 0.44 MB。
+- 主要返工與接手成本來自：
+  - generated/deploy artifacts。
+  - agent/skill layer。
+  - static assets / duplicate images。
+  - governance docs 同步成本。
+  - root legacy/debug outputs。
+  - untracked scratch/report 暫存。
+- 下一個最高 ROI 候選：
+  - `P99 Generated Artifact Hygiene Policy / Stage Guard`
+- P99 不應直接刪檔；應先建立 policy + stage guard，讓未來不再誤 stage / 誤刪。
+
+**狀態**：
+- ✅ P98 audit runtime 已完成。
+- ✅ `docs/PHASE_98_AUDIT.md` 已建立。
+- ✅ P98 plan 已標為 CLOSED / REPORT ONLY。
+- ✅ `git diff --check` PASS。
+- ✅ `py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md` PASS。
+- ✅ `py scripts\check_handoff_truth.py --repo-root .` PASS。
+- ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
+- ✅ P98 runtime audit commit 已建立於本地。
+- ⏭️ 下一步：push 仍需主公確認。推送後由主公裁決是否開 P99。
