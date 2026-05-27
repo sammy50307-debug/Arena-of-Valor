@@ -22,13 +22,14 @@
 
 - **來源**：P98 audit 將 `P100 Root Legacy / Debug Debris Quarantine Plan` 排為 P99 後的下一個最高 ROI 候選；主公於 2026-05-27 要求開 P100。
 - **風險級**：🟡 中
-- **狀態**：Open（P100 FROZEN；runtime 未開始，cleanup blocked，不刪檔、不搬檔、不 rename、不改 `.gitignore`）
+- **狀態**：Open（P100 CLOSED / ADVISORY GUARD ACTIVE；cleanup still blocked）
 - **描述**：AOV root 目錄混有 product entry、治理文件、debug logs、diff outputs、loose preview/helper scripts 與 static assets。若未先做 reference-first quarantine plan，AI 或未來 cleanup 可能把仍被引用或仍有證據價值的檔案誤刪；但若完全不治理，root 噪音會持續影響接手判斷。
 - **緩解策略**：
-  - 短期：P100 plan 已凍結為 FROZEN；不執行任何 cleanup。
-  - 中期：若主公核准 runtime，先做 root inventory + `rg` reference check + decision table；任何 move/delete 需逐項核准與 rollback plan。
+  - 短期：P100 runtime 已完成 root inventory / safe reference check / decision table / advisory checker；不執行任何 cleanup。
+  - 中期：若主公要 actual cleanup，需另開 P100.1 或 future runtime，任何 move/delete 需逐項核准與 rollback plan。
   - 長期：只將穩定、低風險、高 ROI 的 root hygiene 規則升成 advisory checker；strict gate 需另行核准。
 - **觸發升級**：若 P100 未經核准刪除、移動、rename root files，修改 `.gitignore` / Actions，讀出 raw debug content，或把 product entry / deployment truth 誤標為可刪 → 升為 active blocking，立即回滾並寫 Postmortem。
+- **最新證據（2026-05-27）**：P100 runtime 新增 `docs/ROOT_LEGACY_QUARANTINE.md`、`scripts/check_root_legacy_hygiene.py`、`tests/test_root_legacy_hygiene.py`。Safe reference check 顯示 high-weight debug outputs 主要是治理/known-risk references，不是 active runtime references；`err.log` 仍因 AGENTS 錯誤日誌範例列為 decision-required；loose preview/generation scripts 未找到 active safe-scope references，但只列 archive candidate，不批准 cleanup。Checker default advisory exit 0，`--strict` 才會在 findings 時 exit 1。
 
 ---
 

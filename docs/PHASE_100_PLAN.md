@@ -1,6 +1,6 @@
-# Phase P100 計畫書 — Root Legacy / Debug Debris Quarantine Plan（FROZEN）
+# Phase P100 計畫書 — Root Legacy / Debug Debris Quarantine Plan（CLOSED）
 
-> 狀態：FROZEN。主公於 2026-05-27 要求「開 P100 Root Legacy / Debug Debris Quarantine Plan」，並已核准 `P100 plan freeze`。本 Phase 只凍結根目錄 legacy/debug debris 的 quarantine 計畫；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked root files。進入 runtime 前仍需主公另行核准。
+> 狀態：CLOSED。主公於 2026-05-27 要求「開 P100 Root Legacy / Debug Debris Quarantine Plan」，並已核准 `P100 plan freeze` 與 `P100 runtime`。本 Phase 已產出 root legacy quarantine evidence、path-only advisory checker 與 focused tests；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked root files。
 
 ---
 
@@ -13,8 +13,8 @@
 | **建立日期** | 2026-05-27 |
 | **所屬 Program** | R-019 Project Self-Optimization Flywheel Program |
 | **新風險帳** | R-021 Root legacy / debug debris quarantine false deletion |
-| **影響半徑** | 標準（plan 5 檔；future runtime 可能 3-6 檔，仍需另核准） |
-| **預估投入時數** | plan 0.8h；runtime 2-3h |
+| **影響半徑** | 標準（plan 5 檔；runtime 新增/修改 8 檔；無 cleanup / deploy / runtime code diff） |
+| **預估投入時數** | plan 0.8h；runtime 2-3h（已完成） |
 | **Token budget** | plan 16K；runtime 35K |
 | **負責模型** | GPT-5.3-Codex（metadata / docs / quarantine plan）；若涉及刪檔、搬檔或 rename，升 GPT-5.5 高並另開 runtime gate |
 
@@ -24,7 +24,7 @@
 |---|---|---|---|---|---|
 | P99 runtime | CLOSED / pushed | Reference only | P99 checker 作為 P100 的 commit hygiene guard，不再修改 | `b88a846` 已推送 | AI / 主公 |
 | P100 plan | DRAFT | FROZEN | quarantine plan 已凍結，尚不可實作 inventory / cleanup | 主公核准 `P100 plan freeze` | 主公 / AI |
-| P100 runtime | Not started | Pending approval | 未來可新增 inventory / reference check / quarantine manifest，但不可自動刪移 | 主公核准 P100 plan freeze 後另行核准 runtime | 主公 |
+| P100 runtime | Pending approval | CLOSED | 已新增 root quarantine evidence / advisory checker / tests；未刪檔、未搬檔、未改 `.gitignore` | 主公核准 `P100 runtime`，focused checks PASS | 主公 / AI |
 | Cleanup actions | Blocked | Blocked | 任何 delete / move / rename 都不屬 P100 plan draft | 需 future runtime 明列 rollback 並由主公逐項核准 | 主公 |
 
 ---
@@ -78,6 +78,8 @@ P100 解的是「root-level legacy/debug debris boundary」問題，不是 produ
 - [x] P100 plan 明確限制為 plan，不執行刪檔 / 搬檔 / rename / `.gitignore` / runtime code 改動。
 - [x] P100 plan draft 已推送：`e92ad76` 已在 origin/main。
 - [x] 主公核准 `P100 plan freeze`。
+- [x] P100 plan freeze 已推送：`a60618b` 已在 origin/main。
+- [x] 主公核准 `P100 runtime`。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -94,12 +96,12 @@ P100 plan freeze 退出條件：
 - [x] handoff / active / risk / history 同步 P100 FROZEN。
 - [x] 仍未執行任何 delete / move / rename / cleanup。
 
-P100 runtime 未來退出條件：
-- [ ] 產出 root legacy inventory：root file / type / size / last-touch evidence / category。
-- [ ] 產出 reference check：`rg` 搜尋每個 candidate 是否被 docs/scripts/workflows/imports 引用。
-- [ ] 產出 quarantine decision table：keep / document-only / archive-candidate / delete-candidate / requires主公裁決。
-- [ ] 若有 move/delete proposal，必須列 rollback command、affected references、主公逐項核准。
-- [ ] 若新增 checker，先 advisory-only，不升 strict gate。
+P100 runtime 退出條件：
+- [x] 產出 root legacy inventory：root file / type / size / last-touch evidence / category。
+- [x] 產出 reference check：`rg` 搜尋每個 candidate 是否被 docs/scripts/workflows/imports 引用。
+- [x] 產出 quarantine decision table：keep / document-only / archive-candidate / delete-candidate / requires主公裁決。
+- [x] 若有 move/delete proposal，必須列 rollback command、affected references、主公逐項核准。
+- [x] 若新增 checker，先 advisory-only，不升 strict gate。
 
 ## 5. ROI 評估
 
@@ -215,8 +217,8 @@ P100 runtime 未來退出條件：
 | **S0 Plan / Boundary Lock** | 建立 P100 plan、R-021、handoff、active、history | 避免 plan 變 cleanup | plan lint / governance checks PASS |
 | **S1 Root Inventory Design** | 定義 root file classes 與 candidate set | 根目錄靠印象判斷 | inventory spec |
 | **S2 Reference Check Design** | 設計 `rg`/import/workflow/doc reference scan | 誤刪仍被引用檔案 | reference result table |
-| **S3 Quarantine Decision Table（future）** | keep / document-only / archive-candidate / delete-candidate / decision-required | cleanup 無裁決依據 | decision table |
-| **S4 Optional Advisory Guard（future）** | 若需要，擴充 P99 checker 或新增 root checker | root debris 復發 | tests + advisory output |
+| **S3 Quarantine Decision Table** | keep / document-only / archive-candidate / delete-candidate / decision-required | cleanup 無裁決依據 | decision table 完成 |
+| **S4 Optional Advisory Guard** | 新增 root checker | root debris 復發 | tests + advisory output PASS |
 
 ---
 
@@ -231,10 +233,17 @@ P100 runtime 未來退出條件：
 - `docs/RISK_REGISTRY.md`
 - `TASK_HISTORY.md`
 
-**P100 future runtime 候選，不在 plan draft 實作**：
+**P100 runtime 新增**：
 - `docs/ROOT_LEGACY_QUARANTINE.md`
-- `scripts/check_root_legacy_hygiene.py`（只有需要 advisory checker 時）
-- `tests/test_root_legacy_hygiene.py`（只有新增 checker 時）
+- `scripts/check_root_legacy_hygiene.py`
+- `tests/test_root_legacy_hygiene.py`
+
+**P100 runtime 修改**：
+- `docs/PHASE_100_PLAN.md`
+- `NEXT_SESSION_HANDOFF.md`
+- `docs/ACTIVE_OPERATION.md`
+- `docs/RISK_REGISTRY.md`
+- `TASK_HISTORY.md`
 
 **明確不修改**：
 - `.gitignore`
@@ -317,3 +326,58 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-100-root-legacy-quarantin
 | 5 | root 大圖也很大，為什麼不一起處理？ | B 級 | 0 | static asset canonical source 是另一戰線，P100 不混線。 | 入計畫範圍 |
 | 6 | 不刪檔是不是沒效果？ | B 級 | 0 | P100 plan 先讓 future cleanup 有證據與 rollback，降低誤刪。 | 入計畫範圍 |
 | 7 | P100 會不會跟 P99 checker 重複？ | A 級 | 0 | P99 是 commit hygiene；P100 是 root quarantine decision。 | 入計畫範圍 |
+
+---
+
+## 13. P100 Runtime Physical Truth（2026-05-27）
+
+### 新增 evidence doc
+
+- `docs/ROOT_LEGACY_QUARANTINE.md`
+  - 建立 root inventory summary。
+  - 建立 safe reference check summary。
+  - 建立 quarantine decision table。
+  - 明確裁決：P100 runtime 不批准任何 root cleanup；future cleanup 需 reference result / proposed action / rollback / scope separation / 主公 approval。
+
+### 新增 advisory checker
+
+- `scripts/check_root_legacy_hygiene.py`
+  - path-only，預設讀 staged paths：`git diff --name-only --cached --diff-filter=ACMR`。
+  - 支援 `--paths` dry-run / tests。
+  - 支援 `--json` machine-readable output。
+  - 支援 `--strict`，僅在顯式 strict 時 findings 轉 exit 1。
+  - 分類規則覆蓋 root debug outputs、loose legacy scripts、root test/health helpers、root static assets。
+  - 不讀 raw debug log content，不修改 index，不 delete / move / rename。
+
+### 新增 tests
+
+- `tests/test_root_legacy_hygiene.py`
+  - positive cases：`run_log.txt`、`preview_report_script.py`、`check_health.py`、`yaya_bg.png`。
+  - negative cases：`main.py`、`config.py`、`index.html`、normal nested docs/scripts/tests。
+  - CLI cases：`--json` 可 parse、default advisory exit 0、`--strict` 有 finding exit 1。
+
+### Safe reference check result
+
+- 搜尋範圍：`docs`、`scripts`、`tests`、`.github`、`analyzer`、`reporter`、`scrapers`、`notifier`、`configs` 與 root governance/config files。
+- 明確排除：raw debug log content、`TASK_HISTORY.md` 全讀。
+- 結論：
+  - high-weight debug outputs 主要被 P99/P100 policy / checker / tests / audit docs 引用，不是 active runtime 依賴。
+  - `err.log` 出現在 `AGENTS.md` 的錯誤日誌範例，故列為 decision-required，不做刪除裁決。
+  - loose preview/generation scripts 未找到 active safe-scope references，列 archive candidate，但 move/delete 仍需 future approval。
+  - `check_health.py` 被 `README.md` 引用，列 keep/document-only pending future owner decision。
+  - root static assets 屬 static asset canonical-source 戰線，不在 P100 cleanup。
+
+### 驗證命令
+
+```powershell
+py -m pytest -q tests\test_root_legacy_hygiene.py
+py scripts\check_root_legacy_hygiene.py --repo-root . --paths main.py config.py index.html docs/PHASE_100_PLAN.md
+py scripts\check_root_legacy_hygiene.py --repo-root . --paths run_log.txt preview_report_script.py check_health.py yaya_bg.png
+py scripts\check_root_legacy_hygiene.py --repo-root . --paths run_log.txt --strict
+```
+
+### 收官裁決
+
+- P100 成功把 root legacy / debug debris 從「看到檔名就猜」轉成「metadata evidence + decision table + advisory checker + tests」。
+- P100 不代表 root cleanup 已完成或已批准；所有 delete / move / rename 仍 blocked。
+- 下一個最高 ROI 候選：P101 Known Issue Guard Index。
