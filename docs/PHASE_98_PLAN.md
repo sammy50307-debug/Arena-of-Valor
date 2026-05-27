@@ -1,6 +1,6 @@
-# Phase P98 計畫書 — Project Flywheel Audit Plan（FROZEN）
+# Phase P98 計畫書 — Project Flywheel Audit Plan（CLOSED）
 
-> 狀態：FROZEN。主公於 2026-05-27 選取並要求「開 P98 Project Flywheel Audit Plan」，並已核准 `P98 plan freeze`。本 Phase 只凍結專案自我優化飛輪 audit 計畫；不清理檔案、不搬移 generated reports、不改 runtime code、不改 GitHub Actions、不導入 RTK。進入 audit runtime 前仍需主公另行核准。
+> 狀態：CLOSED / REPORT ONLY。主公於 2026-05-27 選取並要求「開 P98 Project Flywheel Audit Plan」，核准 `P98 plan freeze` 後又核准 `P98 audit runtime`。本 Phase 已完成 repo metadata audit 與 P99+ 候選排序；未清理檔案、未搬移 generated reports、未改 runtime code、未改 GitHub Actions、未導入 RTK。
 
 ---
 
@@ -22,7 +22,7 @@
 |---|---|---|---|---|---|
 | R-019 Project Self-Optimization Flywheel | New | Open | 專案結構、生成物、治理文件、known issue 與工具導入流程進入盤點計畫 | 主公開 P98 plan | AI 建帳，主公審核 |
 | P98 plan | DRAFT | FROZEN | audit 計畫已凍結，尚不可執行清理或 runtime 改動 | 主公核准 `P98 plan freeze` | 主公 / AI |
-| P98 audit runtime | Not started | Pending approval | 未來只做盤點與報告，不做清理 | 主公核准 P98 plan freeze 後另行核准 runtime | 主公 |
+| P98 audit runtime | Pending approval | CLOSED | 已完成盤點與報告，不做清理 | 主公核准 `P98 audit runtime` 後完成 `docs/PHASE_98_AUDIT.md` | 主公 / AI |
 | Cleanup / refactor actions | Not allowed | Blocked by default | 任何搬檔、刪檔、gitignore 大改、checker 升級都不屬 P98 plan | 需依 audit 結果另開 P99+ | 主公 |
 
 ---
@@ -68,7 +68,7 @@ P98 要解的不是單一 bug，而是「返工成本高、AI 接手容易迷路
 - [x] 主公已要求：`開 P98 Project Flywheel Audit Plan`。
 - [x] 本 Phase 明確限制為 plan，不執行清理 / 搬檔 / runtime code 改動。
 - [x] 主公核准 `P98 plan freeze`。
-- [ ] 主公另行核准 `P98 audit runtime` 後，才可進下一門 runtime。
+- [x] 主公另行核准 `P98 audit runtime`。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -87,13 +87,13 @@ P98 plan freeze 退出條件：
 - [x] `TASK_HISTORY.md` 追加 P98 plan freeze 物理真相。
 - [x] `git diff --check`、phase plan lint、handoff truth、governance doctor 通過。
 
-P98 audit runtime 未來退出條件：
-- [ ] 產出 repo 分層 inventory：core / tests / scripts / governance docs / generated outputs / skills / scratch。
-- [ ] 產出 known issue memory gap 表：至少列出已機器化、未機器化、建議落點。
-- [ ] 產出 generated artifact hygiene 表：保留、gitignore、artifact、需主公裁決四類。
-- [ ] 產出 verification ladder：focused / full / cloud / manual acceptance 的觸發規則。
-- [ ] 產出 top 5 下一步 phase 候選，含 ROI、風險、預估投入與是否需主公裁決。
-- [ ] 明確裁決：P99 先做哪一項，或暫停飛輪 program。
+P98 audit runtime 退出條件：
+- [x] 產出 repo 分層 inventory：core / tests / scripts / governance docs / generated outputs / skills / scratch。
+- [x] 產出 known issue memory gap 表：至少列出已機器化、未機器化、建議落點。
+- [x] 產出 generated artifact hygiene 表：保留、gitignore、artifact、需主公裁決四類。
+- [x] 產出 verification ladder：focused / full / cloud / manual acceptance 的觸發規則。
+- [x] 產出 top 5 下一步 phase 候選，含 ROI、風險、預估投入與是否需主公裁決。
+- [x] 明確裁決：建議 P99 先做 `Generated Artifact Hygiene Policy / Stage Guard`。
 
 ## 5. ROI 評估
 
@@ -224,19 +224,20 @@ P98 audit runtime 未來退出條件：
 
 **新增**：
 - `docs/PHASE_98_PLAN.md`
+- `docs/PHASE_98_AUDIT.md`
 
 **修改**：
-- `NEXT_SESSION_HANDOFF.md`：切到 R-019 / P98 FROZEN。
-- `docs/ACTIVE_OPERATION.md`：切到 R-019 / P98 FROZEN。
+- `NEXT_SESSION_HANDOFF.md`：切到 R-019 / P98 CLOSED。
+- `docs/ACTIVE_OPERATION.md`：切到 R-019 / P98 CLOSED。
 - `docs/RISK_REGISTRY.md`：新增 R-019 Open，並避免 R-018 future RTK pilot 與 P98 編號混線。
-- `TASK_HISTORY.md`：追加 P98 plan draft 物理真相。
+- `TASK_HISTORY.md`：追加 P98 plan draft / freeze / runtime audit 物理真相。
 
 **刪除**：
 - 無。
 
 **影響但未直接修改**：
 - `AGENTS.md`：P98 使用剛新增的 AOV 自我優化飛輪規則，但本 Phase 不再修改。
-- generated reports / `scratch/` / skills：只會在未來 audit runtime 讀 metadata，不 stage。
+- generated reports / `scratch/` / skills：P98 runtime 只讀 metadata，不 stage。
 - GitHub Actions / Pages：P98 plan 不改。
 
 ---
