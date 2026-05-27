@@ -22,13 +22,14 @@
 
 - **來源**：P98 audit 裁決下一個最高 ROI 候選為 `P99 Generated Artifact Hygiene Policy / Stage Guard`；主公於 2026-05-27 要求開 P99。
 - **風險級**：🟡 中
-- **狀態**：Open（P99 FROZEN；runtime 未開始，不清理、不搬檔、不改 `.gitignore`）
+- **狀態**：Open（P99 CLOSED / ADVISORY GUARD ACTIVE；cleanup still blocked）
 - **描述**：AOV repo 內存在 tracked generated/deploy artifacts、old report variants、tracked previews、local untracked reports 與 ignored scratch。若沒有 stage guard，未來 commit 容易誤納 generated/scratch；但若 guard 過早升級為 blocking，也可能因 false positive 讓正常 docs/code commit 變痛苦。
 - **緩解策略**：
-  - 短期：P99 plan 已凍結為 FROZEN；不刪檔、不搬檔、不改 `.gitignore`。
-  - 中期：若主公核准 runtime，只新增 raw-free path-only advisory checker 與 focused tests；不自動 unstage / delete。
+  - 短期：P99 runtime 已完成 raw-free path-only advisory checker 與 focused tests；不自動 unstage / delete。
+  - 中期：使用 `docs/GENERATED_ARTIFACT_POLICY.md` 作為分類來源，commit 前可手動跑 `scripts/check_generated_artifact_hygiene.py`；保持 advisory-only。
   - 長期：觀察 false positive / missed-risk 後，再決定 keep / revise / promote / remove；strict gate 需另行核准。
 - **觸發升級**：若 P99 未經核准刪除或移動 reports/previews/assets、修改 `.gitignore` 或 Actions、checker 輸出 raw content、或 advisory guard 阻擋正常 commit → 升為 active blocking，立即回滾並寫 Postmortem。
+- **最新證據（2026-05-27）**：P99 runtime 新增 `docs/GENERATED_ARTIFACT_POLICY.md`、`scripts/check_generated_artifact_hygiene.py`、`tests/test_generated_artifact_hygiene.py`。Focused tests 覆蓋 `scratch/`、`data/reports/PREVIEW_*.html`、root debug output、report variants、`ui_previews/`、`backups/`、decision-required paths；normal docs/code/canonical report quiet。Default advisory exit 0；`--strict` 才會在 findings 時 exit 1。
 
 ---
 
@@ -36,14 +37,14 @@
 
 - **來源**：主公 2026-05-27 要求開 `P98 Project Flywheel Audit Plan`，希望把 AOV 專案從反覆修舊問題推進到可記憶、可檢查、可防復發的飛輪式優化。
 - **風險級**：🔴 高
-- **狀態**：Open（P98 CLOSED / P99 selection pending；不清理、不搬檔、不改 runtime）
+- **狀態**：Open（P98 CLOSED / P99 CLOSED；下一個候選 P100 root legacy quarantine；不清理、不搬檔、不改 runtime）
 - **描述**：AOV 專案的複雜度主要來自跨爬蟲、LLM、報告、GitHub Actions、內容可信度、治理文件、skills 與 generated artifacts。若不先分層 audit，直接清理或重構可能誤刪歷史證據、破壞 Pages/report link、讓 TASK_HISTORY / handoff 真相漂移，或把新工具導入變成新的 debug 變因。
 - **緩解策略**：
   - 短期：P98 runtime 已完成 report-only audit；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
-  - 中期：P98 已產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序；下一個最高 ROI 候選是 P99 Generated Artifact Hygiene Policy / Stage Guard。
+  - 中期：P98 已產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序；P99 已把 generated artifact hygiene 轉成 policy + advisory checker + tests。
   - 長期：依 audit 結果拆小 Phase，把高 ROI 問題轉成 checker / test / registry / policy；低 ROI 或高風險清理不推進。
 - **觸發升級**：若 P98 未經核准就清理檔案、改 runtime、改 workflow、stage 舊 untracked reports/scratch，或把 R-016/R-017 monitoring 誤標 Closed → 升為 active blocking，立即回滾並寫 Postmortem。
-- **最新證據（2026-05-27）**：`docs/PHASE_98_AUDIT.md` 完成 metadata audit。核心 runtime 約 49 tracked files / 0.44 MB；generated/deploy artifacts 約 123 files / 22.18 MB；agent/skill layer 約 383 files / 9.30 MB；local `scratch/` 66 files / 12.31 MB 且保持 ignored。P98 裁決為先開 P99 policy/checker，不直接刪檔。
+- **最新證據（2026-05-27）**：`docs/PHASE_98_AUDIT.md` 完成 metadata audit。核心 runtime 約 49 tracked files / 0.44 MB；generated/deploy artifacts 約 123 files / 22.18 MB；agent/skill layer 約 383 files / 9.30 MB；local `scratch/` 66 files / 12.31 MB 且保持 ignored。P99 已完成 policy/checker/tests，不直接刪檔；下一個最高 ROI 候選是 P100 Root Legacy / Debug Debris Quarantine Plan。
 
 ---
 

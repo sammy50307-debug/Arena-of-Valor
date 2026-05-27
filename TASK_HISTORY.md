@@ -13469,3 +13469,79 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ `py scripts\governance_doctor.py --repo-root .` PASS。
 - ✅ P99 plan freeze commit 已建立於本地。
 - ⏭️ 下一步：push 仍需主公確認。推送後下一門才是 `核准 P99 runtime`。
+
+#### P99 runtime — Generated Artifact Hygiene Policy / Stage Guard（2026-05-27）
+
+**目標**：
+- 依主公指令 `push edbc0f7 推完後進 核准 P99 runtime`，先推送 P99 plan freeze commit，再進入 P99 runtime。
+- Runtime 只新增 generated artifact policy、path-only advisory checker、focused tests 與治理文件收官；不清理、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不接 strict gate。
+
+**推送真相**：
+- 已推送：
+  - `edbc0f7 docs: 凍結 P99 artifact hygiene plan`
+  - remote：`0eb3c60..edbc0f7 main -> main`
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/GENERATED_ARTIFACT_POLICY.md`
+    - 定義 keep / production truth / generated review / scratch raw artifact / quarantine candidate / decision required。
+    - 規定 checker path-only、raw-free、advisory-only、no mutation。
+    - 明列 promotion criteria 與 stop rules。
+  - `scripts/check_generated_artifact_hygiene.py`
+    - 預設讀 staged paths：`git diff --name-only --cached --diff-filter=ACMR`。
+    - 支援 `--paths`、`--json`、`--strict`。
+    - 預設 findings exit 0；只有顯式 `--strict` 才在 findings 時 exit 1。
+  - `tests/test_generated_artifact_hygiene.py`
+    - 覆蓋 `scratch/`、preview report、root debug output、report variant、`ui_previews/`、`backups/`、decision-required paths。
+    - 覆蓋 normal docs/code/canonical report quiet。
+    - 覆蓋 JSON output 與 strict/default exit behavior。
+- 修改：
+  - `docs/PHASE_99_PLAN.md`
+    - 狀態改為 CLOSED。
+    - P99 runtime exit criteria 全數完成。
+    - 追加 runtime physical truth。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P99 CLOSED / runtime complete。
+    - 下一門候選改為 P100 Root Legacy / Debug Debris Quarantine Plan。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 P99 runtime complete 與 P100 候選。
+  - `docs/RISK_REGISTRY.md`
+    - R-020 狀態改為 Open（P99 CLOSED / ADVISORY GUARD ACTIVE；cleanup still blocked）。
+    - R-019 狀態更新為 P98 CLOSED / P99 CLOSED。
+  - `TASK_HISTORY.md`
+    - 追加本段 P99 runtime 物理真相。
+
+**checker 分類物理真相**：
+- `scratch/**` -> `scratch_local_artifact` advisory。
+- `data/enrichment_queue/**` -> `raw_enrichment_queue` advisory。
+- `data/reports/PREVIEW_*.html` 與 `data/reports/*-preview.html` -> `preview_report` advisory。
+- `data/reports/*_vN*.html` -> `report_variant` advisory。
+- `ui_previews/**` -> `ui_preview` advisory。
+- `backups/**` -> `backup_artifact` advisory。
+- root debug outputs：`run_log.txt`、`full_diff.txt`、`diff_result.txt`、`output.log`、`err.log`、`debug_output.txt` 等 -> `root_debug_output` advisory。
+- `.gitignore` 與 `.github/workflows/**` -> `decision_required` advisory。
+
+**focused verification 證據**：
+- `git diff --check`
+  - PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py -m pytest -q tests\test_generated_artifact_hygiene.py`
+  - `5 passed in 0.12s`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_99_PLAN.md analyzer/source_selection.py tests/test_source_selection.py`
+  - `No generated artifact hygiene advisories.`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths scratch/demo.txt data/reports/PREVIEW_yaya.html run_log.txt`
+  - advisory findings：`scratch_local_artifact`、`preview_report`、`root_debug_output`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths scratch/demo.txt --strict`
+  - expected strict behavior：finding 存在時 exit 1；wrapper 確認為 `EXPECTED_STRICT_EXIT_1`。
+- `py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md`
+  - PASS。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - `HND000` active bootstrap truth verified。
+- `py scripts\governance_doctor.py --repo-root .`
+  - `GOV000` runbook and risk registry governance verified。
+
+**收官裁決**：
+- ✅ P99 runtime 已把 generated artifact hygiene 從人腦規則轉成 policy + advisory checker + tests。
+- ✅ P99 runtime 沒有刪檔、搬檔、rename、改 `.gitignore`、改 runtime code、改 GitHub Actions / Pages。
+- ✅ P99 checker 不讀 raw content、不自動 unstage、不自動 delete。
+- ✅ P99 不升 strict gate；strict 只保留為顯式手動模式與未來 promote 評估。
+- ⏭️ 下一步：P99 runtime commit 建立後仍需主公確認 push。推送後由主公裁決是否開 P100 Root Legacy / Debug Debris Quarantine Plan。
