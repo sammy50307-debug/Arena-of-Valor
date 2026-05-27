@@ -1,6 +1,6 @@
-# Phase P100 計畫書 — Root Legacy / Debug Debris Quarantine Plan（DRAFT）
+# Phase P100 計畫書 — Root Legacy / Debug Debris Quarantine Plan（FROZEN）
 
-> 狀態：DRAFT。主公於 2026-05-27 要求「開 P100 Root Legacy / Debug Debris Quarantine Plan」。本 Phase 只建立根目錄 legacy/debug debris 的 quarantine 計畫；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked root files。進入 runtime 前仍需主公另行核准。
+> 狀態：FROZEN。主公於 2026-05-27 要求「開 P100 Root Legacy / Debug Debris Quarantine Plan」，並已核准 `P100 plan freeze`。本 Phase 只凍結根目錄 legacy/debug debris 的 quarantine 計畫；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked root files。進入 runtime 前仍需主公另行核准。
 
 ---
 
@@ -23,8 +23,8 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P99 runtime | CLOSED / pushed | Reference only | P99 checker 作為 P100 的 commit hygiene guard，不再修改 | `b88a846` 已推送 | AI / 主公 |
-| P100 plan | Not started | DRAFT | 只建立 quarantine plan，不執行 cleanup | 主公要求開 P100 | 主公 / AI |
-| P100 runtime | Not started | Blocked | 未來可新增 inventory / reference check / quarantine manifest，但不可自動刪移 | 需主公核准 `P100 plan freeze` 後再核准 runtime | 主公 |
+| P100 plan | DRAFT | FROZEN | quarantine plan 已凍結，尚不可實作 inventory / cleanup | 主公核准 `P100 plan freeze` | 主公 / AI |
+| P100 runtime | Not started | Pending approval | 未來可新增 inventory / reference check / quarantine manifest，但不可自動刪移 | 主公核准 P100 plan freeze 後另行核准 runtime | 主公 |
 | Cleanup actions | Blocked | Blocked | 任何 delete / move / rename 都不屬 P100 plan draft | 需 future runtime 明列 rollback 並由主公逐項核准 | 主公 |
 
 ---
@@ -76,21 +76,23 @@ P100 解的是「root-level legacy/debug debris boundary」問題，不是 produ
 - [x] P98 audit 排序指出 P100 是 P99 後的第二高 ROI 候選。
 - [x] 主公已要求：`開 P100 Root Legacy / Debug Debris Quarantine Plan`。
 - [x] P100 plan 明確限制為 plan，不執行刪檔 / 搬檔 / rename / `.gitignore` / runtime code 改動。
+- [x] P100 plan draft 已推送：`e92ad76` 已在 origin/main。
+- [x] 主公核准 `P100 plan freeze`。
 
 ## 4. Exit Criteria（退出條件）
 
 P100 plan draft 退出條件：
-- [ ] `docs/PHASE_100_PLAN.md` 建立並通過 `scripts/lint_phase_plan.py`。
-- [ ] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 R-019 / R-021 / P100 DRAFT。
-- [ ] `docs/RISK_REGISTRY.md` 建立 R-021 Open 風險。
-- [ ] `TASK_HISTORY.md` 追加 P100 plan draft 物理真相。
-- [ ] `git diff --check`、handoff truth、governance doctor、P99 artifact hygiene staged check 通過。
+- [x] `docs/PHASE_100_PLAN.md` 建立並通過 `scripts/lint_phase_plan.py`。
+- [x] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 R-019 / R-021 / P100 DRAFT。
+- [x] `docs/RISK_REGISTRY.md` 建立 R-021 Open 風險。
+- [x] `TASK_HISTORY.md` 追加 P100 plan draft 物理真相。
+- [x] `git diff --check`、handoff truth、governance doctor、P99 artifact hygiene staged check 通過。
 
-P100 plan freeze 未來退出條件：
-- [ ] 主公核准 `P100 plan freeze`。
-- [ ] `docs/PHASE_100_PLAN.md` 狀態改為 FROZEN。
-- [ ] handoff / active / risk / history 同步 P100 FROZEN。
-- [ ] 仍未執行任何 delete / move / rename / cleanup。
+P100 plan freeze 退出條件：
+- [x] 主公核准 `P100 plan freeze`。
+- [x] `docs/PHASE_100_PLAN.md` 狀態改為 FROZEN。
+- [x] handoff / active / risk / history 同步 P100 FROZEN。
+- [x] 仍未執行任何 delete / move / rename / cleanup。
 
 P100 runtime 未來退出條件：
 - [ ] 產出 root legacy inventory：root file / type / size / last-touch evidence / category。
@@ -160,7 +162,7 @@ P100 runtime 未來退出條件：
 | 動作 | 可逆性 | 主公確認 |
 |---|---|---|
 | 新增 `docs/PHASE_100_PLAN.md` | 可逆 | 主公已要求開 plan |
-| 更新 handoff / active / risk / history | 可逆 | 本次只同步 DRAFT |
+| 更新 handoff / active / risk / history | 可逆 | 本次只同步 FROZEN |
 | future 新增 inventory / checker / manifest | 可逆 | runtime 需另核准 |
 | 移動 root files | 半可逆 | P100 plan 禁止 |
 | 刪除 root files | 不可逆到半可逆 | P100 plan 禁止；future 需逐項核准 |
@@ -298,7 +300,7 @@ Postmortem 位置：`docs/postmortems/YYYY-MM-DD-phase-100-root-legacy-quarantin
 | **Jarvis 型總控** | 固定必看 | 目標、邊界、下一步 | 觸發；P100 只開 quarantine plan。 |
 | **Ken 型紅隊 / 技術長** | 固定必看 | raw log / irreversible cleanup | 觸發；metadata-only，不刪檔。 |
 | **Patric 型使用者端審查官** | 固定必看 | 主公是否誤解效果 | 觸發；P100 不修前台內容。 |
-| **Jimmy 型文件主筆** | 改 docs / handoff 時觸發 | 文件可追溯 | 觸發；handoff / active / risk / history 同步 DRAFT。 |
+| **Jimmy 型文件主筆** | 改 docs / handoff 時觸發 | 文件可追溯 | 觸發；handoff / active / risk / history 同步 FROZEN。 |
 | **Marcus 型數據分析師** | 涉及 inventory 時觸發 | root file metadata | 觸發；使用 metadata，不讀 raw content。 |
 | **Oliver 型設計審查** | 涉及 root static asset 時觸發 | `yaya_bg.png` 是否混線 | 條件觸發；P100 不處理 static asset cleanup。 |
 | **Penny 型 CFO** | 涉及成本時觸發 | 降低返工成本 | 觸發；root 降噪可減少 AI 誤讀。 |

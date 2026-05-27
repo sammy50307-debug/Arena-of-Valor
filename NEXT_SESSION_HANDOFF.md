@@ -7,10 +7,10 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-019 Project Self-Optimization Flywheel Program / R-021 Root Legacy Quarantine Risk |
-| **Current Phase** | P100（DRAFT / Root Legacy / Debug Debris Quarantine Plan） |
-| **Current Step** | P100 plan draft 已建立；等待主公裁決 `核准 P100 plan freeze`。本階段仍不可 cleanup。 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `b88a846` 已推送；P100 plan draft commit 建立後，push 仍需主公確認 |
+| **Current Phase** | P100（FROZEN / Root Legacy / Debug Debris Quarantine Plan） |
+| **Current Step** | P100 plan freeze commit 已建立於本地後，等待主公確認 push。下一門是 `核准 P100 runtime`，且 runtime 仍不可自動開始。 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `e92ad76` 已推送；P100 plan freeze commit 建立後，push 仍需主公確認 |
 | **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -37,14 +37,14 @@
 | L3-p99 | `docs/PHASE_99_PLAN.md` | P99 closed / P100 前置 guard |
 | L3-rtk | `docs/PHASE_97_RTK_EVALUATION.md` | P97 RTK runtime evidence / install blocked 裁決 |
 | L3-content | `docs/PHASE_96_PLAN.md` | P96 closed / R-017 monitoring boundary |
-| L4 | `docs/RISK_REGISTRY.md` 的 R-020 / R-019 / R-018 / R-017 / R-016 | artifact hygiene；project flywheel；RTK tooling；content trust monitoring；backend monitoring |
+| L4 | `docs/RISK_REGISTRY.md` 的 R-021 / R-020 / R-019 / R-018 / R-017 / R-016 | root quarantine；artifact hygiene；project flywheel；RTK tooling；content trust monitoring；backend monitoring |
 
 ## Window Switch Timing
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P100 plan draft commit，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P100 plan draft commit / push 完成，等待主公裁決是否核准 `P100 plan freeze`。 |
+| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P100 plan freeze commit，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P100 plan freeze commit / push 完成，等待主公裁決是否核准 `P100 runtime`。 |
 | **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_100_PLAN.md`。 |
 | **不要在換窗後做的事** | 不要清理 root files；不要搬檔或刪檔；不要 rename；不要改 `.gitignore`；不要改 runtime code；不要改 GitHub Actions / Pages。 |
 
@@ -52,12 +52,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P100（DRAFT / ROOT_LEGACY_DEBUG_DEBRIS_QUARANTINE_PLAN / RUNTIME_NOT_STARTED） |
-| **Current Step** | P100 plan draft 已建立；等待主公裁決 `核准 P100 plan freeze` |
+| **Current Phase** | P100（FROZEN / ROOT_LEGACY_DEBUG_DEBRIS_QUARANTINE_PLAN / RUNTIME_NOT_STARTED） |
+| **Current Step** | P100 plan freeze commit 已建立於本地後，等待主公確認 push；下一門是 `核准 P100 runtime` |
 | **Allowed Files** | P100 plan scope：`docs/PHASE_100_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理 root files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不讀 raw debug log content；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_100_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-021 Open（P100 DRAFT）；P100 plan draft committed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_100_PLAN.md`、`docs/RISK_REGISTRY.md` R-021；若 local ahead 是 P100 plan draft commit，等待主公 push；若已推，下一步是由主公裁決是否核准 `P100 plan freeze` |
+| **Exit Criteria** | `docs/PHASE_100_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-021 Open（P100 FROZEN）；P100 plan freeze committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_100_PLAN.md`、`docs/RISK_REGISTRY.md` R-021；若 local ahead 是 P100 plan freeze commit，等待主公 push；若已推，下一步是由主公裁決是否核准 `P100 runtime` |
 
 ## Required Verification Commands
 
@@ -100,7 +100,7 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要把主公提到的前台內容可信度問題混進 R-016；芽芽觀察室 / 舊文章問題應另開 R-017 / P96+。
 - 不要未經主公另開 RTK pilot phase 並核准，就安裝 RTK、執行非 dry-run `rtk init`、patch `AGENTS.md` 或部署到全域。
 - 不要把 P98 Project Flywheel Audit 和 future RTK pilot 混線；RTK 若要繼續應另開 P99+ 或獨立 phase。
-- 不要把 P100 plan 解讀成 root cleanup 已核准；P100 DRAFT 只允許計畫與治理同步。
+- 不要把 P100 plan freeze 解讀成 root cleanup 已核准；P100 FROZEN 只代表計畫凍結，runtime 仍需主公另行核准。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->
