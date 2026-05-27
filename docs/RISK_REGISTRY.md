@@ -18,6 +18,20 @@
 
 ## 開放風險（Open）
 
+### R-019：Project self-optimization flywheel / repo entropy（P98 開案）
+
+- **來源**：主公 2026-05-27 要求開 `P98 Project Flywheel Audit Plan`，希望把 AOV 專案從反覆修舊問題推進到可記憶、可檢查、可防復發的飛輪式優化。
+- **風險級**：🔴 高
+- **狀態**：Open（P98 DRAFT；只允許 plan，不清理、不搬檔、不改 runtime）
+- **描述**：AOV 專案的複雜度主要來自跨爬蟲、LLM、報告、GitHub Actions、內容可信度、治理文件、skills 與 generated artifacts。若不先分層 audit，直接清理或重構可能誤刪歷史證據、破壞 Pages/report link、讓 TASK_HISTORY / handoff 真相漂移，或把新工具導入變成新的 debug 變因。
+- **緩解策略**：
+  - 短期：P98 只建立 Project Flywheel Audit plan；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
+  - 中期：若主公核准 runtime，先產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序。
+  - 長期：依 audit 結果拆小 Phase，把高 ROI 問題轉成 checker / test / registry / policy；低 ROI 或高風險清理不推進。
+- **觸發升級**：若 P98 未經核准就清理檔案、改 runtime、改 workflow、stage 舊 untracked reports/scratch，或把 R-016/R-017 monitoring 誤標 Closed → 升為 active blocking，立即回滾並寫 Postmortem。
+
+---
+
 ### R-018：RTK token-saving proxy / toolchain output fidelity（P97 開案）
 
 - **來源**：主公 2026-05-26 要求評估 RTK；RTK 是會壓縮 / 改寫 CLI 輸出的 token-saving 工具，可能影響 Codex / Claude / Gemini 的終端真相。
@@ -26,8 +40,8 @@
 - **描述**：RTK 可能降低 terminal output token 成本，但它位於 AI 與命令輸出之間，若壓縮掉 traceback、測試失敗細節、警告或 security-relevant output，AI 可能做出錯誤判斷。P97 runtime 已證實此風險不是理論：Windows/PowerShell 下 `rtk pytest` 會壓掉 missing file path，`rtk err py -c ...` 會遺失 sentinel error message。全域部署還會影響所有專案與多代理行為；Windows 原生 hook 能力與官方宣稱 savings 也可能有落差。
 - **緩解策略**：
   - 短期：P97 已完成 isolated binary 評估；不安裝、不初始化、不全域部署，不把 `@RTK.md` 寫入 AOV `AGENTS.md`。
-  - 中期：若主公想繼續，只能另開 P98 project-local/manual-prefix pilot；限制在已知 noisy passing tests，debug / traceback / missing file / security-sensitive output 必須 raw 或 `rtk proxy`。
-  - 長期：只有在 P98 證明收益穩定且 failure fidelity 不退化時，才可重新討論全域部署；目前 global deployment blocked。
+  - 中期：若主公想繼續，只能另開 future RTK project-local/manual-prefix pilot（P99+ 或獨立 phase）；限制在已知 noisy passing tests，debug / traceback / missing file / security-sensitive output 必須 raw 或 `rtk proxy`。
+  - 長期：只有在 future RTK pilot 證明收益穩定且 failure fidelity 不退化時，才可重新討論全域部署；目前 global deployment blocked。
 - **最新證據（2026-05-27）**：
   - RTK latest release `v0.42.0` Windows zip checksum PASS；binary 僅位於 `scratch/rtk_eval/bin/rtk.exe`。
   - `Get-Command rtk` runtime 前後皆 `NOT_FOUND`，未加入 PATH。
