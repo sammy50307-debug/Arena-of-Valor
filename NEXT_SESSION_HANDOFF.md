@@ -7,10 +7,10 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-019 Project Self-Optimization Flywheel Program / R-020 Artifact Hygiene Risk |
-| **Current Phase** | P99（DRAFT / Generated Artifact Hygiene Policy / Stage Guard） |
-| **Current Step** | P99 plan draft commit 已建立於本地，等待主公確認 push。下一門是 `核准 P99 plan freeze`；runtime 仍不可開始。 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `84012c0` 已推送；P99 plan draft commit 已建立於本地，push 仍需主公確認 |
+| **Current Phase** | P99（FROZEN / Generated Artifact Hygiene Policy / Stage Guard） |
+| **Current Step** | P99 plan freeze commit 已建立於本地，等待主公確認 push。下一門是 `核准 P99 runtime`，且 runtime 仍不可自動開始。 |
+| **Mode** | FROZEN |
+| **Latest Verified Commit** | `0eb3c60` 已推送；P99 plan freeze commit 已建立於本地，push 仍需主公確認 |
 | **Updated At** | 2026-05-27 Asia/Taipei |
 
 ## Required Minimal Reads
@@ -38,8 +38,8 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P99 plan draft commit，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P99 plan draft commit / push 完成，等待主公裁決是否核准 `P99 plan freeze`。 |
+| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P99 plan freeze commit，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P99 plan freeze commit / push 完成，等待主公裁決是否核准 `P99 runtime`。 |
 | **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_99_PLAN.md`。 |
 | **不要在換窗後做的事** | 不要清理 generated reports；不要搬檔或刪檔；不要改 `.gitignore`；不要改 runtime code；不要把 P98 改成 RTK pilot。 |
 
@@ -47,12 +47,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P99（DRAFT / GENERATED_ARTIFACT_HYGIENE_POLICY_STAGE_GUARD / RUNTIME_NOT_STARTED） |
-| **Current Step** | P99 plan draft commit 已建立於本地；等待主公確認 push，下一門是 `核准 P99 plan freeze` |
+| **Current Phase** | P99（FROZEN / GENERATED_ARTIFACT_HYGIENE_POLICY_STAGE_GUARD / RUNTIME_NOT_STARTED） |
+| **Current Step** | P99 plan freeze commit 已建立於本地；等待主公確認 push，下一門是 `核准 P99 runtime` |
 | **Allowed Files** | P99 plan scope：`docs/PHASE_99_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
 | **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不清理、不搬檔、不 rename、不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/PHASE_99_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-020 Open；P99 plan draft committed |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_99_PLAN.md`、`docs/RISK_REGISTRY.md` R-020；若 local ahead 是 P99 plan draft，等待主公 push；若已推，下一步是 `核准 P99 plan freeze` |
+| **Exit Criteria** | `docs/PHASE_99_PLAN.md` lint PASS；handoff / active / risk / history synchronized；R-020 Open（P99 FROZEN）；P99 plan freeze committed |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_99_PLAN.md`、`docs/RISK_REGISTRY.md` R-020；若 local ahead 是 P99 plan freeze commit，等待主公 push；若已推，下一步是由主公裁決是否核准 `P99 runtime` |
 
 ## Required Verification Commands
 

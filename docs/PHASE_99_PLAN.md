@@ -1,6 +1,6 @@
-# Phase P99 計畫書 — Generated Artifact Hygiene Policy / Stage Guard（DRAFT）
+# Phase P99 計畫書 — Generated Artifact Hygiene Policy / Stage Guard（FROZEN）
 
-> 狀態：DRAFT。主公於 2026-05-27 要求「開 P99 Generated Artifact Hygiene Policy / Stage Guard」。本 Phase 只建立 generated artifact hygiene policy 與 stage guard 的計畫；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked reports。
+> 狀態：FROZEN。主公於 2026-05-27 要求「開 P99 Generated Artifact Hygiene Policy / Stage Guard」，並已核准 `P99 plan freeze`。本 Phase 只凍結 generated artifact hygiene policy 與 stage guard 的計畫；不刪檔、不搬檔、不 rename、不改 `.gitignore`、不改 runtime code、不改 GitHub Actions / Pages、不清理既有 tracked reports。進入 runtime 前仍需主公另行核准。
 
 ---
 
@@ -23,7 +23,7 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P98 audit | CLOSED / report-only | Reference only | P98 只作為 P99 證據來源，不再修改 | `84012c0` 已推送 | AI / 主公 |
-| P99 plan | Not started | DRAFT | 建立 stage guard 計畫，不實作 checker | 主公開 P99 | AI |
+| P99 plan | DRAFT | FROZEN | stage guard 計畫已凍結，尚不可實作 checker | 主公核准 `P99 plan freeze` | 主公 / AI |
 | P99 runtime | Not started | Pending approval | 未來可新增 policy doc / advisory checker / tests，但仍不得刪檔 | 主公核准 P99 plan freeze 後另行核准 runtime | 主公 |
 | Cleanup actions | Blocked | Blocked | 任何刪除、搬移、rename、`.gitignore` 改動都不屬 P99 plan | 需另開 P100+ 或 P99.x cleanup plan | 主公 |
 
@@ -74,7 +74,9 @@ P99 解的是「commit hygiene / artifact boundary」問題，不是「網站內
 - [x] P98 明確裁決：下一個最高 ROI 候選為 P99 Generated Artifact Hygiene Policy / Stage Guard。
 - [x] 主公已要求：`開 P99 Generated Artifact Hygiene Policy / Stage Guard`。
 - [x] P99 plan 明確限制為 plan，不執行刪檔 / 搬檔 / `.gitignore` / runtime code 改動。
-- [ ] 主公核准 `P99 plan freeze` 後，才可進下一門 runtime。
+- [x] P99 plan draft 已推送：`0eb3c60` 已在 origin/main。
+- [x] 主公核准 `P99 plan freeze`。
+- [ ] 主公另行核准 `P99 runtime` 後，才可進下一門 runtime。
 
 ## 4. Exit Criteria（退出條件）
 
@@ -84,6 +86,14 @@ P99 plan draft 退出條件：
 - [x] `docs/RISK_REGISTRY.md` 建立 R-020 Open 風險。
 - [x] `TASK_HISTORY.md` 追加 P99 plan draft 物理真相。
 - [x] `git diff --check`、handoff truth、governance doctor 通過。
+
+P99 plan freeze 退出條件：
+- [x] 主公核准 `P99 plan freeze`。
+- [x] `docs/PHASE_99_PLAN.md` 狀態改為 FROZEN。
+- [x] `NEXT_SESSION_HANDOFF.md` / `docs/ACTIVE_OPERATION.md` 指向 R-019 / R-020 / P99 FROZEN。
+- [x] `docs/RISK_REGISTRY.md` 標記 R-020 為 P99 FROZEN / runtime 未開始。
+- [x] `TASK_HISTORY.md` 追加 P99 plan freeze 物理真相。
+- [x] `git diff --check`、phase plan lint、handoff truth、governance doctor 通過。
 
 P99 runtime 未來退出條件：
 - [ ] 產出 generated artifact policy：分清 keep / generated / scratch / artifact / quarantine / requires主公裁決。
