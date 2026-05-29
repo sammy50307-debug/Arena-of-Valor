@@ -2,271 +2,6 @@
   "schema_version": 3,
   "result_schema_version": 1,
   "entries": {
-    "prompt:5c38db722cad3caea659a9f396600b78": {
-      "result": {
-        "reasoning": "該貼文為 YouTube 直播連結的標題與資訊，單純提供賽事時間表與對戰組合，屬於中立的資訊發布。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "電競賽事",
-        "keywords": [
-          "APL 2026",
-          "外卡賽",
-          "傳說對決",
-          "電競",
-          "直播"
-        ],
-        "summary": "提供 APL 2026 外卡賽第一天的賽程時間表與對戰組合資訊。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "APL 2026 外卡賽",
-            "type": "電競賽事"
-          }
-        ]
-      },
-      "stored_at": "2026-05-21T18:42:37.020850+00:00",
-      "last_accessed": "2026-05-21T18:42:37.020850+00:00",
-      "ttl_days": 7
-    },
-    "prompt:9a4b0866d86333894e8e225059a41c25": {
-      "result": {
-        "reasoning": "該貼文為典型的遊戲帳號買賣廣告，與遊戲本身的遊玩體驗無關，屬於外部商業推廣行為。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "其他",
-        "keywords": [
-          "帳號買賣",
-          "收購",
-          "傳說對決"
-        ],
-        "summary": "該貼文為推廣遊戲帳號買賣的廣告資訊。",
-        "relevance_score": 0.2,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-21T18:42:38.202023+00:00",
-      "last_accessed": "2026-05-21T18:42:38.202023+00:00",
-      "ttl_days": 7
-    },
-    "prompt:338962500ce4616b27cdc1cac91245c8": {
-      "result": {
-        "reasoning": "貼文內容為官方或合作宣傳，介紹職業選手Xcen使用霧己新造型的實戰展示，語氣正面且具推廣性質。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "角色討論",
-        "keywords": [
-          "霧己",
-          "虛海回收令",
-          "Xcen",
-          "GCS",
-          "造型"
-        ],
-        "summary": "職業選手Xcen展示霧己「虛海回收令」造型的實戰操作與手感。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "虛海回收令造型推出",
-            "type": "限時活動"
-          }
-        ]
-      },
-      "stored_at": "2026-05-21T18:42:39.475929+00:00",
-      "last_accessed": "2026-05-21T18:42:39.475929+00:00",
-      "ttl_days": 7
-    },
-    "prompt:94f2ffada1eb836d78e45a3ad472008e": {
-      "result": {
-        "reasoning": "該貼文為 Dcard 傳說對決板的徵友標題，屬於典型的社群互動行為，意圖尋找遊戲夥伴，無負面情緒或反諷。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "社群互動",
-        "keywords": [
-          "徵求隊友",
-          "Dcard",
-          "傳說對決"
-        ],
-        "summary": "玩家在 Dcard 傳說對決板發文徵求遊戲隊友。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-21T18:42:40.488911+00:00",
-      "last_accessed": "2026-05-21T18:42:40.488911+00:00",
-      "ttl_days": 7
-    },
-    "prompt:6786c66e0f2adc0aff55bd31ed1d4a77": {
-      "result": {
-        "reasoning": "該貼文標題為心得分享與出裝思路，屬於玩家間正常的遊戲策略交流，語氣中性且具建設性。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "出裝",
-          "心得",
-          "攻略",
-          "傳說對決"
-        ],
-        "summary": "玩家在Dcard分享關於傳說對決的出裝思路與心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-21T18:42:48.551388+00:00",
-      "last_accessed": "2026-05-21T18:42:48.551388+00:00",
-      "ttl_days": 7
-    },
-    "prompt:112947b9594deccf3b2bb1268e0cef30": {
-      "result": {
-        "reasoning": "該貼文為官方或社群轉發的電競賽事直播預告，內容客觀陳述賽程資訊，不帶有個人情緒色彩。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "電競賽事",
-        "keywords": [
-          "APL 2026",
-          "外卡賽",
-          "傳說對決",
-          "直播",
-          "電競"
-        ],
-        "summary": "APL 2026 外卡賽第一日賽程直播預告。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "APL 2026 外卡賽",
-            "type": "電競賽事"
-          }
-        ],
-        "translated_content": "[APL 2026 外卡賽D1－2026/05/21《Garena傳說對決》 - YouTube] #APL · #2026 · #Wildcard APL 2026 外卡賽D1 | 雙敗淘汰賽# · 16:00｜MATCH 1：CFX vs. · 18:00｜MATCH 2：TEN vs. · 20:30｜MATCH 5：M1L vs. · 傳說對決 · #傳說對決直播"
-      },
-      "stored_at": "2026-05-22T10:30:57.468819+00:00",
-      "last_accessed": "2026-05-22T10:30:57.468819+00:00",
-      "ttl_days": 7
-    },
-    "prompt:c040ee5fa6bd922e6ca2edd89f0c90da": {
-      "result": {
-        "reasoning": "貼文內容明確提及『逆水寒』與『天機迷城』，這是另一款遊戲的內容，與《傳說對決》無關。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "其他",
-        "keywords": [
-          "逆水寒",
-          "天機迷城",
-          "手遊"
-        ],
-        "summary": "該貼文討論的是《逆水寒》手遊內容，與《傳說對決》無關。",
-        "relevance_score": 0.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-22T10:30:59.014512+00:00",
-      "last_accessed": "2026-05-22T16:17:43.340730+00:00",
-      "ttl_days": 7
-    },
-    "prompt:e8c6e064459a3e056bf8f9a0b2dd3397": {
-      "result": {
-        "reasoning": "該貼文為官方活動宣傳內容，旨在告知玩家活動已上線並鼓勵參與以獲取獎勵，語氣正面且具備推廣性質。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "活動資訊",
-        "keywords": [
-          "525GoldenDay",
-          "活動",
-          "獎勵",
-          "造型",
-          "任務"
-        ],
-        "summary": "525GoldenDay活動正式開跑，玩家可透過完成任務獲得限定造型與賽季外觀兌換券。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "525GoldenDay",
-            "type": "限時活動"
-          }
-        ],
-        "translated_content": "525GoldenDay 現已開跑！全新遊戲模式與海量獎勵等你來拿！完成任務即可獲得 8 款限定武器造型、2,400 張賽季外觀兌換券以及 40 個獎勵。"
-      },
-      "stored_at": "2026-05-22T10:31:07.554715+00:00",
-      "last_accessed": "2026-05-22T11:25:47.980914+00:00",
-      "ttl_days": 7
-    },
-    "prompt:fa8ec67fd067d5521ee5211831a4ae57": {
-      "result": {
-        "reasoning": "作者整理了2025年2月20日的改版內容並提供個人見解，屬於客觀的資訊分享與社群討論，無反諷意圖。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "版本更新",
-        "keywords": [
-          "改版",
-          "懶人包",
-          "心得",
-          "傳說對決",
-          "20250220"
-        ],
-        "summary": "作者針對2025年2月20日的遊戲版本更新進行整理與心得分享。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "20250220 版本更新",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-22T10:31:13.984347+00:00",
-      "last_accessed": "2026-05-22T10:31:13.984347+00:00",
-      "ttl_days": 7
-    },
-    "prompt:57aefe8a761ac13c246532ecf27cb0ef": {
-      "result": {
-        "reasoning": "該貼文為遊戲實況主娘子的影片內容，主要分析英雄卡瑞茲的改動與實戰技巧，內容包含對隊友操作不佳的抱怨以及對英雄強度的專業解析，整體偏向遊戲教學與心得分享。",
-        "sentiment": "positive",
-        "sentiment_score": 0.7,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "角色討論",
-        "keywords": [
-          "卡瑞茲",
-          "娘子",
-          "改強",
-          "技能解析",
-          "出裝奧義"
-        ],
-        "summary": "實況主娘子解析卡瑞茲改版後的強度提升，並分享實戰中的開視野技巧與出裝建議。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "5/21不停機更新",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-22T11:25:50.852236+00:00",
-      "last_accessed": "2026-05-22T16:17:43.338372+00:00",
-      "ttl_days": 7
-    },
     "prompt:2368f676b0c022ee8e93ff3b2f849fae": {
       "result": {
         "reasoning": "貼文為官方宣傳文案，旨在推廣新造型『平行世界 孫尚香』的推出，語氣正向且具行銷導向。",
@@ -320,7 +55,7 @@
         }
       },
       "stored_at": "2026-05-22T16:17:46.153991+00:00",
-      "last_accessed": "2026-05-25T01:51:53.010036+00:00",
+      "last_accessed": "2026-05-29T11:50:17.530362+00:00",
       "ttl_days": 7
     },
     "prompt:953664bddd24fb3cf3bb85b3e5629a49": {
@@ -500,7 +235,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:25.190987+00:00",
-      "last_accessed": "2026-05-25T01:51:53.010088+00:00",
+      "last_accessed": "2026-05-29T11:50:30.315015+00:00",
       "ttl_days": 7
     },
     "prompt:5fb489b035e87250da966e424aeb2e46": {
@@ -527,7 +262,7 @@
         }
       },
       "stored_at": "2026-05-23T10:14:30.203288+00:00",
-      "last_accessed": "2026-05-26T14:35:41.636942+00:00",
+      "last_accessed": "2026-05-29T11:50:30.317649+00:00",
       "ttl_days": 7
     },
     "prompt:bcab17439c6eb565c65b8f0fa673cefa": {
@@ -1713,7 +1448,7 @@
         "events": []
       },
       "stored_at": "2026-05-28T12:00:14.032425+00:00",
-      "last_accessed": "2026-05-28T12:00:14.032425+00:00",
+      "last_accessed": "2026-05-29T11:50:17.534348+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -1860,12 +1595,219 @@
       "stored_at": "2026-05-28T12:00:40.898036+00:00",
       "last_accessed": "2026-05-28T12:00:40.898036+00:00",
       "ttl_days": 7
+    },
+    "prompt:825f5ecb754463dc50de63565a53fd8c": {
+      "result": {
+        "reasoning": "該貼文為實況主陸子玄的直播預告或回顧，內容單純為活動宣傳，無反諷或負面情緒，屬於中性資訊分享。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "社群互動",
+        "keywords": [
+          "傳說對決",
+          "陸子玄",
+          "直播",
+          "遊戲實況"
+        ],
+        "summary": "實況主陸子玄發布關於傳說對決的直播內容。",
+        "relevance_score": 0.9,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "5/28 直播活動",
+            "type": "其他"
+          }
+        ]
+      },
+      "stored_at": "2026-05-29T11:50:05.927488+00:00",
+      "last_accessed": "2026-05-29T11:50:05.927488+00:00",
+      "ttl_days": 7
+    },
+    "prompt:86e526ceed4b68d5653ea1ad1e1d58e2": {
+      "result": {
+        "reasoning": "玩家為了獲得遊戲內獎勵（稀世造型），主動分享邀請碼並鼓勵他人輸入，目的是透過社群互動達成活動任務。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "星展傳說聯名卡",
+          "邀請碼",
+          "稀世造型",
+          "活動"
+        ],
+        "summary": "玩家分享星展傳說聯名卡活動邀請碼，尋求他人協助解鎖造型獎勵。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "星展傳說聯名卡活動",
+            "type": "合作活動"
+          }
+        ]
+      },
+      "stored_at": "2026-05-29T11:50:11.870559+00:00",
+      "last_accessed": "2026-05-29T11:50:11.870559+00:00",
+      "ttl_days": 7
+    },
+    "prompt:56e1bfc134fdd494e1ea0f1b25a4dbb8": {
+      "result": {
+        "reasoning": "該貼文討論的是《虛榮》(Vainglory) 的遊戲更新內容，與《傳說對決》(Arena of Valor) 完全無關，屬於誤發或討論其他遊戲。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "Vainglory",
+          "更新",
+          "遊戲平衡"
+        ],
+        "summary": "此貼文內容為其他遊戲《虛榮》(Vainglory) 的更新資訊，與《傳說對決》無關。",
+        "relevance_score": 0.0,
+        "is_hero_focus": false,
+        "events": [],
+        "translated_content": "[更新 🗣️ Seer 大招已修復，Vantage 訊號已修復，感覺如何？] Vainglory 1.7 版本重大遊戲性改動！VOX（整體增強），移除了普攻與共鳴彈跳產生的護盾，基礎生命值提升，基礎水晶傷害提升。"
+      },
+      "stored_at": "2026-05-29T11:50:17.526498+00:00",
+      "last_accessed": "2026-05-29T11:50:17.526498+00:00",
+      "ttl_days": 7
+    },
+    "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
+      "result": {
+        "reasoning": "該貼文為標題分享，旨在討論輔助位的遊戲觀念，屬於玩家間的經驗交流與教學，語氣中性且具建設性。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "輔助",
+          "觀念",
+          "心得",
+          "傳說對決"
+        ],
+        "summary": "玩家在Dcard分享關於輔助位的遊戲觀念與心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-29T11:50:21.243346+00:00",
+      "last_accessed": "2026-05-29T11:50:21.243346+00:00",
+      "ttl_days": 7
+    },
+    "prompt:76befbb8d168c291b9d7ee56421d423b": {
+      "result": {
+        "reasoning": "該貼文為一篇教學攻略分享，內容旨在提供玩家圖倫的進階操作技巧，語氣正面且具建設性，屬於典型的遊戲社群知識交流。",
+        "sentiment": "positive",
+        "sentiment_score": 0.9,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "角色討論",
+        "keywords": [
+          "圖倫",
+          "攻略",
+          "教學",
+          "傳說對決",
+          "心得分享"
+        ],
+        "summary": "玩家分享了一篇關於圖倫英雄的詳細教學攻略，幫助新手快速上手。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [],
+        "translated_content": "【心得分享】【攻略】《傳說對決》從0~100圖倫教學!17分鐘一次快速上手(8/16再次更新) - 傳說對決板 | Dcard"
+      },
+      "stored_at": "2026-05-29T11:50:23.175576+00:00",
+      "last_accessed": "2026-05-29T11:50:23.175576+00:00",
+      "ttl_days": 7
+    },
+    "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
+      "result": {
+        "reasoning": "該貼文為標題分享，內容旨在提供遊戲內全屬性的詳細攻略，屬於玩家間的經驗交流與教學分享，意圖正面且具建設性。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "攻略",
+          "全屬性",
+          "心得分享",
+          "傳說對決"
+        ],
+        "summary": "玩家分享關於遊戲內全屬性的詳細攻略心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-29T11:50:25.169255+00:00",
+      "last_accessed": "2026-05-29T11:50:25.169255+00:00",
+      "ttl_days": 7
+    },
+    "prompt:fa8ec67fd067d5521ee5211831a4ae57": {
+      "result": {
+        "reasoning": "作者整理了2025年2月20日的改版資訊並提供個人見解，屬於客觀的資訊分享與社群討論，無反諷意圖。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "改版",
+          "懶人包",
+          "心得分享",
+          "20250220"
+        ],
+        "summary": "作者整理了2025年2月20日的遊戲改版懶人包並分享個人見解。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "20250220 版本更新",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-05-29T11:50:30.310856+00:00",
+      "last_accessed": "2026-05-29T11:50:30.310856+00:00",
+      "ttl_days": 7
+    },
+    "prompt:7c4db6ab1a9aa11bb77f241cdd4be481": {
+      "result": {
+        "reasoning": "該貼文為巴哈姆特哈啦板的情報彙整串，屬於官方或玩家整理的資訊分享，語氣客觀中立，旨在提供版本更新的先行資訊。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "傳說對決",
+          "體驗服",
+          "更新情報",
+          "先行服"
+        ],
+        "summary": "巴哈姆特哈啦板整理的2026年傳說對決體驗服更新情報彙整。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "2026年體驗服更新",
+            "type": "版本更新"
+          }
+        ],
+        "translated_content": "【情報】傳說對決先行/體驗服 2026年更新情報【260512更新】"
+      },
+      "stored_at": "2026-05-29T11:50:31.922787+00:00",
+      "last_accessed": "2026-05-29T11:50:31.922787+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 48,
+    "total_l2_hits": 52,
     "total_apify_hits": 0,
-    "total_misses": 71
+    "total_misses": 79
   }
 }
