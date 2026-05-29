@@ -1,6 +1,6 @@
-# Phase P101 計畫書 — Known Issue Guard Index（FROZEN）
+# Phase P101 計畫書 — Known Issue Guard Index（CLOSED）
 
-> 狀態：FROZEN。主公於 2026-05-29 指定「P101 Known Issue Guard Index」，並於同日核准 `P101 plan freeze`。本 Phase 計畫已凍結；不改 runtime code、不改既有 checker、不升 strict gate、不清理檔案、不新增自動化 gate。進入 runtime 前仍需主公另行核准 `核准 P101 runtime`。
+> 狀態：CLOSED。主公於 2026-05-29 指定「P101 Known Issue Guard Index」，同日核准 `P101 plan freeze` 與 `P101 runtime`。本 Phase 已完成 known issue guard index、advisory-only checker 與 focused tests；未改既有 checker、未升 strict gate、未清理檔案、未新增自動化 gate。
 
 ---
 
@@ -24,7 +24,7 @@
 |---|---|---|---|---|---|
 | P100 runtime | CLOSED / pushed | Reference only | P100 root hygiene guard 作為 P101 index source，不再修改 | `6e3919d` 已推送 | AI / 主公 |
 | P101 plan | DRAFT | FROZEN | known issue guard index 計畫已凍結，不實作 index/checker | 主公核准 `P101 plan freeze` | 主公 / AI |
-| P101 runtime | Not started | Pending approval | 未來可新增 index doc / optional checker / tests | 需主公另行核准 `核准 P101 runtime` | 主公 |
+| P101 runtime | Pending approval | CLOSED | 已新增 index doc / advisory checker / focused tests | 主公核准 `核准 P101 runtime` 後完成驗證 | 主公 / AI |
 
 ---
 
@@ -98,12 +98,12 @@ P101 plan freeze 退出條件：
 - [x] handoff / active / risk / history 同步 P101 FROZEN。
 - [x] 不新增 runtime index/checker。
 
-P101 runtime 未來退出條件：
-- [ ] 產出 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。
-- [ ] 至少列入 R-016 / R-017 / R-018 / R-020 / R-021 / governance drift 類風險。
-- [ ] 每列包含：risk id、issue name、human doc、machine guard、focused command、state、gap、next action。
-- [ ] 若新增 checker，必須 advisory-only 並補 tests。
-- [ ] 明確標記「human-only / missing machine guard」項，不能營造 false confidence。
+P101 runtime 退出條件：
+- [x] 產出 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。
+- [x] 至少列入 R-016 / R-017 / R-018 / R-020 / R-021 / governance drift 類風險。
+- [x] 每列包含：risk id、issue name、human doc、machine guard、focused command、state、gap、next action。
+- [x] 若新增 checker，必須 advisory-only 並補 tests。
+- [x] 明確標記「human-only / missing machine guard」項，不能營造 false confidence。
 
 ## 5. ROI 評估
 
@@ -166,7 +166,7 @@ P101 runtime 未來退出條件：
 |---|---|---|
 | 新增 `docs/PHASE_101_PLAN.md` | 可逆 | 主公指定 P101 |
 | 更新 handoff / active / risk / history | 可逆 | 本次只同步 DRAFT |
-| future 新增 index doc / checker / tests | 可逆 | runtime 需另核准 |
+| 新增 index doc / checker / tests | 可逆 | 主公已核准 P101 runtime |
 | 修改既有 checker / strict gate | 半可逆 | P101 plan 禁止 |
 
 ### X2 盲區掃描
@@ -233,10 +233,10 @@ P101 runtime 未來退出條件：
 - `docs/RISK_REGISTRY.md`
 - `TASK_HISTORY.md`
 
-**P101 future runtime 候選，不在 plan draft 實作**：
+**P101 runtime 新增**：
 - `docs/KNOWN_ISSUE_GUARD_INDEX.md`
-- `scripts/check_known_issue_guard_index.py`（只有需要 advisory checker 時）
-- `tests/test_known_issue_guard_index.py`（只有新增 checker 時）
+- `scripts/check_known_issue_guard_index.py`
+- `tests/test_known_issue_guard_index.py`
 
 **明確不修改**：
 - existing checkers under `scripts/`
@@ -245,6 +245,51 @@ P101 runtime 未來退出條件：
 - `.github/workflows/*`
 - product runtime under `analyzer/`, `reporter/`, `scrapers/`
 - generated reports / scratch / root cleanup candidates
+
+---
+
+## 10.5 Runtime Physical Truth（2026-05-29）
+
+P101 runtime 已完成：
+
+- `docs/KNOWN_ISSUE_GUARD_INDEX.md`
+  - 建立 metadata-only guard map。
+  - 主表欄位：risk id / issue / human doc / machine guard / focused command / state / gap / next action。
+  - 納入 R-016 / R-017 / R-018 / R-019 / R-020 / R-021 / R-022 / GOV-HANDOFF。
+  - R-018 明確標 `missing-machine-guard` / `human-only`，避免誤稱已有 guard。
+  - 另列 Human-only Backlog：R-001 / R-002 / R-003 / R-004 / R-006 / R-011 / R-012 / R-013。
+- `scripts/check_known_issue_guard_index.py`
+  - advisory-only。
+  - 預設只讀 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。
+  - 檢查 required columns / required rows / required guard tokens / human-only gap markers。
+  - default findings exit 0；顯式 `--strict` 才在 findings 時 exit 1。
+  - 不讀 raw reports、raw logs、raw queues、generated report bodies 或 secrets。
+- `tests/test_known_issue_guard_index.py`
+  - 覆蓋 actual index clean。
+  - 覆蓋 missing required entry。
+  - 覆蓋 human-only row 未標 gap。
+  - 覆蓋 CLI JSON 與 strict/default exit behavior。
+
+P101 runtime 未做：
+
+- 未修改既有 P96/P99/P100/R-016 checkers。
+- 未改 GitHub Actions / Pages。
+- 未接 pre-commit / CI strict gate。
+- 未清理、搬移、rename、刪除任何 root/generated/scratch 檔。
+- 未導入 RTK 或新工具。
+
+Runtime focused verification：
+
+- `py scripts\check_known_issue_guard_index.py --repo-root .`：PASS / no advisories。
+- `py scripts\check_known_issue_guard_index.py --repo-root . --json`：PASS / `[]`。
+- `py -m pytest -q tests\test_known_issue_guard_index.py`：`4 passed`。
+- `py -m pytest -q tests\test_known_issue_guard_index.py tests\test_generated_artifact_hygiene.py tests\test_root_legacy_hygiene.py`：`14 passed`。
+- `py scripts\check_known_issue_guard_index.py --repo-root . --strict`：PASS / no advisories。
+- `git diff --check`：PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py scripts\lint_phase_plan.py docs\PHASE_101_PLAN.md`：PASS。
+- `py scripts\check_handoff_truth.py --repo-root .`：PASS / `HND000`。
+- `py scripts\governance_doctor.py --repo-root .`：PASS / `GOV000`。
+- P99/P100 hygiene explicit-path checks：PASS / no advisories。
 
 ---
 
