@@ -13785,3 +13785,101 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ P100 checker 不讀 raw content、不自動 unstage、不自動 delete。
 - ✅ P100 不升 strict gate；strict 只保留為顯式手動模式與未來 promote 評估。
 - ⏭️ 下一步：P100 runtime commit 建立後仍需主公確認 push。推送後由主公裁決是否開 P101 Known Issue Guard Index。
+
+#### P101 plan draft — Known Issue Guard Index（2026-05-29）
+
+**目標**：
+- 依主公指令 `P101 Known Issue Guard Index` 開啟 P101 計畫。
+- 本階段只建立 known issue guard index 的 plan draft 與風險帳，不實作 runtime index、不新增 checker、不修改 existing checks、不接 strict gate、不清理任何 generated/root/scratch 檔案。
+- 將 future runtime 的目標定義為：
+  - `known issue / risk -> human doc -> machine guard -> focused command -> state -> gap -> next action`
+  - 讓未來 AI 不再靠對話記憶猜「這個問題以前怎麼防復發」。
+
+**推送真相校正**：
+- P100 runtime commit 已推送：
+  - `6e3919d feat: 新增 root legacy hygiene guard`
+  - remote：`a60618b..6e3919d main -> main`
+- P101 開案時，`NEXT_SESSION_HANDOFF.md` 與 `docs/ACTIVE_OPERATION.md` 仍停在「P100 runtime commit 建立後 push 仍需確認」的舊描述；P101 plan draft 已同步校正為 `6e3919d` 已推送。
+
+**known issue / guard 來源盤點（metadata-only）**：
+- R-016 production SLO / backend reliability：
+  - human docs / runbook：`docs/RISK_REGISTRY.md` R-016、`docs/OPERATIONS_RUNBOOK.md`
+  - machine guards：`scripts/slo_checker.py`、`scripts/system_doctor.py`、`scripts/cost_cache_governance.py`
+  - tests：`tests/test_slo_checker.py`、`tests/test_system_doctor.py`、`tests/test_cost_cache_governance.py`
+  - status：Open（Monitoring 至 2026-06-01）
+- R-017 website content trust / focus hero mismatch / stale articles：
+  - human docs：`docs/CONTENT_TRUST_KNOWN_ISSUES.md`、`docs/RISK_REGISTRY.md` R-017
+  - machine config：`configs/content_trust_known_issues.yaml`
+  - machine guard：`scripts/check_report_content_trust.py`
+  - tests：`tests/test_report_content_trust.py`、`tests/test_report_content_trust_checker.py`
+  - status：Open（Monitoring 至 2026-06-02）
+- R-018 RTK token-saving proxy / toolchain output fidelity：
+  - human docs：`docs/PHASE_97_RTK_EVALUATION.md`、`docs/RISK_REGISTRY.md` R-018
+  - machine guard：尚無 repo-level checker
+  - status：Open（INSTALL BLOCKED；future pilot only）
+  - gap：需在 P101 index 內明標 `human-only / missing-machine-guard`
+- R-020 generated artifact hygiene：
+  - human policy：`docs/GENERATED_ARTIFACT_POLICY.md`
+  - machine guard：`scripts/check_generated_artifact_hygiene.py`
+  - tests：`tests/test_generated_artifact_hygiene.py`
+  - status：Open（P99 CLOSED / ADVISORY GUARD ACTIVE；cleanup still blocked）
+- R-021 root legacy / debug debris quarantine：
+  - human evidence：`docs/ROOT_LEGACY_QUARANTINE.md`
+  - machine guard：`scripts/check_root_legacy_hygiene.py`
+  - tests：`tests/test_root_legacy_hygiene.py`
+  - status：Open（P100 CLOSED / ADVISORY GUARD ACTIVE；cleanup still blocked）
+- governance drift / handoff truth：
+  - human docs：`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`
+  - machine guards：`scripts/check_handoff_truth.py`、`scripts/governance_doctor.py`
+  - status：active governance guard
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_101_PLAN.md`
+    - P101 DRAFT plan。
+    - 明確列出目標、問題邊界、方案取捨、17 層稽核、X1-X4、M1/M1.5/M2、Forbidden Work、future runtime 候選。
+    - future runtime 候選包含 `docs/KNOWN_ISSUE_GUARD_INDEX.md`、`scripts/check_known_issue_guard_index.py`、`tests/test_known_issue_guard_index.py`，但本階段不實作。
+- 修改：
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P101 DRAFT。
+    - Latest Verified Commit 校正為 `6e3919d` 已推送。
+    - 下一門改為等待 `核准 P101 plan freeze`。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-019 / R-022 / P101 DRAFT。
+  - `docs/RISK_REGISTRY.md`
+    - 新增 R-022：Known issue guard index drift / false confidence。
+    - R-019 最新證據更新到 P98-P100 CLOSED / P101 DRAFT。
+  - `TASK_HISTORY.md`
+    - 追加本段 P101 plan draft 物理真相。
+
+**P101 Forbidden Work**：
+- 不全讀 `TASK_HISTORY.md`。
+- 不實作 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。
+- 不新增或修改 existing checker/tests。
+- 不接 strict gate。
+- 不清理 root/generated/scratch/untracked files。
+- 不搬檔、不 rename、不刪檔。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages。
+- 不讀 raw report/log content。
+- 不導入 RTK 或新工具。
+
+**focused verification 證據**：
+- `git diff --check`
+  - PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py scripts\lint_phase_plan.py docs\PHASE_101_PLAN.md`
+  - PASS：`通過 Pre-flight 體檢（M1 + M2）`。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_101_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No generated artifact hygiene advisories.`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths docs/PHASE_101_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No root legacy hygiene advisories.`。
+
+**狀態**：
+- P101 plan draft 已建立並通過 focused governance / hygiene checks。
+- R-022 風險已入 Open registry。
+- 下一步：建立 P101 plan draft commit。push 仍需主公確認；推送後由主公裁決 `核准 P101 plan freeze`。
