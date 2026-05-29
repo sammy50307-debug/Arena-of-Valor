@@ -7,24 +7,24 @@
 |---|---|
 | **Status** | ACTIVE |
 | **Program** | R-019 Project Self-Optimization Flywheel Program / R-022 Known Issue Guard Index Risk |
-| **Current Phase** | P101（FROZEN / Known Issue Guard Index Plan） |
-| **Current Step** | P101 plan 已凍結；等待主公裁決 `核准 P101 runtime`。凍結階段不實作 index / checker、不改 existing checks、不升 strict gate。 |
-| **Mode** | FROZEN |
-| **Latest Verified Commit** | `c99a0f0` 已推送；P101 plan freeze commit 建立後，push 仍需主公確認 |
+| **Current Phase** | P101（CLOSED / Known Issue Guard Index Runtime Complete） |
+| **Current Step** | P101 runtime 已完成：known issue guard index + advisory checker + focused tests 已建立；runtime commit 建立後，push 仍需主公確認。下一門候選為 P102 Missing Guard Backlog / Monitoring Review，待主公裁決。 |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | `4f072bb` 已推送；P101 runtime commit 建立後，push 仍需主公確認 |
 | **Updated At** | 2026-05-29 Asia/Taipei |
 
 ## Required Minimal Reads
 
 1. 本區塊：`ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`（當前作戰短版狀態）
-3. `docs/PHASE_101_PLAN.md`（P101 Known Issue Guard Index FROZEN）
-4. `docs/RISK_REGISTRY.md` 的 R-022 / R-021 / R-020 / R-019 / R-018 / R-017 / R-016（known issue index；root quarantine；artifact hygiene；project flywheel；RTK；content trust；backend monitoring）
-5. `docs/PHASE_100_PLAN.md`（P100 Root Legacy / Debug Debris Quarantine Plan）
-6. `docs/ROOT_LEGACY_QUARANTINE.md`（P100 root inventory / safe reference check / decision table）
-7. `docs/GENERATED_ARTIFACT_POLICY.md`（P99 path-only advisory guard policy）
-8. `docs/CONTENT_TRUST_KNOWN_ISSUES.md`（R-017 known issue human memory）
-9. `configs/content_trust_known_issues.yaml`（R-017 known issue machine-readable config）
-10. `docs/PHASE_97_RTK_EVALUATION.md`（P97 RTK runtime evidence / install blocked 裁決）
+3. `docs/PHASE_101_PLAN.md`（P101 Known Issue Guard Index CLOSED）
+4. `docs/KNOWN_ISSUE_GUARD_INDEX.md`（P101 guard map）
+5. `scripts/check_known_issue_guard_index.py`（P101 advisory checker）
+6. `docs/RISK_REGISTRY.md` 的 R-022 / R-021 / R-020 / R-019 / R-018 / R-017 / R-016（known issue index；root quarantine；artifact hygiene；project flywheel；RTK；content trust；backend monitoring）
+7. `docs/PHASE_100_PLAN.md`（P100 Root Legacy / Debug Debris Quarantine Plan）
+8. `docs/ROOT_LEGACY_QUARANTINE.md`（P100 root inventory / safe reference check / decision table）
+9. `docs/GENERATED_ARTIFACT_POLICY.md`（P99 path-only advisory guard policy）
+10. `docs/CONTENT_TRUST_KNOWN_ISSUES.md`（R-017 known issue human memory）
 
 ## Current Source Of Truth
 
@@ -32,7 +32,9 @@
 |---|---|---|
 | L1 | `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP` | 唯一開局入口 |
 | L2 | `docs/ACTIVE_OPERATION.md` | 當前作戰短版狀態 |
-| L3 | `docs/PHASE_101_PLAN.md` | P101 Known Issue Guard Index FROZEN |
+| L3 | `docs/PHASE_101_PLAN.md` | P101 Known Issue Guard Index CLOSED |
+| L3-index | `docs/KNOWN_ISSUE_GUARD_INDEX.md` | P101 known issue / guard / command / gap map |
+| L3-index-checker | `scripts/check_known_issue_guard_index.py` | P101 advisory guard index drift checker |
 | L3-p100 | `docs/PHASE_100_PLAN.md` | P100 Root Legacy / Debug Debris Quarantine Plan |
 | L3-root | `docs/ROOT_LEGACY_QUARANTINE.md` | P100 root inventory / safe reference check / decision table |
 | L3-root-checker | `scripts/check_root_legacy_hygiene.py` | P100 path-only advisory root guard |
@@ -48,21 +50,21 @@
 
 | 判斷 | 建議 |
 |---|---|
-| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P101 plan freeze commit，下一窗先等主公確認 push。 |
-| **最舒服的換窗點** | P101 plan freeze commit / push 完成，等待主公裁決 `核准 P101 runtime`。 |
+| **現在能不能換視窗** | 可以。若本地 ahead 1 是 P101 runtime commit，下一窗先等主公確認 push。 |
+| **最舒服的換窗點** | P101 runtime commit / push 完成，等待主公裁決下一門。 |
 | **如果現在立刻換** | 新視窗第一動作：讀本檔頂部 → `git status -sb` → `git log -1 --oneline` → 讀 `docs/PHASE_101_PLAN.md` 與 `docs/RISK_REGISTRY.md` 的 R-022。 |
-| **不要在換窗後做的事** | 不要實作 `docs/KNOWN_ISSUE_GUARD_INDEX.md`；不要新增或改 checker；不要把 index 接成 strict gate；不要清理 root/generated files。 |
+| **不要在換窗後做的事** | 不要把 P101 advisory checker 接成 strict gate；不要清理 root/generated files；不要補所有 missing guards；不要關閉 R-016/R-017 monitoring，除非有到期 evidence。 |
 
 ## Six Anti-Drift Fields
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P101（FROZEN / KNOWN_ISSUE_GUARD_INDEX / RUNTIME_NOT_STARTED） |
-| **Current Step** | P101 plan 已凍結；等待主公裁決 `核准 P101 runtime`；不得自動進 runtime |
-| **Allowed Files** | P101 plan scope：`docs/PHASE_101_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不實作 `docs/KNOWN_ISSUE_GUARD_INDEX.md`；不新增或修改 existing checker/tests；不接 strict gate；不清理 root/generated files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 runtime code；不改 GitHub Actions / Pages；不讀 raw report/log content；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P101 FROZEN synchronized；handoff / active / risk / history synchronized；R-022 Open（P101 FROZEN）；no runtime index/checker created；P101 plan freeze committed locally |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_101_PLAN.md`、`docs/RISK_REGISTRY.md` R-022；若 local ahead 是 P101 plan freeze commit，等待主公 push；若已推，由主公裁決 `核准 P101 runtime` |
+| **Current Phase** | P101（CLOSED / KNOWN_ISSUE_GUARD_INDEX / RUNTIME_COMPLETE） |
+| **Current Step** | P101 runtime 已完成；若 local ahead 是 runtime commit，等待主公確認 push；下一門候選為 P102 Missing Guard Backlog / Monitoring Review |
+| **Allowed Files** | P101 runtime scope：`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`scripts/check_known_issue_guard_index.py`、`tests/test_known_issue_guard_index.py`、`docs/PHASE_101_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不修改 existing checker/tests；不接 strict gate；不清理 root/generated files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 GitHub Actions / Pages；不讀 raw report/log content；不導入 RTK 或新工具；不關閉 R-016/R-017 monitoring，除非有到期 evidence；不 git push，除非主公明確確認 |
+| **Exit Criteria** | `docs/KNOWN_ISSUE_GUARD_INDEX.md` created；advisory checker/tests created；focused tests PASS；handoff / active / risk / history synchronized；R-022 Open（P101 CLOSED / ADVISORY GUARD ACTIVE）；P101 runtime committed locally |
+| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_101_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`docs/RISK_REGISTRY.md` R-022；若 local ahead 是 P101 runtime commit，等待主公 push；若已推，由主公裁決下一門 |
 
 ## Required Verification Commands
 
@@ -82,6 +84,8 @@ py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_100_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_101_PLAN.md
+py scripts\check_known_issue_guard_index.py --repo-root .
+py -m pytest -q tests\test_known_issue_guard_index.py
 py -m pytest -q tests\test_root_legacy_hygiene.py
 py scripts\check_root_legacy_hygiene.py --repo-root . --paths main.py config.py index.html docs/PHASE_100_PLAN.md
 py scripts\check_root_legacy_hygiene.py --repo-root . --paths run_log.txt preview_report_script.py check_health.py yaya_bg.png
@@ -110,7 +114,8 @@ rg -n "ACTIVE_BOOTSTRAP_START|ACTIVE_BOOTSTRAP_END|ARCHIVE_BELOW_DO_NOT_USE_FOR_
 - 不要未經主公另開 RTK pilot phase 並核准，就安裝 RTK、執行非 dry-run `rtk init`、patch `AGENTS.md` 或部署到全域。
 - 不要把 P98 Project Flywheel Audit 和 future RTK pilot 混線；RTK 若要繼續應另開 P99+ 或獨立 phase。
 - 不要把 P100 runtime 解讀成 root cleanup 已核准；P100 CLOSED 只代表 evidence/checker 完成，delete/move/rename 仍 blocked。
-- 不要把 P101 FROZEN 解讀成 runtime 已核准；known issue index / checker / strict gate 仍需主公另行核准。
+- 不要把 P101 CLOSED 解讀成所有 missing guards 已補齊；R-018 與多個舊風險仍有 `human-only` / `missing-machine-guard` backlog。
+- 不要把 P101 advisory checker 接成 strict gate；promotion 需另開 Phase 與主公核准。
 - 不要 git push，除非主公明確確認。
 
 <!-- ACTIVE_BOOTSTRAP_END -->

@@ -13958,3 +13958,108 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - P101 plan freeze 已完成 focused governance / hygiene checks。
 - 下一步：建立 P101 plan freeze commit。push 仍需主公確認；推送後由主公裁決 `核准 P101 runtime`。
+
+#### P101 runtime — Known Issue Guard Index（2026-05-29）
+
+**目標**：
+- 依主公指令 `push 4f072bb，推完後才進下一門 核准 P101 runtime。` 執行兩段式 runtime：
+  - 先推送 P101 plan freeze commit。
+  - 推送成功後，完成 known issue guard index runtime。
+- Runtime 目標是把已知問題防線整理成單一索引：
+  - `known issue / risk -> human doc -> machine guard -> focused command -> state -> gap -> next action`
+- 本次不修改既有 P96/P99/P100/R-016 checkers、不接 strict gate、不改 GitHub Actions / Pages、不清理任何 root/generated/scratch/untracked 檔案、不導入 RTK 或新工具。
+
+**推送真相**：
+- 已推送：
+  - `4f072bb docs: 凍結 P101 known issue guard index plan`
+  - remote：`c99a0f0..4f072bb main -> main`
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/KNOWN_ISSUE_GUARD_INDEX.md`
+    - 建立 metadata-only guard map。
+    - 主表欄位：risk id / issue / human doc / machine guard / focused command / state / gap / next action。
+    - 納入 R-016 / R-017 / R-018 / R-019 / R-020 / R-021 / R-022 / GOV-HANDOFF。
+    - R-018 明確標 `missing-machine-guard` / `human-only`，避免誤稱 RTK 已有 repo-level machine guard。
+    - 另列 Human-only Backlog：R-001 / R-002 / R-003 / R-004 / R-006 / R-011 / R-012 / R-013。
+  - `scripts/check_known_issue_guard_index.py`
+    - advisory-only checker。
+    - 預設只讀 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。
+    - 檢查 required columns / required rows / required guard tokens / human-only gap markers。
+    - default findings exit 0；顯式 `--strict` 才在 findings 時 exit 1。
+    - 不讀 raw reports、raw logs、raw queues、generated report bodies 或 secrets。
+  - `tests/test_known_issue_guard_index.py`
+    - 覆蓋 actual index clean。
+    - 覆蓋 missing required entry。
+    - 覆蓋 human-only row 未標 gap。
+    - 覆蓋 CLI JSON 與 strict/default exit behavior。
+- 修改：
+  - `docs/PHASE_101_PLAN.md`
+    - 狀態改為 CLOSED。
+    - P101 runtime exit criteria 全數完成。
+    - 追加 runtime physical truth。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P101 CLOSED / runtime complete。
+    - Required reads 新增 index doc / checker。
+    - 下一門候選改為 P102 Missing Guard Backlog / Monitoring Review。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 P101 runtime complete。
+  - `docs/RISK_REGISTRY.md`
+    - R-022 狀態改為 Open（P101 CLOSED / ADVISORY GUARD ACTIVE；strict gate blocked）。
+    - R-019 最新證據更新到 P98-P101 CLOSED。
+  - `TASK_HISTORY.md`
+    - 追加本段 P101 runtime 物理真相。
+
+**checker 分類物理真相**：
+- Required entries：
+  - R-016：production SLO / backend reliability / landing freshness。
+  - R-017：website content trust / focus hero mismatch / stale articles。
+  - R-018：RTK token-saving proxy / output fidelity。
+  - R-019：project self-optimization flywheel / repo entropy。
+  - R-020：generated artifact hygiene。
+  - R-021：root legacy / debug debris quarantine。
+  - R-022：known issue guard index drift / false confidence。
+  - GOV-HANDOFF：handoff truth / governance drift。
+- Required columns：
+  - Risk ID。
+  - Issue。
+  - Human Doc。
+  - Machine Guard。
+  - Focused Command。
+  - State。
+  - Gap。
+  - Next Action。
+- False-confidence guard：
+  - 如果 Machine Guard 是 `N/A`，Gap 必須含 `missing-machine-guard` 或 `human-only`。
+  - R-018 必須明確含 `missing-machine-guard` 與 `human-only`。
+- Advisory-only behavior：
+  - default exit 0。
+  - `--strict` 才在 findings 時 exit 1。
+
+**focused verification 證據**：
+- `py scripts\check_known_issue_guard_index.py --repo-root .`
+  - PASS：`No known issue guard index advisories.`。
+- `py scripts\check_known_issue_guard_index.py --repo-root . --json`
+  - PASS：`[]`。
+- `py -m pytest -q tests\test_known_issue_guard_index.py`
+  - PASS：`4 passed`。
+- `py -m pytest -q tests\test_known_issue_guard_index.py tests\test_generated_artifact_hygiene.py tests\test_root_legacy_hygiene.py`
+  - PASS：`14 passed`。
+- `py scripts\check_known_issue_guard_index.py --repo-root . --strict`
+  - PASS：no advisories，strict mode exit 0。
+- `git diff --check`
+  - PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py scripts\lint_phase_plan.py docs\PHASE_101_PLAN.md`
+  - PASS：`通過 Pre-flight 體檢（M1 + M2）`。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/KNOWN_ISSUE_GUARD_INDEX.md scripts/check_known_issue_guard_index.py tests/test_known_issue_guard_index.py docs/PHASE_101_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No generated artifact hygiene advisories.`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths docs/KNOWN_ISSUE_GUARD_INDEX.md scripts/check_known_issue_guard_index.py tests/test_known_issue_guard_index.py docs/PHASE_101_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No root legacy hygiene advisories.`。
+
+**狀態**：
+- P101 runtime 文件與 checker 已新增，focused verification 已通過。
+- 下一步：建立 P101 runtime commit。push 仍需主公確認。
