@@ -1,6 +1,6 @@
-# Phase P101 計畫書 — Known Issue Guard Index（DRAFT）
+# Phase P101 計畫書 — Known Issue Guard Index（FROZEN）
 
-> 狀態：DRAFT。主公於 2026-05-29 指定「P101 Known Issue Guard Index」。本 Phase 只建立 known issue guard index 的計畫；不改 runtime code、不改既有 checker、不升 strict gate、不清理檔案、不新增自動化 gate。進入 runtime 前仍需主公另行核准。
+> 狀態：FROZEN。主公於 2026-05-29 指定「P101 Known Issue Guard Index」，並於同日核准 `P101 plan freeze`。本 Phase 計畫已凍結；不改 runtime code、不改既有 checker、不升 strict gate、不清理檔案、不新增自動化 gate。進入 runtime 前仍需主公另行核准 `核准 P101 runtime`。
 
 ---
 
@@ -23,8 +23,8 @@
 | 對象 | 原狀態 | 新狀態 | 狀態定義 | 轉換條件 | 執行者 / 核准者 |
 |---|---|---|---|---|---|
 | P100 runtime | CLOSED / pushed | Reference only | P100 root hygiene guard 作為 P101 index source，不再修改 | `6e3919d` 已推送 | AI / 主公 |
-| P101 plan | Not started | DRAFT | 只建立 known issue guard index 計畫，不實作 index/checker | 主公指定 P101 | 主公 / AI |
-| P101 runtime | Not started | Pending approval | 未來可新增 index doc / optional checker / tests | 需主公核准 `P101 plan freeze` 後另行核准 runtime | 主公 |
+| P101 plan | DRAFT | FROZEN | known issue guard index 計畫已凍結，不實作 index/checker | 主公核准 `P101 plan freeze` | 主公 / AI |
+| P101 runtime | Not started | Pending approval | 未來可新增 index doc / optional checker / tests | 需主公另行核准 `核准 P101 runtime` | 主公 |
 
 ---
 
@@ -92,11 +92,11 @@ P101 plan draft 退出條件：
 - [x] `TASK_HISTORY.md` 追加 P101 plan draft 物理真相。
 - [x] `git diff --check`、handoff truth、governance doctor、P99/P100 hygiene staged checks 通過。
 
-P101 plan freeze 未來退出條件：
-- [ ] 主公核准 `P101 plan freeze`。
-- [ ] `docs/PHASE_101_PLAN.md` 狀態改為 FROZEN。
-- [ ] handoff / active / risk / history 同步 P101 FROZEN。
-- [ ] 不新增 runtime index/checker。
+P101 plan freeze 退出條件：
+- [x] 主公核准 `P101 plan freeze`。
+- [x] `docs/PHASE_101_PLAN.md` 狀態改為 FROZEN。
+- [x] handoff / active / risk / history 同步 P101 FROZEN。
+- [x] 不新增 runtime index/checker。
 
 P101 runtime 未來退出條件：
 - [ ] 產出 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。

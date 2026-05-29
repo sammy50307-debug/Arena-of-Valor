@@ -13883,3 +13883,78 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - P101 plan draft 已建立並通過 focused governance / hygiene checks。
 - R-022 風險已入 Open registry。
 - 下一步：建立 P101 plan draft commit。push 仍需主公確認；推送後由主公裁決 `核准 P101 plan freeze`。
+
+#### P101 plan freeze — Known Issue Guard Index（2026-05-29）
+
+**目標**：
+- 依主公指令 `push 21deab8，推完後再走 核准 P101 plan freeze。` 執行兩段式收尾：
+  - 先推送 P101 plan draft。
+  - 推送完成後，將 P101 plan 從 DRAFT 凍結為 FROZEN。
+- 本次 freeze 只同步治理文件狀態，不進入 runtime、不新增 `docs/KNOWN_ISSUE_GUARD_INDEX.md`、不新增 checker/tests、不修改 existing checks、不接 strict gate。
+
+**推送與分岔物理真相**：
+- 首次 `git push` 被 GitHub 拒絕，原因是遠端 `main` 先多了 Daily Monitor auto-sync commits。
+- `git fetch origin` 後遠端新增：
+  - `8fbfd60 docs: 戰略報告自動同步 2026-05-28 12:01:25 [mode:production l1:0 l2:2 hit:17%]`
+  - `198c84f docs: 戰略報告自動同步 2026-05-29 11:51:16 [mode:production l1:0 l2:4 hit:31%]`
+- `198c84f` 修改範圍：
+  - `data/llm_budget_state.json`
+  - `data/llm_cache.json`
+  - `data/reports/aov_report_2026-05-29.html`
+  - `data/runs/2026-05-29/run_manifest.json`
+  - `index.html`
+- P101 draft commit `21deab8` 與上述 auto-sync 屬不同戰線；本機以 `git rebase origin/main` 將 P101 draft replay 到最新遠端上。
+- rebase 後 P101 draft commit hash 改為：
+  - `c99a0f0 docs: 開 P101 known issue guard index plan`
+- 推送結果：
+  - remote：`198c84f..c99a0f0 main -> main`
+
+**本次凍結同步檔案**：
+- `docs/PHASE_101_PLAN.md`
+  - 標題與狀態改為 FROZEN。
+  - 標明主公已核准 `P101 plan freeze`。
+  - P101 plan freeze exit criteria 全數勾選。
+  - Runtime 仍標示 pending approval，需另行核准 `核准 P101 runtime`。
+- `NEXT_SESSION_HANDOFF.md`
+  - Current Phase 改為 P101 FROZEN。
+  - Latest Verified Commit 改為 `c99a0f0` 已推送。
+  - 下一門改為等待 `核准 P101 runtime`。
+- `docs/ACTIVE_OPERATION.md`
+  - 同步 R-019 / R-022 / P101 FROZEN。
+  - 記錄 P101 draft 因 remote auto-sync rebase 後以 `c99a0f0` 推送。
+- `docs/RISK_REGISTRY.md`
+  - R-022 狀態改為 Open（P101 FROZEN；runtime 未開始）。
+  - R-019 狀態更新為 P98-P100 CLOSED / P101 FROZEN。
+- `TASK_HISTORY.md`
+  - 追加本段 P101 plan freeze 物理真相。
+
+**禁止事項仍有效**：
+- 不全讀 `TASK_HISTORY.md`。
+- 不實作 `docs/KNOWN_ISSUE_GUARD_INDEX.md`。
+- 不新增或修改 existing checker/tests。
+- 不接 strict gate。
+- 不清理 root/generated/scratch/untracked files。
+- 不搬檔、不 rename、不刪檔。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages。
+- 不讀 raw report/log content。
+- 不導入 RTK 或新工具。
+
+**focused verification 證據**：
+- `git diff --check`
+  - PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py scripts\lint_phase_plan.py docs\PHASE_101_PLAN.md`
+  - PASS：`通過 Pre-flight 體檢（M1 + M2）`。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_101_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No generated artifact hygiene advisories.`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths docs/PHASE_101_PLAN.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No root legacy hygiene advisories.`。
+
+**狀態**：
+- P101 plan freeze 已完成 focused governance / hygiene checks。
+- 下一步：建立 P101 plan freeze commit。push 仍需主公確認；推送後由主公裁決 `核准 P101 runtime`。
