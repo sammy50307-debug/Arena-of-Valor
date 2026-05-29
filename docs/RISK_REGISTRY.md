@@ -22,14 +22,14 @@
 
 - **來源**：主公 2026-05-29 指定 `P101 Known Issue Guard Index`；P98/P99/P100 顯示 AOV 已有多條 known issue guard，但分散在 risk registry、phase plan、runbook、config、checker、tests 與 handoff。
 - **風險級**：🟡 中
-- **狀態**：Open（P101 DRAFT；runtime 未開始，不改 existing checkers，不升 strict gate）
+- **狀態**：Open（P101 FROZEN；runtime 未開始，不改 existing checkers，不升 strict gate）
 - **描述**：若沒有單一索引，未來 AI 可能找不到已存在的防線而重修舊問題；但若索引誤把 human-only SOP 標成 machine guard，也會造成 false confidence，讓主公以為某類復發已被系統擋住。
 - **緩解策略**：
-  - 短期：P101 plan draft 只建立邊界與 schema，明確禁止 runtime index/checker、禁止修改 existing checks、禁止 strict gate。
+  - 短期：P101 plan 已凍結邊界與 schema，明確禁止 runtime index/checker、禁止修改 existing checks、禁止 strict gate。
   - 中期：若主公核准 runtime，新增 `docs/KNOWN_ISSUE_GUARD_INDEX.md`，每列必含 risk id / human doc / machine guard / focused command / state / gap / next action；缺 guard 要明標 `human-only` 或 `missing-machine-guard`。
   - 長期：每 5-10 個 Phase 或大里程碑後復盤 index；穩定有效的 advisory checker 才可討論 promote，低 ROI 或 false positive 高的規則要 revise / downgrade / remove。
 - **觸發升級**：若 P101 把 human-only SOP 誤標為 machine guard、漏列 R-016/R-017/R-020/R-021 這類 active guard、複製 raw report/log content、改 existing checker 造成回歸，或把 index checker 接成 strict gate → 升為 active blocking，立即回滾並寫 Postmortem。
-- **最新證據（2026-05-29）**：P101 DRAFT 已把 R-016 production SLO、R-017 content trust、R-018 RTK、R-020 generated artifact hygiene、R-021 root legacy hygiene 與 governance drift 列為 future index 必收來源；本階段只新增 plan/risk/handoff/history，不實作 runtime。
+- **最新證據（2026-05-29）**：P101 FROZEN 已把 R-016 production SLO、R-017 content trust、R-018 RTK、R-020 generated artifact hygiene、R-021 root legacy hygiene 與 governance drift 列為 future index 必收來源；本階段只新增 plan/risk/handoff/history，不實作 runtime。
 
 ---
 
@@ -67,14 +67,14 @@
 
 - **來源**：主公 2026-05-27 要求開 `P98 Project Flywheel Audit Plan`，希望把 AOV 專案從反覆修舊問題推進到可記憶、可檢查、可防復發的飛輪式優化。
 - **風險級**：🔴 高
-- **狀態**：Open（P98-P100 CLOSED / P101 DRAFT；不清理、不搬檔、不改 runtime）
+- **狀態**：Open（P98-P100 CLOSED / P101 FROZEN；不清理、不搬檔、不改 runtime）
 - **描述**：AOV 專案的複雜度主要來自跨爬蟲、LLM、報告、GitHub Actions、內容可信度、治理文件、skills 與 generated artifacts。若不先分層 audit，直接清理或重構可能誤刪歷史證據、破壞 Pages/report link、讓 TASK_HISTORY / handoff 真相漂移，或把新工具導入變成新的 debug 變因。
 - **緩解策略**：
   - 短期：P98 runtime 已完成 report-only audit；明列 forbidden work，不搬移、不刪除、不 rename、不改 `.gitignore`、不改 GitHub Actions、不 stage generated/scratch。
   - 中期：P98 已產出 repo layer inventory、known issue gap、generated artifact hygiene、verification ladder 與 P99+ 候選排序；P99 已把 generated artifact hygiene 轉成 policy + advisory checker + tests；P100 已把 root legacy/debug debris 轉成 quarantine evidence + advisory checker + tests；P101 開始整理 known issue guard index。
   - 長期：依 audit 結果拆小 Phase，把高 ROI 問題轉成 checker / test / registry / policy；低 ROI 或高風險清理不推進。
 - **觸發升級**：若 P98 未經核准就清理檔案、改 runtime、改 workflow、stage 舊 untracked reports/scratch，或把 R-016/R-017 monitoring 誤標 Closed → 升為 active blocking，立即回滾並寫 Postmortem。
-- **最新證據（2026-05-29）**：`docs/PHASE_98_AUDIT.md` 完成 metadata audit。核心 runtime 約 49 tracked files / 0.44 MB；generated/deploy artifacts 約 123 files / 22.18 MB；agent/skill layer 約 383 files / 9.30 MB；local `scratch/` 66 files / 12.31 MB 且保持 ignored。P99 已完成 generated artifact policy/checker/tests；P100 已完成 root quarantine evidence/checker/tests；P101 DRAFT 開始建立 known issue guard index plan，不直接刪檔、不改 runtime。
+- **最新證據（2026-05-29）**：`docs/PHASE_98_AUDIT.md` 完成 metadata audit。核心 runtime 約 49 tracked files / 0.44 MB；generated/deploy artifacts 約 123 files / 22.18 MB；agent/skill layer 約 383 files / 9.30 MB；local `scratch/` 66 files / 12.31 MB 且保持 ignored。P99 已完成 generated artifact policy/checker/tests；P100 已完成 root quarantine evidence/checker/tests；P101 FROZEN 已凍結 known issue guard index plan，不直接刪檔、不改 runtime。
 
 ---
 
