@@ -18,6 +18,21 @@
 
 ## 開放風險（Open）
 
+### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
+
+- **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
+- **風險級**：🟡 中
+- **狀態**：Open（P102 DRAFT；runtime 未開始，不關閉 R-016/R-017，不補所有 missing guards）
+- **描述**：若只看 2026-05-29 latest report / content trust PASS，AI 可能誤把 R-016 或 R-017 提早 close；若只看 P101 human-only backlog，AI 又可能主觀挑錯下一個 guard，造成低 ROI 返工或漏掉 current blocking evidence。
+- **緩解策略**：
+  - 短期：P102 plan draft 明確採 report-only review，不 close monitoring，不改 existing checker，不接 strict gate。
+  - 中期：若主公核准 runtime，產出 monitoring evidence matrix 與 missing guard ranking；用 impact / recurrence / machine-ability / cost 四維度排序。
+  - 長期：到 2026-06-01 / 2026-06-02 後，分別用 fresh evidence 裁決 R-016 / R-017 close、keep monitoring 或 escalate。
+- **觸發升級**：若 P102 在 monitoring window 未到期前關閉 R-016/R-017、忽略 SLO002/SLO003/CCG005 current issue、一次補所有 missing guards、修改 existing checkers、接 strict gate、或複製 raw report/log/post 內容 → 升為 active blocking，立即回滾並寫 Postmortem。
+- **最新證據（2026-05-29）**：5/29 content trust checker PASS；5/29 manifest 是 production / publish_eligible / provider routing disabled。但 SLO checker 仍有 current `SLO002` 2026-05-27 manifest gap 與 `SLO003` doctor severity budget blocking；cost/cache governance 仍有 current `CCG005` degraded（total_llm_calls=31 threshold=20 latest_llm_calls=9）。因此 P102 不應 close R-016/R-017，只能做 review / ranking。
+
+---
+
 ### R-022：Known issue guard index drift / false confidence（P101 開案）
 
 - **來源**：主公 2026-05-29 指定 `P101 Known Issue Guard Index`；P98/P99/P100 顯示 AOV 已有多條 known issue guard，但分散在 risk registry、phase plan、runbook、config、checker、tests 與 handoff。

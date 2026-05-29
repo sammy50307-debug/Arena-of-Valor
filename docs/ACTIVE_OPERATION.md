@@ -1,4 +1,4 @@
-# ACTIVE OPERATION — R-019 Project Self-Optimization Flywheel Program / P101 Known Issue Guard Index Runtime Complete
+# ACTIVE OPERATION — R-019 Project Self-Optimization Flywheel Program / P102 Missing Guard Backlog / Monitoring Review Draft
 
 > 本檔是 L2 短版狀態真相。新視窗一般只需讀 `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`；只有 bootstrap 要求時才讀本檔。
 
@@ -6,11 +6,11 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Program** | R-019 Project Self-Optimization Flywheel Program / R-022 Known Issue Guard Index Risk |
-| **Current Phase** | P101（CLOSED / Known Issue Guard Index Runtime Complete） |
-| **Current Step** | P101 runtime 已完成：known issue guard index + advisory checker + focused tests 已建立；runtime commit 建立後，push 仍需主公確認。下一門候選為 P102 Missing Guard Backlog / Monitoring Review，待主公裁決。 |
-| **Mode** | CLOSED |
-| **Latest Verified Commit** | `4f072bb` 已推送；P101 runtime commit 建立後，push 仍需主公確認 |
+| **Program** | R-019 Project Self-Optimization Flywheel Program / R-023 Monitoring Review Risk |
+| **Current Phase** | P102（DRAFT / Missing Guard Backlog / Monitoring Review） |
+| **Current Step** | P102 plan draft 已建立；等待主公裁決 `核准 P102 plan freeze`。本階段不做 runtime review、不關閉 R-016/R-017、不補 missing guards、不改 checker。 |
+| **Mode** | DRAFT |
+| **Latest Verified Commit** | `94292e4` 已推送；P102 plan draft commit 建立後，push 仍需主公確認 |
 | **Timezone** | Asia/Taipei |
 | **Updated At** | 2026-05-29 |
 
@@ -20,7 +20,7 @@
 
 1. `NEXT_SESSION_HANDOFF.md` 頂部 `ACTIVE_BOOTSTRAP`
 2. `docs/ACTIVE_OPERATION.md`
-3. 當前 Phase 計畫：`docs/PHASE_101_PLAN.md`
+3. 當前 Phase 計畫：`docs/PHASE_102_PLAN.md`
 4. 最近收官 Phase audit：`docs/PHASE_98_AUDIT.md`
 5. 最近裁決 Phase 計畫：`docs/PHASE_96_PLAN.md`
 6. `TASK_HISTORY.md` 物理證據（只能 anchor search，不全讀）
@@ -29,12 +29,12 @@
 
 | 欄位 | 當前值 |
 |---|---|
-| **Current Phase** | P101（CLOSED / KNOWN_ISSUE_GUARD_INDEX / RUNTIME_COMPLETE） |
-| **Current Step** | P101 runtime 已完成；若 local ahead 是 runtime commit，等待主公確認 push；下一門候選為 P102 Missing Guard Backlog / Monitoring Review |
-| **Allowed Files** | P101 runtime scope：`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`scripts/check_known_issue_guard_index.py`、`tests/test_known_issue_guard_index.py`、`docs/PHASE_101_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不修改 existing checker/tests；不接 strict gate；不清理 root/generated files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 GitHub Actions / Pages；不讀 raw report/log content；不導入 RTK 或新工具；不關閉 R-016/R-017 monitoring，除非有到期 evidence；不 git push，除非主公明確確認 |
-| **Exit Criteria** | `docs/KNOWN_ISSUE_GUARD_INDEX.md` created；advisory checker/tests created；focused tests PASS；handoff / active / risk / history synchronized；R-022 Open（P101 CLOSED / ADVISORY GUARD ACTIVE）；P101 runtime committed locally |
-| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_101_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`docs/RISK_REGISTRY.md` R-022；若 local ahead 是 P101 runtime commit，等待主公 push；若已推，由主公裁決下一門 |
+| **Current Phase** | P102（DRAFT / MISSING_GUARD_BACKLOG / MONITORING_REVIEW / RUNTIME_NOT_STARTED） |
+| **Current Step** | P102 plan draft 已建立；等待主公裁決 `核准 P102 plan freeze`；不得自動進 runtime |
+| **Allowed Files** | P102 plan scope：`docs/PHASE_102_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不關閉 R-016/R-017；不補所有 missing guards；不新增或修改 checker/tests；不接 strict gate；不清理 root/generated files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 GitHub Actions / Pages；不讀 raw report/log/post content；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
+| **Exit Criteria** | P102 plan lint PASS；R-023 Open；guard index includes R-023 human-only row；handoff / active / risk / history synchronized；P102 plan draft committed locally |
+| **Resume Rule** | 新視窗讀 `NEXT_SESSION_HANDOFF.md` 頂部 active bootstrap、`docs/PHASE_102_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`docs/RISK_REGISTRY.md` R-023；若 local ahead 是 P102 plan draft commit，等待主公 push；若已推，由主公裁決 `核准 P102 plan freeze` |
 
 ## State Machine
 
@@ -69,6 +69,7 @@ py scripts\lint_phase_plan.py docs\PHASE_98_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_99_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_100_PLAN.md
 py scripts\lint_phase_plan.py docs\PHASE_101_PLAN.md
+py scripts\lint_phase_plan.py docs\PHASE_102_PLAN.md
 py scripts\check_known_issue_guard_index.py --repo-root .
 py -m pytest -q tests\test_known_issue_guard_index.py
 py -m pytest -q tests\test_root_legacy_hygiene.py
@@ -92,14 +93,14 @@ P96/R-017 已完成 Website Content Trust runtime：cloud commit `0618717` conte
 
 P97/R-018 工具鏈戰線已完成 evaluation runtime。RTK `v0.42.0` Windows binary checksum PASS，僅在 `scratch/rtk_eval/bin/rtk.exe` 隔離執行；`Get-Command rtk` 前後皆 `NOT_FOUND`，未加入 PATH。`rtk init --codex --dry-run -v` would create `RTK.md` and patch `AGENTS.md` with `@RTK.md`，但 tracked diff before/after empty，未套用。Telemetry 顯示 `RTK_TELEMETRY_DISABLED=1 (blocked)`；runtime 建立的 local AppData `history.db` / `.hook_warn_last` 已清除。Baseline 顯示 pytest pass 有 83.0% savings，但 Git/search/read 類幾乎無收益或負收益；failure diagnostics 失敗，missing path / sentinel traceback 會被壓掉。裁決：不全域部署、不 project init、不 patch AOV instructions；若要繼續 RTK，另開 P99+ 或獨立 phase。
 
-P98/R-019 專案飛輪戰線已完成 report-only audit，commit `84012c0` 已推送。`docs/PHASE_98_AUDIT.md` 顯示核心 runtime 約 49 tracked files / 0.44 MB，真正造成接手成本的是 generated/deploy artifacts、agent/skill layer、靜態大圖/字型、治理文件、根目錄 legacy/debug 檔與 untracked 暫存。P99 plan/runtime 已完成並推送至 `b88a846`；P99 已新增 generated artifact policy、path-only advisory checker 與 focused tests。P100 plan draft/freeze/runtime 已完成並推送至 `6e3919d`；P100 新增 root quarantine evidence、path-only advisory checker 與 focused tests，仍不做 cleanup、不改 `.gitignore`、不接 strict gate。P101 plan draft 已在 remote auto-sync `198c84f` 上 rebase 成 `c99a0f0` 並推送；P101 plan freeze 已推送至 `4f072bb`。主公已核准 `P101 runtime`；P101 runtime 已建立 `docs/KNOWN_ISSUE_GUARD_INDEX.md`、`scripts/check_known_issue_guard_index.py`、`tests/test_known_issue_guard_index.py`。Checker 是 advisory-only，default exit 0，`--strict` 僅供手動實驗；P101 未改 existing checker、未接 GHA/strict gate、未清理檔案。
+P98/R-019 專案飛輪戰線已完成 report-only audit，commit `84012c0` 已推送。`docs/PHASE_98_AUDIT.md` 顯示核心 runtime 約 49 tracked files / 0.44 MB，真正造成接手成本的是 generated/deploy artifacts、agent/skill layer、靜態大圖/字型、治理文件、根目錄 legacy/debug 檔與 untracked 暫存。P99/P100/P101 已分別完成 generated artifact guard、root legacy guard、known issue guard index，最新已推 commit `94292e4`。P102 DRAFT 開案目標是 review R-016/R-017 monitoring 與 P101 human-only backlog。2026-05-29 latest content trust PASS，但 SLO checker 仍有 current SLO002/SLO003 blocking（2026-05-27 manifest gap），cost/cache governance 仍有 current CCG005 degraded；因此 P102 不關閉 R-016/R-017。
 
 ## Window Switch Guidance
 
-- 可以換視窗：P101 runtime commit 建立後可換；若本地 ahead 1，下一窗可先等主公 push。
-- 最佳換窗點：P101 runtime 已推送後，等待主公裁決下一門。
-- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部、`docs/PHASE_101_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md` 與 `docs/RISK_REGISTRY.md` R-022，先確認是否 push local P101 runtime commit。
+- 可以換視窗：P102 plan draft commit 建立後可換；若本地 ahead 1，下一窗可先等主公 push。
+- 最佳換窗點：P102 plan draft 已推送後，等待主公裁決 `核准 P102 plan freeze`。
+- 若現在立刻換：下一窗讀 `NEXT_SESSION_HANDOFF.md` 頂部、`docs/PHASE_102_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md` 與 `docs/RISK_REGISTRY.md` R-023，先確認是否 push local P102 plan draft commit。
 
 ## Next Decision
 
-下一步是建立 P101 runtime commit；push 仍需主公確認。推完後由主公裁決下一門：P102 Missing Guard Backlog、R-016/R-017 monitoring review，或其他主線。
+下一步是建立 P102 plan draft commit；push 仍需主公確認。推完後由主公裁決 `核准 P102 plan freeze`。

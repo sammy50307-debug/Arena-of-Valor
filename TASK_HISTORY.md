@@ -14063,3 +14063,116 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **狀態**：
 - P101 runtime 文件與 checker 已新增，focused verification 已通過。
 - 下一步：建立 P101 runtime commit。push 仍需主公確認。
+
+#### P102 plan draft — Missing Guard Backlog / Monitoring Review（2026-05-29）
+
+**目標**：
+- 依主公指令 `P102 Missing Guard Backlog / Monitoring Review Plan` 開啟 P102 計畫。
+- 本階段只建立 plan draft 與風險帳，不進入 runtime review、不關閉 R-016/R-017、不補所有 missing guards、不新增或修改 existing checker/tests、不接 strict gate、不清理任何 generated/root/scratch/untracked 檔案。
+- P102 目標是：
+  - 檢查 R-016 / R-017 monitoring 現況。
+  - 排序 P101 human-only / missing-machine-guard backlog。
+  - 給下一個小 Phase 候選，不直接大修。
+
+**推送真相**：
+- 已推送：
+  - `94292e4 feat: 新增 known issue guard index`
+  - remote：`4f072bb..94292e4 main -> main`
+- P102 開案時 tracked working tree clean，僅有舊 untracked reports / scratch / skill 暫存目錄仍未納入。
+
+**P102 plan 前置證據（metadata-only）**：
+- Latest production report：
+  - `data/reports/aov_report_2026-05-29.html` exists。
+- Latest manifest：
+  - `data/runs/2026-05-29/run_manifest.json` exists。
+  - `run_date=2026-05-29`。
+  - `mode=production`。
+  - `publish_eligible=true`。
+  - `quality.tier=production_local_only`。
+  - `quality.analysis_source=mixed`。
+  - `metrics.llm_calls=9`。
+  - `metrics.cache_hit=4`。
+  - `metrics.total_calls=13`。
+  - `budget.cooldown_active=false`。
+  - `budget.decision=call_llm`。
+  - `provider.routing.route_status=router_disabled_legacy_default`。
+  - `enrichment.replay_status=no_eligible`。
+- R-017 content trust evidence：
+  - `py scripts\check_report_content_trust.py --repo-root . --date 2026-05-29`
+  - focus room title PASS。
+  - forbidden focus title PASS。
+  - report unknown dates PASS。
+  - focus recent section PASS / section absent。
+- R-016 monitoring evidence：
+  - `py scripts\slo_checker.py --repo-root .`
+  - current blocking `SLO002`：2026-05-27 manifest gap。
+  - current blocking `SLO003`：doctor severity budget blocking_days=1。
+  - 7-day table 顯示 2026-05-27 manifest=no / production=no / doctor_blocking=2。
+- System doctor evidence：
+  - `py scripts\system_doctor.py --repo-root .`
+  - no blocking / degraded。
+  - current advisory DOC007：history source coverage。
+  - residual advisories DOC018 / DOC019。
+- Cost/cache governance evidence：
+  - `py scripts\cost_cache_governance.py --repo-root .`
+  - current degraded CCG005：total_llm_calls=31 threshold=20 latest_llm_calls=9。
+  - current advisory CCG006：2026-05-24 cooldown_active。
+  - residual advisories CCG007 / CCG008。
+- Guard index evidence：
+  - `py scripts\check_known_issue_guard_index.py --repo-root .`
+  - PASS：No known issue guard index advisories。
+
+**新增 / 修改文件**：
+- 新增：
+  - `docs/PHASE_102_PLAN.md`
+    - P102 DRAFT plan。
+    - 明確列出 monitoring evidence、false-close 風險、missing guard backlog ranking plan、17 層稽核、M1/M2、Forbidden Work。
+- 修改：
+  - `docs/RISK_REGISTRY.md`
+    - 新增 R-023：Monitoring review false closure / missing guard prioritization drift。
+  - `docs/KNOWN_ISSUE_GUARD_INDEX.md`
+    - 新增 R-023 row。
+    - Machine Guard / Focused Command 標 `N/A`。
+    - Gap 標 `missing-machine-guard; human-only; plan-only`，避免 false confidence。
+  - `NEXT_SESSION_HANDOFF.md`
+    - Current Phase 改為 P102 DRAFT。
+    - Latest Verified Commit 改為 `94292e4` 已推送。
+    - 下一門改為等待 `核准 P102 plan freeze`。
+  - `docs/ACTIVE_OPERATION.md`
+    - 同步 R-019 / R-023 / P102 DRAFT。
+  - `TASK_HISTORY.md`
+    - 追加本段 P102 plan draft 物理真相。
+
+**P102 Forbidden Work**：
+- 不關閉 R-016 / R-017。
+- 不補所有 missing guards。
+- 不新增或修改 existing checker/tests。
+- 不接 strict gate。
+- 不清理 root/generated/scratch/untracked files。
+- 不搬檔、不 rename、不刪檔。
+- 不改 `.gitignore`。
+- 不改 runtime code。
+- 不改 GitHub Actions / Pages。
+- 不讀 raw report/log/post content。
+- 不導入 RTK 或新工具。
+
+**focused verification 證據**：
+- `git diff --check`
+  - PASS（僅 CRLF/LF 工作樹提示，無 whitespace error）。
+- `py scripts\lint_phase_plan.py docs\PHASE_102_PLAN.md`
+  - PASS：`通過 Pre-flight 體檢（M1 + M2）`。
+- `py scripts\check_known_issue_guard_index.py --repo-root .`
+  - PASS：`No known issue guard index advisories.`。
+- `py scripts\check_handoff_truth.py --repo-root .`
+  - PASS：`HND000 active bootstrap truth verified`。
+- `py scripts\governance_doctor.py --repo-root .`
+  - PASS：`GOV000 runbook and risk registry governance verified`。
+- `py scripts\check_generated_artifact_hygiene.py --repo-root . --paths docs/PHASE_102_PLAN.md docs/KNOWN_ISSUE_GUARD_INDEX.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No generated artifact hygiene advisories.`。
+- `py scripts\check_root_legacy_hygiene.py --repo-root . --paths docs/PHASE_102_PLAN.md docs/KNOWN_ISSUE_GUARD_INDEX.md NEXT_SESSION_HANDOFF.md docs/ACTIVE_OPERATION.md docs/RISK_REGISTRY.md TASK_HISTORY.md`
+  - PASS：`No root legacy hygiene advisories.`。
+
+**狀態**：
+- P102 plan draft 已建立並通過 focused governance / hygiene checks。
+- R-023 風險已入 Open registry。
+- 下一步：建立 P102 plan draft commit。push 仍需主公確認；推送後由主公裁決 `核准 P102 plan freeze`。
