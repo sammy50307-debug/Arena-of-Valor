@@ -24,6 +24,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from scripts.governance_utils import extract_blindspot_entries
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 POSTMORTEM_DIR = PROJECT_ROOT / "docs" / "postmortems"
@@ -81,17 +82,8 @@ def scan_postmortems() -> dict[str, dict]:
 # ---------------------------------------------------------------------------
 
 def extract_blindspot_rules(text: str) -> list[dict]:
-    """Extract B-NNN entries with headline + 通則化 rule."""
-    items: list[dict] = []
-    pattern = re.compile(r"### (B-\d+)：(.+?)(?=\n### B-|\n## |$)", re.DOTALL)
-    for m in pattern.finditer(text):
-        bid = m.group(1)
-        body = m.group(2)
-        headline = body.strip().splitlines()[0].strip() if body.strip() else ""
-        norm_m = re.search(r"\*\*通則化\*\*：\s*\n+>\s*(.+?)(?=\n\n|\n\*\*)", body, re.DOTALL)
-        rule = norm_m.group(1).strip().replace("\n> ", " ") if norm_m else ""
-        items.append({"id": bid, "headline": headline, "rule": rule})
-    return items
+    """Extract B-NNN entries with headline + 通則化 rule. Delegates to governance_utils."""
+    return extract_blindspot_entries(text)
 
 
 def collect_all_rules() -> list[dict]:

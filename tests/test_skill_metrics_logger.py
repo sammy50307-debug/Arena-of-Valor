@@ -139,6 +139,31 @@ class TestSummarize:
         assert "x" in stats
         assert "y" in stats
 
+
+# ---------------------------------------------------------------------------
+# P103-A3 現象錨點（R-024）
+# ---------------------------------------------------------------------------
+
+class TestImportDoesNotTriggerRecord:
+    """確認現象：純 import skill_metrics_logger 不會自動寫入 metrics 檔。
+
+    根因（P103 A3 診斷）：AOV skill __main__.py 的 record() 呼叫在
+    _run_with_metrics() 裡，入口是 if __name__ == '__main__'。
+    Claude Code 以 module/import 方式載入 skill 時 __name__ != '__main__'，
+    故 record() 永不執行，metrics 檔從未建立。
+    修法追蹤：R-024 / P103.1（hooks 注入，另開 Phase）。
+    """
+
+    def test_import_alone_does_not_create_metrics(self, tmp_metrics: Path):
+        # import 後不呼叫 record()，檔案應不存在
+        import importlib
+        import skill_metrics_logger as _sml  # noqa: F401 — import side-effect check
+        importlib.reload(_sml)
+        assert not tmp_metrics.exists(), (
+            "純 import skill_metrics_logger 不應自動寫入 metrics——"
+            "若此測試失敗代表有 module-level 副作用，需審查"
+        )
+
     def test_token_aggregation(self):
         records = [
             {"skill": "c", "duration_ms": 100, "exit_code": 0, "tokens_in": 100, "tokens_out": 50},
