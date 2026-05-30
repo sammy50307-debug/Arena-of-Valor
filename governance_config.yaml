@@ -1,0 +1,54 @@
+# governance_config.yaml — AOV 治理設定
+# 快照日期：2026-05-31（改良自 skills-governance governance_config.yaml）
+# P103：回填 GOV-PORT 融合引擎到 AOV 母本
+
+schema_version: 0.1
+status: pilot   # pilot | stable
+
+# ── preflight 編排器 ──
+# blocking 的 checker 失敗會擋住 commit/push；warning 只告警不阻擋。
+# fast profile：commit 前快跑（秒級）。full profile：push 前全跑。
+preflight:
+  recursion_guard_env: GOV_PREFLIGHT_RUNNING
+  profiles:
+    fast: [secret_scan, guard_assertions]
+    full: [secret_scan, guard_assertions, governance_doctor, tests]
+  checks:
+    secret_scan:
+      run: "python -m gov.scan_secrets"
+      level: blocking
+      timeout: 30
+    guard_assertions:
+      run: "python -m gov.assertions --check"
+      level: blocking
+    governance_doctor:
+      run: "py scripts/governance_doctor.py"
+      level: warning   # AOV 既有 checker，warning 級觀察
+      timeout: 60
+    tests:
+      run: "py -m pytest tests/ -q --tb=line"
+      level: blocking
+      timeout: 120
+
+# ── 斷言引擎 guards ──
+# status: advisory（只報告）| shadow（觀察零誤判）| strict（blocking）
+# P103 所有 guard 預設 advisory / shadow，不升 strict（防翻車裝甲）。
+guards: []   # B 階段 B3 填入實際 guard 定義
+
+# ── 密鑰掃描 patterns（Hermes 7 類 + AOV detect-secrets 聯集）──
+# 注意：以下為偵測特徵 regex，非真實金鑰，可安全進版控。
+secret_patterns:
+  - name: "OpenAI/OpenRouter"
+    regex: '\bsk-(?:or-v1-|proj-|ant-|live-)?[A-Za-z0-9]{20,}'
+  - name: "Google API"
+    regex: '\bAIza[0-9A-Za-z_\-]{35}\b'
+  - name: "Discord Bot Token"
+    regex: '\b[MNO][A-Za-z0-9_\-]{23,}\.[A-Za-z0-9_\-]{6}\.[A-Za-z0-9_\-]{27,}'
+  - name: "Discord Webhook"
+    regex: 'https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/\d+/[A-Za-z0-9_\-]{20,}'
+  - name: "Slack Token"
+    regex: '\bxox[baprs]-[A-Za-z0-9\-]{10,}'
+  - name: "AWS Access Key"
+    regex: '\bAKIA[0-9A-Z]{16}\b'
+  - name: "PEM Private Key"
+    regex: '-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----'

@@ -18,6 +18,19 @@
 
 ## 開放風險（Open）
 
+### R-024：skill metrics 永不生成 — Claude Code import 模式不觸發 `__main__`（P103 A3 開案）
+
+- **來源**：P103 A3 診斷（2026-05-31）
+- **風險級**：🟡 中
+- **狀態**：Open（根因已確認，修法 P103.1 另開）
+- **描述**：AOV `.agent/skills/*/` 的 `record()` 呼叫在 `_run_with_metrics()` 函式內，入口為 `if __name__ == '__main__'`。Claude Code 以 module/import 模式載入 skill 時 `__name__` 不等於 `'__main__'`，故 `record()` 永不執行，`~/.claude/skill_metrics.jsonl` 從未建立（實測確認）。
+- **緩解策略**：
+  - 短期：`tests/test_skill_metrics_logger.py` 已補現象錨點測試（`TestImportDoesNotTriggerRecord`）防止悄悄恢復。
+  - 長期（P103.1）：改用 Claude Code hooks（PostToolUse/Stop）從外部注入 metrics，skill 本身不需改動。屬工具鏈/部署層，不屬 P103 governance 引擎回填 scope。
+- **觸發升級**：若 `skill_metrics.jsonl` 連 30 天仍為空（skill 有實際被觸發的情況下），升為 blocking，強制走 P103.1。
+
+---
+
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。

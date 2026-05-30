@@ -21,6 +21,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from scripts.governance_utils import extract_blindspot_entries
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 POSTMORTEM_DIR = PROJECT_ROOT / "docs" / "postmortems"
@@ -31,19 +32,8 @@ POSTMORTEM_DIR = PROJECT_ROOT / "docs" / "postmortems"
 # ---------------------------------------------------------------------------
 
 def _extract_blindspots(text: str) -> list[dict]:
-    """Extract B-NNN entries from blindspot files."""
-    items: list[dict] = []
-    pattern = re.compile(r"### (B-\d+)：(.+?)(?=\n### B-|\n## |$)", re.DOTALL)
-    for m in pattern.finditer(text):
-        bid = m.group(1)
-        body = m.group(2)
-        # 找 通則化 內容
-        norm_m = re.search(r"\*\*通則化\*\*：\s*\n+>\s*(.+?)(?=\n\n|\n\*\*)", body, re.DOTALL)
-        norm = norm_m.group(1).strip().replace("\n> ", " ") if norm_m else ""
-        # 找 headline (第一行)
-        headline = body.strip().splitlines()[0].strip() if body.strip() else ""
-        items.append({"id": bid, "headline": headline, "rule": norm})
-    return items
+    """Extract B-NNN entries from blindspot files. Delegates to governance_utils."""
+    return extract_blindspot_entries(text)
 
 
 def _extract_next_phase_reminders(text: str) -> list[str]:
