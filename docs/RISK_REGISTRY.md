@@ -18,19 +18,6 @@
 
 ## 開放風險（Open）
 
-### R-024：skill metrics 永不生成 — Claude Code import 模式不觸發 `__main__`（P103 A3 開案）
-
-- **來源**：P103 A3 診斷（2026-05-31）
-- **風險級**：🟡 中
-- **狀態**：Open（根因已確認，修法 P103.1 另開）
-- **描述**：AOV `.agent/skills/*/` 的 `record()` 呼叫在 `_run_with_metrics()` 函式內，入口為 `if __name__ == '__main__'`。Claude Code 以 module/import 模式載入 skill 時 `__name__` 不等於 `'__main__'`，故 `record()` 永不執行，`~/.claude/skill_metrics.jsonl` 從未建立（實測確認）。
-- **緩解策略**：
-  - 短期：`tests/test_skill_metrics_logger.py` 已補現象錨點測試（`TestImportDoesNotTriggerRecord`）防止悄悄恢復。
-  - 長期（P103.1）：改用 Claude Code hooks（PostToolUse/Stop）從外部注入 metrics，skill 本身不需改動。屬工具鏈/部署層，不屬 P103 governance 引擎回填 scope。
-- **觸發升級**：若 `skill_metrics.jsonl` 連 30 天仍為空（skill 有實際被觸發的情況下），升為 blocking，強制走 P103.1。
-
----
-
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
@@ -296,6 +283,17 @@
 
 ## 已關閉風險（Closed）
 
+### R-024：skill metrics 永不生成 — 設計前提錯配（P103.1 關閉）
+
+- **來源**：P103 A3 診斷（2026-05-31）；P103.1 釐清關閉（2026-05-31）
+- **風險級**：🟡 中
+- **狀態**：✅ 已關閉（Closed，2026-05-31 P103.1）
+- **描述**：AOV `.agent/skills/*/` 的 `record()` 在 `_run_with_metrics()` 內、入口 `if __name__ == '__main__'`；Claude Code 以 module/import 模式載入時 `__name__` 不等於 `'__main__'`，`record()` 永不執行，`~/.claude/skill_metrics.jsonl` 從未建立。
+- **關閉結論（P103.1）**：非 bug，是**設計前提錯配**——`record()`+`__main__` 接線沒壞，是「設計前提（CLI 程式）vs 實際用法（對話內模擬觸發、skill 不以程式執行）」錯配。hooks 亦不適用（`matcher:Skill` 不觸發 issue #43630、payload 無 skill_name issue #22655）。**accepted 為已知設計限制**；接手者若要 metrics 需另議觸發機制重設計（屬工具鏈/部署層，非引擎 scope）。
+- **防復發**：保留 `tests/test_skill_metrics_logger.py::TestImportDoesNotTriggerRecord` 錨點測試；postmortem `docs/postmortems/2026-05-31-phase-103.1-metrics-design-mismatch.md`。
+
+---
+
 ### R-007：`.back-to-landing` 未列入 mobile backdrop-filter 停用清單（P70.3.1 審計）
 
 - **來源**：P70.3.1 63 維度審計（2026-05-08）
@@ -378,3 +376,4 @@
 - **2026-05-16**：P74 關閉 R-015；`test_dynamic_focus.py` 三個 async case 改用 `asyncio.run(...)`，單檔 5 passed，全套 112 passed。
 - **2026-05-16**：P75 關閉 R-014；回填 P63/P64/P69/P70.3 共 4 份 blindspot，新增 B-011~B-022，M4 status 缺漏數歸零。
 - **2026-05-16**：P76 狀態清理；R-007/R-008 從 Open 區移至 Closed 區，長期 LINE WebView 觀察仍由 R-004 承接。
+- **2026-05-31**：P103.1 關閉 R-024（從 Open 移至 Closed）；確認 metrics 是設計前提錯配（skill 對話式觸發、非 shell 執行），hooks 不適用，accepted 為已知設計限制。

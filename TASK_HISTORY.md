@@ -14176,3 +14176,40 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - P102 plan draft 已建立並通過 focused governance / hygiene checks。
 - R-023 風險已入 Open registry。
 - 下一步：建立 P102 plan draft commit。push 仍需主公確認；推送後由主公裁決 `核准 P102 plan freeze`。
+
+### P103 回填 AOV — GOV-PORT 融合引擎裝回母本（2026-05-31）
+
+**目標**：把 `D:/skills-governance` 融合改良過的治理引擎，以快照複製、AOV 自包含方式裝回 AOV 母本。
+
+**觸發**：GOV-PORT G0-G3 收官，改良只活在實驗 repo；回填＝把升級裝回每天在用的母本，完成閉環。
+
+**17 層稽核摘要**：S 級全過（代碼/邏輯/測試/安全）；A 級全過；B 級效能/部署/隱私觸發並緩解。M1+M2 PASS（lint 自驗）。
+
+**物理真相**：
+- Stage A 順手修：lint_phase_plan.py X4 9→11 視角（補 J/K）+ 全域 CLAUDE.md 漂移修正；governance_utils.py 新增消除 cross_phase_review×m4 重複邏輯；metrics 根因確認（import 模式不觸發 __main__，登 R-024）。
+- Stage B 引擎回填：gov/（utils/preflight/assertions/scan_secrets）+ governance_config.yaml 複製進 AOV 自包含；全 advisory/shadow 零 strict；preflight fast profile 全綠；B4 密鑰掃描偵測 dev_claude.ps1 chatones proxy token（true positive 偵測，false risk），加 allowlist-secret 豁免。
+- Exit：308 passed（基線 307+1），13 檔 527 insertions。
+- Commit：b27d2e4（P103-backfill-aov 分支）；計畫書 commit：085182b（main）。
+
+**風險**：
+- R-024 Open：skill metrics 永不生成，修法 P103.1 另開（hooks 注入）。
+- R-001（分叉）：gov/ 為 2026-05-31 快照，升級需手動同步。
+
+**狀態**：DONE ✅ | 分支：P103-backfill-aov | 待辦：TASK_HISTORY 追加（本條）、P103.1 metrics hooks 另開。
+
+### P103.1 Skill Metrics 設計前提錯配收尾（2026-05-31）
+
+**目標**：收尾 P103 GOV-PORT 回填的 metrics 議題——釐清 `~/.claude/skill_metrics.jsonl` 從未生成的真根因，並做純文件收尾（postmortem + 關閉 R-024 + 本紀錄）。
+
+**觸發**：P103 A3 診斷登記 R-024（metrics 永不生成），原規劃 P103.1 用 hooks 修；主公要求釐清是否真能修。
+
+**釐清結論**：兩層根因——①Claude Code hooks 記不了（`matcher:Skill` 不觸發 issue #43630、payload 無 skill_name issue #22655）；②更根本：AOV 的 `.agent/skills/*/` 多是「對話內由 Claude 讀 SKILL.md 模擬觸發」，不以 shell 程式執行，根本沒有執行點可記 metrics。關鍵「我以為」：藍圖以為「metrics 空 = import 接線 bug → hooks 可修」，實情是「skill 不以程式執行 → hooks 也救不了」；`record()`+`__main__` 接線沒壞，是「設計前提（CLI 程式）vs 實際用法（對話模擬）錯配」。主公裁示：關閉 R-024，承認設計限制。
+
+**三動作（純文件、可逆）**：
+1. postmortem：`docs/postmortems/2026-05-31-phase-103.1-metrics-design-mismatch.md`（記症狀/根因/我以為/通則化教訓）。
+2. 關閉 R-024：從 RISK_REGISTRY 的 Open 移至 Closed，狀態改已關閉，補「設計前提錯配、hooks 不適用、accepted 設計限制」結論。
+3. 本 TASK_HISTORY 追加。
+
+**通則化教訓**：移植他處的「根因診斷」不能照搬結論，要先驗證目標環境的實際前提（Evidence-first 在動筆寫 hooks 計畫書前擋下錯誤方向）。
+
+**狀態**：✅ 完成（方案重定位、R-024 關閉、設計限制 accepted）。metrics 若未來要做需另議觸發機制重設計（工具鏈/部署層，非引擎 scope）。接續 P104 次階段融合（G1+G2+G3，計畫書已過 lint，待凍結動工）。
