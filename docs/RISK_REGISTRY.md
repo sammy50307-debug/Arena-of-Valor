@@ -18,6 +18,20 @@
 
 ## 開放風險（Open）
 
+### R-025：子代理派遣準則 v1.0 dead rule 風險 / 到期實效復盤（P104.2 衍生）
+
+- **來源**：阿喜 2026-05-31 要求把全域 `~/.claude/CLAUDE.md`「🤖 子代理派遣準則 v1.0」的到期復盤義務錨定到 repo（remote scheduled agent 拿不到本地全域守則與對話歷史，ROI 低，改用本地 RISK_REGISTRY 錨定）。
+- **風險級**：🟢 低
+- **狀態**：Open（觀察至 2026-08-31；到期人工復盤）
+- **描述**：v3 子代理派遣準則寫在本地全域 CLAUDE.md（不在本 repo）。若三個月內無人回顧其實效，可能淪為 dead rule——一直掛著卻從未真正擋下任何「亂派／回頭難驗證／幻覺」，造成規則膨脹與虛假信心（G5 抗熵 / G1 dead rule 政策）。
+- **緩解策略**：
+  - 短期：本條目以 X3 到期日 `2026-08-31` 錨定，靠既有「每 5-10 phase 復盤」掃到。
+  - 中期：2026-08-31 前的跨-phase 復盤，人工回顧守則三個月內是否真正擋下亂派／幻覺（可對照守則「自稽收斂判準句」出現頻率與當下判斷）。
+  - 長期：有效 → 保留或考慮升級為 checker；無效或過吵 → 降級為「建議」或移除，避免規則膨脹。
+- **觸發升級／到期動作**：2026-08-31 到期未復盤 → 由 G5-1 dead rule 偵測標記；復盤判定無效卻保留 → 升為規則腐化 active issue，需明文降級或移除並記錄理由。
+
+---
+
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
