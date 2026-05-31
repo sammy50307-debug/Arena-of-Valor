@@ -18,7 +18,9 @@
 
 ## P104.2（G2）— health.py 回填「壞了會叫」
 
-**目標**：AOV 補上「主動跑 skill smoke + 失敗發 Discord 告警」的 runtime 防線（現有 `scripts/gen_skill_health.py` 只出靜態看板、不跑 test、不告警）。
+> ⚠️ **執行前詳見 `docs/P104.2_G2_HANDBOOK.md`（超詳細專冊，以它為準）**。本段兩個舊假設已被蒐證修正：①AOV **無 Discord**，告警接既有 **LINE/Telegram**（`notifier/line_bot.py` async）；②skill 在 **`.agent/skills/`（單數）**、test 在 skill 根層。
+
+**目標**：AOV 補上「主動跑 skill smoke + 失敗發告警（LINE/Telegram）」的 runtime 防線（現有 `scripts/gen_skill_health.py` 只出靜態看板、不跑 test、不告警）。
 
 **scope（4 步）**：
 1. 複製 `D:/skills-governance/gov/health.py` → `AOV/gov/health.py`（源 76 行：`check_skill` 跑 `test_skill.py` smoke、`notify_discord` 發告警、`run`/`main`）。
