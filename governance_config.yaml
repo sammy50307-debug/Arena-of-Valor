@@ -33,7 +33,36 @@ preflight:
 # ── 斷言引擎 guards ──
 # status: advisory（只報告）| shadow（觀察零誤判）| strict（blocking）
 # P103 所有 guard 預設 advisory / shadow，不升 strict（防翻車裝甲）。
-guards: []   # B 階段 B3 填入實際 guard 定義
+guards:
+  # P104 G1 填入。status: shadow ＝ 會評估、有覆蓋、失敗只記不阻斷（exit 0）；標的均經親自讀檔確認行號。
+  # 1. 安全契約（最高）：密鑰掃描器絕不回傳金鑰真值 + allowlist 豁免機制存在
+  - id: GUARD-SECRET-NO-LEAK
+    status: shadow
+    asserts:
+      - "contains: gov/scan_secrets.py::絕不回傳/列印金鑰值"
+      - "contains: gov/scan_secrets.py::allowlist-secret"
+  # 2. 斷言引擎 X4-J 免責邊界存在（防過度信任啟發式 guard）
+  - id: GUARD-ASSERT-DISCLAIMER
+    status: shadow
+    asserts:
+      - "contains: gov/assertions.py::召回率僅供參考"
+  # 3. preflight 防遞迴 env guard 存在（移除會導致巢狀無限迴圈）
+  - id: GUARD-PREFLIGHT-RECURSION
+    status: shadow
+    asserts:
+      - "contains: gov/preflight.py::GOV_PREFLIGHT_RUNNING"
+  # 4. 斷言引擎緊急逃生艙（--allow-skip）存在
+  - id: GUARD-ALLOW-SKIP-ESCAPE
+    status: shadow
+    asserts:
+      - "contains: gov/assertions.py::allow-skip"
+  # 5. 治理母本：governance_doctor + 風險登記簿存在且維持 Open/Closed 結構
+  - id: GUARD-GOVERNANCE-MOTHER
+    status: shadow
+    asserts:
+      - "exists: scripts/governance_doctor.py"
+      - "exists: docs/RISK_REGISTRY.md"
+      - "contains: docs/RISK_REGISTRY.md::## 已關閉風險"
 
 # ── 密鑰掃描 patterns（Hermes 7 類 + AOV detect-secrets 聯集）──
 # 注意：以下為偵測特徵 regex，非真實金鑰，可安全進版控。
