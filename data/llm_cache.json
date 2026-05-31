@@ -2,108 +2,6 @@
   "schema_version": 3,
   "result_schema_version": 1,
   "entries": {
-    "prompt:e7ab89ee4219d3961d346c7fcb166312": {
-      "result": {
-        "reasoning": "該貼文為典型的遊戲帳號買賣廣告，屬於外部商業行為，與遊戲本身的遊玩體驗或討論無關。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "其他",
-        "keywords": [
-          "帳號買賣",
-          "收購",
-          "傳說對決"
-        ],
-        "summary": "此貼文為外部帳號買賣賣場的廣告宣傳。",
-        "relevance_score": 0.2,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-24T08:54:59.540693+00:00",
-      "last_accessed": "2026-05-24T08:54:59.540693+00:00",
-      "ttl_days": 7
-    },
-    "prompt:9d130ad5f3b3f3ef08fa7111f383f73b": {
-      "result": {
-        "reasoning": "貼文內容為官方宣傳活動，語氣正向且具有號召力，旨在鼓勵玩家參與遊戲活動以獲取免費造型。",
-        "sentiment": "positive",
-        "sentiment_score": 0.9,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "活動資訊",
-        "keywords": [
-          "朗博",
-          "保夾三千",
-          "五五好團節",
-          "免費造型",
-          "任務"
-        ],
-        "summary": "官方宣傳五五好團節活動，玩家可透過完成任務免費獲得朗博新造型。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "五五好團節",
-            "type": "限時活動"
-          }
-        ]
-      },
-      "stored_at": "2026-05-24T08:55:01.482831+00:00",
-      "last_accessed": "2026-05-24T08:55:01.482831+00:00",
-      "ttl_days": 7
-    },
-    "prompt:7ebc3fa36bef55f44b5ca547a088bdf4": {
-      "result": {
-        "reasoning": "該貼文為 Dcard 傳說對決板的標題連結，旨在提供新手教學資訊，屬於社群互動與知識分享性質，語氣中性且具建設性。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "社群互動",
-        "keywords": [
-          "新手教學",
-          "傳說對決",
-          "Dcard",
-          "攻略"
-        ],
-        "summary": "這是一篇關於傳說對決的新手教學文章分享。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-24T08:55:03.533274+00:00",
-      "last_accessed": "2026-05-28T12:00:32.907583+00:00",
-      "ttl_days": 7
-    },
-    "prompt:dc551b7a4ae084335df19dec382c1768": {
-      "result": {
-        "reasoning": "該貼文為分享關於新賽季英雄平衡性調整的數據分析心得，屬於客觀的遊戲內容探討，無明顯情緒偏向或反諷。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "版本更新",
-        "keywords": [
-          "新賽季",
-          "英雄平衡",
-          "數據分析",
-          "傳說對決"
-        ],
-        "summary": "玩家針對新賽季英雄平衡調整進行數據分析與心得分享。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "新賽季英雄平衡性調整",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-24T08:55:04.982740+00:00",
-      "last_accessed": "2026-05-28T12:00:39.377251+00:00",
-      "ttl_days": 7
-    },
     "prompt:6d884e2cd4b0831c3f39156bd9240d26": {
       "result": {
         "reasoning": "該貼文為遊戲實況主娘子的影片標題與內容摘要，主要討論5/21版本更新後史蘭茲的強度調整，並邀請觀眾討論，屬於正常的遊戲內容創作與社群互動。",
@@ -389,7 +287,7 @@
         "events": []
       },
       "stored_at": "2026-05-28T12:00:14.032425+00:00",
-      "last_accessed": "2026-05-30T10:25:10.719846+00:00",
+      "last_accessed": "2026-05-31T10:32:08.261419+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -661,7 +559,7 @@
         "translated_content": "【心得分享】【攻略】《傳說對決》從0~100圖倫教學!17分鐘一次快速上手(8/16再次更新) - 傳說對決板 | Dcard"
       },
       "stored_at": "2026-05-29T11:50:23.175576+00:00",
-      "last_accessed": "2026-05-30T10:25:13.379988+00:00",
+      "last_accessed": "2026-05-31T10:32:08.258694+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -684,7 +582,7 @@
         "events": []
       },
       "stored_at": "2026-05-29T11:50:25.169255+00:00",
-      "last_accessed": "2026-05-30T10:25:13.382304+00:00",
+      "last_accessed": "2026-05-31T10:32:08.264071+00:00",
       "ttl_days": 7
     },
     "prompt:fa8ec67fd067d5521ee5211831a4ae57": {
@@ -789,7 +687,7 @@
         "events": []
       },
       "stored_at": "2026-05-30T10:25:10.715760+00:00",
-      "last_accessed": "2026-05-30T10:25:10.715760+00:00",
+      "last_accessed": "2026-05-31T10:32:08.255884+00:00",
       "ttl_days": 7
     },
     "prompt:620731b0a7dea2ed76e5622ab69cbb32": {
@@ -812,7 +710,7 @@
         "events": []
       },
       "stored_at": "2026-05-30T10:25:11.905445+00:00",
-      "last_accessed": "2026-05-30T10:25:11.905445+00:00",
+      "last_accessed": "2026-05-31T10:32:08.269354+00:00",
       "ttl_days": 7
     },
     "prompt:953664bddd24fb3cf3bb85b3e5629a49": {
@@ -840,7 +738,7 @@
         ]
       },
       "stored_at": "2026-05-30T10:25:13.377293+00:00",
-      "last_accessed": "2026-05-30T10:25:13.377293+00:00",
+      "last_accessed": "2026-05-31T10:32:08.274602+00:00",
       "ttl_days": 7
     },
     "prompt:6695126c50d5c7fb0f0c77c715e2cd3a": {
@@ -863,7 +761,7 @@
         "events": []
       },
       "stored_at": "2026-05-30T10:25:14.717561+00:00",
-      "last_accessed": "2026-05-30T10:25:14.717561+00:00",
+      "last_accessed": "2026-05-31T10:32:08.271986+00:00",
       "ttl_days": 7
     },
     "prompt:a65d9099beda0919dee57a91b5c9cb86": {
@@ -886,7 +784,7 @@
         "events": []
       },
       "stored_at": "2026-05-30T10:25:16.445480+00:00",
-      "last_accessed": "2026-05-30T10:25:16.445480+00:00",
+      "last_accessed": "2026-05-31T10:32:08.266688+00:00",
       "ttl_days": 7
     },
     "prompt:0de2d78273db7f6271479ba14a95c02e": {
@@ -917,12 +815,92 @@
       "stored_at": "2026-05-30T10:25:23.791209+00:00",
       "last_accessed": "2026-05-30T10:25:23.791209+00:00",
       "ttl_days": 7
+    },
+    "prompt:87d66397126eb7d156992ba89514ace5": {
+      "result": {
+        "reasoning": "貼文為實況主小珉的影片標題，內容主要宣傳實況主盃賽事與隊友陣容，語氣正面且充滿期待，旨在吸引觀眾點擊觀看賽事相關內容。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "電競賽事",
+        "keywords": [
+          "傳說對決",
+          "實況主盃",
+          "小珉",
+          "HKA",
+          "電競"
+        ],
+        "summary": "實況主小珉公開實況主盃隊友名單，並分享與職業隊伍HKA團練的精彩逆轉戰況。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "傳說對決實況主盃",
+            "type": "電競賽事"
+          }
+        ]
+      },
+      "stored_at": "2026-05-31T10:32:06.112392+00:00",
+      "last_accessed": "2026-05-31T10:32:06.112392+00:00",
+      "ttl_days": 7
+    },
+    "prompt:d136681e4ba3843abb9ccc8972af4b5f": {
+      "result": {
+        "reasoning": "該貼文討論的是 ArenaPlus 與籃球聯賽的合作，內容完全聚焦於體育賽事贊助，與《傳說對決》遊戲本身無關，屬於誤判的關聯性。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "ArenaPlus",
+          "籃球",
+          "合作"
+        ],
+        "summary": "該貼文內容為 ArenaPlus 與籃球聯賽的合作新聞，與傳說對決遊戲無關。",
+        "relevance_score": 0.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-05-31T10:32:08.251249+00:00",
+      "last_accessed": "2026-05-31T10:32:08.251249+00:00",
+      "ttl_days": 7
+    },
+    "prompt:eda0ff821efff1abc2cc464733f6436a": {
+      "result": {
+        "reasoning": "貼文為官方或玩家分享的聯名卡活動情報，內容客觀陳述活動延長資訊，無反諷或負面情緒。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "星展銀行",
+          "聯名卡",
+          "緹莉",
+          "星夢展航",
+          "活動延長"
+        ],
+        "summary": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉造型。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "星展傳說對決聯名卡專屬活動",
+            "type": "合作活動"
+          }
+        ]
+      },
+      "stored_at": "2026-05-31T10:32:09.694458+00:00",
+      "last_accessed": "2026-05-31T10:32:09.694458+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 55,
+    "total_l2_hits": 63,
     "total_apify_hits": 0,
-    "total_misses": 86
+    "total_misses": 89
   }
 }
