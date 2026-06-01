@@ -37,7 +37,7 @@ SINGLE_POST_SCHEMA = {
     "properties": {
         "reasoning": {"type": "STRING"},
         "sentiment": {"type": "STRING", "enum": ["positive", "negative", "neutral"]},
-        "sentiment_score": {"type": "NUMBER"},
+        "sentiment_score": {"type": "NUMBER", "description": "情緒強度 0.0~1.0：0.0=極負面、0.5=中性、1.0=極正面，與 sentiment 方向一致"},
         "region": {"type": "STRING"},
         "original_language": {"type": "STRING"},
         "translated_content": {"type": "STRING"},
@@ -121,7 +121,7 @@ DAILY_SUMMARY_SCHEMA = {
             "properties": {
                 "name": {"type": "STRING"},
                 "summary": {"type": "STRING"},
-                "sentiment_score": {"type": "NUMBER"},
+                "sentiment_score": {"type": "NUMBER", "description": "焦點英雄情緒 0.0~1.0：0.0=極負面、0.5=中性、1.0=極正面，與單篇同方向"},
                 "top_comments": {"type": "ARRAY", "items": {"type": "STRING"}}
             }
         }
