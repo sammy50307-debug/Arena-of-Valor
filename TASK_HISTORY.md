@@ -14235,3 +14235,28 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **升 strict 紀律**：所有 guard 維持 shadow；升 strict 為不可逆動作，shadow_review 只印建議、需人工於 governance_config.yaml 拍板（X1/X4-K）。
 
 **狀態**：✅ 完成（G1-G3b 四子 phase 收官，全套 348 passed）。G4 metrics 維持緩（R-024 Closed、accepted 設計限制）。母計畫書轉 DONE。
+### P105.1 — provider:model 鏈 + per-model 額度（B 架構）+ 切 OpenRouter 首發收官（2026-06-01 收官）
+
+**目標**：Gemini API 斷糧（無額度）→ 切 OpenRouter 當每日戰報首發 provider；並支援「詳細調配額度」（per-model budget + 鏈每級可指定 provider:model，架構選 B）。引用母計畫 docs/PHASE_105_PLAN.md（FROZEN）+ docs/PHASE_105_1_ADDENDUM.md（FROZEN，凍結後變更記補遺）。
+
+**觸發**：S4 provider 對比實證後，阿喜（2026-06-01）決定切 OpenRouter 首發 + per-model 調配。原 S3「解 fail-closed（啟用 P93 router）」延後為獨立任務——切首發走 FallbackLLMClient（PROVIDER_ROUTER_ENABLED=false），不經 router fail-closed guard，避開 R-P105-2/R-P105-3。
+
+**地基（前 session，已 push origin/P105-openrouter）**：S1 可切換地基 7b37472（PRIMARY_PROVIDER 一行切換+多級 fallback）/ S2 OpenRouter client 5a6c814（deepseek-chat/r1 相容、minimax xfail、budget 停損）/ S4 對比 CLI d6bed50 / 補遺凍結 9a56382。
+
+**本 session 子階段成果（本地 commit，未 push）**：
+- **S3.1 B 架構（390c51d）**：config 加 parse_provider_chain/parse_openrouter_model_budgets + PROVIDER_CHAIN/OPENROUTER_MODEL_BUDGETS（向後相容，無 CHAIN 退回 S1）；build_default_llm_client 讀 chain 組首發+多級 fallback（各帶 model）；OpenRouterClient per-model 獨立 budget ledger（state 檔含 sanitize model 名防 path traversal，上限讀 MODEL_BUDGETS）。附帶修：接通 PRIMARY_MODEL（S1 路徑原為 dead config，補足 ADDENDUM §2.1/§6 契約）。17 新測試+1 回歸。基線 370→388。
+- **S3.2-C score 校準（95d5d04）**：根因＝prompt 有範圍 0.0~1.0 但缺「哪端正/負」語意方向 → gemini/deepseek 各自解讀，下游 history.py 用 daily hero_focus.sentiment_score 算趨勢失真。修：SYSTEM_SINGLE_POST/SYSTEM_DAILY_SUMMARY 注意事項 + SINGLE_POST/DAILY hero_focus schema description 明定 0.0=極負面…1.0=極正面。真實燒額度驗對齊：deepseek-chat/r1 對已知情緒樣本正面0.85/0.9、負面0.3，方向對齊 gemini「高=正」→ R-P105.1-3 解除。基線 392。
+- **S3.2-A diagnostics 動態化（7feb826）**：ALLOWED_PROVIDERS 擴 gemini/openai/openrouter × primary/fallback；provider_role_name helper（精確 type 匹配，OpenRouter 不誤判 openai）；FallbackLLMClient/ProviderRouter provider_diagnostics active_provider/attempts 反映實際（不再硬寫 gemini_primary/openai_fallback）。基線 396。
+- **S3.2-B manifest 追溯（f3d8aac）**：run_manifest provider 區塊加 active_provider+active_model（向後相容，未給時空字串）；SentimentAnalyzer.active_provider_model() 往下挖 self.llm 取首發 provider+model；main.py _meta 串接。基線 399。
+- **S3.3 切首發**：.env 設 PROVIDER_CHAIN=openrouter:deepseek/deepseek-chat,openrouter:deepseek/deepseek-r1,gemini + OPENROUTER_MODEL_BUDGETS=deepseek/deepseek-chat:80000,deepseek/deepseek-r1:20000（.env 不進版控）。決策複盤：r1 經 4 篇難案例（反諷/陰陽/交雜）實測與 chat 判斷 100% 相同、零品質優勢 → 用便宜的 chat 當主力、r1 當備援（數據驅動而非印象）。daily dry-run 跑通 19 篇用 openrouter、manifest active_provider=openrouter、quota_error=False、core_contract pass、報告發布。
+- **S3.2 趨勢補完（f38e03a）**：S3.3 daily 暴露既有 bug——production daily summary 漏寫 total_posts（DAILY_SUMMARY_SCHEMA 無此欄、加工也沒補），showcase 寫死 12 長期掩蓋（0503/0601 真 production 跑才現 0）。history 用 archive total_posts 算聲量 volume，漏寫→volume 失真（與 score 方向並列趨勢兩大源）。雙修：sentiment production 路徑 summary["total_posts"]=len(analyzed_posts) + main.py 寫檔前 setdefault 兜底 fallback/empty/快取路徑。實證 daily 重跑 archive total_posts 0→11。基線 400。
+
+**物理真相**：基線 370→388(S3.1)→392(C)→396(A)→399(B)→400(趨勢補完) passed, 4 skipped，零回歸。commit：390c51d/95d5d04/7feb826/f3d8aac/f38e03a（皆本地，push 前需問阿喜）。.env 切首發（不進版控）。OpenRouter key 只進 .env。daily dry-run 實測 deepseek 跑通、manifest active_provider=openrouter。
+
+**17 層稽核**：S 代碼/邏輯（chain/budget 解析、向後相容、provider 反查精確 type、score 方向）/測試（30 新測試、真實呼叫驗對齊、基線 370→400 不退）/安全（key 只 .env、model 名 sanitize 防 traversal、diagnostics raw-free）；A 架構（PROVIDER_CHAIN 擴充非取代、雙路徑並存）/資料（manifest active_provider+model、archive total_posts）/可觀察（diagnostics 動態 active_provider）/韌性（多級鏈+per-model 停損）。
+
+**風險**：R-P105.1-1（B 架構破 S1 向後相容，已雙路徑測試守住）/ R-P105.1-2（per-model state 檔爆量，sanitize+限已知 model）/ R-P105.1-3（score 標度未校準失真，已校準+真實驗對齊解除）皆處置。待觀察：(a) history archive 缺口 5/17~5/31（gemini 斷糧期沒跑 daily，今起累積、約一週趨勢恢復）(b) sentiment_distribution 由 LLM 輸出統計不準（11篇算成19，另一既有問題，記錄不修）。
+
+**R-016 連動**：解 fail-closed/啟用 P93 router 延後為獨立任務（母計畫「啟用 P93 框架」目標部分延後）；P105 切首發走 FallbackLLMClient、PROVIDER_ROUTER_ENABLED 仍 false，屬預期 provider 變更，不觸發 R-016「provider routing 非預期啟用」升級條件。R-016 觀察窗 2026-06-01 到期，本 phase 不裁決 R-016 close（屬 production SLO 戰線，另議）。
+
+**狀態**：S3 主體（S3.1/S3.2/S3.3）+ 趨勢補完 完成；S5 治理收官（本記錄 + R-016 註記 + 矩陣鎖）。5 commits 本地未 push（push 前問阿喜）。執行用 Opus 4.8（阿喜選）。
