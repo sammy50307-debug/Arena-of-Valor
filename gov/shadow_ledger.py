@@ -16,9 +16,10 @@ from pathlib import Path
 SCHEMA_VERSION = 1
 
 
-def append(records: list[dict], ledger_path: Path) -> None:
+def append(records: list[dict], ledger_path: Path, max_lines: int = 5000) -> None:
     """把 shadow 判定逐筆 append 到 jsonl；每筆補上 v(schema) 與 ts。
 
+    append 後若行數超 max_lines → 自動 rotate（size cap，呼應 R-012 防無限長大）。
     silent no-op on error：任何 IO/序列化失敗都靜默吞掉，不拖垮健檢主流程。
     """
     if not records:
@@ -32,6 +33,33 @@ def append(records: list[dict], ledger_path: Path) -> None:
                 row = {"v": SCHEMA_VERSION, "ts": ts, **r}
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
     except Exception:  # noqa: BLE001 — ledger 失敗絕不拖垮健檢主流程
+        return
+    rotate(ledger_path, max_lines)
+
+
+def rotate(ledger_path: Path, max_lines: int = 5000, keep: int | None = None) -> None:
+    """ledger 超 max_lines → 保留後 keep 行（較新）+ 記一筆 rotate meta + 印警告。
+
+    D（可追溯）：rotate 會切斷歷史，故記 meta（event=rotate）讓 summarize 知道「曾輪轉」、
+    consecutive_clean 可能被低估。keep 預設 max_lines//2。silent on error 不拖垮主流程。
+    """
+    if keep is None:
+        keep = max_lines // 2
+    try:
+        ledger_path = Path(ledger_path)
+        if not ledger_path.exists():
+            return
+        lines = ledger_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if len(lines) <= max_lines:
+            return
+        dropped = len(lines) - keep
+        kept = lines[-keep:] if keep > 0 else []
+        ts = datetime.now().isoformat(timespec="seconds")
+        meta = json.dumps({"v": SCHEMA_VERSION, "ts": ts, "event": "rotate", "dropped": dropped},
+                          ensure_ascii=False)
+        ledger_path.write_text(meta + "\n" + "\n".join(kept) + "\n", encoding="utf-8")
+        print(f"🟡 shadow_ledger 輪轉（rotate）：裁掉 {dropped} 行、保留最新 {keep} 行（防無限長大）")
+    except Exception:  # noqa: BLE001 — 輪轉失敗不拋、不拖垮主流程
         pass
 
 
