@@ -76,27 +76,42 @@ def lint_guards(guards: list) -> list:
     return warns
 
 
-def check(root: Path | None = None) -> dict:
+def check(root: Path | None = None, ledger_path: Path | None = None) -> dict:
     root = root or find_repo_root()
     cfg = load_config(root)
     guards = cfg.get("guards", []) or []
-    report = {"status": "PASS", "failures": [], "quality_warnings": [], "checked": 0}
+    report = {"status": "PASS", "failures": [], "shadow_findings": [],
+              "quality_warnings": [], "checked": 0}
+    shadow_records: list[dict] = []
 
     for g in guards:
-        if g.get("status") == "advisory":
+        status = g.get("status")
+        if status == "advisory":
             continue
         gid = g.get("id", "?")
         for expr in g.get("asserts", []) or []:
             ok, msg, is_env = eval_assertion(root, expr)
             report["checked"] += 1
+            # shadow 顯式分支（G3a）：每次 shadow 判定（含成功）記入 ledger records；
+            # 失敗分流到 shadow_findings，不混 failures、不設 FAIL（exit 仍 0）。
+            if status == "shadow" and not is_env:
+                shadow_records.append({"guard": gid, "assert": expr, "ok": ok})
             if not ok and not is_env:
-                report["failures"].append(f"{gid}: {msg}")
-                if g.get("status") == "strict":
-                    report["status"] = "FAIL"
+                if status == "shadow":
+                    report["shadow_findings"].append(f"{gid}: {msg}")
+                else:
+                    report["failures"].append(f"{gid}: {msg}")
+                    if status == "strict":
+                        report["status"] = "FAIL"
+
+    if ledger_path is not None and shadow_records:
+        from gov import shadow_ledger
+        shadow_ledger.append(shadow_records, ledger_path)
 
     report["quality_warnings"] = lint_guards(guards)
     report["summary"] = (f"斷言：{len(guards)} guard / {report['checked']} 斷言 / "
-                         f"{len(report['failures'])} 失敗 / {len(report['quality_warnings'])} 品質提醒")
+                         f"{len(report['failures'])} 失敗 / {len(report['shadow_findings'])} shadow / "
+                         f"{len(report['quality_warnings'])} 品質提醒")
     return report
 
 
@@ -112,10 +127,12 @@ def main() -> int:
         print("ℹ️  斷言引擎為字面比對啟發式工具，召回率僅供參考；人工覆核仍必要。")
         return 0
 
-    rep = check()
+    rep = check(ledger_path=find_repo_root() / "data" / "shadow_ledger.jsonl")
     print(rep["summary"])
     for f in rep["failures"]:
         print(f"  ❌ {f}")
+    for s in rep.get("shadow_findings", []):
+        print(f"  🟡 shadow（觀察中·不阻斷）: {s}")
     for w in rep["quality_warnings"]:
         print(f"  ⚠️ {w}")
     # X4-J 免責邊界（末行必印）

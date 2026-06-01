@@ -31,6 +31,8 @@ def test_shadow_does_not_block_real_repo():
     rep = check(find_repo_root())
     assert rep["status"] != "FAIL", f"正常 repo 不應被擋下，failures={rep['failures']}"
     assert rep["failures"] == [], f"G1 guard 標的應全部命中真實檔案，failures={rep['failures']}"
+    # G3a：shadow 標的也應全部命中（失敗會分流到 shadow_findings 而非 failures）
+    assert rep["shadow_findings"] == [], f"shadow 標的應全部命中，shadow_findings={rep['shadow_findings']}"
 
 
 # ── 負面對照：advisory guard 即使斷言不成立也絕不進 failures、不計入 checked ──
