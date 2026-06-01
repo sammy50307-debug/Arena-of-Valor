@@ -53,14 +53,21 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           if [ -n "$GEMINI_API_KEY" ]; then echo "GEMINI_API_KEY configured"; else echo "::warning::GEMINI_API_KEY missing"; fi
           if [ -n "$OPENAI_API_KEY" ]; then echo "OPENAI_API_KEY configured"; else echo "::warning::OPENAI_API_KEY missing"; fi
+          # P105.1：切 OpenRouter 首發後這把 key 才是雲端 daily 主力，缺則退回 gemini（可能斷糧）
+          if [ -n "$OPENROUTER_API_KEY" ]; then echo "OPENROUTER_API_KEY configured"; else echo "::warning::OPENROUTER_API_KEY missing — 雲端會退回 gemini"; fi
 
       - name: 🚀 Execute AoV Pipeline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # P105.1 切 OpenRouter 首發：key 走 secret（機敏）；鏈與額度非機敏故寫明於此（改鏈/調額度改這兩行）
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PROVIDER_CHAIN: "openrouter:deepseek/deepseek-chat, openrouter:deepseek/deepseek-r1, gemini"
+          OPENROUTER_MODEL_BUDGETS: "deepseek/deepseek-chat:80000, deepseek/deepseek-r1:20000"
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
