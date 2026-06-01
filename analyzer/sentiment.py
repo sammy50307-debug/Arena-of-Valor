@@ -501,6 +501,12 @@ class SentimentAnalyzer:
             summary["llm_contract"] = {"status": "ok", "errors": []}
             # P105.1 趨勢補完：history 用 archive total_posts 算聲量 volume，production 路徑漏寫會失真
             summary["total_posts"] = len(analyzed_posts)
+            # sentiment_distribution 改由 code 統計（LLM 輸出不可靠，曾把 11 篇算成 19）
+            _dist = {"positive": 0, "negative": 0, "neutral": 0}
+            for _entry in analyzed_posts:
+                _s = _entry.get("analysis", {}).get("sentiment", "neutral")
+                _dist[_s if _s in _dist else "neutral"] += 1
+            summary["sentiment_distribution"] = _dist
             
             hero_stats = {}
             for hero in config.HERO_WATCHLIST:
