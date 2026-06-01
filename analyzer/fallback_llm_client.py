@@ -15,7 +15,7 @@ from analyzer.llm_client import LLMClient
 from analyzer.provider_budget import ensure_budget_for_provider_call
 from analyzer.provider_clients.base import LLMProviderClient
 from analyzer.provider_registry import build_provider
-from analyzer.provider_router import build_provider_diagnostics
+from analyzer.provider_router import build_provider_diagnostics, provider_role_name
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +81,10 @@ class FallbackLLMClient:
 
     def provider_diagnostics(self) -> dict:
         attempts = []
-        if self.last_fallback_used:
+        if self.last_fallback_used and self.fallbacks:
             attempts.append(
                 {
-                    "provider": "openai_fallback",
+                    "provider": provider_role_name(self.fallbacks[0], "fallback"),
                     "role": "fallback",
                     "status": "called",
                     "failure_class": "",
@@ -95,7 +95,7 @@ class FallbackLLMClient:
             router_enabled=False,
             experimental_enabled=False,
             route_status="router_disabled_legacy_default",
-            active_provider="gemini_primary",
+            active_provider=provider_role_name(self.primary, "primary"),
             attempts=attempts,
         )
 
