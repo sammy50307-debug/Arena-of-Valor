@@ -187,3 +187,47 @@ async def test_openai_fallback_budget_skip_blocks_secondary_call():
         await client.chat("sys", "user")
 
     fallback.chat.assert_not_awaited()
+
+
+# ── S3.2-A diagnostics 動態化：active_provider/attempts 反映實際 provider ──
+def test_allowed_providers_includes_openrouter_roles():
+    from analyzer.provider_router import ALLOWED_PROVIDERS
+
+    assert "openrouter_primary" in ALLOWED_PROVIDERS
+    assert "openrouter_fallback" in ALLOWED_PROVIDERS
+
+
+def test_fallback_diagnostics_active_provider_reflects_openrouter_primary():
+    """切 openrouter 首發 → active_provider == openrouter_primary（不再硬寫 gemini_primary）。"""
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.provider_clients.openrouter_client import OpenRouterClient
+
+    client = FallbackLLMClient(
+        primary=OpenRouterClient(api_key="sk-test", model="deepseek/deepseek-chat"),
+        fallbacks=[],
+    )
+    assert client.provider_diagnostics()["active_provider"] == "openrouter_primary"
+
+
+def test_fallback_diagnostics_active_provider_gemini_backward_compatible():
+    """gemini 首發 → active_provider == gemini_primary（向後相容）。"""
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.gemini_client import GeminiClient
+
+    client = FallbackLLMClient(primary=GeminiClient(), fallbacks=[])
+    assert client.provider_diagnostics()["active_provider"] == "gemini_primary"
+
+
+def test_fallback_diagnostics_attempts_reflect_actual_fallback():
+    """fallback 用 openrouter → attempts provider == openrouter_fallback（不再硬寫 openai_fallback）。"""
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.gemini_client import GeminiClient
+    from analyzer.provider_clients.openrouter_client import OpenRouterClient
+
+    client = FallbackLLMClient(
+        primary=GeminiClient(),
+        fallbacks=[OpenRouterClient(api_key="sk-test", model="deepseek/deepseek-chat")],
+    )
+    client.last_fallback_used = True
+    attempts = client.provider_diagnostics()["attempts"]
+    assert attempts and attempts[0]["provider"] == "openrouter_fallback"

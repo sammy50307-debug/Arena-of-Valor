@@ -46,7 +46,12 @@ ALLOWED_ROUTE_STATUS = {
     ROUTE_UNKNOWN,
 }
 ALLOWED_ATTEMPT_STATUS = {ATTEMPT_CALLED, ATTEMPT_BLOCKED, ATTEMPT_FAILED}
-ALLOWED_PROVIDERS = {"gemini_primary", "openai_fallback", "groq", "cloudflare_ai", "github_models"}
+ALLOWED_PROVIDERS = {
+    "gemini_primary", "gemini_fallback",
+    "openai_primary", "openai_fallback",
+    "openrouter_primary", "openrouter_fallback",
+    "groq", "cloudflare_ai", "github_models",
+}
 
 
 def _positive_int(value: Any, default: int = 1) -> int:
@@ -184,6 +189,21 @@ def _clean_attempt(value: Any) -> Dict[str, Any]:
         "failure_class": str(value.get("failure_class", "") or ""),
         "budget_decision": str(value.get("budget_decision", "") or ""),
     }
+
+
+def provider_role_name(client: Any, role: str) -> str:
+    """client 實例 → ``"{provider}_{role}"`` diagnostics 名（精確 type 匹配）。
+
+    用 ``type(client) is cls`` 精確匹配（OpenRouterClient 繼承 LLMClient，故不會誤判為
+    openai）。``role`` 為 ``"primary"`` / ``"fallback"``；無法辨識的 client 對 primary 回
+    保守值 ``"gemini_primary"``、對 fallback 回 ``"unknown"``（皆通過白名單驗證）。
+    """
+    from analyzer.provider_registry import REGISTRY
+
+    for name, cls in REGISTRY.items():
+        if type(client) is cls:
+            return f"{name}_{role}"
+    return "gemini_primary" if role == "primary" else "unknown"
 
 
 def build_provider_diagnostics(
@@ -422,12 +442,17 @@ class ProviderRouter:
             self.last_attempts[-1]["failure_class"] = type(exc).__name__
             raise
 
+    def _active_provider_name(self) -> str:
+        # router 包覆 FallbackLLMClient 時往下取底層實際首發 provider（無則用自身）。
+        inner = getattr(self.primary, "primary", self.primary)
+        return provider_role_name(inner, "primary")
+
     def provider_diagnostics(self) -> Dict[str, Any]:
         return build_provider_diagnostics(
             router_enabled=self.router_enabled,
             experimental_enabled=self.experimental_enabled,
             route_status=self.last_route_status,
-            active_provider="gemini_primary",
+            active_provider=self._active_provider_name(),
             slots=self.slots,
             attempts=self.last_attempts,
         )
