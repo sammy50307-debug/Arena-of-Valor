@@ -28,6 +28,53 @@ def _source_quality_ok() -> dict:
     )
 
 
+def test_build_manifest_records_active_provider_and_model(tmp_path: Path):
+    """P105.1 S3.2-B：provider 區塊記 active_provider + active_model（追溯哪個 provider:model 分析當日）。"""
+    manifest = build_manifest(
+        run_date="2026-06-01",
+        mode="production",
+        raw_path=tmp_path / "raw.json",
+        analysis_path=tmp_path / "analysis.json",
+        report_path=tmp_path / "report.html",
+        meta={"active_provider": "openrouter", "active_model": "deepseek/deepseek-chat"},
+        status="ok",
+        source_hash=SOURCE_HASH,
+    )
+    assert manifest["provider"]["active_provider"] == "openrouter"
+    assert manifest["provider"]["active_model"] == "deepseek/deepseek-chat"
+
+
+def test_build_manifest_active_provider_model_default_empty(tmp_path: Path):
+    """向後相容：meta 未給（舊流程）→ active_provider/model 預設空字串、不爆。"""
+    manifest = build_manifest(
+        run_date="2026-06-01",
+        mode="production",
+        raw_path=tmp_path / "raw.json",
+        analysis_path=tmp_path / "analysis.json",
+        report_path=tmp_path / "report.html",
+        meta={},
+        status="ok",
+        source_hash=SOURCE_HASH,
+    )
+    assert manifest["provider"]["active_provider"] == ""
+    assert manifest["provider"]["active_model"] == ""
+
+
+def test_analyzer_exposes_active_provider_model_for_manifest():
+    """SentimentAnalyzer.active_provider_model() 取實際首發 provider+model（餵 manifest）。"""
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.provider_clients.openrouter_client import OpenRouterClient
+    from analyzer.sentiment import SentimentAnalyzer
+
+    llm = FallbackLLMClient(
+        primary=OpenRouterClient(api_key="sk-test", model="deepseek/deepseek-chat"),
+        fallbacks=[],
+    )
+    provider, model = SentimentAnalyzer(llm_client=llm).active_provider_model()
+    assert provider == "openrouter"
+    assert model == "deepseek/deepseek-chat"
+
+
 def test_build_manifest_basic_fields(tmp_path: Path):
     source_quality = _source_quality_ok()
     budget = LLMBudgetManager(
