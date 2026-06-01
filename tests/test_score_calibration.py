@@ -38,7 +38,7 @@ def test_daily_hero_focus_score_has_direction_description():
 
 @pytest.mark.asyncio
 async def test_production_daily_summary_writes_total_posts():
-    """趨勢補完：production daily summary 寫 total_posts=分析數（漏寫→history 聲量 volume 失真，0503/0601 既有 bug）。"""
+    """趨勢補完：production daily summary 的 total_posts 與 sentiment_distribution 改由 code 統計（LLM 輸出不可靠：曾 11 篇算成 19、total_posts 漏寫成 0）。"""
     from unittest.mock import AsyncMock, MagicMock
 
     from analyzer.sentiment import SentimentAnalyzer
@@ -66,3 +66,5 @@ async def test_production_daily_summary_writes_total_posts():
         posts, date="2026-06-01", showcase=False
     )
     assert result["total_posts"] == 3
+    # sentiment_distribution 由 code 統計覆蓋 LLM（mock LLM 回 2/1/0，但實際 3 篇全 positive → 3/0/0）
+    assert result["sentiment_distribution"] == {"positive": 3, "negative": 0, "neutral": 0}
