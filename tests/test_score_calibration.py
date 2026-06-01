@@ -7,6 +7,8 @@ hero_focus.sentiment_score 算趨勢 → 切 deepseek 後趨勢翻轉失真。
 此檔驗「校準文字落地」（單元）；跨 model 對齊驗證走真實呼叫（opt-in，見 S3.2 驗證步）。
 """
 
+import pytest
+
 from analyzer.prompts import SYSTEM_DAILY_SUMMARY, SYSTEM_SINGLE_POST
 from analyzer.sentiment import DAILY_SUMMARY_SCHEMA, SINGLE_POST_SCHEMA
 
@@ -32,3 +34,35 @@ def test_daily_hero_focus_score_has_direction_description():
     hero_focus = DAILY_SUMMARY_SCHEMA["properties"]["hero_focus"]["properties"]
     desc = hero_focus["sentiment_score"].get("description", "")
     assert "極負面" in desc and "極正面" in desc
+
+
+@pytest.mark.asyncio
+async def test_production_daily_summary_writes_total_posts():
+    """趨勢補完：production daily summary 寫 total_posts=分析數（漏寫→history 聲量 volume 失真，0503/0601 既有 bug）。"""
+    from unittest.mock import AsyncMock, MagicMock
+
+    from analyzer.sentiment import SentimentAnalyzer
+
+    valid_summary = {
+        "date": "2026-06-01", "overview": "概述",
+        "sentiment_distribution": {"positive": 2, "negative": 1, "neutral": 0},
+        "hot_topics": [], "detected_events": [],
+        "platform_breakdown": {}, "alerts": [], "recommendation": "建議",
+    }
+    cm = MagicMock()
+    cm.get.return_value = None
+    cm.daily_summary_key.return_value = "ds_key"
+    llm = MagicMock()
+    llm.chat = AsyncMock(return_value=valid_summary)
+    llm.cache_manager = cm
+
+    posts = [
+        {"post": {"platform": "PTT", "region": "TW", "content": "芽芽很強很猛保排厲害",
+                  "url": "http://x/%d" % i, "detected_heroes": ["芽芽"]},
+         "analysis": {"sentiment": "positive", "sentiment_score": 0.8, "summary": "強", "relevance_score": 0.9}}
+        for i in range(3)
+    ]
+    result = await SentimentAnalyzer(llm_client=llm).generate_daily_summary(
+        posts, date="2026-06-01", showcase=False
+    )
+    assert result["total_posts"] == 3
