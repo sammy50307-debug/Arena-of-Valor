@@ -2,86 +2,6 @@
   "schema_version": 3,
   "result_schema_version": 1,
   "entries": {
-    "prompt:6d884e2cd4b0831c3f39156bd9240d26": {
-      "result": {
-        "reasoning": "該貼文為遊戲實況主娘子的影片標題與內容摘要，主要討論5/21版本更新後史蘭茲的強度調整，並邀請觀眾討論，屬於正常的遊戲內容創作與社群互動。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "版本更新",
-        "keywords": [
-          "傳說對決",
-          "史蘭茲",
-          "娘子",
-          "版本更新",
-          "英雄調整"
-        ],
-        "summary": "實況主娘子針對5/21版本更新中史蘭茲的增強進行實戰分析與討論。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "5/21不停機更新",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-25T01:52:13.390423+00:00",
-      "last_accessed": "2026-05-25T01:52:13.390423+00:00",
-      "ttl_days": 7
-    },
-    "prompt:f695f4a74711dcb6ece91478ae4cf7d0": {
-      "result": {
-        "reasoning": "該貼文為典型的遊戲帳號交易或代儲服務的廣告推廣，旨在引導玩家前往外部平台進行交易，並非正常的玩家遊戲心得分享。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "其他",
-        "keywords": [
-          "帳號交易",
-          "代儲",
-          "廣告"
-        ],
-        "summary": "此貼文為遊戲帳號交易平台的廣告推廣資訊。",
-        "relevance_score": 0.2,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-25T01:52:14.735947+00:00",
-      "last_accessed": "2026-05-25T01:52:14.735947+00:00",
-      "ttl_days": 7
-    },
-    "prompt:57c7730740f7c00da4ca3e358e846aaa": {
-      "result": {
-        "reasoning": "該貼文為官方賽事直播的標題與說明，旨在宣傳 APL 2026 外卡賽的賽程與觀賽平台，屬於中立的資訊發布。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "電競賽事",
-        "keywords": [
-          "APL 2026",
-          "外卡賽",
-          "傳說對決",
-          "電競",
-          "賽事直播"
-        ],
-        "summary": "官方發布 APL 2026 外卡賽第四天賽事直播資訊與觀賽平台連結。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "APL 2026 外卡賽",
-            "type": "電競賽事"
-          }
-        ]
-      },
-      "stored_at": "2026-05-25T12:05:57.602997+00:00",
-      "last_accessed": "2026-05-25T12:05:57.602997+00:00",
-      "ttl_days": 7
-    },
     "prompt:098779cd897b943e4366c3a9d67bb0dd": {
       "result": {
         "reasoning": "作者針對5/21的不停機更新進行評論，標題以『他終究被動刀了』表達對英雄削弱的關注，並透過『新版本還可以玩嗎』引發玩家對平衡性的討論，屬於中立偏向探討性質的內容。",
@@ -287,7 +207,7 @@
         "events": []
       },
       "stored_at": "2026-05-28T12:00:14.032425+00:00",
-      "last_accessed": "2026-05-31T10:32:08.261419+00:00",
+      "last_accessed": "2026-06-01T14:38:15.365003+00:00",
       "ttl_days": 7
     },
     "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
@@ -356,7 +276,7 @@
         "events": []
       },
       "stored_at": "2026-05-28T12:00:25.157902+00:00",
-      "last_accessed": "2026-05-28T12:00:25.157902+00:00",
+      "last_accessed": "2026-06-01T14:38:16.793656+00:00",
       "ttl_days": 7
     },
     "prompt:2dd64501f9952d4ba42e5d13edd31ea8": {
@@ -559,7 +479,7 @@
         "translated_content": "【心得分享】【攻略】《傳說對決》從0~100圖倫教學!17分鐘一次快速上手(8/16再次更新) - 傳說對決板 | Dcard"
       },
       "stored_at": "2026-05-29T11:50:23.175576+00:00",
-      "last_accessed": "2026-05-31T10:32:08.258694+00:00",
+      "last_accessed": "2026-06-01T14:38:10.402528+00:00",
       "ttl_days": 7
     },
     "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
@@ -738,7 +658,7 @@
         ]
       },
       "stored_at": "2026-05-30T10:25:13.377293+00:00",
-      "last_accessed": "2026-05-31T10:32:08.274602+00:00",
+      "last_accessed": "2026-06-01T14:38:15.362603+00:00",
       "ttl_days": 7
     },
     "prompt:6695126c50d5c7fb0f0c77c715e2cd3a": {
@@ -784,7 +704,7 @@
         "events": []
       },
       "stored_at": "2026-05-30T10:25:16.445480+00:00",
-      "last_accessed": "2026-05-31T10:32:08.266688+00:00",
+      "last_accessed": "2026-06-01T14:38:10.402516+00:00",
       "ttl_days": 7
     },
     "prompt:0de2d78273db7f6271479ba14a95c02e": {
@@ -895,12 +815,170 @@
       "stored_at": "2026-05-31T10:32:09.694458+00:00",
       "last_accessed": "2026-05-31T10:32:09.694458+00:00",
       "ttl_days": 7
+    },
+    "prompt:9cfc2012eb4835c17490dc75e107a8c1": {
+      "result": {
+        "reasoning": "該貼文為遊戲實況主娘子的影片標題，利用誇張語氣吸引點擊，討論艾翠絲在當前版本（巨人版本）的強度以及與隊友配合的問題，帶有強烈的個人觀點與情緒宣洩。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "角色討論",
+        "keywords": [
+          "艾翠絲",
+          "巨人版本",
+          "金納",
+          "娘子",
+          "傳說對決"
+        ],
+        "summary": "實況主娘子分析艾翠絲在巨人版本的強度，並抱怨遊戲中隊友表現不佳的問題。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "events": [
+          {
+            "name": "巨人版本",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-06-01T14:38:12.530256+00:00",
+      "last_accessed": "2026-06-01T14:38:12.530256+00:00",
+      "ttl_days": 7
+    },
+    "prompt:a030acce632788155f25c661e437daca": {
+      "result": {
+        "reasoning": "該貼文為巴哈姆特論壇的造型情報集中串，屬於官方或玩家整理的資訊彙整頁面，旨在提供活動與造型資訊，無特定情緒傾向。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "造型",
+          "活動情報",
+          "巴哈姆特",
+          "傳說對決"
+        ],
+        "summary": "此為巴哈姆特論壇關於傳說對決造型活動的情報彙整集中串。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "造型活動情報集中串",
+            "type": "限時活動"
+          }
+        ]
+      },
+      "stored_at": "2026-06-01T14:38:14.012345+00:00",
+      "last_accessed": "2026-06-01T14:38:14.012345+00:00",
+      "ttl_days": 7
+    },
+    "prompt:283f8c8e7c3b13d8fdb3594e8fa25b59": {
+      "result": {
+        "reasoning": "該貼文內容為 PUBG（絕地求生）相關的電競賽事資訊，與《傳說對決》遊戲完全無關，屬於誤報或無關內容。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "其他",
+        "keywords": [
+          "PUBG",
+          "電競賽事",
+          "菲律賓"
+        ],
+        "summary": "此貼文內容為 PUBG 賽事結果，與《傳說對決》無關。",
+        "relevance_score": 0.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-06-01T14:38:15.359575+00:00",
+      "last_accessed": "2026-06-01T14:38:15.359575+00:00",
+      "ttl_days": 7
+    },
+    "prompt:dc551b7a4ae084335df19dec382c1768": {
+      "result": {
+        "reasoning": "該貼文為分享新賽季英雄平衡性調整的數據分析心得，屬於客觀討論遊戲機制與數據的內容，無明顯情緒偏向。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "版本更新",
+        "keywords": [
+          "新賽季",
+          "英雄平衡",
+          "數據分析",
+          "傳說對決"
+        ],
+        "summary": "玩家針對新賽季英雄平衡性調整進行數據分析與心得分享。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "新賽季英雄平衡性調整",
+            "type": "版本更新"
+          }
+        ]
+      },
+      "stored_at": "2026-06-01T14:38:16.790612+00:00",
+      "last_accessed": "2026-06-01T14:38:16.790612+00:00",
+      "ttl_days": 7
+    },
+    "prompt:35050de578c8347480fe1bb56c85a52a": {
+      "result": {
+        "reasoning": "貼文標題表達了玩家在遊玩過程中的崩潰情緒，通常與遊戲內的連敗、隊友表現不佳或配對機制有關，屬於典型的玩家情緒抒發。",
+        "sentiment": "negative",
+        "sentiment_score": 0.2,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "遊戲體驗",
+        "keywords": [
+          "傳說對決",
+          "心得分享",
+          "崩潰",
+          "遊戲體驗"
+        ],
+        "summary": "玩家分享遊玩傳說對決感到極度挫折與崩潰的心情。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": []
+      },
+      "stored_at": "2026-06-01T14:38:18.163193+00:00",
+      "last_accessed": "2026-06-01T14:38:18.163193+00:00",
+      "ttl_days": 7
+    },
+    "prompt:9ea451803f930bbdf68712f37227c930": {
+      "result": {
+        "reasoning": "該貼文為轉貼 Dcard 關於 MEN's Bioré 與傳說對決聯名活動的倒數提醒，屬於資訊分享性質，無明顯情緒偏向。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "category": "活動資訊",
+        "keywords": [
+          "MEN's Bioré",
+          "傳說對決",
+          "聯名活動",
+          "倒數"
+        ],
+        "summary": "提醒玩家 MEN's Bioré 與傳說對決的聯名活動即將結束。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "events": [
+          {
+            "name": "MEN's Bioré × 傳說對決聯名活動",
+            "type": "合作活動"
+          }
+        ]
+      },
+      "stored_at": "2026-06-01T14:38:20.493326+00:00",
+      "last_accessed": "2026-06-01T14:38:20.493326+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 63,
+    "total_l2_hits": 66,
     "total_apify_hits": 0,
-    "total_misses": 89
+    "total_misses": 95
   }
 }
