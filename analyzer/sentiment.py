@@ -195,6 +195,20 @@ class SentimentAnalyzer:
         })
         return details
 
+    def active_provider_model(self) -> tuple:
+        """取實際首發 provider 基礎名 + model id（manifest 追溯用）。
+
+        self.llm 可能是 FallbackLLMClient 或 ProviderRouter；往下挖兩層到實際首發 client
+        （router.primary→FallbackLLMClient.primary→實際 client）。無法辨識回 ("gemini", "")。
+        """
+        from analyzer.provider_router import provider_role_name
+
+        client = getattr(self.llm, "primary", self.llm)
+        client = getattr(client, "primary", client)
+        provider = provider_role_name(client, "primary").rsplit("_", 1)[0]
+        model = str(getattr(client, "model", "") or "")
+        return provider, model
+
     def _compress_content(self, text: str, target_heroes: List[str]) -> str:
         """長文本智能切片：保留首尾 150 字及含有焦點英雄的段落。"""
         if len(text) <= 500:

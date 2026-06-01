@@ -539,6 +539,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             _mode = "showcase"
         else:
             _mode = "production"
+        _active_provider, _active_model = analyzer.active_provider_model()
         daily_summary["_meta"] = {
             "mode": _mode,
             "legacy_mode": _legacy_mode,
@@ -554,6 +555,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
             "quota_error": bool(_quota_error),
             "openai_fallback_configured": bool(_provider_diag.get("openai_fallback_configured", False)),
             "openai_fallback_used": bool(_provider_diag.get("openai_fallback_used", False)),
+            "active_provider": _active_provider,
+            "active_model": _active_model,
             "provider_diagnostics": _provider_diag,
             "budget": budget_manager.snapshot(run_date),
             "selection": selection_snapshot,
