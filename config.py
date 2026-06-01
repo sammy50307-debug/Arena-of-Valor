@@ -17,6 +17,13 @@ OPENAI_FALLBACK_ENABLED = os.getenv("OPENAI_FALLBACK_ENABLED", "true").lower() =
 OPENAI_FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini")
 PUBLISH_GATE_MODE = os.getenv("PUBLISH_GATE_MODE", "shadow").lower()
 
+# ── P105 provider 切換（首發 provider+model 一行配置；換首發只改這裡或 .env）──
+PRIMARY_PROVIDER = os.getenv("PRIMARY_PROVIDER", "gemini")  # gemini│openai│openrouter
+PRIMARY_MODEL = os.getenv("PRIMARY_MODEL", "")  # 空＝用該 provider 內建預設 model
+FALLBACK_PROVIDERS = [
+    p.strip() for p in os.getenv("FALLBACK_PROVIDERS", "openai").split(",") if p.strip()
+]
+
 # P93 provider abstraction：所有非既有 provider 預設關閉。
 PROVIDER_ROUTER_ENABLED = os.getenv("PROVIDER_ROUTER_ENABLED", "false").lower() == "true"
 EXPERIMENTAL_FREE_PROVIDERS_ENABLED = os.getenv("EXPERIMENTAL_FREE_PROVIDERS_ENABLED", "false").lower() == "true"

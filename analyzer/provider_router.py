@@ -434,6 +434,12 @@ class ProviderRouter:
 
 
 def build_default_llm_client() -> LLMProviderClient:
+    """組裝預設 LLM client。
+
+    ``FallbackLLMClient`` 內部依 ``config.PRIMARY_PROVIDER`` / ``FALLBACK_PROVIDERS``
+    透過 ``provider_registry`` 動態組裝首發＋多級 fallback——換首發只需改 config 或
+    ``.env`` 一行。``PROVIDER_ROUTER_ENABLED`` 時再包一層 ``ProviderRouter``。
+    """
     from analyzer.fallback_llm_client import FallbackLLMClient
 
     primary = FallbackLLMClient()
