@@ -154,7 +154,7 @@ async def test_openai_fallback_passes_budget_guard_before_secondary_call():
     fallback = MagicMock()
     fallback.batch_chat = AsyncMock(return_value=[{"sentiment": "neutral"}])
 
-    client = FallbackLLMClient(primary=primary, fallback=fallback)
+    client = FallbackLLMClient(primary=primary, fallbacks=[fallback])
     result = await client.batch_chat("sys", ["user"])
 
     assert result == [{"sentiment": "neutral"}]
@@ -181,7 +181,7 @@ async def test_openai_fallback_budget_skip_blocks_secondary_call():
     fallback = MagicMock()
     fallback.chat = AsyncMock(return_value={"ok": True})
 
-    client = FallbackLLMClient(primary=primary, fallback=fallback)
+    client = FallbackLLMClient(primary=primary, fallbacks=[fallback])
 
     with pytest.raises(LLMBudgetSkip):
         await client.chat("sys", "user")

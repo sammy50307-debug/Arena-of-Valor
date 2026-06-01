@@ -48,7 +48,7 @@ async def test_fallback_batch_chat_uses_openai_after_gemini_429():
     fallback = MagicMock()
     fallback.batch_chat = AsyncMock(return_value=[{"sentiment": "neutral"}])
 
-    client = FallbackLLMClient(primary=primary, fallback=fallback)
+    client = FallbackLLMClient(primary=primary, fallbacks=[fallback])
 
     result = await client.batch_chat(
         system_prompt="sys",
@@ -97,7 +97,7 @@ async def test_sentiment_analyze_posts_stays_production_after_openai_fallback():
         }
     ])
 
-    client = FallbackLLMClient(primary=primary, fallback=fallback)
+    client = FallbackLLMClient(primary=primary, fallbacks=[fallback])
     analyzer = SentimentAnalyzer(llm_client=client)
 
     with patch.object(analyzer, "_compress_content", return_value="x"):
