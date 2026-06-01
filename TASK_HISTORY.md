@@ -14213,3 +14213,25 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **通則化教訓**：移植他處的「根因診斷」不能照搬結論，要先驗證目標環境的實際前提（Evidence-first 在動筆寫 hooks 計畫書前擋下錯誤方向）。
 
 **狀態**：✅ 完成（方案重定位、R-024 關閉、設計限制 accepted）。metrics 若未來要做需另議觸發機制重設計（工具鏈/部署層，非引擎 scope）。接續 P104 次階段融合（G1+G2+G3，計畫書已過 lint，待凍結動工）。
+
+### P104 次階段融合 — 斷言引擎啟用(G1)+health告警(G2)+shadow防翻車(G3a/G3b)（2026-06-01 收官）
+
+**目標**：讓 P103 回填的 Hermes 融合引擎真正生效——G1 填斷言 guard（原 guards:[] 空轉）、G2 回填 health.py（skill smoke + 告警 runtime 防線）、G3 落地 shadow 觀察機制（顯式分支 + ledger + 升 strict 判讀）。
+
+**觸發**：零幻覺盤點確認引擎「裝了未發揮」（guards:[] 空轉、缺 health.py、shadow 無分支）。
+
+**四子 phase 成果**：
+- **G1**（前 session，commit 0e7d5b1+push）：governance_config.yaml 填 5 個 shadow guard / 8 斷言；test_assertions.py 5 測試。基線 313 passed。
+- **G2 / P104.2**（commit f877465+push）：gov/health.py 回填——掃 .agent/skills 跑 test_skill.py、失敗發告警。**關鍵真相校正**（蒐證推翻交接卡 2 假設）：①AOV 無 Discord，改接既有 notifier/line_bot.py 的 async LineBotNotifier（asyncio.run 包）；②skill 在 .agent/skills/（單數）、test 在 skill 根層、純 prompt skill（instagram copywriter）無 test 須 skip 非 fail。雙路徑相容、token 未設 graceful、run 加 root 參數。tests/test_health.py 13 測試。真發 LINE 驗證 True。基線 326。
+- **G3a / P104.3**（commit e0bdafe）：assertions.py check() 加 shadow 顯式分支（失敗分流 shadow_findings，不混 failures、不 FAIL、exit 0）；新 gov/shadow_ledger.py（append-only jsonl）。**飛輪 v2 ABC**：A 三分支行為矩陣測試鎖、B ledger schema_version+壞行容錯、C shadow 失敗可見（main 印🟡）。strict/advisory 行為零改動。基線 335。
+- **G3b / P104.4**（commit bb9cfd2）：新 gov/shadow_review.py 判讀報告（零誤判 guard 升 strict 建議，只印不改 config）；shadow_ledger 加 rotate+size cap（呼應 R-012）。**飛輪 v2 ABCD**：A 結合 lint_guards 擋弱護欄假零誤判、B 時間跨度防刷次數虛榮指標、C 升 strict 矩陣鎖、D rotate 可追溯（meta+標記）。基線 348。
+
+**物理真相**：基線演進 313→326(G2)→335(G3a)→348(G3b) passed，零回歸。commit：0e7d5b1(G1) / f877465(G2,pushed) / e0bdafe(G3a) / bb9cfd2(G3b)。shadow_ledger 落 data/（gitignore 排除、不進版控）。
+
+**17 層稽核**：S 代碼/邏輯/測試/安全全程（三分支矩陣鎖、token 不外洩、ledger 無機敏值）；A 架構（health vs gen_skill_health 分工、shadow_review vs ledger 解耦）/韌性（notifier graceful、ledger silent no-op+容錯）/資料（ledger schema+size cap）。
+
+**風險**：R-025（子代理派遣準則到期復盤 2026-08-31，本 session 衍生）；R-012 metrics retention 仍 Open，shadow_ledger 已內建 rotate 為正面對照。
+
+**升 strict 紀律**：所有 guard 維持 shadow；升 strict 為不可逆動作，shadow_review 只印建議、需人工於 governance_config.yaml 拍板（X1/X4-K）。
+
+**狀態**：✅ 完成（G1-G3b 四子 phase 收官，全套 348 passed）。G4 metrics 維持緩（R-024 Closed、accepted 設計限制）。母計畫書轉 DONE。

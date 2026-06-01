@@ -1,6 +1,6 @@
 # 📋 P104 次階段融合計畫書 — 啟用斷言引擎 + health 告警 + shadow 防翻車
 
-> **狀態**：FROZEN ✅（主公 2026-05-31 核准凍結｜lint PASS）｜**作者**：Opus 4.8｜**日期**：2026-05-31｜**前置**：P103 引擎回填完成（已 push）
+> **狀態**：✅ DONE（2026-06-01 G1+G2+G3a+G3b 四子 phase 全收官，全套 348 passed）｜原 FROZEN：主公 2026-05-31 核准凍結｜lint PASS｜**作者**：Opus 4.8｜**日期**：2026-05-31
 
 ---
 
@@ -24,8 +24,8 @@
 
 - [x] DRAFT → 計畫書撰寫中
 - [x] FROZEN → M1/M2 體檢通過、主公核准凍結（2026-05-31）
-- [ ] RUNTIME → 開始實作
-- [ ] CLOSED → 收官驗證 + TASK_HISTORY 追加
+- [x] RUNTIME → 開始實作（G1 已 commit；G2/G3a/G3b 2026-06-01 完成）
+- [x] CLOSED → 收官驗證 + TASK_HISTORY 追加（2026-06-01）
 
 ---
 
