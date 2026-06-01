@@ -24,6 +24,19 @@ FALLBACK_PROVIDERS = [
     p.strip() for p in os.getenv("FALLBACK_PROVIDERS", "openai").split(",") if p.strip()
 ]
 
+# ── P105 OpenRouter（OpenAI-compatible；API key 只進 .env，絕不進版控）──
+AOV_PROVIDER_OPENROUTER_ENABLED = os.getenv("AOV_PROVIDER_OPENROUTER_ENABLED", "false").lower() == "true"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "")
+OPENROUTER_MODEL_PRO = os.getenv("OPENROUTER_MODEL_PRO", "")
+OPENROUTER_MODEL_FLASH = os.getenv("OPENROUTER_MODEL_FLASH", "")
+OPENROUTER_MODEL_MINIMAX = os.getenv("OPENROUTER_MODEL_MINIMAX", "")
+# OpenRouter 獨立 budget 停損（R-P105-5）：上限預設設高純防 bug 失控燒爆，正常燒不到；
+# 獨立 state 檔避免與 Gemini「省額度」ledger 互相干擾。要燒更多可在 .env 調高。
+OPENROUTER_BUDGET_STATE_FILE = os.getenv("OPENROUTER_BUDGET_STATE_FILE", "data/openrouter_budget_state.json")
+OPENROUTER_DAILY_BUDGET = int(os.getenv("OPENROUTER_DAILY_BUDGET", "100000"))
+
 # P93 provider abstraction：所有非既有 provider 預設關閉。
 PROVIDER_ROUTER_ENABLED = os.getenv("PROVIDER_ROUTER_ENABLED", "false").lower() == "true"
 EXPERIMENTAL_FREE_PROVIDERS_ENABLED = os.getenv("EXPERIMENTAL_FREE_PROVIDERS_ENABLED", "false").lower() == "true"

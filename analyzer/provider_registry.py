@@ -17,11 +17,13 @@ from typing import Any, Optional
 
 from analyzer.gemini_client import GeminiClient
 from analyzer.llm_client import LLMClient
+from analyzer.provider_clients.openrouter_client import OpenRouterClient
 
 # name → 具體 client class（接手者一眼看有哪些 provider 可當首發/fallback）
 REGISTRY = {
     "gemini": GeminiClient,
     "openai": LLMClient,
+    "openrouter": OpenRouterClient,
 }
 
 
@@ -51,5 +53,7 @@ def build_provider(
         return GeminiClient()
     if key == "openai":
         return LLMClient(cache_manager=cache_manager, model=model or None)
+    if key == "openrouter":
+        return OpenRouterClient(cache_manager=cache_manager, model=model or None)
     # 防呆：REGISTRY 有註冊但忘了補建構分支。
     raise ValueError(f"Provider {key!r} registered but has no builder branch")
