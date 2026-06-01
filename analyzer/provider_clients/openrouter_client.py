@@ -20,6 +20,8 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import logging
+import re
+from pathlib import Path
 from typing import Optional, Union
 
 from openai import AsyncOpenAI
@@ -55,13 +57,32 @@ class OpenRouterClient(LLMClient):
         self.logger = logging.getLogger(f"{__name__}.OpenRouterClient")
         self._cm = cache_manager or CacheManager()
         self._save_lock = asyncio.Lock()
-        # 獨立 budget ledger：高上限停損（防失控），與 Gemini/OpenAI 分開計數。
+        # P105.1 per-model 獨立 budget ledger：state 檔含 sanitize 後 model 名、上限讀
+        # OPENROUTER_MODEL_BUDGETS（無對應退回 OPENROUTER_DAILY_BUDGET），避免多 model
+        # 共用計數互相干擾；高上限停損純防 bug 失控燒爆，與 Gemini/OpenAI 分開計數。
+        state_path, max_budget = self._resolve_model_budget(self.model)
         self._budget_manager = LLMBudgetManager(
-            config.OPENROUTER_BUDGET_STATE_FILE,
-            max_daily_llm_calls=config.OPENROUTER_DAILY_BUDGET,
+            state_path,
+            max_daily_llm_calls=max_budget,
             cooldown_minutes=config.LLM_BUDGET_COOLDOWN_MINUTES,
             retention_days=config.LLM_BUDGET_RETENTION_DAYS,
         )
+
+    @staticmethod
+    def _resolve_model_budget(model: str):
+        """依 model 解出 (budget state 檔路徑, 每日上限)，per-model 隔離。
+
+        有 model：state 檔加 sanitize 後 model 名（非 ``[\\w.\\-]`` 字元→``_``，含 ``/``，
+        防 path traversal），上限讀 ``OPENROUTER_MODEL_BUDGETS``（無對應退回總上限）。
+        無 model：退回 S2 單一 state 檔 + ``OPENROUTER_DAILY_BUDGET``（向後相容）。
+        """
+        base = Path(config.OPENROUTER_BUDGET_STATE_FILE)
+        if not model:
+            return base, config.OPENROUTER_DAILY_BUDGET
+        safe = re.sub(r"[^\w.\-]", "_", model)
+        state_path = base.parent / f"openrouter_budget_{safe}.json"
+        max_budget = config.OPENROUTER_MODEL_BUDGETS.get(model, config.OPENROUTER_DAILY_BUDGET)
+        return state_path, max_budget
 
     def _prompt_cache_key(self, system_prompt: str, user_prompt: str) -> str:
         # 含 provider+model 前綴：避免與 OpenAI／其他 model 共用快取造成污染（R-P105-4）。

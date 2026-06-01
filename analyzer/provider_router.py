@@ -433,16 +433,38 @@ class ProviderRouter:
         )
 
 
+def _build_chain_llm_client(chain: List[tuple]) -> "FallbackLLMClient":
+    """依 ``PROVIDER_CHAIN``（``[(provider, model), ...]``）組首發＋多級 fallback。
+
+    首級＝首發、其餘＝逐級 fallback；fallback 共用 primary 的 ``cache_manager``
+    （與 S1 ``_build_default_fallbacks`` 一致，避免重複快取）。
+    """
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.provider_registry import build_provider
+
+    primary_provider, primary_model = chain[0]
+    primary = build_provider(primary_provider, model=primary_model)
+    fallbacks = [
+        build_provider(name, model=model, cache_manager=primary.cache_manager)
+        for name, model in chain[1:]
+    ]
+    return FallbackLLMClient(primary=primary, fallbacks=fallbacks)
+
+
 def build_default_llm_client() -> LLMProviderClient:
     """組裝預設 LLM client。
 
-    ``FallbackLLMClient`` 內部依 ``config.PRIMARY_PROVIDER`` / ``FALLBACK_PROVIDERS``
-    透過 ``provider_registry`` 動態組裝首發＋多級 fallback——換首發只需改 config 或
-    ``.env`` 一行。``PROVIDER_ROUTER_ENABLED`` 時再包一層 ``ProviderRouter``。
+    優先讀 ``config.PROVIDER_CHAIN``（P105.1 B 架構：鏈每級 ``provider:model``）組首發＋
+    多級 fallback；無 ``PROVIDER_CHAIN`` 時退回 S1 路徑——``FallbackLLMClient`` 依
+    ``config.PRIMARY_PROVIDER`` / ``FALLBACK_PROVIDERS`` 動態組裝。``PROVIDER_ROUTER_ENABLED``
+    時再包一層 ``ProviderRouter``。換首發／調鏈／調額度只需改 ``.env``。
     """
     from analyzer.fallback_llm_client import FallbackLLMClient
 
-    primary = FallbackLLMClient()
+    if config.PROVIDER_CHAIN:
+        primary = _build_chain_llm_client(config.PROVIDER_CHAIN)
+    else:
+        primary = FallbackLLMClient()
     if not config.PROVIDER_ROUTER_ENABLED:
         return primary
     return ProviderRouter(primary=primary)

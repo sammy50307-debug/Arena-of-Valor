@@ -35,7 +35,9 @@ class FallbackLLMClient:
         fallbacks: Optional[List[LLMProviderClient]] = None,
         enable_openai: Optional[bool] = None,
     ):
-        self.primary: LLMProviderClient = primary or build_provider(config.PRIMARY_PROVIDER)
+        self.primary: LLMProviderClient = primary or build_provider(
+            config.PRIMARY_PROVIDER, model=config.PRIMARY_MODEL or None
+        )
         self.logger = logging.getLogger(f"{__name__}.FallbackLLMClient")
         self.last_fallback_used = False
 

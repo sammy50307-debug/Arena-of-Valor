@@ -56,6 +56,19 @@ def test_switch_primary_provider_to_openai(monkeypatch):
     assert isinstance(client.primary, LLMClient)
 
 
+def test_primary_model_passed_to_primary_client(monkeypatch):
+    """S1 路徑接通 PRIMARY_MODEL：切 openrouter 首發時 model 傳入 client（接通前為 dead config）。"""
+    monkeypatch.setattr(config, "PRIMARY_PROVIDER", "openrouter")
+    monkeypatch.setattr(config, "PRIMARY_MODEL", "deepseek/deepseek-chat")
+    monkeypatch.setattr(config, "OPENROUTER_API_KEY", "sk-test")
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.provider_clients.openrouter_client import OpenRouterClient
+
+    client = FallbackLLMClient(enable_openai=False)
+    assert isinstance(client.primary, OpenRouterClient)
+    assert client.primary.model == "deepseek/deepseek-chat"
+
+
 def test_build_default_client_switches_primary_to_openai(monkeypatch):
     """計畫 verify：切 PRIMARY_PROVIDER=openai 後 build_default_llm_client().primary 是 LLMClient。"""
     monkeypatch.setattr(config, "PRIMARY_PROVIDER", "openai")
