@@ -654,6 +654,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
     analysis_path = config.DATA_DIR / f"analysis_{compact_run_date}.json"
     preview_report_path = config.REPORTS_DIR / f"aov_report_{daily_summary.get('date', run_date)}.html"
     _meta = daily_summary.setdefault("_meta", {})
+    # P105.1 趨勢補完：兜底所有 summary 路徑（fallback/empty）都有 total_posts（history volume 來源）
+    daily_summary.setdefault("total_posts", len(analyzed_posts))
     _preview_core_contract = build_core_contract(
         source_quality=source_quality,
         analysis_path=analysis_path,

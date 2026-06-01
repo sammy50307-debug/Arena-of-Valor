@@ -499,6 +499,8 @@ class SentimentAnalyzer:
                 
             summary["global_insights"] = regional_summary_data
             summary["llm_contract"] = {"status": "ok", "errors": []}
+            # P105.1 趨勢補完：history 用 archive total_posts 算聲量 volume，production 路徑漏寫會失真
+            summary["total_posts"] = len(analyzed_posts)
             
             hero_stats = {}
             for hero in config.HERO_WATCHLIST:
