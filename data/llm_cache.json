@@ -668,7 +668,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:30.906125+00:00",
-      "last_accessed": "2026-06-01T15:32:30.906125+00:00",
+      "last_accessed": "2026-06-02T11:10:46.264785+00:00",
       "ttl_days": 7
     },
     "prompt:e694340c04693a618cf74bdb409db360": {
@@ -720,7 +720,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:52.759138+00:00",
-      "last_accessed": "2026-06-01T15:32:52.759138+00:00",
+      "last_accessed": "2026-06-02T11:10:46.266783+00:00",
       "ttl_days": 7
     },
     "prompt:98d7639e20c2e3571d9c3d3dbebbae56": {
@@ -746,7 +746,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:59.910728+00:00",
-      "last_accessed": "2026-06-01T15:32:59.910728+00:00",
+      "last_accessed": "2026-06-02T11:10:46.265783+00:00",
       "ttl_days": 7
     },
     "prompt:58ab1be313c7a13ed170236dacaab489": {
@@ -799,7 +799,7 @@
         }
       },
       "stored_at": "2026-06-01T15:33:19.784287+00:00",
-      "last_accessed": "2026-06-01T15:33:19.784287+00:00",
+      "last_accessed": "2026-06-02T11:10:50.340128+00:00",
       "ttl_days": 7
     },
     "prompt:a47c2865c3fb6e549794b4497e51bda5": {
@@ -1647,12 +1647,743 @@
       "stored_at": "2026-06-01T15:34:22.809914+00:00",
       "last_accessed": "2026-06-01T15:34:22.809914+00:00",
       "ttl_days": 7
+    },
+    "prompt:836b039650ef116d45836ba7a2d6c5ab": {
+      "result": {
+        "reasoning": "玩家分享了一段關於《傳說對決》巨人版本的影片，並提到官方對某英雄進行了調整，語氣中帶有支持與認同，並無反諷意圖。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "版本更新",
+        "keywords": [
+          "傳說對決",
+          "巨人版本",
+          "官方",
+          "英雄",
+          "調整"
+        ],
+        "summary": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:10:25.185191+00:00",
+      "last_accessed": "2026-06-02T11:10:25.185191+00:00",
+      "ttl_days": 7
+    },
+    "prompt:d64a3ff5ec34a153a8449778bc3bf0bc": {
+      "result": {
+        "reasoning": "玩家在社群平台上公開徵求購買特定造型的遊戲帳號，並與其他用戶進行交易討論，顯示其對遊戲造型的熱衷與需求。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "社群互動",
+        "keywords": [
+          "收帳號",
+          "刀鋒雅絲娜",
+          "末世龍焰",
+          "造型"
+        ],
+        "summary": "玩家公開徵求擁有特定造型的遊戲帳號。",
+        "relevance_score": 0.8,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:10:32.358711+00:00",
+      "last_accessed": "2026-06-02T11:10:32.358711+00:00",
+      "ttl_days": 7
+    },
+    "prompt:7458704364ef85ef97f37934cb7285dc": {
+      "result": {
+        "reasoning": "玩家貼文內容看似混亂，但提及了 Thane 的 Buff 和 Toro 的 Nerf，並標記了越南的 AOV 更新，顯示其對遊戲平衡調整的關注。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "VN",
+        "original_language": "en",
+        "translated_content": "[Buff Thane nerf Toro buff Thane Cre AOV Update Vietnam #tng #thane ...] CINEMATIC TRAILER – THANE: GLORIOUS MOMENT – APL 2025 | Garena Arena of Valor Sometimes, the greatest obstacle standing in your way is none other than",
+        "category": "版本更新",
+        "keywords": [
+          "Thane",
+          "Toro",
+          "Buff",
+          "Nerf",
+          "AOV Update"
+        ],
+        "summary": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。",
+        "relevance_score": 0.8,
+        "is_hero_focus": true,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:10:40.559699+00:00",
+      "last_accessed": "2026-06-02T11:10:40.559699+00:00",
+      "ttl_days": 7
+    },
+    "prompt:2e66880f105fddcfdc1619e8c09593b8": {
+      "result": {
+        "reasoning": "貼文標題為『心得分享 爬分筆記 非喜勿入』，顯示作者有意分享遊戲心得，並提醒不感興趣的讀者勿入，無反諷意圖。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "心得分享",
+          "爬分筆記"
+        ],
+        "summary": "作者分享爬分心得筆記，並提醒不感興趣者勿入。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:10:46.261791+00:00",
+      "last_accessed": "2026-06-02T11:10:46.261791+00:00",
+      "ttl_days": 7
+    },
+    "prompt:04a16027ae31d8635a3c94f440c87b15": {
+      "result": {
+        "reasoning": "貼文標題為『心得分享 輔助觀念』，推測內容應為玩家分享輔助角色的遊戲觀念與技巧，屬於正向的經驗分享。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "心得分享",
+          "輔助觀念"
+        ],
+        "summary": "玩家分享輔助角色的遊戲觀念與技巧。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:10:50.337097+00:00",
+      "last_accessed": "2026-06-02T11:10:50.337097+00:00",
+      "ttl_days": 7
+    },
+    "prompt:5d7f69646ebd1021a721fc853ec25101": {
+      "result": {
+        "reasoning": "玩家表達對遊戲更新中戰場傳說分層的正面看法，並分享心得，無反諷意圖。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "版本更新",
+        "keywords": [
+          "戰場傳說",
+          "分層"
+        ],
+        "summary": "玩家對戰場傳說分層的更新感到滿意並分享心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:10:55.116133+00:00",
+      "last_accessed": "2026-06-02T11:10:55.116133+00:00",
+      "ttl_days": 7
+    },
+    "prompt:ab752742ed0a0321fa769037de8f6512": {
+      "result": {
+        "reasoning": "玩家在標題中使用了『打傳說打到快瘋掉』，這是一種誇張的表達方式，顯示出玩家對遊戲體驗的極度不滿或壓力。",
+        "sentiment": "negative",
+        "sentiment_score": 0.2,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "心得分享",
+          "傳說對決",
+          "瘋掉"
+        ],
+        "summary": "玩家分享打傳說對決的負面遊戲體驗，感到快要瘋掉。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:11:00.508114+00:00",
+      "last_accessed": "2026-06-02T11:11:00.508114+00:00",
+      "ttl_days": 7
+    },
+    "prompt:f28e1ac46d519ecced7de24b379d0246": {
+      "result": {
+        "reasoning": "貼文內容簡短，僅提及星展信用卡邀請碼，並未表達任何情緒或意圖，屬於單純的資訊分享。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "其他",
+        "keywords": [
+          "星展信用卡",
+          "邀請碼"
+        ],
+        "summary": "貼文分享傳說對決與星展信用卡合作的邀請碼資訊。",
+        "relevance_score": 0.8,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-02T11:11:05.265710+00:00",
+      "last_accessed": "2026-06-02T11:11:05.265710+00:00",
+      "ttl_days": 7
+    },
+    "prompt:9ec9e3290053d19321927c6ac51b4283": {
+      "result": {
+        "date": "2026-06-02",
+        "overview": "今日《傳說對決》的輿情主要集中在遊戲更新、英雄調整以及合作活動的討論。整體情緒偏向中性，但也有部分玩家對遊戲體驗表達了不滿。",
+        "sentiment_distribution": {
+          "positive": 5,
+          "negative": 4,
+          "neutral": 10
+        },
+        "hot_topics": [
+          {
+            "topic": "巨人版本英雄調整",
+            "mention_count": 1,
+            "sentiment": "positive",
+            "description": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。"
+          },
+          {
+            "topic": "Thane 的 Buff 和 Toro 的 Nerf",
+            "mention_count": 1,
+            "sentiment": "neutral",
+            "description": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。"
+          },
+          {
+            "topic": "星展傳說對決聯名卡活動",
+            "mention_count": 1,
+            "sentiment": "negative",
+            "description": "玩家對星展傳說對決聯名卡活動的延長表示不滿。"
+          },
+          {
+            "topic": "遊戲配對問題",
+            "mention_count": 1,
+            "sentiment": "negative",
+            "description": "玩家對遊戲配對系統的問題表達了不滿。"
+          }
+        ],
+        "detected_events": [
+          {
+            "name": "星展傳說對決聯名卡活動",
+            "type": "合作活動",
+            "source_count": 1,
+            "details": "活動延長至2026/06/30，開卡送緹莉-星夢展航造型。"
+          },
+          {
+            "name": "MEN’s Bioré X 傳說對決聯名",
+            "type": "合作活動",
+            "source_count": 1,
+            "details": "MEN’s Bioré 10倍炭*控油系列與《傳說對決》聯名。"
+          },
+          {
+            "name": "純喫茶 X 傳說對決聯名",
+            "type": "合作活動",
+            "source_count": 1,
+            "details": "購買純喫茶可抽次元突破造型及專屬表情。"
+          }
+        ],
+        "platform_breakdown": {
+          "instagram": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "threads": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "facebook": {
+            "post_count": 2,
+            "avg_sentiment": 0.5
+          }
+        },
+        "alerts": [
+          "玩家對星展傳說對決聯名卡活動的延長表示不滿。",
+          "玩家對遊戲配對系統的問題表達了不滿。"
+        ],
+        "recommendation": "建議營運團隊針對玩家對遊戲配對系統的不滿進行調查與改善，並考慮對合作活動的延長進行更透明的溝通，以減少玩家的負面情緒。",
+        "global_insights": {
+          "TW": {
+            "summary": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。",
+            "hot_hero": "無特定英雄"
+          },
+          "VN": {
+            "summary": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。",
+            "hot_hero": "無特定英雄"
+          }
+        },
+        "hero_focus": {
+          "name": "無特定英雄",
+          "summary": "今日無特定英雄成為焦點。",
+          "sentiment_score": 0.5,
+          "top_comments": []
+        },
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        },
+        "total_posts": 19,
+        "hero_stats": {},
+        "wordcloud": {
+          "positive": [
+            {
+              "text": "傳說對決板",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "Dcard",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "心得分享",
+              "weight": 18,
+              "count": 4
+            },
+            {
+              "text": "com",
+              "weight": 15,
+              "count": 2
+            },
+            {
+              "text": "支持娘子加入頻道",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "會員",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "https",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "www",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "youtube",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "channel",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "UCynWG4Y",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "CLNr8JC1",
+              "weight": 13,
+              "count": 1
+            }
+          ],
+          "negative": [
+            {
+              "text": "巴哈姆特",
+              "weight": 24,
+              "count": 3
+            },
+            {
+              "text": "AOV",
+              "weight": 24,
+              "count": 3
+            },
+            {
+              "text": "哈啦板",
+              "weight": 24,
+              "count": 3
+            },
+            {
+              "text": "傳說對決板",
+              "weight": 20,
+              "count": 2
+            },
+            {
+              "text": "Dcard",
+              "weight": 20,
+              "count": 2
+            },
+            {
+              "text": "問題",
+              "weight": 20,
+              "count": 2
+            },
+            {
+              "text": "心得分享",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "打傳說打到快瘋掉",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "情報",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "星展傳說對決聯名",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "遊戲內卡友專屬活",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "開卡送緹莉",
+              "weight": 16,
+              "count": 1
+            }
+          ]
+        },
+        "top_links": [
+          {
+            "title": "支持娘子加入頻道會員：https://w...",
+            "url": "https://www.youtube.com/watch?v=qXaP3BFrkGk",
+            "platform": "youtube"
+          },
+          {
+            "title": "#心得分享 爬分筆記 非喜勿入 - 傳說...",
+            "url": "https://www.dcard.tw/f/aov/p/257954977",
+            "platform": "dcard"
+          },
+          {
+            "title": "#心得分享 2025凱撒路推薦&康特 -...",
+            "url": "https://www.dcard.tw/f/aov/p/257800838",
+            "platform": "dcard"
+          }
+        ],
+        "real_hot_topics": [],
+        "topic_to_posts": {},
+        "dynamic_alerts": [
+          {
+            "label": "今日熱議：官方終於對巨人版本英雄做出平衡調整，被玩家譽為史上最合理改動"
+          },
+          {
+            "label": "芽芽相關討論文章今日新增2篇，較昨日增加2篇"
+          },
+          {
+            "label": "Facebook平台今日出現2篇相關熱門討論"
+          }
+        ],
+        "overflow_alerts": []
+      },
+      "stored_at": "2026-06-02T11:11:34.365794+00:00",
+      "last_accessed": "2026-06-02T11:11:34.365794+00:00",
+      "ttl_days": 7
+    },
+    "prompt:ab6b291aaf74a23a9a9e10cb4703fb1c": {
+      "result": "今日熱議：官方終於對巨人版本英雄做出平衡調整，被玩家譽為史上最合理改動\n\n芽芽相關討論文章今日新增2篇，較昨日增加2篇\n\nFacebook平台今日出現2篇相關熱門討論",
+      "stored_at": "2026-06-02T11:11:37.144392+00:00",
+      "last_accessed": "2026-06-02T11:11:37.144392+00:00",
+      "ttl_days": 7
+    },
+    "daily_summary:2026-06-02": {
+      "result": {
+        "date": "2026-06-02",
+        "overview": "今日《傳說對決》的輿情主要集中在遊戲更新、英雄調整以及合作活動的討論。整體情緒偏向中性，但也有部分玩家對遊戲體驗表達了不滿。",
+        "sentiment_distribution": {
+          "positive": 5,
+          "negative": 4,
+          "neutral": 10
+        },
+        "hot_topics": [
+          {
+            "topic": "巨人版本英雄調整",
+            "mention_count": 1,
+            "sentiment": "positive",
+            "description": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。"
+          },
+          {
+            "topic": "Thane 的 Buff 和 Toro 的 Nerf",
+            "mention_count": 1,
+            "sentiment": "neutral",
+            "description": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。"
+          },
+          {
+            "topic": "星展傳說對決聯名卡活動",
+            "mention_count": 1,
+            "sentiment": "negative",
+            "description": "玩家對星展傳說對決聯名卡活動的延長表示不滿。"
+          },
+          {
+            "topic": "遊戲配對問題",
+            "mention_count": 1,
+            "sentiment": "negative",
+            "description": "玩家對遊戲配對系統的問題表達了不滿。"
+          }
+        ],
+        "detected_events": [
+          {
+            "name": "星展傳說對決聯名卡活動",
+            "type": "合作活動",
+            "source_count": 1,
+            "details": "活動延長至2026/06/30，開卡送緹莉-星夢展航造型。"
+          },
+          {
+            "name": "MEN’s Bioré X 傳說對決聯名",
+            "type": "合作活動",
+            "source_count": 1,
+            "details": "MEN’s Bioré 10倍炭*控油系列與《傳說對決》聯名。"
+          },
+          {
+            "name": "純喫茶 X 傳說對決聯名",
+            "type": "合作活動",
+            "source_count": 1,
+            "details": "購買純喫茶可抽次元突破造型及專屬表情。"
+          }
+        ],
+        "platform_breakdown": {
+          "instagram": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "threads": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "facebook": {
+            "post_count": 2,
+            "avg_sentiment": 0.5
+          }
+        },
+        "alerts": [
+          "玩家對星展傳說對決聯名卡活動的延長表示不滿。",
+          "玩家對遊戲配對系統的問題表達了不滿。"
+        ],
+        "recommendation": "建議營運團隊針對玩家對遊戲配對系統的不滿進行調查與改善，並考慮對合作活動的延長進行更透明的溝通，以減少玩家的負面情緒。",
+        "global_insights": {
+          "TW": {
+            "summary": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。",
+            "hot_hero": "無特定英雄"
+          },
+          "VN": {
+            "summary": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。",
+            "hot_hero": "無特定英雄"
+          }
+        },
+        "hero_focus": {
+          "name": "無特定英雄",
+          "summary": "今日無特定英雄成為焦點。",
+          "sentiment_score": 0.5,
+          "top_comments": []
+        },
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        },
+        "total_posts": 19,
+        "hero_stats": {},
+        "wordcloud": {
+          "positive": [
+            {
+              "text": "傳說對決板",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "Dcard",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "心得分享",
+              "weight": 18,
+              "count": 4
+            },
+            {
+              "text": "com",
+              "weight": 15,
+              "count": 2
+            },
+            {
+              "text": "支持娘子加入頻道",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "會員",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "https",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "www",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "youtube",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "channel",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "UCynWG4Y",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "CLNr8JC1",
+              "weight": 13,
+              "count": 1
+            }
+          ],
+          "negative": [
+            {
+              "text": "巴哈姆特",
+              "weight": 24,
+              "count": 3
+            },
+            {
+              "text": "AOV",
+              "weight": 24,
+              "count": 3
+            },
+            {
+              "text": "哈啦板",
+              "weight": 24,
+              "count": 3
+            },
+            {
+              "text": "傳說對決板",
+              "weight": 20,
+              "count": 2
+            },
+            {
+              "text": "Dcard",
+              "weight": 20,
+              "count": 2
+            },
+            {
+              "text": "問題",
+              "weight": 20,
+              "count": 2
+            },
+            {
+              "text": "心得分享",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "打傳說打到快瘋掉",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "情報",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "星展傳說對決聯名",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "遊戲內卡友專屬活",
+              "weight": 16,
+              "count": 1
+            },
+            {
+              "text": "開卡送緹莉",
+              "weight": 16,
+              "count": 1
+            }
+          ]
+        },
+        "top_links": [
+          {
+            "title": "支持娘子加入頻道會員：https://w...",
+            "url": "https://www.youtube.com/watch?v=qXaP3BFrkGk",
+            "platform": "youtube"
+          },
+          {
+            "title": "#心得分享 爬分筆記 非喜勿入 - 傳說...",
+            "url": "https://www.dcard.tw/f/aov/p/257954977",
+            "platform": "dcard"
+          },
+          {
+            "title": "#心得分享 2025凱撒路推薦&康特 -...",
+            "url": "https://www.dcard.tw/f/aov/p/257800838",
+            "platform": "dcard"
+          }
+        ],
+        "real_hot_topics": [],
+        "topic_to_posts": {},
+        "dynamic_alerts": [
+          {
+            "label": "今日熱議：官方終於對巨人版本英雄做出平衡調整，被玩家譽為史上最合理改動"
+          },
+          {
+            "label": "芽芽相關討論文章今日新增2篇，較昨日增加2篇"
+          },
+          {
+            "label": "Facebook平台今日出現2篇相關熱門討論"
+          }
+        ],
+        "overflow_alerts": []
+      },
+      "stored_at": "2026-06-02T11:11:37.151391+00:00",
+      "last_accessed": "2026-06-02T11:11:37.151391+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 52,
+    "total_l2_hits": 56,
     "total_apify_hits": 0,
-    "total_misses": 92
+    "total_misses": 102
   }
 }
