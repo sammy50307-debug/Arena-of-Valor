@@ -267,7 +267,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
     start_time = datetime.now()
     logger.info("=" * 60)
-    logger.info(" AoV 輿情監測流程啟動 (Tavily + Gemini)")
+    _llm_label = config.PROVIDER_CHAIN[0][0] if config.PROVIDER_CHAIN else config.PRIMARY_PROVIDER
+    logger.info(f" AoV 輿情監測流程啟動 (Tavily + {_llm_label})")
     logger.info(f"   時間: {run_context.started_at_local}")
     logger.info(f"   業務日期: {run_date} ({run_context.timezone_name})")
     logger.info(f"   關鍵字: {config.SEARCH_KEYWORDS}")
@@ -819,7 +820,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 # ── CLI 與排程 ────────────────────────────────────────
 async def main():
     parser = argparse.ArgumentParser(
-        description="AoV 自動化輿情監測系統 (Tavily + Gemini)",
+        description="AoV 自動化輿情監測系統 (Tavily + LLM)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--run-now", action="store_true", help="立即執行")
