@@ -14285,3 +14285,27 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險**：R-026（top5 age filter 與 fallback 倒灌不一致，🟢低，已登記+cross-ref R-017）。附帶記錄2極低風險點（generator 未傳 now、空態變數不同源）併入 R-026 不修。陷阱規避：①blacklist 共用→獨立 keyword_stopwords.yaml ②芽芽優先→問題8/1 均豁免 ③動工前 grep→問題8時間欄位(_get_timestamp)、問題1模板空態 均已確認。
 
 **狀態**：三問題全完成，本 Phase 4 commits（本session 3 + 前session 1）。連同 P105 系列待 push（阿喜 2026-06-02 授權 push）。前session問題3當機教訓→交接檔+換輕量 Sonnet 接手已驗證有效（B-課題：重任務 context 過載時主動交接+降模型）。
+
+### P107 — 焦點英雄爬取覆蓋修復（S0 調查→S1 失敗回退→S2 巴哈治本+端到端驗證）（2026-06-02 S2 收官）
+
+**目標**：修焦點英雄芽芽爬取覆蓋（長期靠泛詞碰運氣、覆蓋率可無預警歸零）。引用 docs/PHASE_107_PLAN.md（FROZEN，飛輪計畫書，過 M1/M2 lint）。
+
+**觸發**：P106.1 run-now 正式跑流程，阿喜質疑「0 篇芽芽、尤其 Dcard 不合理」。Opus 端到端調查證實非報告 bug，是爬取層四根因（見 R-027）。
+
+**S0 調查（四根因，全證據）**：(A) HERO_FOCUS_KEYWORDS dead config（config.py:123 定義無爬蟲用，連 Tavily:123 意圖注入都永不觸發）(B) 三平台 content 只標題無內文（Dcard:122/巴哈:162/Tavily:140 raw=False）(C) detected_heroes 僅 Tavily 做、Dcard/巴哈沒設（raw 19 篇全空）(D) keyword not in title 過濾扼殺多詞。
+
+**S1 Tavily 接線→真實驗證失敗→回退（關鍵教訓）**：先接 HERO_FOCUS_KEYWORDS 到 Tavily（啟動意圖注入）+ domains 參數 + 3 接線測試（409 passed）。但**真實燒 6 次 Tavily 驗證證明方向錯**：不限域撈 IG 同名雜訊（同名網紅帳號、菜單、旅遊）、限遊戲域撈其他遊戲（英雄聯盟、蔚藍檔案）→ 含芽芽真遊戲文 0 篇。根因：Tavily 全網搜短名「芽芽」撈同名雜訊 + time_range=day。留著反污染報告（X4-K 虛假覆蓋）→ git checkout 完整回退。教訓：單元測試只證接線、真實驗證才證效果；不先 PoC 驗證假設就接線會白做。
+
+**S2 巴哈治本（PoC 先驗證→派子代理落地→端到端）**：免費 PoC 證明焦點覆蓋正解＝爬蟲搜 aov 板焦點單詞——巴哈搜「芽芽」8/8 命中真遊戲文（「芽芽二技有Bug」「紫苑塔拉搭配芽芽逆轉勝」），Dcard 走 DDG 0 篇（留 S3）。落地：main.py 巴哈/Dcard 搜集加 HERO_WATCHLIST（芽芽/皮皮單詞）；派 2 並行子代理改 bahamut/dcard_scraper 補 detected_heroes（掃 title 找 HERO_WATCHLIST）+ 各自測試。commit 7f268df。
+
+**子代理用法（v1.2/v1.3 學習，阿喜肯定）**：S2 派 2 子代理並行改 2 獨立爬蟲（主迴圈改 main.py 協調點），3 道獨立命令收斂驗證（git status 範圍/全套 pytest/端到端 PoC）擋幻覺。阿喜肯定「這次用子代理蠻聰明」→ 提煉 v1.3 成功範本 + 6 點 checklist，升格全域 ~/.claude/CLAUDE.md 子代理派遣準則（memory feedback-parallel-subagents v1.3 同步標註）。
+
+**端到端驗證（dry-run 燒 LLM，呼應最初質疑）**：完整 pipeline dry-run——巴哈搜集 8→24 篇（芽芽8+皮皮8進來）、log 印「Tavily + openrouter」（log 修正生效）、analysis active_provider=openrouter。報告 aov_report_2026-06-02.html：芽芽出現 30 次、空態 placeholder 0、觀察室有真巴哈芽芽文（「芽芽真的好好玩」「芽芽為什麼」）、picker 選 3 篇芽芽進 top5_yaya。**從「0 篇芽芽」閉環到「芽芽進觀察室」**。
+
+**物理真相**：基線 406(P106.1末)→409(S1接線測試)→回退406→412(S2 +6測試) passed,4 skipped，零回歸。commit：15dfd2a(log provider 動態化)/6c906d0(P107計畫書+R-027)/7f268df(S2)+本收官。S1 改動已 git checkout 完整回退。端到端 dry-run 65.4 秒、芽芽 30 次進報告（未 promote/推播，dry-run）。
+
+**17 層稽核（S+A）**：S 代碼（爬蟲 surgical、子代理 detected_heroes）/邏輯（焦點單詞搜 aov 板、Tavily 方向經真實驗證否決）/測試（+6 測試 412 passed、端到端 PoC）/安全（key 只 .env、爬蟲合規）；A 架構（focus_keywords 接入不破既有）/資料（detected_heroes 端到端生效）/可觀察（log provider 動態、巴哈撈量 log）/文件（計畫書+R-027+本記錄）/流程（PoC 先驗證→派子代理→收斂交叉的飛輪）。
+
+**風險**：R-027（爬取覆蓋退化，Open）。Dcard 焦點 DDG 撈 0 篇→S3 Apify 治本（阿喜認知 Dcard 是芽芽文最多處，但現 DDG 爬法撈不到）。Tavily 一般文 content 仍只 snippet（未動，另議）。source selection cap=18 可能限焦點覆蓋（本次 picker 選 3 芽芽足夠，未觸發，觀察）。
+
+**狀態**：S2 完整里程碑收官（焦點覆蓋正解 + 端到端驗證芽芽進觀察室）。4 commits 待 push（阿喜 2026-06-02 授權）。S3 Dcard Apify 治本待開工。dry-run 未 promote/推播（正式發布需 run-now）。
