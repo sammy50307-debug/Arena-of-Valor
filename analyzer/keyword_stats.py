@@ -20,6 +20,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 _HERO_WHITELIST = _ROOT / ".agent/skills/hallucination-judge/resources/hero_whitelist.json"
 _AOV_TERMS = _ROOT / "configs/aov_terms.yaml"
 _BLACKLIST = _ROOT / "configs/personal_blacklist.yaml"
+_STOPWORDS_FILE = _ROOT / "configs/keyword_stopwords.yaml"  # P106.1 熱詞專用停用詞（與 picker blacklist 分離）
 
 # jieba posseg 詞性白名單前綴（名詞 + 動詞）
 _POS_KEEP = {"n", "v", "nr", "ns", "nt", "nz", "vn", "eng"}
@@ -45,13 +46,25 @@ def _load_custom_words() -> List[str]:
 
 @lru_cache(maxsize=1)
 def _load_stopwords() -> frozenset:
-    """從 personal_blacklist.yaml 載入停用詞。"""
+    """載入熱詞停用詞：personal_blacklist（與 picker 共用）∪ keyword_stopwords（熱詞專用）。
+
+    P106.1：平台/通用詞放獨立的 keyword_stopwords.yaml，不塞進 personal_blacklist，
+    避免 top5_picker 把含這些詞的文章整篇誤殺（blacklist 共用陷阱）。
+    """
+    words: set = set()
     try:
-        data = yaml.safe_load(_BLACKLIST.read_text(encoding="utf-8"))
-        return frozenset(data.get("blacklist", []))
+        data = yaml.safe_load(_BLACKLIST.read_text(encoding="utf-8")) or {}
+        words.update(data.get("blacklist", []) or [])
     except Exception as e:
         logger.warning("personal_blacklist 載入失敗：%s", e)
-        return frozenset()
+    try:
+        data = yaml.safe_load(_STOPWORDS_FILE.read_text(encoding="utf-8")) or {}
+        words.update(data.get("stopwords", []) or [])
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        logger.warning("keyword_stopwords 載入失敗：%s", e)
+    return frozenset(w for w in (str(x).strip() for x in words) if w)
 
 
 def _get_jieba():

@@ -152,3 +152,31 @@ def test_jieba_import_error_fallback():
 
     assert topics == []
     assert mapping == {}
+
+
+# ── Case 8：P106.1 停用詞 union（真讀檔，不 mock）────────────────────
+def test_load_stopwords_union_real_files():
+    """_load_stopwords 應 union personal_blacklist + keyword_stopwords 兩檔。"""
+    from analyzer import keyword_stats as ks
+    ks._load_stopwords.cache_clear()
+    try:
+        sw = ks._load_stopwords()
+        # keyword_stopwords.yaml 的平台/通用詞
+        assert "傳說對決" in sw
+        assert "巴哈姆特" in sw
+        assert "分享" in sw
+        # personal_blacklist.yaml 的詞（向後相容，仍是停用詞）
+        assert "星展" in sw
+    finally:
+        ks._load_stopwords.cache_clear()
+
+
+# ── Case 9：P106.1 陷阱1 防線 — 熱詞停用詞未污染 personal_blacklist（picker 來源）──
+def test_keyword_stopwords_not_in_personal_blacklist():
+    """平台/通用停用詞獨立於 personal_blacklist.yaml（picker 文章黑名單），避免整篇誤殺。"""
+    import yaml
+    from analyzer import keyword_stats as ks
+    pb = yaml.safe_load(ks._BLACKLIST.read_text(encoding="utf-8")) or {}
+    picker_words = set(pb.get("blacklist", []) or [])
+    for w in ["傳說對決", "傳說", "分享", "心得", "巴哈姆特"]:
+        assert w not in picker_words, f"{w} 不該在 personal_blacklist（會被 picker 誤殺文章）"
