@@ -668,7 +668,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:30.906125+00:00",
-      "last_accessed": "2026-06-02T11:10:46.264785+00:00",
+      "last_accessed": "2026-06-02T12:27:41.572503+00:00",
       "ttl_days": 7
     },
     "prompt:e694340c04693a618cf74bdb409db360": {
@@ -799,7 +799,7 @@
         }
       },
       "stored_at": "2026-06-01T15:33:19.784287+00:00",
-      "last_accessed": "2026-06-02T11:10:50.340128+00:00",
+      "last_accessed": "2026-06-02T12:27:41.570852+00:00",
       "ttl_days": 7
     },
     "prompt:a47c2865c3fb6e549794b4497e51bda5": {
@@ -1700,7 +1700,7 @@
         }
       },
       "stored_at": "2026-06-02T11:10:32.358711+00:00",
-      "last_accessed": "2026-06-02T11:10:32.358711+00:00",
+      "last_accessed": "2026-06-02T12:27:36.266124+00:00",
       "ttl_days": 7
     },
     "prompt:7458704364ef85ef97f37934cb7285dc": {
@@ -2378,12 +2378,143 @@
       "stored_at": "2026-06-02T11:11:37.151391+00:00",
       "last_accessed": "2026-06-02T11:11:37.151391+00:00",
       "ttl_days": 7
+    },
+    "prompt:f8400b9288eed89a55c26df6aebaa07f": {
+      "result": {
+        "reasoning": "玩家對官方將造型分配給不同英雄的策略表示不滿，認為這種做法缺乏一致性且令人困惑。雖然語氣中帶有抱怨，但並未使用過激言辭，更多是表達對官方決策的不理解。",
+        "sentiment": "negative",
+        "sentiment_score": 0.3,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "角色討論",
+        "keywords": [
+          "拓冥",
+          "瑟斐斯",
+          "造型",
+          "官方策略"
+        ],
+        "summary": "玩家批評官方將拓冥的造型分配給瑟斐斯的策略令人不解。",
+        "relevance_score": 0.9,
+        "is_hero_focus": true
+      },
+      "stored_at": "2026-06-02T12:27:36.262534+00:00",
+      "last_accessed": "2026-06-02T12:27:36.262534+00:00",
+      "ttl_days": 7
+    },
+    "prompt:27c6f0a3040c388fbd5e63052099f185": {
+      "result": {
+        "reasoning": "貼文中提到『#comebackheinodolialimi』，暗示玩家希望某個角色或活動回歸，但未明確表達情緒傾向。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "社群互動",
+        "keywords": [
+          "comeback",
+          "heinodolialimi"
+        ],
+        "summary": "玩家希望某個角色或活動回歸。",
+        "relevance_score": 0.7,
+        "is_hero_focus": false
+      },
+      "stored_at": "2026-06-02T12:27:41.567023+00:00",
+      "last_accessed": "2026-06-02T12:27:41.567023+00:00",
+      "ttl_days": 7
+    },
+    "prompt:a66e482eaa470218b597d6027fa1b089": {
+      "result": {
+        "reasoning": "貼文標題提到『如何不打戰力角也可以全服』，這是一種分享遊戲心得的意圖，並未帶有反諷或隱含情緒。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "心得分享",
+          "戰力角",
+          "全服"
+        ],
+        "summary": "分享不打戰力角也能在全服取得成就的心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false
+      },
+      "stored_at": "2026-06-02T12:27:46.449626+00:00",
+      "last_accessed": "2026-06-02T12:27:46.449626+00:00",
+      "ttl_days": 7
+    },
+    "prompt:1c0085cb5fb58a3682c427295ce767f8": {
+      "result": {
+        "reasoning": "此貼文為新手向教學文的標題，內容尚未提供，但標題顯示其目的是為了幫助新手玩家理解遊戲，屬於正向意圖。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "新手",
+          "教學"
+        ],
+        "summary": "這是一篇針對新手玩家的教學文。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false
+      },
+      "stored_at": "2026-06-02T12:27:51.235968+00:00",
+      "last_accessed": "2026-06-02T12:27:51.235968+00:00",
+      "ttl_days": 7
+    },
+    "prompt:2297ffd9406c236e8b3e5de29fff017b": {
+      "result": {
+        "reasoning": "貼文標題明確提及『綺羅教學』，顯示作者意圖分享關於角色綺羅的遊戲技巧或心得，並無反諷或隱含意圖。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "角色討論",
+        "keywords": [
+          "綺羅",
+          "教學",
+          "心得分享"
+        ],
+        "summary": "作者分享關於角色綺羅的教學與心得。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true
+      },
+      "stored_at": "2026-06-02T12:27:57.104027+00:00",
+      "last_accessed": "2026-06-02T12:27:57.104027+00:00",
+      "ttl_days": 7
+    },
+    "prompt:403b82cb39a658ee6922e1c0cd645afe": {
+      "result": {
+        "reasoning": "玩家分享新賽季英雄平衡性調整的數據分析，內容偏向客觀討論，並未明顯表達正面或負面情緒。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "版本更新",
+        "keywords": [
+          "新賽季",
+          "英雄平衡性",
+          "數據分析"
+        ],
+        "summary": "玩家分享新賽季英雄平衡性調整的數據分析。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false
+      },
+      "stored_at": "2026-06-02T12:28:02.075352+00:00",
+      "last_accessed": "2026-06-02T12:28:02.075352+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 56,
+    "total_l2_hits": 59,
     "total_apify_hits": 0,
-    "total_misses": 102
+    "total_misses": 108
   }
 }

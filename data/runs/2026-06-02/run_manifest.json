@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-02T11:11:44.035902Z",
+  "generated_at": "2026-06-02T12:28:03.416630Z",
   "run_date": "2026-06-02",
   "run_date_taipei": "2026-06-02",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-06-02T11:10:01.199824Z",
-  "run_id": "2026-06-02-production-9cca02582c7c",
-  "source_hash": "9cca02582c7c7c071e52814dcb1870dd63a48e3636e0a2c4290a6a4fb47a9589",
+  "scheduled_utc": "2026-06-02T12:27:14.008108Z",
+  "run_id": "2026-06-02-production-f4b6f3952c84",
+  "source_hash": "f4b6f3952c84b52e7e3472df918eeb1fbcb3ec62d66fe0d7641764bb384f457d",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -15,25 +15,24 @@
   "dry_run": false,
   "showcase_flag": false,
   "paths": {
-    "raw": "D:\\Coding Project\\Arena of Valor\\data\\raw_20260602.json",
-    "analysis": "D:\\Coding Project\\Arena of Valor\\data\\analysis_20260602.json",
-    "report": "D:\\Coding Project\\Arena of Valor\\data\\reports\\aov_report_2026-06-02.html"
+    "raw": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/raw_20260602.json",
+    "analysis": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/analysis_20260602.json",
+    "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-06-02.html"
   },
   "metrics": {
-    "cache_hit": 4,
+    "cache_hit": 6,
     "l1_hits": 0,
-    "l2_hits": 4,
+    "l2_hits": 6,
     "apify_hits": 0,
-    "llm_calls": 10,
-    "total_calls": 14
+    "llm_calls": 6,
+    "total_calls": 12
   },
   "history": {
     "status": "ok",
-    "weekly_points": 2,
-    "source_dates": [
-      "2026-06-01"
-    ],
+    "weekly_points": 1,
+    "source_dates": [],
     "missing_dates": [
+      "2026-06-01",
       "2026-05-31",
       "2026-05-30",
       "2026-05-29",
@@ -46,10 +45,11 @@
     "source_health": {
       "status": "ok",
       "total_posts": 19,
-      "platform_count": 4,
+      "platform_count": 5,
       "platform_counts": {
         "youtube": 1,
-        "facebook": 2,
+        "facebook": 1,
+        "instagram": 1,
         "dcard": 8,
         "bahamut": 8
       },
@@ -60,7 +60,7 @@
       "version": 1,
       "status": "pass",
       "total_posts": 19,
-      "platform_count": 4,
+      "platform_count": 5,
       "source_count": 3,
       "has_report": true,
       "has_analysis": true,
@@ -162,7 +162,8 @@
     },
     "selected_platform_counts": {
       "youtube": 1,
-      "facebook": 2,
+      "facebook": 1,
+      "instagram": 1,
       "dcard": 8,
       "bahamut": 1
     },
@@ -175,7 +176,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-06-02/enrichment_queue.json",
-    "queue_digest": "c50a8912733d9a4b",
+    "queue_digest": "3e4f43470a8679ea",
     "source_count": 7,
     "eligible_posts": 0,
     "skipped_posts": 7,
