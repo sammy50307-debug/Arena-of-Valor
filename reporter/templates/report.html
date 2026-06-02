@@ -1530,11 +1530,17 @@
                 <div class="hero-grid">
                     <div>
                         <h3 style="font-size: 0.9rem; color: #be185d; margin-bottom: 0.5rem;">✨ 玩家熱議焦點</h3>
+                        {% if hero_focus_posts %}
                         {% for comment in hero_focus.top_comments %}
                         <div class="hero-post-item">
                             <span style="font-size: 0.9rem;">{{ comment }}</span>
                         </div>
                         {% endfor %}
+                        {% else %}
+                        <div class="hero-post-item" style="color:#f9a8d4; text-align:center; padding:0.5rem 0; font-size:0.85rem;">
+                            今日尚無芽芽相關討論，靜待玩家動態~
+                        </div>
+                        {% endif %}
                     </div>
 
                     {% if top5_yaya %}

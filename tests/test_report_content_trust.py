@@ -157,3 +157,34 @@ def test_report_excludes_unknown_date_from_general_feed(tmp_path: Path, monkeypa
     assert "版本活動整理" in html
     assert "圖倫未知時間教學" not in html
     assert "時間未知" not in html
+
+
+def test_hero_focus_empty_posts_shows_placeholder(tmp_path: Path, monkeypatch):
+    """P106.1 問題 1：hero_focus_posts 為空時，玩家熱議焦點顯示友善 placeholder。"""
+    monkeypatch.setattr(config, "HERO_FOCUS_NAME", "芽芽", raising=False)
+    monkeypatch.setattr(config, "ENABLE_TOP5_NEWS", True, raising=False)
+    monkeypatch.setattr(_indexer, "_INDEX_PATH", tmp_path / "news_history_index.json", raising=False)
+
+    summary = {
+        "date": "2026-05-25",
+        "overview": "測試",
+        "sentiment_distribution": {"positive": 1, "negative": 0, "neutral": 0},
+        "platform_breakdown": {},
+        "hot_topics": [],
+        "detected_events": [],
+        "hero_focus": {"name": "芽芽", "summary": "今日無特定焦點分析", "sentiment_score": 0.5, "top_comments": []},
+        "_meta": {"mode": "production"},
+    }
+    analyzed_posts = [
+        _entry(
+            title="圖倫使用心得",
+            url="https://example.com/tulen",
+            summary="玩家分享圖倫心得。",
+            timestamp="2026-05-25 10:00:00",
+        ),
+    ]
+
+    out = ReportGenerator().generate(summary, analyzed_posts, output_dir=tmp_path, promote=False)
+    html = out.read_text(encoding="utf-8")
+
+    assert "今日尚無芽芽相關討論，靜待玩家動態~" in html
