@@ -49,6 +49,22 @@
 
 ---
 
+### R-027：焦點英雄爬取覆蓋退化 / Dcard Cloudflare 反爬 / 靜默資料淺化（P107 開案）
+
+- **來源**：P106.1 run-now 正式跑流程（2026-06-02）阿喜質疑「0 篇芽芽、尤其 Dcard」，Opus 端到端調查（讀 raw + 三主力爬蟲原始碼）證實爬取層四根因，非報告 bug。
+- **風險級**：🟡 中（修復中；`docs/PHASE_107_PLAN.md` DRAFT 已過 M1/M2 lint）
+- **狀態**：Open（P107 計畫書 DRAFT；runtime 未動工，待阿喜凍結核准）
+- **描述**：焦點英雄芽芽長期靠泛搜「傳說對決」碰運氣覆蓋，四根因連鎖：(A) `HERO_FOCUS_KEYWORDS` 是 dead config（config.py:123 定義但無爬蟲使用，連 Tavily:123 寫好的焦點意圖注入都因此永不觸發）(B) 三平台 content 只有標題無內文（Dcard:122/巴哈:162 寫死標題+後綴、Tavily:140 `include_raw_content=False`）(C) `detected_heroes` 僅 Tavily 做、Dcard/巴哈未設（raw 2026-06-02 共 19 篇全空）(D) `keyword not in title` 過濾扼殺多詞 keyword。連鎖效應：英雄聲量追蹤（專案核心定位）建立在淺資料上，焦點覆蓋率可無預警歸零且無人察覺。
+- **緩解策略**（詳見 `docs/PHASE_107_PLAN.md`）：
+  - 短期（快修）：`HERO_FOCUS_KEYWORDS` 接入 Tavily 搜集，啟動既有意圖注入。
+  - 中期（穩修）：Tavily `include_raw_content` 拿全文 + Dcard/巴哈補 `detected_heroes` + 放寬 keyword 過濾（焦點豁免）。
+  - 長期（飛輪）：Dcard 治本（Apify Dcard Actor / 繞 Cloudflare PoC，含停損）+ 防復發 guard（`check_crawl_coverage` checker / anti-regression test / manifest 覆蓋率欄位 / daily monitor）+ blindspot 通則化「dead config」與「靠泛搜碰運氣的焦點覆蓋」。
+- **未解質疑（M2）**：#2 Dcard 繞 Cloudflare 不保證成功（proxy-evader 只防 403/429 非 JS challenge）；#5 爬蟲 UA 偽裝/繞 Cloudflare 觸 ToS/法務/IP 永 ban（不可逆，Ken 紅隊覆核）。
+- **觸發升級**：P107 動工後若 Dcard PoC 失敗 → 依停損降級標題層並明文記錄；若 checker 上線後焦點覆蓋率持續 0 或 content 退回只標題 → 升 active，排查接線斷裂 / selector 失效。
+- **防復發落點**：`docs/PHASE_107_PLAN.md` §6（docs / test / checker / config / manifest / monitor / blindspot 七落點）。
+
+---
+
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
@@ -410,3 +426,4 @@
 - **2026-05-16**：P76 狀態清理；R-007/R-008 從 Open 區移至 Closed 區，長期 LINE WebView 觀察仍由 R-004 承接。
 - **2026-05-31**：P103.1 關閉 R-024（從 Open 移至 Closed）；確認 metrics 是設計前提錯配（skill 對話式觸發、非 shell 執行），hooks 不適用，accepted 為已知設計限制。
 - **2026-06-02**：P106.1 問題 8 收官品質審查登記 R-026（top5 age filter 與 template fallback 倒灌不一致，cross-ref R-017）；同條附帶記錄 generator 未傳 now、空態判斷變數不同源兩個極低風險點。
+- **2026-06-02**：P106.1 run-now 正式跑流程揭露爬取層根因，登記 R-027（焦點英雄爬取覆蓋退化 / Dcard Cloudflare 反爬 / 靜默資料淺化，四根因連鎖）；P107 計畫書 DRAFT 立案、過 M1/M2 lint，待凍結。
