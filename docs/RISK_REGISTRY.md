@@ -32,6 +32,23 @@
 
 ---
 
+### R-026：top5 age filter 與 template fallback 倒灌不一致（P106.1 衍生）
+
+- **來源**：P106.1 問題 8（top5 加時間上限過濾 `TOP5_MAX_AGE_DAYS=14`）收官品質審查，2026-06-02 Opus 端到端驗證發現（commit `b5d1337`）。
+- **風險級**：🟢 低（極端邊界；fallback 倒灌為 pre-existing 設計，非 P106.1 引入）
+- **狀態**：Open（已知設計邊界，不立即修；實務日報每天有新文鮮少觸發）
+- **描述**：age filter（`analyzer/top5_picker.py::_is_too_old`）只作用於 `pick_top5` 內部，影響 `top5_news`。但 `reporter/templates/report.html`「最新動態詳情」區有 fallback：`{% if top5_news %}…{% else %}` 改用**未經 age filter** 的 `posts`（=`dated_posts`）。因此當 `top5_news` 被 age filter 清空（極端：當日所有候選文章皆 >14 天），fallback 會把未過濾的舊文倒灌回頁面，age filter 在該情況形同虛設。**此為 R-017「Top-5 / hero focus / general feed 出現不可解釋舊文污染」的一個已知機制根因（cross-ref R-017）**。
+- **緩解策略**：
+  - 短期：本條目錨定。端到端驗證確認正常情況無虞——`max_age=14` 砍個別舊文後 `top5_news` 仍有內容、新文遞補；實務日報每天有新文，`top5_news` 鮮少全空，fallback 極少觸發。
+  - 中期：若 R-017 monitoring 再現舊文污染，優先排查此 fallback 路徑——讓 fallback 的 `posts` 也套用同一 age filter，或 fallback 改顯示友善空態而非倒灌。
+  - 長期：評估把 age filter 上移到 `dated_posts` 生成處（單一過濾點），消除 top5 / fallback 雙路徑不一致。
+- **觸發升級**：若生產報告出現「`top5_news` 空 + fallback 倒灌 >14 天舊文」實例，或 R-017 content trust checker 因舊文 FAIL 且根因指向此 fallback → 升為 active，開 follow-up 修 fallback 過濾。
+- **附帶記錄（同次審查，極低風險不修）**：
+  - (a) `reporter/generator.py` 呼叫 `pick_top5` 未傳 `now`（:269-272、:283-287），age 基準為真實 `datetime.now()` 而非 `report_date`；日報即時跑無影響，補跑歷史報告時基準偏移。
+  - (b) `report.html` 芽芽觀察室空態判斷用 `hero_focus_posts`，但迴圈跑 `hero_focus.top_comments`，兩者不同源；理論上「前者空後者非空」會吃掉 comments，實務不發生（comments 由芽芽貼文萃取）。
+
+---
+
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
@@ -392,3 +409,4 @@
 - **2026-05-16**：P75 關閉 R-014；回填 P63/P64/P69/P70.3 共 4 份 blindspot，新增 B-011~B-022，M4 status 缺漏數歸零。
 - **2026-05-16**：P76 狀態清理；R-007/R-008 從 Open 區移至 Closed 區，長期 LINE WebView 觀察仍由 R-004 承接。
 - **2026-05-31**：P103.1 關閉 R-024（從 Open 移至 Closed）；確認 metrics 是設計前提錯配（skill 對話式觸發、非 shell 執行），hooks 不適用，accepted 為已知設計限制。
+- **2026-06-02**：P106.1 問題 8 收官品質審查登記 R-026（top5 age filter 與 template fallback 倒灌不一致，cross-ref R-017）；同條附帶記錄 generator 未傳 now、空態判斷變數不同源兩個極低風險點。
