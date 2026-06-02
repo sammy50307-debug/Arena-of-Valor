@@ -184,6 +184,22 @@ def _get_url(post_entry: dict) -> str:
     return post.get("url", "#")
 
 
+def _is_too_old(timestamp_str: str, *, max_age_days: int, now: datetime) -> bool:
+    """True 當 timestamp 超過 max_age_days 天；無法解析視為不過期，回傳 False。"""
+    _FMTS = [
+        ("%Y-%m-%d %H:%M:%S", 19),
+        ("%Y-%m-%d", 10),
+        ("%Y/%m/%d", 10),
+    ]
+    for fmt, length in _FMTS:
+        try:
+            dt = datetime.strptime(timestamp_str[:length], fmt)
+            return (now - dt).days > max_age_days
+        except ValueError:
+            continue
+    return False
+
+
 # ── 主函式 ───────────────────────────────────────────────
 
 def pick_top5(
@@ -235,12 +251,18 @@ def pick_top5(
         history_index = indexer.load_index()
     history_index = indexer.prune_old(history_index, today=today)
 
-    # P66.1 黑名單過濾（芽芽豁免）
+    # P66.1 黑名單過濾（芽芽豁免）+ P106.1 時間上限過濾（芽芽豁免，無日期保留）
     blacklist = _load_blacklist()
+    _max_age_days = getattr(config, "TOP5_MAX_AGE_DAYS", 14)
     filtered_posts: list[dict] = []
     for entry in analyzed_posts:
         if _is_yaya_related(entry, hero_focus):
             filtered_posts.append(entry)
+            continue
+        ts = _get_timestamp(entry)
+        if ts and _is_too_old(ts, max_age_days=_max_age_days, now=now):
+            post = entry.get("post", entry)
+            logger.info("filtered by age: ts=%s | post=%s", ts, post.get("url", "?"))
             continue
         hit = _is_blacklisted(entry, blacklist)
         if hit:

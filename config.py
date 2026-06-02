@@ -181,6 +181,7 @@ NEWS_HISTORY_INDEX_PATH = DATA_DIR / "news_history_index.json"
 NEWS_HISTORY_MAX_DAYS = int(os.getenv("NEWS_HISTORY_MAX_DAYS", "14"))
 TOP5_SCORE_DECAY_HOURS = int(os.getenv("TOP5_SCORE_DECAY_HOURS", "72"))
 TOP5_SCORE_DECAY_MIN = float(os.getenv("TOP5_SCORE_DECAY_MIN", "0.3"))
+TOP5_MAX_AGE_DAYS = int(os.getenv("TOP5_MAX_AGE_DAYS", "14"))
 TOP5_DEDUP_THRESHOLD = float(os.getenv("TOP5_DEDUP_THRESHOLD", "0.85"))
 
 # ── P66.1 Top-5 Picker 個人化過濾與多樣性 ────────────────

@@ -488,6 +488,32 @@ def test_platform_rank_yaya_exempt():
     assert normal_card["picker"].get("platform_penalty") == pytest.approx(1.0)
 
 
+# ────────────────────────────────────────────────────────
+# P106.1 — top5 時間上限過濾
+# ────────────────────────────────────────────────────────
+
+def test_age_filter_old_post_excluded():
+    """超過 MAX_AGE_DAYS 的一般文章被過濾（NOW=2026-05-03，15天前=2026-04-18 > 14天）。"""
+    old_post = _make_post(url="https://example.com/old-post", score=0.9, timestamp="2026-04-18")
+    cards, _ = pick_top5([old_post], today=TODAY, now=NOW, history_index={})
+    assert len(cards) == 0
+
+
+def test_age_filter_yaya_old_post_kept():
+    """超過 MAX_AGE_DAYS 的芽芽文章豁免，不被時間過濾。"""
+    yaya_old = _make_post(url="https://example.com/yaya-old", score=0.9, timestamp="2026-04-18", hero_focus=True)
+    cards, _ = pick_top5([yaya_old], hero_focus="芽芽", today=TODAY, now=NOW, history_index={})
+    assert len(cards) == 1
+    assert cards[0]["post"]["url"] == "https://example.com/yaya-old"
+
+
+def test_age_filter_no_timestamp_kept():
+    """無時間戳的文章不被時間過濾（保留）。"""
+    no_ts_post = _make_post(url="https://example.com/no-ts", score=0.9, timestamp=None)
+    cards, _ = pick_top5([no_ts_post], today=TODAY, now=NOW, history_index={})
+    assert len(cards) == 1
+
+
 def test_combined_dup_and_platform():
     """day1 重複 + 同平台第 2 篇：final_score 遠低於新鮮第 1 篇。"""
     url_dup = "https://example.com/dup-p2"
