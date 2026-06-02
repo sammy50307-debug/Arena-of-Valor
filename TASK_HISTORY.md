@@ -14260,3 +14260,28 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **R-016 連動**：解 fail-closed/啟用 P93 router 延後為獨立任務（母計畫「啟用 P93 框架」目標部分延後）；P105 切首發走 FallbackLLMClient、PROVIDER_ROUTER_ENABLED 仍 false，屬預期 provider 變更，不觸發 R-016「provider routing 非預期啟用」升級條件。R-016 觀察窗 2026-06-01 到期，本 phase 不裁決 R-016 close（屬 production SLO 戰線，另議）。
 
 **狀態**：S3 主體（S3.1/S3.2/S3.3）+ 趨勢補完 完成；S5 治理收官（本記錄 + R-016 註記 + 矩陣鎖）。5 commits 本地未 push（push 前問阿喜）。執行用 Opus 4.8（阿喜選）。
+
+### P106.1 — 報告品質整修（熱詞重疊/舊文/焦點空態 三問題）+ 品質審查登記 R-026（2026-06-02 收官）
+
+**目標**：修報告頁三個品質問題。引用 docs/PHASE_106_REPORT_QUALITY_PLAN.md（計畫書，第三節「三個陷阱」為防雷核心）。阿喜拍板：問題1採方案B（固定芽芽+友善空態，不做動態焦點/艾翠絲）。
+
+**觸發**：阿喜回報報告頁三問題——①側欄熱詞重疊（傳說/巴哈/AOV 幾乎每篇都有）②top5 出現過期舊文 ③芽芽觀察室無文時空白。前 session（Opus 4.8 1M context）執行問題3後因 context 過重多次當機 → 改寫 P106_SESSION_HANDOFF.md 交接、新視窗 Sonnet 4.6 接手問題8/1，品質審查切回 Opus 4.8。
+
+**三問題成果**：
+- **問題3 熱詞停用詞分離（595b432，前 session）**：根因＝keyword_stats._load_stopwords() 與 top5_picker 共用 configs/personal_blacklist.yaml（僅2詞），平台/通用詞全沒擋 → 傳說/巴哈/AOV 被當熱詞。修（避陷阱1「直接加詞會讓 picker 誤殺含『傳說對決』全部文章」）：新建 configs/keyword_stopwords.yaml（40詞獨立平台/通用庫），keyword_stats 改讀獨立庫，picker blacklist 不動。檔：keyword_stats.py / keyword_stopwords.yaml(新) / test_keyword_stats.py。基線 400→402。
+- **問題8 top5 時間上限過濾（b5d1337）**：根因＝top5_picker 只有時間衰減（_compute_decay 舊文降分不排除），無天數上限。修：config 加 TOP5_MAX_AGE_DAYS（預設14、env可覆寫）；top5_picker 加 _is_too_old() helper，在黑名單同迴圈插時間過濾——比照黑名單給芽芽豁免（_is_yaya_related 先判先 append）、無日期保留（`ts and _is_too_old` 短路）、無法解析日期保留（return False）。避踩雷：用 pick_top5 既有 now 參數當基準（非自寫 datetime.now()），測試注入 now=NOW 保 fixture(5/03) 安全。檔：top5_picker.py / config.py / test_top5_picker.py（+3測試：舊文排除/芽芽舊文保留/無日期保留）。基線 402→405。
+- **問題1 芽芽空態 placeholder 方案B（9efe927）**：report.html 玩家熱議焦點區加 hero_focus_posts 空態檢查，無芽芽貼文時顯「今日尚無芽芽相關討論，靜待玩家動態~」取代空白（有貼文行為不變，沿用原 top_comments 迴圈）。不踩陷阱2（芽芽優先，不過濾芽芽文）。檔：report.html / test_report_content_trust.py（+1測試）。基線 405→406。
+
+**品質審查（Opus 端到端，2026-06-02）**：審出3個潛在雷，逐一驗證——
+- 雷1（原判會炸→虛驚）：疑「generator 呼叫 pick_top5 未傳 now → age 吃真實 datetime.now() → test_report_content_trust fixture(5/25) 在6/10後被砍 → CI 轉紅」。端到端驗證推翻：integration assert 是寬鬆「字串 in html」+ template fallback（top5_news 空時用未過濾 posts 倒灌）→ 字串恆在 → 測試不紅。教訓：只信函式層會誤報，交叉驗證擋下過度警報。
+- 雷2（真實邊界，登記 R-026）：age filter 只作用 pick_top5 內部（top5_news），template fallback 用未過濾 posts → top5_news 全空時倒灌舊文 → age filter 形同虛設（極端：全部文 >14天才觸發）。pre-existing 設計非本次引入，cross-ref R-017。
+- 雷3/4（極低風險不修，併入 R-026 附帶記錄）：generator 未傳 now（補跑歷史報告 age 基準偏移）；空態判斷用 hero_focus_posts 但迴圈跑 top_comments（不同源，理論邊界）。
+登記 R-026（aa4c94c），governance_doctor GOV000 OK。
+
+**物理真相**：基線 400(P105末)→402(問題3)→405(問題8 +3測試)→406(問題1 +1測試) passed, 4 skipped，零回歸。commit：595b432(問題3,前session) / b5d1337(問題8) / 9efe927(問題1) / aa4c94c(R-026)。影響半徑：3問題共8個 code/test/config 檔 + 1 docs = 標準 Phase。端到端驗證用臨時腳本（scratch/_verify_agefilter.py，跑完已刪）確認 age filter 真砍文（html count 2→1）但 fallback 維持字串恆在。
+
+**17層稽核（S+A）**：S 代碼（_is_too_old/空態判斷乾淨、surgical）/邏輯（age 天數上限、芽芽豁免、無日期/不可解析保留三條件正確）/測試（+6測試 402→406不退、端到端驗證雙路徑）/安全（無機敏、停用詞庫純文字）；A 架構（age filter 與 fallback 雙路徑不一致已登記 R-026）/資料（停用詞獨立庫不污染 picker blacklist）/可維護（三問題各獨立 commit 分層）/文件（本記錄 + R-026 + 計畫書三陷阱對照）/流程（前session交接檔無縫接手 + 品質審查收官）。
+
+**風險**：R-026（top5 age filter 與 fallback 倒灌不一致，🟢低，已登記+cross-ref R-017）。附帶記錄2極低風險點（generator 未傳 now、空態變數不同源）併入 R-026 不修。陷阱規避：①blacklist 共用→獨立 keyword_stopwords.yaml ②芽芽優先→問題8/1 均豁免 ③動工前 grep→問題8時間欄位(_get_timestamp)、問題1模板空態 均已確認。
+
+**狀態**：三問題全完成，本 Phase 4 commits（本session 3 + 前session 1）。連同 P105 系列待 push（阿喜 2026-06-02 授權 push）。前session問題3當機教訓→交接檔+換輕量 Sonnet 接手已驗證有效（B-課題：重任務 context 過載時主動交接+降模型）。
