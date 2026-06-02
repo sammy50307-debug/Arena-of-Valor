@@ -17,6 +17,73 @@ OPENAI_FALLBACK_ENABLED = os.getenv("OPENAI_FALLBACK_ENABLED", "true").lower() =
 OPENAI_FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini")
 PUBLISH_GATE_MODE = os.getenv("PUBLISH_GATE_MODE", "shadow").lower()
 
+# ── P105 provider 切換（首發 provider+model 一行配置；換首發只改這裡或 .env）──
+PRIMARY_PROVIDER = os.getenv("PRIMARY_PROVIDER", "gemini")  # gemini│openai│openrouter
+PRIMARY_MODEL = os.getenv("PRIMARY_MODEL", "")  # 空＝用該 provider 內建預設 model
+FALLBACK_PROVIDERS = [
+    p.strip() for p in os.getenv("FALLBACK_PROVIDERS", "openai").split(",") if p.strip()
+]
+
+
+# ── P105.1 B 架構：provider:model 鏈 + per-model 額度（向後相容 S1）──
+def parse_provider_chain(raw):
+    """解析 PROVIDER_CHAIN：逗號分級、冒號分 provider:model（model 的 / 不是分隔符）。
+
+    例 "openrouter:deepseek/deepseek-chat, gemini"
+      → [("openrouter", "deepseek/deepseek-chat"), ("gemini", None)]。
+    空字串／全空白 → []（呼叫端據此退回 S1 PRIMARY_PROVIDER 路徑，不破 S1 切換）。
+    """
+    chain = []
+    for level in raw.split(","):
+        level = level.strip()
+        if not level:
+            continue
+        provider, sep, model = level.partition(":")
+        model = model.strip() if sep else ""
+        chain.append((provider.strip().lower(), model or None))
+    return chain
+
+
+def parse_openrouter_model_budgets(raw):
+    """解析 OPENROUTER_MODEL_BUDGETS：逗號分項、最右冒號分 model:budget。
+
+    例 "deepseek/deepseek-chat:80000, deepseek/deepseek-r1:20000"
+      → {"deepseek/deepseek-chat": 80000, "deepseek/deepseek-r1": 20000}。
+    rpartition：model 含 / 不被切錯（budget 取最右段）；無效 budget 略過。
+    """
+    budgets = {}
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        model, sep, amount = item.rpartition(":")
+        if not sep:
+            continue
+        try:
+            budgets[model.strip()] = int(amount.strip())
+        except ValueError:
+            continue
+    return budgets
+
+
+# 鏈每級 provider:model（首級＝首發、其餘＝多級 fallback）；無此值退回 S1 路徑。
+PROVIDER_CHAIN = parse_provider_chain(os.getenv("PROVIDER_CHAIN", ""))
+
+# ── P105 OpenRouter（OpenAI-compatible；API key 只進 .env，絕不進版控）──
+AOV_PROVIDER_OPENROUTER_ENABLED = os.getenv("AOV_PROVIDER_OPENROUTER_ENABLED", "false").lower() == "true"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "")
+OPENROUTER_MODEL_PRO = os.getenv("OPENROUTER_MODEL_PRO", "")
+OPENROUTER_MODEL_FLASH = os.getenv("OPENROUTER_MODEL_FLASH", "")
+OPENROUTER_MODEL_MINIMAX = os.getenv("OPENROUTER_MODEL_MINIMAX", "")
+# OpenRouter 獨立 budget 停損（R-P105-5）：上限預設設高純防 bug 失控燒爆，正常燒不到；
+# 獨立 state 檔避免與 Gemini「省額度」ledger 互相干擾。要燒更多可在 .env 調高。
+OPENROUTER_BUDGET_STATE_FILE = os.getenv("OPENROUTER_BUDGET_STATE_FILE", "data/openrouter_budget_state.json")
+OPENROUTER_DAILY_BUDGET = int(os.getenv("OPENROUTER_DAILY_BUDGET", "100000"))
+# per-model 額度上限（覆寫 OPENROUTER_DAILY_BUDGET）；無對應 model 時退回總上限。
+OPENROUTER_MODEL_BUDGETS = parse_openrouter_model_budgets(os.getenv("OPENROUTER_MODEL_BUDGETS", ""))
+
 # P93 provider abstraction：所有非既有 provider 預設關閉。
 PROVIDER_ROUTER_ENABLED = os.getenv("PROVIDER_ROUTER_ENABLED", "false").lower() == "true"
 EXPERIMENTAL_FREE_PROVIDERS_ENABLED = os.getenv("EXPERIMENTAL_FREE_PROVIDERS_ENABLED", "false").lower() == "true"

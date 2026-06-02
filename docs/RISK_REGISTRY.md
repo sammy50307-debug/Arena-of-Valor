@@ -18,6 +18,20 @@
 
 ## 開放風險（Open）
 
+### R-025：子代理派遣準則 v1.0 dead rule 風險 / 到期實效復盤（P104.2 衍生）
+
+- **來源**：阿喜 2026-05-31 要求把全域 `~/.claude/CLAUDE.md`「🤖 子代理派遣準則 v1.0」的到期復盤義務錨定到 repo（remote scheduled agent 拿不到本地全域守則與對話歷史，ROI 低，改用本地 RISK_REGISTRY 錨定）。
+- **風險級**：🟢 低
+- **狀態**：Open（觀察至 2026-08-31；到期人工復盤）
+- **描述**：v3 子代理派遣準則寫在本地全域 CLAUDE.md（不在本 repo）。若三個月內無人回顧其實效，可能淪為 dead rule——一直掛著卻從未真正擋下任何「亂派／回頭難驗證／幻覺」，造成規則膨脹與虛假信心（G5 抗熵 / G1 dead rule 政策）。
+- **緩解策略**：
+  - 短期：本條目以 X3 到期日 `2026-08-31` 錨定，靠既有「每 5-10 phase 復盤」掃到。
+  - 中期：2026-08-31 前的跨-phase 復盤，人工回顧守則三個月內是否真正擋下亂派／幻覺（可對照守則「自稽收斂判準句」出現頻率與當下判斷）。
+  - 長期：有效 → 保留或考慮升級為 checker；無效或過吵 → 降級為「建議」或移除，避免規則膨脹。
+- **觸發升級／到期動作**：2026-08-31 到期未復盤 → 由 G5-1 dead rule 偵測標記；復盤判定無效卻保留 → 升為規則腐化 active issue，需明文降級或移除並記錄理由。
+
+---
+
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
@@ -252,7 +266,7 @@
 
 - **來源**：P84.6 總收官驗證（2026-05-18）
 - **風險級**：🟡 中（Monitoring；由 🔴 高降級，2026-05-25 主公核准）
-- **狀態**：Open（Monitoring；2026-05-25 主公核准，觀察至 2026-06-01）
+- **狀態**：Open（Monitoring；2026-05-25 主公核准，觀察至 2026-06-01；**2026-06-01 觀察窗到期，P105.1 收官本次不裁決 close——待 fresh production evidence，見緩解策略末 P105.1 連動**）
 - **描述**：P84.6 收官矩陣顯示 governance / handoff / runbook / pytest 全數通過，但 production SLO 仍阻塞。2026-05-19 R-016.1 已修補 manifest sync contract，並由既有 canonical report 反建 5/16-5/19 report-only manifests，因此 `SLO002` manifest gap 已收斂；剩餘阻塞為 `SLO001` 連續無 production，`SLO003` 因連續 showcase_forced/degraded 超過門檻，且 landing 仍指向 `data/reports/aov_report_2026-05-16.html`。
 - **緩解策略**：
   - 短期：不要把 P84.6 CLOSED 解讀成 production SLO 已恢復；維持 `SLO###` / `DOC###` / health check 作為營運真相。
@@ -277,11 +291,23 @@
   - 已裁決：2026-05-25 主公回覆 `push ee8bcba，核准 R-016 downgrade to monitoring`；AI 已 push `ee8bcba`。R-016 由 active blocking risk 降級為 Open（Monitoring），觀察窗 2026-05-25～2026-06-01。此裁決不是 Closed；若 monitoring 觸發條件命中，立即升回 active R-016。
   - 監控期：每日或手動 dispatch 後檢查 latest production report、landing、SLO、system doctor、cost governance、budget/cooldown、provider routing。前台內容可信度（芽芽觀察室、舊文章、known issue guard）另開 R-017 / P96+，不得混回 R-016。
   - 長期：免費 provider 只作 P93 disabled-by-default 插槽候選；不得在未核准前接進主鏈路。
+  - 已連動（2026-06-01 P105.1）：daily 首發切 OpenRouter（deepseek-chat）走 FallbackLLMClient、PROVIDER_ROUTER_ENABLED 仍 false——屬「預期 provider 變更」，**非**本 R-016 升級條件之「provider routing 非預期啟用」（P93 router 未啟用、未經 fail-closed guard）。daily dry-run 實測 manifest active_provider=openrouter、quota_error=false、core_contract pass、報告發布。解 fail-closed / 啟用 P93 router 延後為獨立任務（母計畫「啟用 P93 框架」目標部分延後）。觀察窗 2026-06-01 到期，本次不裁決 close（待 fresh production evidence、屬 production SLO 戰線另議）。
 - **觸發升級**：monitoring window 內若出現任一條件，升回 active R-016：latest production SLO `issues` 非空、system doctor blocking/degraded、health check FAIL、landing 指向非最新 production report、`CCG008 current` 復發、provider routing 非預期啟用、Gemini budget/cooldown 連續阻斷最新 production，或 GitHub Actions Daily Monitor 連續失敗造成主公無法判讀最新報告。
 
 ---
 
 ## 已關閉風險（Closed）
+
+### R-024：skill metrics 永不生成 — 設計前提錯配（P103.1 關閉）
+
+- **來源**：P103 A3 診斷（2026-05-31）；P103.1 釐清關閉（2026-05-31）
+- **風險級**：🟡 中
+- **狀態**：✅ 已關閉（Closed，2026-05-31 P103.1）
+- **描述**：AOV `.agent/skills/*/` 的 `record()` 在 `_run_with_metrics()` 內、入口 `if __name__ == '__main__'`；Claude Code 以 module/import 模式載入時 `__name__` 不等於 `'__main__'`，`record()` 永不執行，`~/.claude/skill_metrics.jsonl` 從未建立。
+- **關閉結論（P103.1）**：非 bug，是**設計前提錯配**——`record()`+`__main__` 接線沒壞，是「設計前提（CLI 程式）vs 實際用法（對話內模擬觸發、skill 不以程式執行）」錯配。hooks 亦不適用（`matcher:Skill` 不觸發 issue #43630、payload 無 skill_name issue #22655）。**accepted 為已知設計限制**；接手者若要 metrics 需另議觸發機制重設計（屬工具鏈/部署層，非引擎 scope）。
+- **防復發**：保留 `tests/test_skill_metrics_logger.py::TestImportDoesNotTriggerRecord` 錨點測試；postmortem `docs/postmortems/2026-05-31-phase-103.1-metrics-design-mismatch.md`。
+
+---
 
 ### R-007：`.back-to-landing` 未列入 mobile backdrop-filter 停用清單（P70.3.1 審計）
 
@@ -365,3 +391,4 @@
 - **2026-05-16**：P74 關閉 R-015；`test_dynamic_focus.py` 三個 async case 改用 `asyncio.run(...)`，單檔 5 passed，全套 112 passed。
 - **2026-05-16**：P75 關閉 R-014；回填 P63/P64/P69/P70.3 共 4 份 blindspot，新增 B-011~B-022，M4 status 缺漏數歸零。
 - **2026-05-16**：P76 狀態清理；R-007/R-008 從 Open 區移至 Closed 區，長期 LINE WebView 觀察仍由 R-004 承接。
+- **2026-05-31**：P103.1 關閉 R-024（從 Open 移至 Closed）；確認 metrics 是設計前提錯配（skill 對話式觸發、非 shell 執行），hooks 不適用，accepted 為已知設計限制。

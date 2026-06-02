@@ -46,7 +46,12 @@ ALLOWED_ROUTE_STATUS = {
     ROUTE_UNKNOWN,
 }
 ALLOWED_ATTEMPT_STATUS = {ATTEMPT_CALLED, ATTEMPT_BLOCKED, ATTEMPT_FAILED}
-ALLOWED_PROVIDERS = {"gemini_primary", "openai_fallback", "groq", "cloudflare_ai", "github_models"}
+ALLOWED_PROVIDERS = {
+    "gemini_primary", "gemini_fallback",
+    "openai_primary", "openai_fallback",
+    "openrouter_primary", "openrouter_fallback",
+    "groq", "cloudflare_ai", "github_models",
+}
 
 
 def _positive_int(value: Any, default: int = 1) -> int:
@@ -184,6 +189,21 @@ def _clean_attempt(value: Any) -> Dict[str, Any]:
         "failure_class": str(value.get("failure_class", "") or ""),
         "budget_decision": str(value.get("budget_decision", "") or ""),
     }
+
+
+def provider_role_name(client: Any, role: str) -> str:
+    """client 實例 → ``"{provider}_{role}"`` diagnostics 名（精確 type 匹配）。
+
+    用 ``type(client) is cls`` 精確匹配（OpenRouterClient 繼承 LLMClient，故不會誤判為
+    openai）。``role`` 為 ``"primary"`` / ``"fallback"``；無法辨識的 client 對 primary 回
+    保守值 ``"gemini_primary"``、對 fallback 回 ``"unknown"``（皆通過白名單驗證）。
+    """
+    from analyzer.provider_registry import REGISTRY
+
+    for name, cls in REGISTRY.items():
+        if type(client) is cls:
+            return f"{name}_{role}"
+    return "gemini_primary" if role == "primary" else "unknown"
 
 
 def build_provider_diagnostics(
@@ -422,21 +442,54 @@ class ProviderRouter:
             self.last_attempts[-1]["failure_class"] = type(exc).__name__
             raise
 
+    def _active_provider_name(self) -> str:
+        # router 包覆 FallbackLLMClient 時往下取底層實際首發 provider（無則用自身）。
+        inner = getattr(self.primary, "primary", self.primary)
+        return provider_role_name(inner, "primary")
+
     def provider_diagnostics(self) -> Dict[str, Any]:
         return build_provider_diagnostics(
             router_enabled=self.router_enabled,
             experimental_enabled=self.experimental_enabled,
             route_status=self.last_route_status,
-            active_provider="gemini_primary",
+            active_provider=self._active_provider_name(),
             slots=self.slots,
             attempts=self.last_attempts,
         )
 
 
+def _build_chain_llm_client(chain: List[tuple]) -> "FallbackLLMClient":
+    """依 ``PROVIDER_CHAIN``（``[(provider, model), ...]``）組首發＋多級 fallback。
+
+    首級＝首發、其餘＝逐級 fallback；fallback 共用 primary 的 ``cache_manager``
+    （與 S1 ``_build_default_fallbacks`` 一致，避免重複快取）。
+    """
+    from analyzer.fallback_llm_client import FallbackLLMClient
+    from analyzer.provider_registry import build_provider
+
+    primary_provider, primary_model = chain[0]
+    primary = build_provider(primary_provider, model=primary_model)
+    fallbacks = [
+        build_provider(name, model=model, cache_manager=primary.cache_manager)
+        for name, model in chain[1:]
+    ]
+    return FallbackLLMClient(primary=primary, fallbacks=fallbacks)
+
+
 def build_default_llm_client() -> LLMProviderClient:
+    """組裝預設 LLM client。
+
+    優先讀 ``config.PROVIDER_CHAIN``（P105.1 B 架構：鏈每級 ``provider:model``）組首發＋
+    多級 fallback；無 ``PROVIDER_CHAIN`` 時退回 S1 路徑——``FallbackLLMClient`` 依
+    ``config.PRIMARY_PROVIDER`` / ``FALLBACK_PROVIDERS`` 動態組裝。``PROVIDER_ROUTER_ENABLED``
+    時再包一層 ``ProviderRouter``。換首發／調鏈／調額度只需改 ``.env``。
+    """
     from analyzer.fallback_llm_client import FallbackLLMClient
 
-    primary = FallbackLLMClient()
+    if config.PROVIDER_CHAIN:
+        primary = _build_chain_llm_client(config.PROVIDER_CHAIN)
+    else:
+        primary = FallbackLLMClient()
     if not config.PROVIDER_ROUTER_ENABLED:
         return primary
     return ProviderRouter(primary=primary)

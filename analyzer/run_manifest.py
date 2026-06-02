@@ -413,6 +413,8 @@ def build_manifest(
             "quota_error": bool(meta.get("quota_error", False)),
             "openai_fallback_configured": bool(meta.get("openai_fallback_configured", False)),
             "openai_fallback_used": bool(meta.get("openai_fallback_used", False)),
+            "active_provider": str(meta.get("active_provider", "") or ""),
+            "active_model": str(meta.get("active_model", "") or ""),
             "routing": normalize_provider_diagnostics(meta.get("provider_diagnostics")),
         },
         "budget": normalize_budget_snapshot(meta.get("budget")),

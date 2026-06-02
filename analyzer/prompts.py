@@ -41,6 +41,7 @@ SYSTEM_SINGLE_POST = """你是一位專精於遊戲產業的社群輿情分析�
 - **region 判定**：請根據內容提及的名稱（如：RoV 代表 TH, Liên Quân 代表 VN）或語言自動判定區域。
 - relevance_score 表示該貼文與《傳說對決》的相關程度，0 表示完全無關，1 表示高度相關
 - is_hero_focus：如果內容明確提及焦點英雄（例如：芽芽），請將此欄位設為 true，否則為 false。
+- **sentiment_score 標度（跨 model 一致）**：0.0=極負面、0.5=中性、1.0=極正面，方向必須與 sentiment 一致（negative→0.0~0.4、neutral→0.4~0.6、positive→0.6~1.0）
 - 如果無法判定情緒，使用 "neutral"
 - events 陣列可以為空，僅在確實偵測到活動/事件時才填入
 - 永遠保持 JSON 格式，不要加入任何 JSON 之外的文字
@@ -110,6 +111,7 @@ SYSTEM_DAILY_SUMMARY = """你是一位專精於遊戲產業的輿情分析顧問
 }
 
 分析注意事項：
+- **hero_focus.sentiment_score 標度（跨 model 一致）**：0.0=極負面、0.5=中性、1.0=極正面，與單篇 sentiment_score 同方向
 - hot_topics 最多列出前 10 名
 - 如果偵測到明顯的負面風暴，在 alerts 中標註
 - recommendation 應該具體且可執行"""

@@ -37,7 +37,7 @@ SINGLE_POST_SCHEMA = {
     "properties": {
         "reasoning": {"type": "STRING"},
         "sentiment": {"type": "STRING", "enum": ["positive", "negative", "neutral"]},
-        "sentiment_score": {"type": "NUMBER"},
+        "sentiment_score": {"type": "NUMBER", "description": "情緒強度 0.0~1.0：0.0=極負面、0.5=中性、1.0=極正面，與 sentiment 方向一致"},
         "region": {"type": "STRING"},
         "original_language": {"type": "STRING"},
         "translated_content": {"type": "STRING"},
@@ -121,7 +121,7 @@ DAILY_SUMMARY_SCHEMA = {
             "properties": {
                 "name": {"type": "STRING"},
                 "summary": {"type": "STRING"},
-                "sentiment_score": {"type": "NUMBER"},
+                "sentiment_score": {"type": "NUMBER", "description": "焦點英雄情緒 0.0~1.0：0.0=極負面、0.5=中性、1.0=極正面，與單篇同方向"},
                 "top_comments": {"type": "ARRAY", "items": {"type": "STRING"}}
             }
         }
@@ -194,6 +194,20 @@ class SentimentAnalyzer:
             "openai_fallback_used": fallback_used if isinstance(fallback_used, bool) else False,
         })
         return details
+
+    def active_provider_model(self) -> tuple:
+        """取實際首發 provider 基礎名 + model id（manifest 追溯用）。
+
+        self.llm 可能是 FallbackLLMClient 或 ProviderRouter；往下挖兩層到實際首發 client
+        （router.primary→FallbackLLMClient.primary→實際 client）。無法辨識回 ("gemini", "")。
+        """
+        from analyzer.provider_router import provider_role_name
+
+        client = getattr(self.llm, "primary", self.llm)
+        client = getattr(client, "primary", client)
+        provider = provider_role_name(client, "primary").rsplit("_", 1)[0]
+        model = str(getattr(client, "model", "") or "")
+        return provider, model
 
     def _compress_content(self, text: str, target_heroes: List[str]) -> str:
         """長文本智能切片：保留首尾 150 字及含有焦點英雄的段落。"""
@@ -485,6 +499,14 @@ class SentimentAnalyzer:
                 
             summary["global_insights"] = regional_summary_data
             summary["llm_contract"] = {"status": "ok", "errors": []}
+            # P105.1 趨勢補完：history 用 archive total_posts 算聲量 volume，production 路徑漏寫會失真
+            summary["total_posts"] = len(analyzed_posts)
+            # sentiment_distribution 改由 code 統計（LLM 輸出不可靠，曾把 11 篇算成 19）
+            _dist = {"positive": 0, "negative": 0, "neutral": 0}
+            for _entry in analyzed_posts:
+                _s = _entry.get("analysis", {}).get("sentiment", "neutral")
+                _dist[_s if _s in _dist else "neutral"] += 1
+            summary["sentiment_distribution"] = _dist
             
             hero_stats = {}
             for hero in config.HERO_WATCHLIST:
