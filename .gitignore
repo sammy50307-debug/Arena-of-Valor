@@ -51,3 +51,4 @@ handoff/
 
 # UI 報告產出物（演示用、非原始碼）
 ui_previews/
+dev_claude.ps1
