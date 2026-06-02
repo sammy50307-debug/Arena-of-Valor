@@ -14,6 +14,7 @@ from datetime import datetime
 import httpx
 from bs4 import BeautifulSoup
 
+import config
 from scrapers.tavily_searcher import SearchResult
 
 if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
@@ -166,6 +167,7 @@ class BahamutScraper:
                 score=min(1.0, reply_count / 50) if reply_count > 0 else 0.5,
                 region=region,
                 published_date=published,
+                detected_heroes=[h for h in config.HERO_WATCHLIST if h in title],
             )
         except Exception as e:
             self.logger.debug(f"解析巴哈文章列失敗: {e}")
@@ -201,6 +203,7 @@ class BahamutScraper:
                 score=0.5,
                 region=region,
                 published_date="",
+                detected_heroes=[h for h in config.HERO_WATCHLIST if h in title],
             ))
             if len(results) >= max_results:
                 break

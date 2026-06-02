@@ -14,6 +14,7 @@ from typing import List
 import httpx
 from bs4 import BeautifulSoup
 
+import config
 from scrapers.tavily_searcher import SearchResult
 
 if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
@@ -117,6 +118,9 @@ class DcardScraper:
                 continue
             seen_urls.add(url)
 
+            # 建立偵測標籤：判斷標題提到名單中的哪些焦點英雄
+            detected = [h for h in config.HERO_WATCHLIST if h in title]
+
             results.append(SearchResult(
                 title=title,
                 content=f"{title}（Dcard 傳說對決板）",
@@ -126,6 +130,7 @@ class DcardScraper:
                 score=0.6,
                 region=region,
                 published_date="",
+                detected_heroes=detected,
             ))
             if len(results) >= max_results:
                 break

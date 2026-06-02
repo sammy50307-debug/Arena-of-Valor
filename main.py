@@ -313,11 +313,14 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
         # ── 補充 Dcard + 巴哈姆特 爬蟲 ────────────────────
         tw_keywords = config.REGIONAL_KEYWORDS.get("TW", ["傳說對決"])
+        # P107 S2: 焦點英雄單詞接入 aov 板搜集（巴哈 PoC 搜「芽芽」8/8 命中真遊戲文）
+        # 根因 A 修復：焦點覆蓋不再靠泛詞碰運氣。Dcard 走 DDG 對焦點暫無效（PoC 0 篇），留 S3 Apify 治本
+        focus_keywords = list(tw_keywords) + list(getattr(config, "HERO_WATCHLIST", []))
         seen_urls = {r.url for r in all_results}
 
         try:
             dcard = DcardScraper()
-            dcard_results = await dcard.search(tw_keywords, max_results=8)
+            dcard_results = await dcard.search(focus_keywords, max_results=8)
             added = 0
             for r in dcard_results:
                 if r.url not in seen_urls:
@@ -330,7 +333,7 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
         try:
             bahamut = BahamutScraper()
-            baha_results = await bahamut.search(tw_keywords, max_results=8)
+            baha_results = await bahamut.search(focus_keywords, max_results=8)
             added = 0
             for r in baha_results:
                 if r.url not in seen_urls:

@@ -1,6 +1,6 @@
 # Phase 107 — 焦點英雄爬取覆蓋修復（Dcard 治本 + HERO_FOCUS_KEYWORDS 接線 + 防復發飛輪）
 
-> **狀態**：DRAFT（草案，凍結前須過 M1 + M1.5 + M2 體檢，建議 `lint-phase-plan` 驗）
+> **狀態**：FROZEN（2026-06-02 阿喜核准凍結動工；M1/M2 lint 已過。動工從 S1 快修起）
 > **日期**：2026-06-02
 > **提案**：阿喜（P106.1 run-now 後質疑「0 篇芽芽、尤其 Dcard」）
 > **模型**：規劃 Opus 4.8；機械改動 Sonnet 4.6；Dcard 繞 Cloudflare PoC 用 Opus
