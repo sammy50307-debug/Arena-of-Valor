@@ -2,137 +2,6 @@
   "schema_version": 3,
   "result_schema_version": 1,
   "entries": {
-    "prompt:098779cd897b943e4366c3a9d67bb0dd": {
-      "result": {
-        "reasoning": "作者針對5/21的不停機更新進行評論，標題以『他終究被動刀了』表達對英雄削弱的關注，並透過『新版本還可以玩嗎』引發玩家對平衡性的討論，屬於中立偏向探討性質的內容。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "版本更新",
-        "keywords": [
-          "不停機更新",
-          "版本更新",
-          "英雄削弱",
-          "脆皮"
-        ],
-        "summary": "創作者針對5/21遊戲不停機更新後的英雄平衡性進行分析與討論。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "5/21不停機更新",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-26T14:35:34.875800+00:00",
-      "last_accessed": "2026-05-26T14:35:34.875800+00:00",
-      "ttl_days": 7
-    },
-    "prompt:959c0ae70af75093cbfa0a9d3238dc54": {
-      "result": {
-        "reasoning": "該貼文為 Facebook 貼文列表的截圖或摘要，包含帳號買賣資訊、帳號安全疑慮以及對遊戲角色性別的調侃，整體呈現社群雜亂的討論氛圍。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "社群互動",
-        "keywords": [
-          "帳號買賣",
-          "帳號安全",
-          "萊納",
-          "性別歧視"
-        ],
-        "summary": "貼文彙整了帳號買賣資訊、帳號安全諮詢以及對遊戲角色性別的討論。",
-        "relevance_score": 0.8,
-        "is_hero_focus": true,
-        "events": []
-      },
-      "stored_at": "2026-05-26T14:35:36.829723+00:00",
-      "last_accessed": "2026-05-26T14:35:36.829723+00:00",
-      "ttl_days": 7
-    },
-    "prompt:a82cb706afe9a29517062c47a9e74b5d": {
-      "result": {
-        "reasoning": "貼文內容為官方預告新英雄技能機制，屬於資訊分享性質，不帶有玩家情緒或反諷。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "角色討論",
-        "keywords": [
-          "新英雄",
-          "技能機制",
-          "靈體",
-          "傳說對決"
-        ],
-        "summary": "官方預告四位新英雄即將登場，並介紹了靈體召喚與技能變異機制。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "新英雄登場",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-26T14:35:41.615402+00:00",
-      "last_accessed": "2026-05-26T14:35:41.615402+00:00",
-      "ttl_days": 7
-    },
-    "prompt:3e67de1a8a65b19040275171ed62a75d": {
-      "result": {
-        "reasoning": "貼文標題提及『霸凌歧視人』，顯示玩家在遊戲內遭遇了負面的社交互動，屬於對遊戲社群環境的負面反饋。",
-        "sentiment": "negative",
-        "sentiment_score": 0.2,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "社群互動",
-        "keywords": [
-          "霸凌",
-          "歧視",
-          "社群環境",
-          "遊戲體驗"
-        ],
-        "summary": "玩家在傳說對決板分享關於遊戲內遭受霸凌與歧視的負面心得。",
-        "relevance_score": 0.9,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-26T14:35:55.442109+00:00",
-      "last_accessed": "2026-05-26T14:35:55.442109+00:00",
-      "ttl_days": 7
-    },
-    "prompt:ad30662420166c3d325897fadff07d01": {
-      "result": {
-        "reasoning": "貼文為官方或玩家分享的聯名活動資訊，內容客觀陳述活動延長的情報，不帶有個人情緒或反諷。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "活動資訊",
-        "keywords": [
-          "星展銀行",
-          "聯名卡",
-          "緹莉",
-          "星夢展航",
-          "活動延長"
-        ],
-        "summary": "星展傳說對決聯名卡專屬活動延長至2026年6月30日，開卡可獲得緹莉造型。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "星展傳說對決聯名卡專屬活動",
-            "type": "合作活動"
-          }
-        ]
-      },
-      "stored_at": "2026-05-26T14:35:56.882622+00:00",
-      "last_accessed": "2026-05-26T14:35:56.882622+00:00",
-      "ttl_days": 7
-    },
     "prompt:2af15c718b6377524b774a648243a5d7": {
       "result": {
         "reasoning": "該貼文為遊戲實況主娘子的影片標題，旨在推廣蘭鐸在當前版本的高強度與戰術應用，語氣充滿正面推崇與教學意圖。",
@@ -2509,12 +2378,59 @@
       "stored_at": "2026-06-02T12:28:02.075352+00:00",
       "last_accessed": "2026-06-02T12:28:02.075352+00:00",
       "ttl_days": 7
+    },
+    "prompt:278084a39ed48857ec347299281f3294": {
+      "result": {
+        "reasoning": "玩家對新英雄拓冥的造型被其他英雄奪走感到不滿，並質疑官方的策略，認為這種做法匪夷所思。雖然語氣帶有抱怨，但並未使用極端負面的詞彙，更多是表達困惑與無奈。",
+        "sentiment": "negative",
+        "sentiment_score": 0.3,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "角色討論",
+        "keywords": [
+          "拓冥",
+          "造型",
+          "官方策略",
+          "瑟斐斯"
+        ],
+        "summary": "玩家對新英雄拓冥的造型被其他英雄奪走感到不滿，並質疑官方的策略。",
+        "relevance_score": 0.9,
+        "is_hero_focus": true
+      },
+      "stored_at": "2026-06-02T14:36:03.636415+00:00",
+      "last_accessed": "2026-06-02T14:36:03.636415+00:00",
+      "ttl_days": 7
+    },
+    "prompt:bd7d1bd7cb0668bb2e87ac6d30187135": {
+      "result": {
+        "reasoning": "貼文中包含對蘇離角色重製的不滿，並呼籲撤回重製，顯示玩家對遊戲改動的強烈反對。同時，貼文也提及了遊戲內的活動資訊，表達對活動的期待與正面情緒。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "角色討論",
+        "keywords": [
+          "蘇離",
+          "重製",
+          "天美",
+          "新技能",
+          "新角色"
+        ],
+        "summary": "玩家呼籲撤回蘇離重製，並期待遊戲內的熱血六月活動。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true
+      },
+      "stored_at": "2026-06-02T14:36:11.429540+00:00",
+      "last_accessed": "2026-06-02T14:36:11.429540+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
     "total_l2_hits": 59,
     "total_apify_hits": 0,
-    "total_misses": 108
+    "total_misses": 110
   }
 }
