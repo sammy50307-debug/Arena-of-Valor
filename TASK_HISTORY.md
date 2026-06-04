@@ -14309,3 +14309,29 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險**：R-027（爬取覆蓋退化，Open）。Dcard 焦點 DDG 撈 0 篇→S3 Apify 治本（阿喜認知 Dcard 是芽芽文最多處，但現 DDG 爬法撈不到）。Tavily 一般文 content 仍只 snippet（未動，另議）。source selection cap=18 可能限焦點覆蓋（本次 picker 選 3 芽芽足夠，未觸發，觀察）。
 
 **狀態**：S2 完整里程碑收官（焦點覆蓋正解 + 端到端驗證芽芽進觀察室）。4 commits 待 push（阿喜 2026-06-02 授權）。S3 Dcard Apify 治本待開工。dry-run 未 promote/推播（正式發布需 run-now）。
+
+### P108.1 — API key 外洩事件安全熱修（log redaction + pre-push guard）（2026-06-04）
+
+**目標**：回應阿喜回報的金鑰外洩疑慮，先修系統防線，而不是只要求人工換 key。安全原則：不在紀錄中寫入真實 key、token、webhook 或 `.env` 值。
+
+**觸發**：老師提醒「有調用密鑰的部分務必使用變數，不要寫死；`.env` 禁止上傳 Github」。追查 AOV / Hermes 後確認：current tracked files 未含 `.env` 真值且 scan PASS，但 AOV 有兩個風險點——歷史 commit 曾出現舊 `ANTHROPIC_AUTH_TOKEN` / chatones proxy token；本機 `logs/app.log` 曾寫入含 query key 的 Gemini API URL。
+
+**系統修復**：
+- `analyzer/gemini_client.py` 新增 redaction helper，所有 provider URL、HTTP response text、exception message 先遮罩再 log 或回傳錯誤；避免 provider error 把 key 跟著帶出。
+- `test_gemini.py` 改用同一套遮罩 helper，手動測試不再印 raw URL key。
+- `tests/test_gemini_model_policy.py` 新增 URL key / httpx exception / OpenRouter-like 值遮罩測試，防止回歸。
+- 刪除本機未追蹤的 `dev_claude.ps1` 與 `logs/app.log`；前者已不用，後者是本機殘留 log，不進 Git。
+- 新增 `.githooks/pre-push`，本機 push 前跑 `py -m gov.scan_secrets`；設定 `core.hooksPath=.githooks`。
+- 登記 R-029，保留 provider 端 rotate/revoke 與 Git history rewrite 是否需要另開專案的判斷點。
+
+**驗證**：
+- `py -m pytest tests/test_gemini_model_policy.py tests/test_429_retry.py -q` → 7 passed。
+- `py -m gov.scan_secrets` → PASS。
+- `py -m gov.preflight --profile fast` → PASS。
+- `py scripts\governance_doctor.py --repo-root .` → GOV000 OK。
+- 非 `.env` / 非 log 的 worktree secret pattern scan → PASS。
+- `git diff --check` → PASS（僅 Git 提示 CRLF 轉 LF，非 whitespace error）。
+
+**殘留風險**：第三方 provider 後台的 key 只能由帳號持有人 revoke/rotate；AI 無法登入 Google AI / OpenRouter / chatones proxy 後台替阿喜撤銷。若舊 token 曾推到公開 remote 且可能有效，需先 revoke/rotate，再另開 Git history rewrite 專案評估，不可在熱修中自動清史。
+
+**狀態**：本機系統防線完成，尚未 commit/push；等待阿喜決定是否先 rotate provider key，以及是否核准 commit（建議先 commit 本地修復，push 前再確認 provider 端已處置）。

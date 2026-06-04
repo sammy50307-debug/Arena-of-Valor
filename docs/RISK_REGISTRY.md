@@ -83,6 +83,27 @@
 
 ---
 
+### R-029：API key 外洩防線不足 — local log 裸印 provider URL / 歷史中轉 token（2026-06-04 安全熱修）
+
+- **來源**：阿喜 2026-06-04 回報老師提醒「凡是有調用密鑰的部分，務必使用變數，不要寫死；`.env` 禁止上傳 GitHub」，進一步追查 AOV 與 Hermes。
+- **風險級**：🔴 高（安全；provider key 一旦仍有效，可能被盜用額度或外部呼叫）
+- **狀態**：Open（程式端已加 guard；仍需 provider 端 rotate/revoke 與歷史處置決策）
+- **描述**：目前 HEAD 未追蹤 `.env`，且 `.gitignore` 已排除 `.env` / log；current tracked secret scan PASS。但 AOV 曾有兩類安全風險：(A) 歷史 commit 的 `dev_claude.ps1` 曾寫入舊 `ANTHROPIC_AUTH_TOKEN` / chatones proxy token；(B) 本機 `logs/app.log` 曾記錄含 query key 的 Gemini API URL。若只要求阿喜手動換 key 而不修系統，未來 provider exception / HTTP error 仍可能再次把 key 帶進 log。
+- **已完成緩解**：
+  - 刪除本機未追蹤的舊中轉腳本 `dev_claude.ps1`（目前不再使用）。
+  - 刪除本機舊 `logs/app.log`，避免本機殘留可讀 key。
+  - `analyzer/gemini_client.py` 新增 secret redaction：URL query、OpenRouter-like key、Google AI key、generic `sk-*`、Discord webhook 形狀都先遮罩再 log / 回傳錯誤。
+  - `test_gemini.py` 改用相同遮罩 helper，避免人工測試腳本印出含 key URL。
+  - `tests/test_gemini_model_policy.py` 加三個防復發測試，鎖定 URL key、httpx exception message、OpenRouter-like 值都會被遮罩。
+  - 新增 `.githooks/pre-push`，本機 push 前執行 `py -m gov.scan_secrets`；已設定 `core.hooksPath=.githooks`。
+- **殘留/需阿喜處理**：
+  - provider 端 rotate/revoke：若 Google AI / OpenRouter / chatones proxy 後台仍有舊 key，需在後台刪除或重生；AI 無法替阿喜登入第三方帳號撤銷。
+  - Git history 是否 rewrite：歷史 `dev_claude.ps1` 若 token 判定曾公開且仍可能有效，需另開安全專案評估 `git filter-repo` / BFG 清史；這是高 blast radius 動作，不在熱修中自動做。
+- **觸發升級**：secret scan 再發現 current tracked 真值、任何 log 再出現 raw key、或 GitHub remote history 中的舊 token 被確認仍有效 → 立即停止 push / 發布，先 revoke/rotate，必要時開 history rewrite 專案。
+- **防復發落點**：`py -m gov.scan_secrets`、`.githooks/pre-push`、redaction helper tests、`TASK_HISTORY.md` P108.1 安全熱修紀錄。
+
+---
+
 ### R-023：Monitoring review false closure / missing guard prioritization drift（P102 開案）
 
 - **來源**：主公 2026-05-29 指定 `P102 Missing Guard Backlog / Monitoring Review Plan`；P101 已建立 guard index，但 R-016/R-017 monitoring 尚未到期，且 P101 human-only backlog 仍需排序。
@@ -446,3 +467,4 @@
 - **2026-06-02**：P106.1 問題 8 收官品質審查登記 R-026（top5 age filter 與 template fallback 倒灌不一致，cross-ref R-017）；同條附帶記錄 generator 未傳 now、空態判斷變數不同源兩個極低風險點。
 - **2026-06-02**：P106.1 run-now 正式跑流程揭露爬取層根因，登記 R-027（焦點英雄爬取覆蓋退化 / Dcard Cloudflare 反爬 / 靜默資料淺化，四根因連鎖）；P107 計畫書 DRAFT 立案、過 M1/M2 lint，待凍結。
 - **2026-06-02**：P107 S1-S2 收官（焦點接巴哈 + detected_heroes，端到端驗證芽芽進觀察室）後 run-now，阿喜手機看報告發現 3 報告呈現問題，登記 R-028（熱詞無連結 A〔併 P106 既有〕/ 文章來源錯 B / 平台統計缺真實平台 C），待開 P108 報告數據可信度修復系統處理。
+- **2026-06-04**：阿喜回報金鑰外洩疑慮，登記 R-029（API key 外洩防線不足：local log 裸印 provider URL / 歷史中轉 token）；同步落地 redaction tests 與 pre-push secret scan guard，provider 端 rotate/revoke 與 history rewrite 另待決策。

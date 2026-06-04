@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from analyzer.gemini_client import _masked_url, _safe_error_message
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 API_KEY = os.getenv("GEMINI_API_KEY")
@@ -16,7 +17,7 @@ async def main():
 
     # 1. 執行戶口普查：列出所有可用模型
     url = f"https://generativelanguage.googleapis.com/v1beta/models?key={API_KEY}"
-    print(f"[Listing Models] querying {url[:60]}...")
+    print(f"[Listing Models] querying {_masked_url(url)}")
     
     try:
         async with httpx.AsyncClient(timeout=10) as client:
@@ -40,7 +41,7 @@ async def main():
             else:
                 print(f"[Fail] HTTP {resp.status_code}: {resp.text}")
     except Exception as e:
-        print(f"Exception: {e}")
+        print(f"Exception: {_safe_error_message(e)}")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -8,6 +8,7 @@ import asyncio
 import json
 import logging
 import hashlib
+import re
 from typing import Optional, Union, List
 
 import httpx
@@ -32,12 +33,30 @@ GEMINI_MODELS = [
 ]
 
 
+_SECRET_TEXT_PATTERNS = [
+    re.compile(r"AIza[0-9A-Za-z_\-]{20,}"),
+    re.compile(r"sk-(?:or-v1-|proj-|ant-|live-)?[A-Za-z0-9_\-]{20,}"),
+    re.compile(r"https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/\d+/[A-Za-z0-9_\-]{20,}"),
+]
+
+
+def _redact_secret_text(text: object) -> str:
+    """Redact API keys from error strings before they can reach logs or reports."""
+    value = str(text)
+    value = re.sub(r"([?&]key=)[^&\s'\"<>]+", r"\1***", value)
+    for pattern in _SECRET_TEXT_PATTERNS:
+        value = pattern.sub("***REDACTED***", value)
+    return value
+
+
 def _masked_url(url: str) -> str:
     """遮罩 URL 中的 API key，防止 secret 洩漏進 log。"""
-    if "?key=" in url:
-        base, _ = url.split("?key=", 1)
-        return f"{base}?key=***"
-    return url
+    return _redact_secret_text(url)
+
+
+def _safe_error_message(exc: BaseException) -> str:
+    """httpx exceptions include request URLs; sanitize them before logging."""
+    return _redact_secret_text(exc)
 
 
 class GeminiClient:
@@ -126,7 +145,7 @@ class GeminiClient:
                 self.logger.info("Pre-flight OK：配額正常")
                 return True
         except Exception as e:
-            self.logger.warning(f"Pre-flight 例外: {e}")
+            self.logger.warning(f"Pre-flight 例外: {_safe_error_message(e)}")
             return False
 
     # ── 單次 LLM 呼叫（L2 cache）────────────────────────────────────────────
@@ -182,7 +201,9 @@ class GeminiClient:
                     response = await client.post(url, json=payload)
                     if response.status_code != 200:
                         self.logger.warning(
-                            f"Gemini API 錯誤詳情 (HTTP {response.status_code}): {response.text}"
+                            "Gemini API 錯誤詳情 (HTTP %s): %s",
+                            response.status_code,
+                            _redact_secret_text(response.text),
                         )
                     response.raise_for_status()
                     data = response.json()
@@ -248,7 +269,11 @@ class GeminiClient:
                 await asyncio.sleep(2 ** transient_attempt)
 
             except (json.JSONDecodeError, KeyError, IndexError) as e:
-                self.logger.warning(f"回應解析失敗 (第 {transient_attempt + 1} 次): {e}")
+                self.logger.warning(
+                    "回應解析失敗 (第 %s 次): %s",
+                    transient_attempt + 1,
+                    _safe_error_message(e),
+                )
                 transient_attempt += 1
                 if transient_attempt >= self.MAX_RETRIES:
                     raise
@@ -318,13 +343,15 @@ class GeminiClient:
                 except httpx.HTTPStatusError as e:
                     if e.response.status_code == 429:
                         raise
-                    self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {e}")
-                    return {"error": str(e)}
+                    safe_error = _safe_error_message(e)
+                    self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {safe_error}")
+                    return {"error": safe_error}
                 except LLMBudgetSkip:
                     raise
                 except Exception as e:
-                    self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {e}")
-                    return {"error": str(e)}
+                    safe_error = _safe_error_message(e)
+                    self.logger.error(f"   [!] 批次分析 #{i} 發生錯誤: {safe_error}")
+                    return {"error": safe_error}
 
         tasks = [_analyze(i, prompt) for i, prompt in enumerate(user_prompts, 1)]
         try:

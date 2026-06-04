@@ -1,0 +1,32 @@
+#!/bin/sh
+# ============================================================
+# AOV pre-push secret guard
+# ------------------------------------------------------------
+# Blocks push when .env values or secret-like patterns appear in
+# git tracked files. Never prints secret values.
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+# ============================================================
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT" || exit 0
+
+if [ -x "$ROOT/.venv/Scripts/python.exe" ]; then PY="$ROOT/.venv/Scripts/python.exe"
+elif [ -x "$ROOT/venv/Scripts/python.exe" ]; then PY="$ROOT/venv/Scripts/python.exe"
+elif [ -x "$ROOT/.venv/bin/python" ]; then PY="$ROOT/.venv/bin/python"
+elif [ -x "$ROOT/venv/bin/python" ]; then PY="$ROOT/venv/bin/python"
+elif command -v python >/dev/null 2>&1; then PY="python"
+elif command -v python3 >/dev/null 2>&1; then PY="python3"
+else
+  echo "[pre-push] Python not found; cannot run secret scan. Stop and check manually."
+  exit 1
+fi
+
+"$PY" -m gov.scan_secrets
+status=$?
+if [ "$status" -ne 0 ]; then
+  echo "⛔ [pre-push] Secret scan failed. Redact tracked files and rotate exposed keys before pushing."
+  exit "$status"
+fi
+
+echo "✅ [pre-push] Secret scan passed."
+exit 0
