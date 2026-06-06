@@ -18,17 +18,6 @@
 
 ## 開放風險（Open）
 
-### R-032：非巴哈平台 published_date 空值 → 被 generator gate 擋在最新動態池外（P108.3 衍生，空值戰線待開）
-
-- **來源**：P108.3 PoC 實測（2026-06-06）掃 data/raw_*.json 各平台 published_date 空值率
-- **風險級**：🟡 中（最新動態多平台多樣性；目前池子幾乎只有巴哈文）
-- **狀態**：Open（空值戰線待評估另開 Phase）
-- **描述**：PoC 實測 YouTube/Instagram/Dcard/Facebook/website 的 `published_date` **100% 空值**（巴哈 0%）。generator `_has_known_post_date`（`reporter/generator.py:113` 的 `dated_posts`）是 top5/最新動態前置 gate，空值文章全被擋在池外 → 最新動態實質只由巴哈文構成。P108.3 治本巴哈格式只能讓「巴哈文之間」反映最新，**無法讓 YT/IG 進入最新動態**（無值可正規化）。附帶：P108.3 不回溯舊 raw（仍相對格式），trend skill 讀 analysis 聚合非逐文 decay，影響有限。
-- **緩解策略**：另開「空值戰線」Phase 評估各爬蟲為何無 published_date（來源頁無日期 vs 爬蟲未抓）、是否補抓或放寬 gate。非 P108.3 scope。
-- **關聯**：與 R-030（巴哈格式問題）同「published_date 下游處理」家族但本質不同（空值 vs 格式）；與 R-031（最新動態 UX）不同戰線。
-
----
-
 ### R-033：picker 仍對未正規化來源脆弱 — 治本採爬蟲端正規化、picker 未加防禦（P108.3 衍生，advisory）
 
 - **來源**：P108.3 治本 vs 治標決策（2026-06-06 阿喜拍板純治本）
@@ -385,6 +374,19 @@
 
 ## 已關閉風險（Closed）
 
+### R-032：非巴哈平台 published_date 空值 → 最新動態只有巴哈（P108.4 折衷收官）
+
+- **來源**：P108.3 PoC 實測（2026-06-06）非巴哈平台 published_date 100% 空值
+- **風險級**：🟡 中（最新動態多平台多樣性）
+- **狀態**：✅ 折衷收官（Closed，2026-06-07 P108.4）
+- **描述**：非巴哈平台（Tavily/DDG 搜尋結果）published_date 100% 空值，被 generator `_has_known_post_date` gate 擋出最新動態池 → 池子幾乎只有巴哈文。
+- **折衷解法（P108.4，飛輪穩修）**：飛輪二次追問選穩修 E′（非造假 fallback 日期、非 choke point 重構）。picker `_is_parseable_time`（復用 _FMTS 單一解析來源）對無法解析時間的文差異化 decay。**撞上 P108「排除無日期文」可信度契約（test_report_content_trust 2 測試）**，阿喜裁示折衷 A：**芽芽相關無日期文破例進池（generator yaya_pool 用 analyzed_posts、decay 0.6）；無關無日期文仍排除（other_pool 仍 dated_posts，保留可信度防線）**。template 不改（無日期維持「時間未知」誠實顯示）。
+- **驗證**：新增 14 測試（_is_parseable_time + decay 對比 + 契約 guard）；content_trust 2 測試更新（focus「芽芽破例進」、general_feed 保持「無關排除」）；全套 474→488 passed。
+- **未竟（接受）**：完整多平台（含無關無日期文）未做——與 P108 可信度防線衝突，折衷只破例芽芽；若未來要無關平台也進，需重評可信度 vs 覆蓋取捨。
+- **教訓 B-024**：改下游消費行為前，除查程式消費點（B-023），須查測試/契約是否鎖定該行為——本次 S1 漏查 content_trust 契約、動工後才撞上。
+
+---
+
 ### R-030：top5_picker 日期解析不支援巴哈相對格式 → 最新動態文章不換（P108.3 治本收官）
 
 - **來源**：P108 阿喜驗收發現「最新動態 800 年沒換」（2026-06-06）
@@ -515,3 +517,4 @@
 - **2026-06-06**：阿喜驗收 P108 重生報告揪 4 點。#2 熱詞點擊無連結＝A 漏修（只驗非空沒驗點擊），_postIndex 改全集補修（commit cd4c16f，427 passed），R-028 補記。新登記 R-030（#4b picker 日期解析→文章不換，另開 P108.3 治本）、R-031（#3/#4a 報告 UX，另開 UX Phase）。
 - **2026-06-06**：P108.3 巴哈 published_date ISO 正規化治本收官，R-030 → Closed（從 Open 移至 Closed）。新增 `scrapers/date_normalizer.py`（5 類格式 + 跨年回退）+ bahamut_scraper 爬取當下接入（失敗保留原值 + warning）；PoC 涵蓋 37/37、全套 427→467 passed。build-vs-buy 評估 dateparser（免費但引依賴 + 黑箱）後阿喜核准自己寫。新登記 R-032（非巴哈 published_date 空值被 gate 擋在最新動態池外，空值戰線待開）、R-033（picker 未加相對格式防禦 advisory）。Exit E 端到端待下次 cron 觀察。
 - **2026-06-07**：P108.3.1 補遺收官——R-032 PoC 揭露 P108.3 僅 local 路徑生效（production LLM 路徑 sentiment 重建用 `getattr(res,"timestamp")` 漏接 published_date，時間遺失成「時間未知」、走 LLM 文被 gate 擋出池）。修 sentiment 三處重建改直接存取 `res.published_date`（升級 A）+ 端到端契約測試（升級 B，防 P108.3 同類「單元過 production 沒生效」復發）。全套 467→474 passed。R-030 補記過早宣稱、Postmortem + blindspot B-023（改資料層欄位前驗全鏈流向、棄 getattr 靜默 fallback）。Exit E 仍待 cron 終驗。
+- **2026-06-07**：P108.4 R-032 空值戰線折衷收官，R-032 → Closed。飛輪二次追問選穩修 E′+契約 guard（非方案 A 造假 fallback、非 choke point 重構）。picker 對無法解析時間的文差異化 decay（芽芽 0.6/無關 0.3，`_is_parseable_time` 復用 _FMTS）。撞 P108「排除無日期文」可信度契約（test_report_content_trust），阿喜裁折衷 A：芽芽無日期文破例進池、無關仍排除。全套 474→488 passed。新 blindspot B-024（改行為前查測試/契約，非只程式消費點）。Exit F 端到端待 cron/run-now 驗。

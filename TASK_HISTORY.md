@@ -14438,3 +14438,28 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險**：R-030 誠實補記「先前標 Closed 屬過早宣稱（只驗單元+local，未驗 production LLM 端到端）」。Postmortem `docs/postmortems/2026-06-07-phase-108.3.1-*.md` + blindspot B-023（改資料層欄位前驗全鏈多路徑流向 + 欄位名一致性 + 端到端契約鎖定 + 關鍵欄位棄 getattr 靜默 fallback）。
 
 **狀態**：S1-S2 收官（474 passed）。P108.3 機制在 production LLM 路徑生效；整體最新動態效果端到端待 cron 終驗（Exit E）。R-032 空值戰線的重建層已順帶打通，待回去做 fallback。push 待阿喜核准。
+
+---
+
+### P108.4 — R-032 空值戰線：非巴哈無日期文進最新動態（飛輪穩修 + 折衷 A）（2026-06-07 收官）
+
+**目標**：讓非巴哈無日期文進最新動態池 + picker 差異化 decay（芽芽 0.6/無關 0.3），不造假日期。解決「最新動態只有巴哈」（R-032）。
+
+**觸發**：R-032——非巴哈平台（Tavily/DDG 搜尋結果）published_date 100% 空值，被 generator `_has_known_post_date` gate 擋出池。
+
+**飛輪決策（議題二次追問「更好做法」→ 進飛輪模式）**：方案 A（爬蟲端造 fallback 假日期 + date_is_fallback 標記，~10 檔）→ E（直接面對無日期、不造假，2-3 檔）→ **穩修 E′+契約 guard**（採用）。穩修：picker `_is_parseable_time`（復用 _FMTS 單一解析來源）對無法解析時間的文差異化 decay；不造假日期（更誠實）、不做 choke point 重構（反膨脹停損）。
+
+**動工中的可信度契約衝突（關鍵）**：S2-S3 後全套回歸撞 2 個既有測試 `test_report_content_trust`（P108 建立的「排除無日期文」內容可信度契約）——P108.4「讓無日期文進池」與之直接矛盾。**非過時測試、不改測試求綠**。阿喜裁示**折衷 A：芽芽相關無日期文破例進池（yaya_pool 用 analyzed_posts、decay 0.6）；無關無日期文仍排除（other_pool 仍 dated_posts，保留可信度防線）**。調和芽芽優先 + 內容可信度。
+
+**物理真相（改動，標準半徑）**：
+- config.py：TOP5_NODATE_DECAY_YAYA=0.6 / TOP5_NODATE_DECAY_OTHER=0.3
+- analyzer/top5_picker.py：抽 `_parse_timestamp` + `_is_parseable_time`（_FMTS 單一來源，_compute_decay/_is_too_old 共用，解 R3 漂移）；pick_top5 對無法解析時間的文用差異化 decay（is_yaya 提前判斷）
+- reporter/generator.py：yaya_pool 用 analyzed_posts（含無日期芽芽，decay 0.6 進池）；other_pool 仍 dated_posts（無關無日期排除）；`_is_yaya` 移除 _has_known_post_date 要求
+- tests/test_nodate_decay_and_contract.py：14 測試（_is_parseable_time + decay 對比 + 不壓過真實新文 + 契約 guard + 芽芽優先排序）
+- tests/test_report_content_trust.py：focus 測試更新（「芽芽破例進」取代「排除」）、general_feed 保持（無關排除）
+- template 不改（無日期維持「時間未知」誠實顯示，穩修比方案 A 省下的一環）
+- 全套 474 → 488 passed, 0 failed（零回歸）
+
+**風險**：R-032 → Closed（折衷收官）。未竟（接受）：完整多平台（含無關無日期文）未做——與 P108 可信度防線衝突，折衷只破例芽芽；若未來要無關平台也進，需重評可信度 vs 覆蓋取捨。新 blindspot **B-024**：改下游消費行為前，除查程式消費點（B-023），須查測試/契約是否鎖定該行為——本次 S1 漏查 content_trust 契約、動工後才撞上。
+
+**狀態**：S1-S4 離線收官（488 passed）。Exit F（端到端 run-now 驗芽芽多平台文進最新動態）待阿喜授權；整體效果待 cron。push 待阿喜核准。
