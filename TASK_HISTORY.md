@@ -14416,3 +14416,25 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險**：R-030 → Closed。新登記 R-032（非巴哈空值戰線，最新動態多平台另開）、R-033（picker 未加防禦 advisory）。殘留：舊 raw 不回溯（汰換用當日快照）。
 
 **狀態**：S1-S3 離線收官（Exit A-D 達標，467 passed）。Exit E（端到端最新動態每天換）阿喜裁示暫不 run-now，待下次日報 cron 自然驗證。分 3 stage commit + S4 文件 commit。push 待阿喜核准。
+
+---
+
+### P108.3.1 — sentiment 重建層補接 published_date（P108.3 production 修復 + 升級 A/B）（2026-06-07 收官）
+
+**目標**：修 analyzer/sentiment.py 三處 post 重建誤用 `getattr(res,"timestamp")`（SearchResult 欄位實為 published_date），讓走 LLM 的 post 時間正確流到 picker，使 P108.3 在 production 主路徑真生效。
+
+**觸發**：R-032 空值戰線 PoC 深挖資料流時，決定性實證（scratch/poc_dataflow_verify.py）揭露 P108.3 僅在 local 路徑生效——production 走 sentiment(LLM)，`getattr(res,"timestamp","時間未知")` 因欄位名錯靜默回 default，走 LLM 的文（含巴哈）時間遺失。阿喜 2026-06-07 裁示先修此共同上游根因（R-030/R-032 共用）。
+
+**鐵證**：模擬巴哈 SearchResult published_date="2026-06-01 22:39:00"，sentiment 路徑 `getattr(res,"timestamp")` → 「時間未知」（遺失）；local 路徑 `_get(timestamp) or _get(published_date)` → 保留。雙層根因：表層巴哈格式（P108.3 已修）+ 深層重建層欄位名不一致 + getattr 靜默 fallback（本補遺修）。
+
+**17 層稽核（微 Phase，S 級為主）**：見 docs/P108.3.1_PLAN.md（過 lint M1/M2）。含飛輪升級 A（直接屬性存取棄 getattr 靜默）+ B（端到端契約測試防復發）。
+
+**物理真相（改動）**：
+- analyzer/sentiment.py：抽 `_post_timestamp(res, default)` helper（`return res.published_date or default`，直接存取＝升級 A，欄位名拼錯即時 AttributeError 不靜默）；三處重建（347 showcase / 381 LLM 成功 / 401 LLM error 分支）改用。
+- tests/test_sentiment_published_date.py：7 測試（3 helper 單元 + 4 端到端契約 mock LLM，涵蓋 381/401/347 三路徑 + 空值不退步＝升級 B，防 P108.3 同類「單元過 production 沒生效」復發）。
+- 全套 467 → 474 passed, 0 failed（零回歸）。
+- picker/generator 受益不改碼（走 LLM 的 post 時間生效、不再被 gate 擋出池）。
+
+**風險**：R-030 誠實補記「先前標 Closed 屬過早宣稱（只驗單元+local，未驗 production LLM 端到端）」。Postmortem `docs/postmortems/2026-06-07-phase-108.3.1-*.md` + blindspot B-023（改資料層欄位前驗全鏈多路徑流向 + 欄位名一致性 + 端到端契約鎖定 + 關鍵欄位棄 getattr 靜默 fallback）。
+
+**狀態**：S1-S2 收官（474 passed）。P108.3 機制在 production LLM 路徑生效；整體最新動態效果端到端待 cron 終驗（Exit E）。R-032 空值戰線的重建層已順帶打通，待回去做 fallback。push 待阿喜核准。

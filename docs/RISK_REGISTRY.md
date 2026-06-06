@@ -395,6 +395,7 @@
 - **驗證**：PoC 涵蓋真實全集 37/37；新增 40 測試（normalizer 32 + 爬蟲整合 4 + 下游受益 4），全套 427→467 passed 0 failed。受益鐵證：decay「昨天 22:39」0.300→0.662、age filter 對巴哈舊文生效。
 - **關閉條件**：離線測試證機制生效（Exit A-D）。Exit E（端到端最新動態每天換）由下次日報 cron 自然驗證（阿喜 2026-06-06 裁示暫不 run-now）。
 - **殘留**：R-032（非巴哈空值戰線）、R-033（picker 未加防禦 advisory）另立。
+- **P108.3.1 補遺（2026-06-07）誠實更正**：R-032 PoC 深挖揭露 P108.3 **僅在 local 路徑生效**——production 主路徑 sentiment(LLM) 的 post 重建用 `getattr(res, "timestamp")`，但 SearchResult 欄位實為 `published_date` 無 timestamp 屬性 → 走 LLM 的文時間遺失成「時間未知」、被 gate 擋出池。**先前標 Closed 屬過早宣稱（只驗單元 + local，未驗 production LLM 端到端）**。P108.3.1 修 sentiment 三處重建改直接存取 `res.published_date`（升級 A，拼錯即爆不靜默）+ 端到端契約測試（升級 B，防同類復發），全套 467→474 passed。至此 P108.3 機制在 production LLM 路徑生效；整體最新動態效果端到端待 cron 終驗。詳見 `docs/postmortems/2026-06-07-phase-108.3.1-llm-rebuild-published-date.md`（blindspot B-023）。
 
 ---
 
@@ -513,3 +514,4 @@
 - **2026-06-06**：P108 報告數據可信度修復收官，R-028 → Closed。S0 釘死三問題收斂兩 bug（A 熱詞空＝本地缺 jieba 非 production bug；C 平台圖失真＝LLM 幻覺子集、B 併入 C）；platform_breakdown 改真實統計（sentiment 後處理涵蓋圖表＋今日焦點）、拔 generator 寫死白名單、加 advisory checker 防復發。P108.2 治本：jieba 詞典根治「巴哈姆特」切殘 + 英文虛詞降級版。全套 426 passed,0 failed。
 - **2026-06-06**：阿喜驗收 P108 重生報告揪 4 點。#2 熱詞點擊無連結＝A 漏修（只驗非空沒驗點擊），_postIndex 改全集補修（commit cd4c16f，427 passed），R-028 補記。新登記 R-030（#4b picker 日期解析→文章不換，另開 P108.3 治本）、R-031（#3/#4a 報告 UX，另開 UX Phase）。
 - **2026-06-06**：P108.3 巴哈 published_date ISO 正規化治本收官，R-030 → Closed（從 Open 移至 Closed）。新增 `scrapers/date_normalizer.py`（5 類格式 + 跨年回退）+ bahamut_scraper 爬取當下接入（失敗保留原值 + warning）；PoC 涵蓋 37/37、全套 427→467 passed。build-vs-buy 評估 dateparser（免費但引依賴 + 黑箱）後阿喜核准自己寫。新登記 R-032（非巴哈 published_date 空值被 gate 擋在最新動態池外，空值戰線待開）、R-033（picker 未加相對格式防禦 advisory）。Exit E 端到端待下次 cron 觀察。
+- **2026-06-07**：P108.3.1 補遺收官——R-032 PoC 揭露 P108.3 僅 local 路徑生效（production LLM 路徑 sentiment 重建用 `getattr(res,"timestamp")` 漏接 published_date，時間遺失成「時間未知」、走 LLM 文被 gate 擋出池）。修 sentiment 三處重建改直接存取 `res.published_date`（升級 A）+ 端到端契約測試（升級 B，防 P108.3 同類「單元過 production 沒生效」復發）。全套 467→474 passed。R-030 補記過早宣稱、Postmortem + blindspot B-023（改資料層欄位前驗全鏈流向、棄 getattr 靜默 fallback）。Exit E 仍待 cron 終驗。
