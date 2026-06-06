@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 
 import config
 from scrapers.tavily_searcher import SearchResult
+from scrapers.date_normalizer import normalize_published_date
 
 if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
@@ -143,11 +144,15 @@ class BahamutScraper:
             else:
                 url = f"{BAHAMUT_BASE}/{href}"
 
-            # 時間：<a> 在 b-list__time 下
+            # 時間：<a> 在 b-list__time 下（巴哈為相對/短格式 → 正規化成 ISO 供下游 decay/age；失敗保留原值，D3）
             published = ""
             time_el = item.select_one(".b-list__time__edittime a, .b-list__time a")
             if time_el:
-                published = time_el.get_text(strip=True)
+                raw_time = time_el.get_text(strip=True)
+                normalized = normalize_published_date(raw_time)
+                if normalized is None and raw_time:
+                    self.logger.warning("[Bahamut] 時間字串無法正規化，保留原值: %r", raw_time)
+                published = normalized or raw_time
 
             # 互動數：b-list__count__number > span[title]
             reply_count = 0
