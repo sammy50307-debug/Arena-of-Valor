@@ -14,6 +14,7 @@ if [ -x "$ROOT/.venv/Scripts/python.exe" ]; then PY="$ROOT/.venv/Scripts/python.
 elif [ -x "$ROOT/venv/Scripts/python.exe" ]; then PY="$ROOT/venv/Scripts/python.exe"
 elif [ -x "$ROOT/.venv/bin/python" ]; then PY="$ROOT/.venv/bin/python"
 elif [ -x "$ROOT/venv/bin/python" ]; then PY="$ROOT/venv/bin/python"
+elif command -v py >/dev/null 2>&1; then PY="py"   # Windows py launcher 優先於 WindowsApps stub（後者 exit 49 空轉、scan 不跑）
 elif command -v python >/dev/null 2>&1; then PY="python"
 elif command -v python3 >/dev/null 2>&1; then PY="python3"
 else
