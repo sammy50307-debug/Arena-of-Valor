@@ -65,24 +65,6 @@
 
 ---
 
-### R-028：報告數據可信度 — 熱詞無連結 / 文章來源錯 / 平台統計缺真實平台（P108 開案）
-
-- **來源**：P107 run-now 後阿喜 2026-06-02 手機看報告，發現 3 個報告呈現/數據問題。爬取已成功（芽芽進觀察室），問題在「撈到的資料怎麼呈現/統計」。
-- **風險級**：🟡 中（報告核心價值＝數據可信度；使用者直接看到失真）
-- **狀態**：Open（P108 待開工系統修復；不倉促逐個修）
-- **描述**（三問題，全有數據證據）：
-  - **A 熱詞無連結**（P106 既有剩餘問題）：`real_hot_topics=0` / `topic_to_posts=0` → 「真實熱詞統計」區（藍色 hot-tag 點詞看來源）無數據、整區不渲染。jieba 詞頻熱詞一直沒正確生成（P106.1 第一次 run-now 即見熱詞數量 0）。
-  - **B 文章來源不正確**：報告文章卡片來源欄位渲染錯（待深入；`top_links=3` 有資料但來源標示可能誤）。
-  - **C 平台統計缺真實平台**：`platform_breakdown` 只有 `instagram/threads/facebook`（且只 fb=2），是 LLM 生成的固定子集（`sentiment.py:101`+`prompts.py:93`），**沒統計真實的巴哈 24 篇/Dcard**；明明有 `local_analyzer.py:215` 真實統計卻沒採用 → 平台分布圖失真。
-- **緩解策略**（P108 系統處理）：
-  - 短期：本條目登記，不倉促逐個修（避免像 P107 S1 沒驗證就改）。
-  - 中期（P108）：C 改用 local_analyzer 真實統計；A 修 real_hot_topics 生成邏輯；B 追文章來源渲染。每項先驗證資料層再改呈現層。
-  - 長期：加 checker 守報告數據可信度（real_hot_topics 非空 / platform_breakdown 含實際平台 / 來源正確），防靜默失真。
-- **觸發升級**：P108 修後若報告再現熱詞空 / 平台圖缺平台 / 來源錯 → 升 active，排查資料生成 vs 渲染層。
-- **關聯**：A 併入 P106 既有「熱詞無連結」剩餘問題（project_status 記的 5 個待辦之一）；與 R-026（top5 age filter 倒灌）同屬報告呈現戰線。
-
----
-
 ### R-029：API key 外洩防線不足 — local log 裸印 provider URL / 歷史中轉 token（2026-06-04 安全熱修）
 
 - **來源**：阿喜 2026-06-04 回報老師提醒「凡是有調用密鑰的部分，務必使用變數，不要寫死；`.env` 禁止上傳 GitHub」，進一步追查 AOV 與 Hermes。
@@ -370,6 +352,19 @@
 
 ## 已關閉風險（Closed）
 
+### R-028：報告數據可信度 — 平台圖失真 / 熱詞無連結（P108 收官）
+
+- **來源**：P107 run-now 後阿喜 2026-06-02 手機看報告，發現報告呈現/數據失真。爬取已成功，問題在「撈到的資料怎麼呈現/統計」。
+- **風險級**：🟡 中（報告核心價值＝數據可信度）
+- **狀態**：✅ 已修補（Closed，2026-06-06 P108 + P108.2）
+- **三問題收斂結論**：S0 釘死後三問題收斂為兩個真 bug。**A 熱詞空**＝本地 run-now 缺 jieba（6/2 報告 commit 931b71a author＝阿喜本人、非 cron；雲端有 jieba 正常，非 production bug）。**C 平台圖失真**＝LLM schema 只吐 ig/threads/fb 幻覺子集、漏巴哈 24 篇，兩端都壞＝真 bug。**原 B 文章來源錯**經查資料/渲染皆正確，實為 C 的觀感（圖表看不到巴哈、跑到 FB），併入 C。
+- **修補（P108）**：(1) C＝抽 `local_analyzer.compute_platform_breakdown()` 真實統計，sentiment.py:509 後覆寫 LLM 版（dynamic_focus 之前，涵蓋圖表＋今日焦點兩消費者）+ generator 拔寫死白名單 + 圖表補巴哈 label/色；(2) A＝本地裝 jieba；(3) 防復發＝`scripts/check_report_credibility.py` advisory checker（real_hot_topics 非空 / platform_breakdown 含真實平台，不阻斷報告）。
+- **治本（P108.2）**：jieba 詞典納入 stopwords 多字詞根治「巴哈姆特」切殘；英文虛詞降級版（誠實標示有限清單，中文通用長尾刻意不做）。
+- **驗證**：全套 426 passed,0 failed；6/2 重生報告圖表 bahamut:24、熱詞區渲染 10 詞無雜訊。
+- **關閉條件**：平台圖真實統計 + 熱詞修復 + checker 防復發落地並測試通過。殘留中文通用長尾為已知啟發式邊界（誠實版預期，非 bug）；報告需 run-now 重新 promote 上線。
+
+---
+
 ### R-024：skill metrics 永不生成 — 設計前提錯配（P103.1 關閉）
 
 - **來源**：P103 A3 診斷（2026-05-31）；P103.1 釐清關閉（2026-05-31）
@@ -468,3 +463,4 @@
 - **2026-06-02**：P106.1 run-now 正式跑流程揭露爬取層根因，登記 R-027（焦點英雄爬取覆蓋退化 / Dcard Cloudflare 反爬 / 靜默資料淺化，四根因連鎖）；P107 計畫書 DRAFT 立案、過 M1/M2 lint，待凍結。
 - **2026-06-02**：P107 S1-S2 收官（焦點接巴哈 + detected_heroes，端到端驗證芽芽進觀察室）後 run-now，阿喜手機看報告發現 3 報告呈現問題，登記 R-028（熱詞無連結 A〔併 P106 既有〕/ 文章來源錯 B / 平台統計缺真實平台 C），待開 P108 報告數據可信度修復系統處理。
 - **2026-06-04**：阿喜回報金鑰外洩疑慮，登記 R-029（API key 外洩防線不足：local log 裸印 provider URL / 歷史中轉 token）；同步落地 redaction tests 與 pre-push secret scan guard，provider 端 rotate/revoke 與 history rewrite 另待決策。
+- **2026-06-06**：P108 報告數據可信度修復收官，R-028 → Closed。S0 釘死三問題收斂兩 bug（A 熱詞空＝本地缺 jieba 非 production bug；C 平台圖失真＝LLM 幻覺子集、B 併入 C）；platform_breakdown 改真實統計（sentiment 後處理涵蓋圖表＋今日焦點）、拔 generator 寫死白名單、加 advisory checker 防復發。P108.2 治本：jieba 詞典根治「巴哈姆特」切殘 + 英文虛詞降級版。全套 426 passed,0 failed。

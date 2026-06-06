@@ -14335,3 +14335,45 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **殘留風險**：第三方 provider 後台的 key 只能由帳號持有人 revoke/rotate；AI 無法登入 Google AI / OpenRouter / chatones proxy 後台替阿喜撤銷。若舊 token 曾推到公開 remote 且可能有效，需先 revoke/rotate，再另開 Git history rewrite 專案評估，不可在熱修中自動清史。
 
 **狀態**：本機系統防線完成，尚未 commit/push；等待阿喜決定是否先 rotate provider key，以及是否核准 commit（建議先 commit 本地修復，push 前再確認 provider 端已處置）。
+
+### P108 — 報告數據可信度修復（平台圖失真 + 熱詞無連結）（2026-06-06 收官）
+
+**目標**：修報告兩處數據失真，達成「圖表/熱詞區呈現＝真實爬取資料」。引用 docs/P108_REPORT_DATA_CREDIBILITY_PLAN.md（FROZEN 2026-06-06，過 M1/M2 lint）。
+
+**觸發**：P107 收官後阿喜手機看 6/2 報告，發現「資料大多來自巴哈姆特，但圖表上看不到巴哈、全跑到 FB」+ 熱詞區空。登記 R-028。
+
+**S0 前置驗證（記取 P107 沒驗證就改教訓，全硬證據）**：直接查 6/2 production 產物。(1) raw_20260602.json 27 篇＝bahamut 24/youtube 2/instagram 1，source/platform 兩欄皆正確。(2) analysis_20260602.json platform_breakdown={ig:0,threads:0,facebook:2}←LLM 幻覺（facebook=2 原始不存在）。(3) real_hot_topics=[]。(4) **報告來源釘死**：6/2 22:38 commit 931b71a author=sammy50307-debug（阿喜本人）、非 cron 時間（cron=30 8 ***）→ 阿喜手機那份＝本地 run-now，非雲端。GitHub Actions cron author=github-actions[bot]、雲端有 jieba。**結論：A 熱詞空＝本地缺 jieba（雲端正常、非 production bug）；C 平台圖失真＝LLM schema 幻覺、本地雲端兩端都壞＝真 bug。原 B 文章來源錯經查＝C 的觀感（資料/渲染都正確），B 併入 C。三問題收斂兩 bug。**
+
+**S0 盲點掃描（凍結前再審找到，避免漏修）**：platform_breakdown 有 2 消費者——generator.py:122（圖表）+ dynamic_focus.py:93（今日焦點平台熱度，在 sentiment 階段跑）。原計畫「放 generator 重算」會漏 dynamic_focus → 修法位置改 sentiment.py:509 後（LLM 後處理、dynamic_focus 之前），一處修兩消費者都對。沿用既有 pattern（sentiment_distribution 同樣「LLM 不可靠→code 覆寫」）。
+
+**S1（C＝B 核心，commit 6685822）**：(a) local_analyzer 抽 compute_platform_breakdown() 共用函式（複用 _canonical_platform 口徑、防漂移），generate_local_summary 也改用、清 platform_scores orphan；(b) sentiment.py:509 後真實統計覆寫 LLM 版；(c) generator 拔 :122-131 寫死 ig/threads/fb 白名單、原樣傳遞所有平台；(d) report.html 圖表補巴哈姆特中文 label + 橙色。
+
+**S2（A，commit 5245987）**：本地裝 jieba（A 本地即修）；keyword_stopwords.yaml 補切殘詞「巴哈姆」+ 平台名 + 通用雜訊（治標）。
+
+**S3/S4（commit 394792c）**：新增 scripts/check_report_credibility.py advisory checker（守 real_hot_topics 非空 + platform_breakdown 含真實平台，不阻斷報告、X4-J 邊界免責）、main.py:696 後接入印 log；tests/test_report_credibility.py 8 案例。
+
+**物理真相**：基線 415（P107 後實測）→ 423 passed,4 skipped（+8 P108 測試），零回歸。端到端重生 6/2 報告（scratch/，未覆蓋 production）：圖表 bahamut:24/instagram:1/youtube:2 無幻覺 facebook、熱詞區渲染 10 詞。checker 對舊失真資料正確報 2 警告、對修好資料通過。commit：6685822(S1)/5245987(S2)/394792c(S3/S4)。
+
+**17 層稽核（S+A）**：S 代碼（抽共用函式、surgical）/邏輯（真實統計取代 LLM 幻覺、複用正規化口徑）/測試（+8 測試、混合/全單一/別名/空邊界 + checker）/安全（純本地統計無新攻擊面）；A 架構（放 sentiment 後處理涵蓋兩消費者、不碰 LLM schema）/資料（platform_breakdown 來源從 LLM 子集→真實統計）/可觀察（checker advisory 攤在 log）/韌性（checker 不阻斷、缺 jieba fallback 不中斷）/文件（計畫書 FROZEN + 本記錄）/流程（先驗資料層再改呈現層的飛輪）。
+
+**風險**：R-028 → Resolved（平台圖真實統計 + 熱詞修復 + checker 防復發）。殘留：報告需 run-now 重新 promote 才上線（本次 scratch 驗收未推 production）。
+
+**狀態**：S1-S4 收官，4 commits（含 P108.2）待 push（阿喜核准）。阿喜手機驗收待開 scratch/aov_report_2026-06-02_v2.html。
+
+### P108.2 — 熱詞治本（jieba 詞典根治切殘 + 英文虛詞降級版）（2026-06-06）
+
+**目標**：根治 S2 stopword「打地鼠」本質（編號 P108.2：P108.1 已被 6/04 API key 安全熱修佔用）。
+
+**觸發**：S2 收尾 AI 主動揭露 stopword 治標會一直冒新雜訊（巴哈姆→of→時候），阿喜要求處理治本。經 AI 誠實評估後採「S1 紮實 + S2 降級誠實版」。
+
+**PoC（先驗證假設再落地，記取 P107 教訓）**：jieba add_word「巴哈姆特」後切詞由「巴哈姆/特」→「巴哈姆特」整詞，治本假設成立。
+
+**S1 紮實治本（commit f60349a）**：keyword_stats._get_jieba() 把 stopwords 多字詞 add_word 進 jieba 詞典，「巴哈姆特」整詞切出後被既有 stopword 擋，根治切殘根因。**保留「巴哈姆」治標詞當雙保險**（HMM 上下文變異，零成本 defense-in-depth，不移除）。
+
+**S2 降級誠實版（同 commit）**：keyword_stopwords.yaml 加最常見英文虛詞 ~11 個（of/the/and/to/is/in/for/on/at/with/it）。**誠實標示「有限清單、非完全根治」**；中文通用長尾（時候/大家/帶走）刻意不做（大表誤殺風險高，熱詞為啟發式產物、top 偶見長尾屬合理停損）。
+
+**修坑（測試抓到）**：YAML 1.1 把裸字 `on` 解析成 boolean True（_load_stopwords 存成 "True" 非 "on"），英文虛詞一律加雙引號。
+
+**物理真相**：423→426 passed（+3 P108.2 測試，jieba 缺則 skip 不假過），零回歸。6/2 重現熱詞無切殘平台名/英文虛詞（皮皮/造型/技能/英雄...）。
+
+**狀態**：治本收官，含於 P108 的 push 批次。殘留中文通用長尾為已知啟發式邊界（誠實版預期，非 bug）。
