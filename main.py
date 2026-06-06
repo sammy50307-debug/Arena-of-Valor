@@ -694,6 +694,15 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         report_candidate_path = generator.generate(daily_summary, analyzed_posts, promote=False)
         report_path = report_candidate_path
         logger.info(f"  [OK] 候選報告已生成: {report_candidate_path}")
+        # P108：報告數據可信度 advisory（不阻斷報告生成）
+        try:
+            from scripts.check_report_credibility import check_report_credibility, format_warnings
+            for _cred_line in format_warnings(
+                check_report_credibility(daily_summary, analyzed_posts)
+            ).split("\n"):
+                logger.info(_cred_line)
+        except Exception as _cred_e:
+            logger.warning(f"  報告可信度檢查跳過：{_cred_e}")
     except Exception as e:
         report_error = str(e)
         logger.error(f"  [FAIL] 報告生成失敗: {e}")
