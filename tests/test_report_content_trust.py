@@ -87,7 +87,10 @@ def test_report_locks_focus_title_to_config_and_filters_false_focus_cards(
     assert "圖倫完整教學" not in yaya_section
 
 
-def test_report_excludes_unknown_date_from_focus_recent_cards(tmp_path: Path, monkeypatch):
+def test_report_includes_yaya_unknown_date_in_focus_recent_cards(tmp_path: Path, monkeypatch):
+    """P108.4（折衷：只芽芽破例）：芽芽相關無日期文破例進「芽芽近期動態」（picker decay 0.6），
+    呼應芽芽優先 + 多平台覆蓋。有意推翻 P108 原「排除所有無日期文」契約，但僅限芽芽——
+    無關無日期文仍排除（見 test_report_excludes_unknown_date_from_general_feed）。"""
     monkeypatch.setattr(config, "HERO_FOCUS_NAME", "芽芽", raising=False)
     monkeypatch.setattr(config, "ENABLE_TOP5_NEWS", True, raising=False)
     monkeypatch.setattr(_indexer, "_INDEX_PATH", tmp_path / "news_history_index.json", raising=False)
@@ -115,8 +118,9 @@ def test_report_excludes_unknown_date_from_focus_recent_cards(tmp_path: Path, mo
     out = ReportGenerator().generate(summary, analyzed_posts, output_dir=tmp_path, promote=False)
     html = out.read_text(encoding="utf-8")
 
-    assert "🌸 今天芽芽在森林裡休息喔~" in html
-    assert "芽芽未知時間心得" not in html.split("📰 芽芽近期動態", 1)[-1].split("Combat Stats Dashboard", 1)[0]
+    # P108.4：芽芽無日期文現在破例進芽芽近期動態（decay 0.6），不再被排除
+    yaya_section = html.split("📰 芽芽近期動態", 1)[-1].split("Combat Stats Dashboard", 1)[0]
+    assert "芽芽未知時間心得" in yaya_section
 
 
 def test_report_excludes_unknown_date_from_general_feed(tmp_path: Path, monkeypatch):

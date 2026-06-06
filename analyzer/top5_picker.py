@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 
 _DECAY_HOURS: int = config.TOP5_SCORE_DECAY_HOURS
 _DECAY_MIN: float = config.TOP5_SCORE_DECAY_MIN
+_NODATE_DECAY_YAYA: float = getattr(config, "TOP5_NODATE_DECAY_YAYA", 0.6)
+_NODATE_DECAY_OTHER: float = getattr(config, "TOP5_NODATE_DECAY_OTHER", 0.3)
 _BOOST: float = config.HERO_BOOST_FACTOR
 _DCARD_BOOST: float = getattr(config, "DCARD_SOURCE_BOOST", 1.05)
 _DIVERSITY_MIN: int = getattr(config, "DIVERSITY_MIN_PLATFORMS", 3)
@@ -89,25 +91,37 @@ def _extract_score(post_entry: dict) -> float:
         return 0.5
 
 
-def _compute_decay(timestamp_str: str | None, *, now: datetime | None = None) -> float:
-    """時間衰減因子：越新越接近 1.0，最低 DECAY_MIN。"""
+# P108.4：picker 時間解析單一來源（_compute_decay / _is_too_old / _is_parseable_time 共用，避免 R3 漂移）
+_PARSE_FMTS = [
+    ("%Y-%m-%d %H:%M:%S", 19),
+    ("%Y-%m-%d", 10),
+    ("%Y/%m/%d", 10),
+]
+
+
+def _parse_timestamp(timestamp_str: str | None) -> datetime | None:
+    """解析時間字串為 datetime；無法解析（含「時間未知」/空/None/未涵蓋格式）回 None。"""
     if not timestamp_str:
-        return _DECAY_MIN
-    now = now or datetime.now()
-    _FMTS = [
-        ("%Y-%m-%d %H:%M:%S", 19),
-        ("%Y-%m-%d", 10),
-        ("%Y/%m/%d", 10),
-    ]
-    dt = None
-    for fmt, length in _FMTS:
+        return None
+    for fmt, length in _PARSE_FMTS:
         try:
-            dt = datetime.strptime(timestamp_str[:length], fmt)
-            break
+            return datetime.strptime(timestamp_str[:length], fmt)
         except ValueError:
             continue
+    return None
+
+
+def _is_parseable_time(timestamp_str: str | None) -> bool:
+    """時間字串是否為可解析的有效日期（P108.4：無日期文判定，非脆弱的 magic string 比對）。"""
+    return _parse_timestamp(timestamp_str) is not None
+
+
+def _compute_decay(timestamp_str: str | None, *, now: datetime | None = None) -> float:
+    """時間衰減因子：越新越接近 1.0，最低 DECAY_MIN。"""
+    dt = _parse_timestamp(timestamp_str)
     if dt is None:
         return _DECAY_MIN
+    now = now or datetime.now()
     age_hours = max(0.0, (now - dt).total_seconds() / 3600)
     return max(_DECAY_MIN, 1.0 - age_hours / _DECAY_HOURS)
 
@@ -186,18 +200,10 @@ def _get_url(post_entry: dict) -> str:
 
 def _is_too_old(timestamp_str: str, *, max_age_days: int, now: datetime) -> bool:
     """True 當 timestamp 超過 max_age_days 天；無法解析視為不過期，回傳 False。"""
-    _FMTS = [
-        ("%Y-%m-%d %H:%M:%S", 19),
-        ("%Y-%m-%d", 10),
-        ("%Y/%m/%d", 10),
-    ]
-    for fmt, length in _FMTS:
-        try:
-            dt = datetime.strptime(timestamp_str[:length], fmt)
-            return (now - dt).days > max_age_days
-        except ValueError:
-            continue
-    return False
+    dt = _parse_timestamp(timestamp_str)
+    if dt is None:
+        return False
+    return (now - dt).days > max_age_days
 
 
 # ── 主函式 ───────────────────────────────────────────────
@@ -280,9 +286,13 @@ def pick_top5(
 
         base = _extract_score(entry)
         ts = _get_timestamp(entry)
-        decay = _compute_decay(ts, now=now)
-        boost = _compute_boost(entry, hero_focus) * _compute_source_boost(entry)
         is_yaya = _is_yaya_related(entry, hero_focus)
+        # P108.4：無法解析時間的文（非巴哈無日期）給差異化 decay（芽芽 0.6/無關 0.3），不退化成 _DECAY_MIN 並列
+        if _is_parseable_time(ts):
+            decay = _compute_decay(ts, now=now)
+        else:
+            decay = _NODATE_DECAY_YAYA if is_yaya else _NODATE_DECAY_OTHER
+        boost = _compute_boost(entry, hero_focus) * _compute_source_boost(entry)
 
         # P70.1 A — 去重懲罰 / 芽芽重複加成
         if is_yaya and is_dup:

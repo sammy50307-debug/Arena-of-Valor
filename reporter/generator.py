@@ -256,9 +256,12 @@ class ReportGenerator:
                 bypass = daily_summary.get("_meta", {}).get("is_showcase", False)
 
                 def _is_yaya(p: dict) -> bool:
-                    return _focus_text_evidence(p, hero) and _has_known_post_date(p)
+                    # P108.4：移除 _has_known_post_date 要求，讓無日期的芽芽相關文也進池（picker 給 decay 0.6）
+                    return _focus_text_evidence(p, hero)
 
-                yaya_pool = [p for p in dated_posts if _is_yaya(p)]
+                # P108.4（折衷：只芽芽破例）：yaya_pool 用 analyzed_posts 全集（含無日期芽芽文，picker 給 decay 0.6 進池）；
+                # other_pool 仍用 dated_posts（無關無日期文維持排除，保留 P108 內容可信度防線，見 test_report_content_trust）
+                yaya_pool = [p for p in analyzed_posts if _is_yaya(p)]
                 other_pool = [p for p in dated_posts if not _is_yaya(p)]
 
                 # Top-3 芽芽（最多 3 篇）

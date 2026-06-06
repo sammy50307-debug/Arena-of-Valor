@@ -182,6 +182,9 @@ NEWS_HISTORY_MAX_DAYS = int(os.getenv("NEWS_HISTORY_MAX_DAYS", "14"))
 TOP5_SCORE_DECAY_HOURS = int(os.getenv("TOP5_SCORE_DECAY_HOURS", "72"))
 TOP5_SCORE_DECAY_MIN = float(os.getenv("TOP5_SCORE_DECAY_MIN", "0.3"))
 TOP5_MAX_AGE_DAYS = int(os.getenv("TOP5_MAX_AGE_DAYS", "14"))
+# P108.4：無日期文（非巴哈搜尋結果，時間無法解析）的差異化 decay——芽芽相關較高（能被看到）、無關墊底（不壓過巴哈真實新文）
+TOP5_NODATE_DECAY_YAYA = float(os.getenv("TOP5_NODATE_DECAY_YAYA", "0.6"))
+TOP5_NODATE_DECAY_OTHER = float(os.getenv("TOP5_NODATE_DECAY_OTHER", "0.3"))
 TOP5_DEDUP_THRESHOLD = float(os.getenv("TOP5_DEDUP_THRESHOLD", "0.85"))
 
 # ── P66.1 Top-5 Picker 個人化過濾與多樣性 ────────────────
