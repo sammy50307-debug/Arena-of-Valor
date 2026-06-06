@@ -77,6 +77,11 @@ def _get_jieba():
     import jieba.posseg  # noqa: F401 — 確保 posseg 子模組已載入
     for word in _load_custom_words():
         jieba.add_word(word)
+    # P108.1 治本：停用詞中的多字詞也加入 jieba 詞典，避免「巴哈姆特」被切成
+    # 「巴哈姆」+「特」而使完全比對的 stopword 失效（根治切殘根因）。
+    for word in _load_stopwords():
+        if len(word) >= 2:
+            jieba.add_word(word)
     return jieba
 
 
