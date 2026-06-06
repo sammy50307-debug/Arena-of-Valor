@@ -18,14 +18,25 @@
 
 ## 開放風險（Open）
 
-### R-030：top5_picker 日期解析不支援巴哈相對格式 → 最新動態文章不換（P108 衍生，P108.3 待開）
+### R-032：非巴哈平台 published_date 空值 → 被 generator gate 擋在最新動態池外（P108.3 衍生，空值戰線待開）
 
-- **來源**：P108 阿喜驗收發現「最新動態 800 年沒換」（2026-06-06）
-- **風險級**：🟡 中（報告核心價值＝最新動態反映度；使用者每天看到同文章）
-- **狀態**：Open（P108.3 待開工治本）
-- **描述**：`top5_picker._compute_decay`/`_is_too_old` 只認 `%Y-%m-%d` 系列格式，不認巴哈「昨天 HH:MM」「MM-DD HH:MM」相對格式 → 巴哈文（主力）decay 全 `_DECAY_MIN`(0.300) 相同、age filter 失效 → 排序退化純 score → 每天選同文章。實測鐵證：「昨天 22:39」→decay 0.300 vs「2026-06-02 22:39:00」→0.995。
-- **緩解策略**：另開 P108.3 評估——治本（爬蟲端 bahamut_scraper 正規化 published_date 成 ISO，picker/generator 等所有下游受益）vs 治標（picker 加相對日期解析）。阿喜傾向治本。
-- **關聯**：與 R-026（top5 age filter 倒灌）同 picker 戰線；與 P108 #2（日期欄位下游處理）同源家族（巴哈日期非標準格式連鎖）。
+- **來源**：P108.3 PoC 實測（2026-06-06）掃 data/raw_*.json 各平台 published_date 空值率
+- **風險級**：🟡 中（最新動態多平台多樣性；目前池子幾乎只有巴哈文）
+- **狀態**：Open（空值戰線待評估另開 Phase）
+- **描述**：PoC 實測 YouTube/Instagram/Dcard/Facebook/website 的 `published_date` **100% 空值**（巴哈 0%）。generator `_has_known_post_date`（`reporter/generator.py:113` 的 `dated_posts`）是 top5/最新動態前置 gate，空值文章全被擋在池外 → 最新動態實質只由巴哈文構成。P108.3 治本巴哈格式只能讓「巴哈文之間」反映最新，**無法讓 YT/IG 進入最新動態**（無值可正規化）。附帶：P108.3 不回溯舊 raw（仍相對格式），trend skill 讀 analysis 聚合非逐文 decay，影響有限。
+- **緩解策略**：另開「空值戰線」Phase 評估各爬蟲為何無 published_date（來源頁無日期 vs 爬蟲未抓）、是否補抓或放寬 gate。非 P108.3 scope。
+- **關聯**：與 R-030（巴哈格式問題）同「published_date 下游處理」家族但本質不同（空值 vs 格式）；與 R-031（最新動態 UX）不同戰線。
+
+---
+
+### R-033：picker 仍對未正規化來源脆弱 — 治本採爬蟲端正規化、picker 未加防禦（P108.3 衍生，advisory）
+
+- **來源**：P108.3 治本 vs 治標決策（2026-06-06 阿喜拍板純治本）
+- **風險級**：🟢 低（advisory 觀察；現有來源已由爬蟲端正規化覆蓋）
+- **狀態**：Open（advisory，不立即修）
+- **描述**：P108.3 採爬蟲端正規化（bahamut_scraper → ISO），picker `_compute_decay`/`_is_too_old` 的 `_FMTS` 維持只認 ISO 系列**未動**（阿喜拍板治本不治標）。殘留：若未來新增爬蟲也存非標準/相對格式且未接 `date_normalizer`，picker 會重蹈 decay 觸底 0.300 覆轍（單點補丁風險）。
+- **緩解策略**：(a) `date_normalizer` 設計為平台無關純函式，新爬蟲可直接複用；(b) 新增爬蟲時於計畫書檢查 published_date 是否需正規化；(c) 若復發頻繁，再評估 picker 加相對格式容錯當第二道防線（治本+防禦）。
+- **關聯**：與 R-030（已 Closed，本 Phase 治本）同 picker 戰線；與 R-026（age filter fallback 倒灌）同 picker 家族。
 
 ---
 
@@ -374,6 +385,19 @@
 
 ## 已關閉風險（Closed）
 
+### R-030：top5_picker 日期解析不支援巴哈相對格式 → 最新動態文章不換（P108.3 治本收官）
+
+- **來源**：P108 阿喜驗收發現「最新動態 800 年沒換」（2026-06-06）
+- **風險級**：🟡 中（報告核心價值＝最新動態反映度）
+- **狀態**：✅ 已修補（Closed，2026-06-06 P108.3）
+- **描述**：`top5_picker._compute_decay`/`_is_too_old` 只認 `%Y-%m-%d` 系列，不認巴哈「昨天 HH:MM」「MM-DD HH:MM」相對格式 → 巴哈文 decay 全 `_DECAY_MIN`(0.300) 相同、age filter 失效 → 排序退化純 score → 每天選同文章。
+- **治本（P108.3）**：爬蟲端正規化（非治標改 picker）。新增 `scrapers/date_normalizer.py` 純函式 `normalize_published_date(raw, *, now)`，在 `bahamut_scraper._parse_row` 爬取當下把 published_date 正規化成 ISO（相對時間只能爬取當下解析，故在爬蟲端）；失敗保留原值 + warning（不丟資料）。picker/generator/local_analyzer 下游受益不改碼。
+- **驗證**：PoC 涵蓋真實全集 37/37；新增 40 測試（normalizer 32 + 爬蟲整合 4 + 下游受益 4），全套 427→467 passed 0 failed。受益鐵證：decay「昨天 22:39」0.300→0.662、age filter 對巴哈舊文生效。
+- **關閉條件**：離線測試證機制生效（Exit A-D）。Exit E（端到端最新動態每天換）由下次日報 cron 自然驗證（阿喜 2026-06-06 裁示暫不 run-now）。
+- **殘留**：R-032（非巴哈空值戰線）、R-033（picker 未加防禦 advisory）另立。
+
+---
+
 ### R-028：報告數據可信度 — 平台圖失真 / 熱詞無連結（P108 收官）
 
 - **來源**：P107 run-now 後阿喜 2026-06-02 手機看報告，發現報告呈現/數據失真。爬取已成功，問題在「撈到的資料怎麼呈現/統計」。
@@ -488,3 +512,4 @@
 - **2026-06-04**：阿喜回報金鑰外洩疑慮，登記 R-029（API key 外洩防線不足：local log 裸印 provider URL / 歷史中轉 token）；同步落地 redaction tests 與 pre-push secret scan guard，provider 端 rotate/revoke 與 history rewrite 另待決策。
 - **2026-06-06**：P108 報告數據可信度修復收官，R-028 → Closed。S0 釘死三問題收斂兩 bug（A 熱詞空＝本地缺 jieba 非 production bug；C 平台圖失真＝LLM 幻覺子集、B 併入 C）；platform_breakdown 改真實統計（sentiment 後處理涵蓋圖表＋今日焦點）、拔 generator 寫死白名單、加 advisory checker 防復發。P108.2 治本：jieba 詞典根治「巴哈姆特」切殘 + 英文虛詞降級版。全套 426 passed,0 failed。
 - **2026-06-06**：阿喜驗收 P108 重生報告揪 4 點。#2 熱詞點擊無連結＝A 漏修（只驗非空沒驗點擊），_postIndex 改全集補修（commit cd4c16f，427 passed），R-028 補記。新登記 R-030（#4b picker 日期解析→文章不換，另開 P108.3 治本）、R-031（#3/#4a 報告 UX，另開 UX Phase）。
+- **2026-06-06**：P108.3 巴哈 published_date ISO 正規化治本收官，R-030 → Closed（從 Open 移至 Closed）。新增 `scrapers/date_normalizer.py`（5 類格式 + 跨年回退）+ bahamut_scraper 爬取當下接入（失敗保留原值 + warning）；PoC 涵蓋 37/37、全套 427→467 passed。build-vs-buy 評估 dateparser（免費但引依賴 + 黑箱）後阿喜核准自己寫。新登記 R-032（非巴哈 published_date 空值被 gate 擋在最新動態池外，空值戰線待開）、R-033（picker 未加相對格式防禦 advisory）。Exit E 端到端待下次 cron 觀察。

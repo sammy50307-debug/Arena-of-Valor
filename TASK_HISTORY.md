@@ -14391,3 +14391,28 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **#3 24H 聲量圖看不懂 / #4a 最新動態無法獨立滾輪（UX 戰線→登記 R-031→另開）**：#3 heatmap 無 visualMap 圖例+無說明（只 hover tooltip）；#4a `.feed-container` 無 max-height+overflow-y。阿喜裁示**都另開 UX Phase**，不混 P108 數據可信度 scope。登記 R-031。
 
 **狀態**：P108 數據可信度主線收官（C/A/#2/治本/checker 全完成，427 passed）。#4b→P108.3、#3/#4a→UX Phase 另議。push 待阿喜核准。
+
+---
+
+### P108.3 — 巴哈爬蟲 published_date ISO 正規化治本（資料層）（2026-06-06 S1-S3 收官）
+
+**目標**：巴哈爬蟲在「爬取當下」把 published_date 從相對/短格式正規化成 ISO `YYYY-MM-DD HH:MM:SS`，使下游 top5_picker decay/age 對巴哈文生效，最新動態中巴哈文之間每天反映最新（治本 R-030）。
+
+**觸發**：P108 補遺阿喜驗收揪「最新動態 800 年沒換」（#4b），登記 R-030 指定 P108.3 治本。
+
+**PoC 鐵證（先驗證再落地）**：掃 data/raw_*.json 64 篇巴哈文跨 10 天，去重 37 種格式（5 大類：MM-DD HH:MM 無年份最大宗 / N 小時前 / 昨天 HH:MM / 前天 HH:MM / YYYY-MM-DD 完整）；正規化原型涵蓋 37/37；decay before→after：「2 小時前」0.300→0.972、「昨天 22:39」0.300→0.662、「前天 15:17」0.300（≈3天觸底正確）；跨年回退「12-26」在 6 月→2025。確認 _DECAY_HOURS=72。**額外揭露**：YT/IG/Dcard/FB published_date 100% 空值（巴哈 0%），被 generator _has_known_post_date gate（generator.py:113 dated_posts）擋在最新動態池外 → 池子幾乎只有巴哈文（登記 R-032 空值戰線）。
+
+**17 層稽核（標準半徑 5 檔，S+A）**：見 docs/P108.3_PLAN.md（過 lint_phase_plan M1/M2）。S 級：代碼（純函式+編譯 regex+ReDoS 錨定）/邏輯（5 類+跨年回退+爬取當下基準）/測試（40 新測試）/安全（regex ^...$ 錨定無巢狀量詞、datetime try/except 回退）。
+
+**build-vs-buy 決策**：阿喜質疑是否串現成工具。評估 dateparser（開源免費 BSD、純離線零 API 費、支援中文相對時間）：免費對 buy 有利，但本情境來源單一+格式收斂+PoC 已驗 50 行零依賴可控；引入需 +一串子依賴並同步雲端 cron、補年黑箱、效能較慢，邊際效益偏負。阿喜核准自己寫（未來多語言/格式爆炸再重估，關聯 R-033）。
+
+**物理真相（改動）**：
+- 新增 scrapers/date_normalizer.py：`normalize_published_date(raw, *, now=None)` → ISO 或 None。5 類格式 + MM-DD 補年（>now+1天回退去年）+ 失敗回 None。
+- 修改 scrapers/bahamut_scraper.py `_parse_row`（+import，+7/-2）：raw_time → normalize；失敗保留原值 + self.logger.warning（D3 不丟資料）。fallback 路徑 published_date="" 不變。
+- 新增測試 40 個：test_date_normalizer.py（32：PoC 全集 37 + 跨年/閏日 graceful/畸形）、test_bahamut_published_date.py（4 整合）、test_p108_3_downstream_benefit.py（4 受益：decay/age/gate 串接）。
+- picker/generator/local_analyzer 受益不改碼。
+- 全套 427 → 467 passed, 0 failed（4 skipped 既有）。
+
+**風險**：R-030 → Closed。新登記 R-032（非巴哈空值戰線，最新動態多平台另開）、R-033（picker 未加防禦 advisory）。殘留：舊 raw 不回溯（汰換用當日快照）。
+
+**狀態**：S1-S3 離線收官（Exit A-D 達標，467 passed）。Exit E（端到端最新動態每天換）阿喜裁示暫不 run-now，待下次日報 cron 自然驗證。分 3 stage commit + S4 文件 commit。push 待阿喜核准。
