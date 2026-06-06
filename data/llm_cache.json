@@ -537,7 +537,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:30.906125+00:00",
-      "last_accessed": "2026-06-02T12:27:41.572503+00:00",
+      "last_accessed": "2026-06-03T12:57:06.382981+00:00",
       "ttl_days": 7
     },
     "prompt:e694340c04693a618cf74bdb409db360": {
@@ -589,7 +589,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:52.759138+00:00",
-      "last_accessed": "2026-06-02T11:10:46.266783+00:00",
+      "last_accessed": "2026-06-03T12:57:06.381692+00:00",
       "ttl_days": 7
     },
     "prompt:98d7639e20c2e3571d9c3d3dbebbae56": {
@@ -615,7 +615,7 @@
         }
       },
       "stored_at": "2026-06-01T15:32:59.910728+00:00",
-      "last_accessed": "2026-06-02T11:10:46.265783+00:00",
+      "last_accessed": "2026-06-03T12:57:06.385488+00:00",
       "ttl_days": 7
     },
     "prompt:58ab1be313c7a13ed170236dacaab489": {
@@ -641,7 +641,7 @@
         }
       },
       "stored_at": "2026-06-01T15:33:12.634980+00:00",
-      "last_accessed": "2026-06-01T15:33:12.634980+00:00",
+      "last_accessed": "2026-06-03T12:57:23.383395+00:00",
       "ttl_days": 7
     },
     "prompt:e469cb168f33b8ea453490bb66c31e34": {
@@ -668,7 +668,7 @@
         }
       },
       "stored_at": "2026-06-01T15:33:19.784287+00:00",
-      "last_accessed": "2026-06-02T12:27:41.570852+00:00",
+      "last_accessed": "2026-06-03T12:57:23.385051+00:00",
       "ttl_days": 7
     },
     "prompt:a47c2865c3fb6e549794b4497e51bda5": {
@@ -1622,7 +1622,7 @@
         }
       },
       "stored_at": "2026-06-02T11:10:46.261791+00:00",
-      "last_accessed": "2026-06-02T11:10:46.261791+00:00",
+      "last_accessed": "2026-06-03T12:57:06.384234+00:00",
       "ttl_days": 7
     },
     "prompt:04a16027ae31d8635a3c94f440c87b15": {
@@ -1647,7 +1647,7 @@
         }
       },
       "stored_at": "2026-06-02T11:10:50.337097+00:00",
-      "last_accessed": "2026-06-02T11:10:50.337097+00:00",
+      "last_accessed": "2026-06-03T12:57:06.379799+00:00",
       "ttl_days": 7
     },
     "prompt:5d7f69646ebd1021a721fc853ec25101": {
@@ -2425,12 +2425,1131 @@
       "stored_at": "2026-06-02T14:36:11.429540+00:00",
       "last_accessed": "2026-06-02T14:36:11.429540+00:00",
       "ttl_days": 7
+    },
+    "prompt:fae524a5236dece56eefbb55a1b943d4": {
+      "result": {
+        "reasoning": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈，並使用了『嚴肅驗牌完全被詐賭』來形容這種情況，帶有幽默與無奈的情緒。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "凱撒",
+          "海牛",
+          "元流射手"
+        ],
+        "summary": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-03T12:56:56.759806+00:00",
+      "last_accessed": "2026-06-03T12:56:56.759806+00:00",
+      "ttl_days": 7
+    },
+    "prompt:d94107c20d96834c39ae181f57159155": {
+      "result": {
+        "reasoning": "玩家詢問是否有人也無法登入遊戲，這是一個直接的疑問，並無反諷或隱含意圖。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "遊戲體驗",
+        "keywords": [
+          "登入",
+          "遊戲"
+        ],
+        "summary": "玩家詢問是否有人也無法登入遊戲。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-03T12:57:02.162729+00:00",
+      "last_accessed": "2026-06-03T12:57:02.162729+00:00",
+      "ttl_days": 7
+    },
+    "prompt:f47a97e302af49bbf0ae3e1093134b77": {
+      "result": {
+        "reasoning": "貼文內容為宣傳 AWC 和 MDI 賽事的資訊，並提供相關連結，屬於官方活動公告，無反諷或隱含意圖。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "電競賽事",
+        "keywords": [
+          "AWC",
+          "MDI",
+          "賽事",
+          "決賽"
+        ],
+        "summary": "貼文宣傳 AWC 和 MDI 賽事的決賽資訊。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-03T12:57:06.376162+00:00",
+      "last_accessed": "2026-06-03T12:57:06.376162+00:00",
+      "ttl_days": 7
+    },
+    "prompt:c1ad5a2c831e8146149e635e790c2565": {
+      "result": {
+        "reasoning": "貼文內容僅為標題，未提供具體討論內容，無法推論玩家真實意圖或潛台詞。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "其他",
+        "keywords": [
+          "心得分享",
+          "Lantyr",
+          "BRO MIRUKI"
+        ],
+        "summary": "貼文僅提及心得分享，未提供具體內容。",
+        "relevance_score": 0.8,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-03T12:57:23.379694+00:00",
+      "last_accessed": "2026-06-03T12:57:23.379694+00:00",
+      "ttl_days": 7
+    },
+    "prompt:de93f4bd6067336f48b5a47d42fae37c": {
+      "result": {
+        "reasoning": "貼文為活動資訊公告，內容明確且無反諷或隱含意圖，純粹告知玩家活動延長的消息。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "活動資訊",
+        "keywords": [
+          "星展傳說對決聯名卡",
+          "緹莉",
+          "星夢展航造型",
+          "活動延長"
+        ],
+        "summary": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉-星夢展航造型。",
+        "relevance_score": 1.0,
+        "is_hero_focus": true,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-03T12:57:36.362678+00:00",
+      "last_accessed": "2026-06-03T12:57:36.362678+00:00",
+      "ttl_days": 7
+    },
+    "prompt:bfbf53da6cf33686f5226d7b58a8a2d3": {
+      "result": {
+        "date": "2026-06-03",
+        "overview": "今日《傳說對決》的輿情主要集中在玩家分享遊戲心得與技巧，以及對特定英雄（如芽芽和皮皮）的討論。整體情緒偏向中性，但部分玩家對芽芽的角色設計和遊戲體驗表達了不滿。此外，賽事資訊和聯名活動也受到一定關注。",
+        "sentiment_distribution": {
+          "positive": 5,
+          "negative": 8,
+          "neutral": 22
+        },
+        "hot_topics": [
+          {
+            "topic": "芽芽角色討論",
+            "mention_count": 10,
+            "sentiment": "negative",
+            "description": "玩家對芽芽的角色設計、技能Bug及遊戲體驗表達不滿，認為其過於強勢且難以應對。"
+          },
+          {
+            "topic": "皮皮角色討論",
+            "mention_count": 8,
+            "sentiment": "neutral",
+            "description": "玩家討論皮皮的技能改動、雙排組合以及如何避免坑隊友，情緒偏向中性。"
+          },
+          {
+            "topic": "賽事資訊",
+            "mention_count": 3,
+            "sentiment": "neutral",
+            "description": "AWC和MDI賽事的決賽資訊受到關注，玩家對賽事進展保持中立態度。"
+          },
+          {
+            "topic": "聯名活動",
+            "mention_count": 4,
+            "sentiment": "neutral",
+            "description": "與多力多滋、純喫茶等品牌的聯名活動引發討論，玩家對活動內容保持中立。"
+          },
+          {
+            "topic": "遊戲攻略分享",
+            "mention_count": 5,
+            "sentiment": "positive",
+            "description": "玩家分享圖倫、凱撒路等英雄的攻略與技巧，幫助新手快速上手，情緒偏向正面。"
+          }
+        ],
+        "detected_events": [
+          {
+            "name": "AWC和MDI賽事決賽",
+            "type": "賽事",
+            "source_count": 1,
+            "details": "玩家關注AWC和MDI賽事的決賽資訊，討論賽事進展與結果。"
+          },
+          {
+            "name": "星展傳說對決聯名卡活動延長",
+            "type": "活動",
+            "source_count": 1,
+            "details": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉-星夢展航造型。"
+          }
+        ],
+        "platform_breakdown": {
+          "instagram": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "threads": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "facebook": {
+            "post_count": 2,
+            "avg_sentiment": 0.5
+          }
+        },
+        "alerts": [
+          "芽芽的角色設計與技能Bug引發大量負面討論，建議官方盡快回應並進行調整。"
+        ],
+        "recommendation": "針對芽芽的角色設計與技能Bug，建議官方盡快發布修正公告，並考慮進行平衡性調整。同時，可加強與玩家的溝通，回應其對遊戲體驗的疑慮。",
+        "global_insights": {
+          "TW": {
+            "summary": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈。",
+            "hot_hero": "無特定英雄"
+          }
+        },
+        "hero_focus": {
+          "name": "芽芽",
+          "summary": "芽芽的角色設計與技能Bug引發大量討論，玩家普遍認為其過於強勢且難以應對，情緒偏向負面。",
+          "sentiment_score": 0.3,
+          "top_comments": [
+            "他X的芽芽為什麼就不能被檢舉？",
+            "芽芽也太機車了",
+            "請問大老芽芽騎在英雄上，那個英雄吃得到塔之庇佑嗎？"
+          ]
+        },
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        },
+        "total_posts": 35,
+        "hero_stats": {
+          "芽芽": {
+            "count": 8,
+            "avg_sentiment": 0.41,
+            "wordcloud": {
+              "positive": [],
+              "negative": [
+                {
+                  "text": "問題",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "巴哈姆特",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "AOV",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "哈啦板",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "芽芽真的好好玩",
+                  "weight": 15,
+                  "count": 1
+                },
+                {
+                  "text": "3192",
+                  "weight": 15,
+                  "count": 1
+                },
+                {
+                  "text": "他X的芽芽為什麼",
+                  "weight": 15,
+                  "count": 1
+                },
+                {
+                  "text": "就不能被檢舉",
+                  "weight": 15,
+                  "count": 1
+                }
+              ]
+            }
+          },
+          "皮皮": {
+            "count": 8,
+            "avg_sentiment": 0.5,
+            "wordcloud": {
+              "positive": [
+                {
+                  "text": "密技",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "雙排組合推薦",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "艾琳",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "皮皮",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "巴哈姆特",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "AOV",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "哈啦板",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "2943",
+                  "weight": 24,
+                  "count": 1
+                }
+              ],
+              "negative": [
+                {
+                  "text": "問題",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "皮皮鬧紅線缺人",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "巴哈姆特",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "AOV",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "哈啦板",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "250",
+                  "weight": 24,
+                  "count": 1
+                }
+              ]
+            }
+          }
+        },
+        "wordcloud": {
+          "positive": [
+            {
+              "text": "傳說對決板",
+              "weight": 24,
+              "count": 6
+            },
+            {
+              "text": "Dcard",
+              "weight": 24,
+              "count": 6
+            },
+            {
+              "text": "心得分享",
+              "weight": 18,
+              "count": 3
+            },
+            {
+              "text": "巴哈姆特",
+              "weight": 16,
+              "count": 2
+            },
+            {
+              "text": "AOV",
+              "weight": 16,
+              "count": 2
+            },
+            {
+              "text": "哈啦板",
+              "weight": 16,
+              "count": 2
+            },
+            {
+              "text": "輔助觀念",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "攻略",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "傳說對決",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "從0",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "100圖倫教學",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "17分鐘一次快速",
+              "weight": 14,
+              "count": 1
+            }
+          ],
+          "negative": [
+            {
+              "text": "巴哈姆特",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "AOV",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "哈啦板",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "問題",
+              "weight": 22,
+              "count": 7
+            },
+            {
+              "text": "其他",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "傳說對決星展信用",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "邀請碼",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "263",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "傳說對決配對",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "31",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "傳說對決",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "邀好友回歸送造型",
+              "weight": 13,
+              "count": 1
+            }
+          ]
+        },
+        "top_links": [
+          {
+            "title": "傳說對決|玩一百萬場傳說都不一定遇到一次...",
+            "url": "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "platform": "youtube"
+          },
+          {
+            "title": "有人現在遊戲也沒辦法登入嗎....",
+            "url": "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
+            "platform": "facebook"
+          },
+          {
+            "title": "The Arena World Cham...",
+            "url": "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411",
+            "platform": "facebook"
+          }
+        ],
+        "real_hot_topics": [
+          {
+            "word": "巴哈姆",
+            "count": 24
+          },
+          {
+            "word": "皮皮",
+            "count": 7
+          },
+          {
+            "word": "造型",
+            "count": 3
+          },
+          {
+            "word": "凱撒",
+            "count": 2
+          },
+          {
+            "word": "more",
+            "count": 2
+          },
+          {
+            "word": "遊戲",
+            "count": 2
+          },
+          {
+            "word": "Facebook",
+            "count": 2
+          },
+          {
+            "word": "推薦",
+            "count": 2
+          },
+          {
+            "word": "對決",
+            "count": 2
+          },
+          {
+            "word": "聯名",
+            "count": 2
+          }
+        ],
+        "topic_to_posts": {
+          "巴哈姆": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62828&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62305&tnum=8",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62827&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62192&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60722&tnum=16",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=57234&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62239&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62151&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1"
+          ],
+          "皮皮": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22"
+          ],
+          "造型": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262"
+          ],
+          "凱撒": [
+            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "https://www.dcard.tw/f/aov/p/257800838"
+          ],
+          "more": [
+            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          ],
+          "遊戲": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768"
+          ],
+          "Facebook": [
+            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
+            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          ],
+          "推薦": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
+            "https://www.dcard.tw/f/aov/p/257800838"
+          ],
+          "對決": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+          ],
+          "聯名": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+          ]
+        },
+        "dynamic_alerts": [
+          {
+            "label": "傳說對決今日熱議：百萬場難得一見的凱撒爭奪戰，令人瞠目結舌。芽芽相關文章首日達 18 篇，討論熱度持續攀升。Facebook 平台也有 2 篇相關貼文，引發玩家熱烈迴響。"
+          }
+        ],
+        "overflow_alerts": []
+      },
+      "stored_at": "2026-06-03T12:58:20.190456+00:00",
+      "last_accessed": "2026-06-03T12:58:20.190456+00:00",
+      "ttl_days": 7
+    },
+    "prompt:997677cc79be2bc8a9b9ad338c83a7f3": {
+      "result": "傳說對決今日熱議：百萬場難得一見的凱撒爭奪戰，令人瞠目結舌。芽芽相關文章首日達 18 篇，討論熱度持續攀升。Facebook 平台也有 2 篇相關貼文，引發玩家熱烈迴響。",
+      "stored_at": "2026-06-03T12:58:39.366197+00:00",
+      "last_accessed": "2026-06-03T12:58:39.366197+00:00",
+      "ttl_days": 7
+    },
+    "daily_summary:2026-06-03": {
+      "result": {
+        "date": "2026-06-03",
+        "overview": "今日《傳說對決》的輿情主要集中在玩家分享遊戲心得與技巧，以及對特定英雄（如芽芽和皮皮）的討論。整體情緒偏向中性，但部分玩家對芽芽的角色設計和遊戲體驗表達了不滿。此外，賽事資訊和聯名活動也受到一定關注。",
+        "sentiment_distribution": {
+          "positive": 5,
+          "negative": 8,
+          "neutral": 22
+        },
+        "hot_topics": [
+          {
+            "topic": "芽芽角色討論",
+            "mention_count": 10,
+            "sentiment": "negative",
+            "description": "玩家對芽芽的角色設計、技能Bug及遊戲體驗表達不滿，認為其過於強勢且難以應對。"
+          },
+          {
+            "topic": "皮皮角色討論",
+            "mention_count": 8,
+            "sentiment": "neutral",
+            "description": "玩家討論皮皮的技能改動、雙排組合以及如何避免坑隊友，情緒偏向中性。"
+          },
+          {
+            "topic": "賽事資訊",
+            "mention_count": 3,
+            "sentiment": "neutral",
+            "description": "AWC和MDI賽事的決賽資訊受到關注，玩家對賽事進展保持中立態度。"
+          },
+          {
+            "topic": "聯名活動",
+            "mention_count": 4,
+            "sentiment": "neutral",
+            "description": "與多力多滋、純喫茶等品牌的聯名活動引發討論，玩家對活動內容保持中立。"
+          },
+          {
+            "topic": "遊戲攻略分享",
+            "mention_count": 5,
+            "sentiment": "positive",
+            "description": "玩家分享圖倫、凱撒路等英雄的攻略與技巧，幫助新手快速上手，情緒偏向正面。"
+          }
+        ],
+        "detected_events": [
+          {
+            "name": "AWC和MDI賽事決賽",
+            "type": "賽事",
+            "source_count": 1,
+            "details": "玩家關注AWC和MDI賽事的決賽資訊，討論賽事進展與結果。"
+          },
+          {
+            "name": "星展傳說對決聯名卡活動延長",
+            "type": "活動",
+            "source_count": 1,
+            "details": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉-星夢展航造型。"
+          }
+        ],
+        "platform_breakdown": {
+          "instagram": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "threads": {
+            "post_count": 0,
+            "avg_sentiment": 0.0
+          },
+          "facebook": {
+            "post_count": 2,
+            "avg_sentiment": 0.5
+          }
+        },
+        "alerts": [
+          "芽芽的角色設計與技能Bug引發大量負面討論，建議官方盡快回應並進行調整。"
+        ],
+        "recommendation": "針對芽芽的角色設計與技能Bug，建議官方盡快發布修正公告，並考慮進行平衡性調整。同時，可加強與玩家的溝通，回應其對遊戲體驗的疑慮。",
+        "global_insights": {
+          "TW": {
+            "summary": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈。",
+            "hot_hero": "無特定英雄"
+          }
+        },
+        "hero_focus": {
+          "name": "芽芽",
+          "summary": "芽芽的角色設計與技能Bug引發大量討論，玩家普遍認為其過於強勢且難以應對，情緒偏向負面。",
+          "sentiment_score": 0.3,
+          "top_comments": [
+            "他X的芽芽為什麼就不能被檢舉？",
+            "芽芽也太機車了",
+            "請問大老芽芽騎在英雄上，那個英雄吃得到塔之庇佑嗎？"
+          ]
+        },
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        },
+        "total_posts": 35,
+        "hero_stats": {
+          "芽芽": {
+            "count": 8,
+            "avg_sentiment": 0.41,
+            "wordcloud": {
+              "positive": [],
+              "negative": [
+                {
+                  "text": "問題",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "巴哈姆特",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "AOV",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "哈啦板",
+                  "weight": 24,
+                  "count": 4
+                },
+                {
+                  "text": "芽芽真的好好玩",
+                  "weight": 15,
+                  "count": 1
+                },
+                {
+                  "text": "3192",
+                  "weight": 15,
+                  "count": 1
+                },
+                {
+                  "text": "他X的芽芽為什麼",
+                  "weight": 15,
+                  "count": 1
+                },
+                {
+                  "text": "就不能被檢舉",
+                  "weight": 15,
+                  "count": 1
+                }
+              ]
+            }
+          },
+          "皮皮": {
+            "count": 8,
+            "avg_sentiment": 0.5,
+            "wordcloud": {
+              "positive": [
+                {
+                  "text": "密技",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "雙排組合推薦",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "艾琳",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "皮皮",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "巴哈姆特",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "AOV",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "哈啦板",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "2943",
+                  "weight": 24,
+                  "count": 1
+                }
+              ],
+              "negative": [
+                {
+                  "text": "問題",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "皮皮鬧紅線缺人",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "巴哈姆特",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "AOV",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "哈啦板",
+                  "weight": 24,
+                  "count": 1
+                },
+                {
+                  "text": "250",
+                  "weight": 24,
+                  "count": 1
+                }
+              ]
+            }
+          }
+        },
+        "wordcloud": {
+          "positive": [
+            {
+              "text": "傳說對決板",
+              "weight": 24,
+              "count": 6
+            },
+            {
+              "text": "Dcard",
+              "weight": 24,
+              "count": 6
+            },
+            {
+              "text": "心得分享",
+              "weight": 18,
+              "count": 3
+            },
+            {
+              "text": "巴哈姆特",
+              "weight": 16,
+              "count": 2
+            },
+            {
+              "text": "AOV",
+              "weight": 16,
+              "count": 2
+            },
+            {
+              "text": "哈啦板",
+              "weight": 16,
+              "count": 2
+            },
+            {
+              "text": "輔助觀念",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "攻略",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "傳說對決",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "從0",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "100圖倫教學",
+              "weight": 14,
+              "count": 1
+            },
+            {
+              "text": "17分鐘一次快速",
+              "weight": 14,
+              "count": 1
+            }
+          ],
+          "negative": [
+            {
+              "text": "巴哈姆特",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "AOV",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "哈啦板",
+              "weight": 24,
+              "count": 8
+            },
+            {
+              "text": "問題",
+              "weight": 22,
+              "count": 7
+            },
+            {
+              "text": "其他",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "傳說對決星展信用",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "邀請碼",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "263",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "傳說對決配對",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "31",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "傳說對決",
+              "weight": 13,
+              "count": 1
+            },
+            {
+              "text": "邀好友回歸送造型",
+              "weight": 13,
+              "count": 1
+            }
+          ]
+        },
+        "top_links": [
+          {
+            "title": "傳說對決|玩一百萬場傳說都不一定遇到一次...",
+            "url": "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "platform": "youtube"
+          },
+          {
+            "title": "有人現在遊戲也沒辦法登入嗎....",
+            "url": "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
+            "platform": "facebook"
+          },
+          {
+            "title": "The Arena World Cham...",
+            "url": "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411",
+            "platform": "facebook"
+          }
+        ],
+        "real_hot_topics": [
+          {
+            "word": "巴哈姆",
+            "count": 24
+          },
+          {
+            "word": "皮皮",
+            "count": 7
+          },
+          {
+            "word": "造型",
+            "count": 3
+          },
+          {
+            "word": "凱撒",
+            "count": 2
+          },
+          {
+            "word": "more",
+            "count": 2
+          },
+          {
+            "word": "遊戲",
+            "count": 2
+          },
+          {
+            "word": "Facebook",
+            "count": 2
+          },
+          {
+            "word": "推薦",
+            "count": 2
+          },
+          {
+            "word": "對決",
+            "count": 2
+          },
+          {
+            "word": "聯名",
+            "count": 2
+          }
+        ],
+        "topic_to_posts": {
+          "巴哈姆": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62828&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62305&tnum=8",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62827&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62192&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60722&tnum=16",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=57234&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62239&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62151&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1"
+          ],
+          "皮皮": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22"
+          ],
+          "造型": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262"
+          ],
+          "凱撒": [
+            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "https://www.dcard.tw/f/aov/p/257800838"
+          ],
+          "more": [
+            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          ],
+          "遊戲": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768"
+          ],
+          "Facebook": [
+            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
+            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          ],
+          "推薦": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
+            "https://www.dcard.tw/f/aov/p/257800838"
+          ],
+          "對決": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+          ],
+          "聯名": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+          ]
+        },
+        "dynamic_alerts": [
+          {
+            "label": "傳說對決今日熱議：百萬場難得一見的凱撒爭奪戰，令人瞠目結舌。芽芽相關文章首日達 18 篇，討論熱度持續攀升。Facebook 平台也有 2 篇相關貼文，引發玩家熱烈迴響。"
+          }
+        ],
+        "overflow_alerts": []
+      },
+      "stored_at": "2026-06-03T12:58:39.372176+00:00",
+      "last_accessed": "2026-06-03T12:58:39.372176+00:00",
+      "ttl_days": 7
     }
   },
   "stats": {
     "total_l1_hits": 0,
-    "total_l2_hits": 59,
+    "total_l2_hits": 66,
     "total_apify_hits": 0,
-    "total_misses": 110
+    "total_misses": 117
   }
 }
