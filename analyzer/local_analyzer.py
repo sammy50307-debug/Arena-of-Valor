@@ -158,7 +158,6 @@ def generate_local_summary(
     posts = list(analyzed_posts)
     hero_focus = hero_focus or getattr(config, "HERO_FOCUS_NAME", "芽芽")
     sentiment_distribution = {"positive": 0, "negative": 0, "neutral": 0}
-    platform_scores: Dict[str, List[float]] = defaultdict(list)
     keyword_counts: Counter = Counter()
     keyword_sentiments: Dict[str, Counter] = defaultdict(Counter)
     event_counts: Dict[Tuple[str, str], Dict[str, Any]] = {}
@@ -174,10 +173,8 @@ def generate_local_summary(
         if sentiment not in sentiment_distribution:
             sentiment = "neutral"
         score = _safe_float(analysis.get("sentiment_score"), 0.5)
-        platform = _canonical_platform(post.get("platform", "web"))
 
         sentiment_distribution[sentiment] += 1
-        platform_scores[platform].append(score)
 
         for keyword in analysis.get("keywords", []) or []:
             key = _text(keyword)
@@ -212,13 +209,7 @@ def generate_local_summary(
             if title:
                 hero_comments[hero_name].append(_truncate(title, 48))
 
-    platform_breakdown = {
-        platform: {
-            "post_count": len(scores),
-            "avg_sentiment": round(sum(scores) / len(scores), 3) if scores else 0.5,
-        }
-        for platform, scores in sorted(platform_scores.items())
-    }
+    platform_breakdown = compute_platform_breakdown(posts)
 
     hot_topics = []
     for keyword, count in keyword_counts.most_common(6):
@@ -305,6 +296,29 @@ def generate_local_summary(
             "status": "skipped",
             "errors": ["local deterministic summary"],
         },
+    }
+
+
+def compute_platform_breakdown(analyzed_posts: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """從真實貼文統計平台分布（篇數 + 平均情緒）。
+
+    口徑：以 post.platform 經 _canonical_platform 正規化後計數。
+    P108：LLM 版 platform_breakdown 只吐固定子集（ig/threads/fb）不可信，
+    報告圖表與 dynamic_focus 今日焦點皆應改用本函式的真實統計。
+    """
+    platform_scores: Dict[str, List[float]] = defaultdict(list)
+    for entry in analyzed_posts:
+        post = entry.get("post", {})
+        analysis = entry.get("analysis", {})
+        platform = _canonical_platform(post.get("platform", "web"))
+        score = _safe_float(analysis.get("sentiment_score"), 0.5)
+        platform_scores[platform].append(score)
+    return {
+        platform: {
+            "post_count": len(scores),
+            "avg_sentiment": round(sum(scores) / len(scores), 3) if scores else 0.5,
+        }
+        for platform, scores in sorted(platform_scores.items())
     }
 
 

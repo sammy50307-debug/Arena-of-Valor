@@ -1896,8 +1896,11 @@
             const platformCtx = document.getElementById('platformChart').getContext('2d');
             const platformDataObj = {{ platform_breakdown | tojson
         }};
-        const platformLabels = Object.keys(platformDataObj);
-        const platformValues = Object.values(platformDataObj).map(v => typeof v === 'object' ? v.post_count : v);
+        // P108：用原始 platform key 做顏色判斷，另映射中文 label 顯示（含巴哈姆特）
+        const platformKeys = Object.keys(platformDataObj);
+        const _platLabelMap = {bahamut: '巴哈姆特', youtube: 'YouTube', instagram: 'Instagram', threads: 'Threads', facebook: 'Facebook', ptt: 'PTT', dcard: 'Dcard', web: '網站'};
+        const platformLabels = platformKeys.map(k => _platLabelMap[k.toLowerCase()] || k.toUpperCase());
+        const platformValues = platformKeys.map(k => { const v = platformDataObj[k]; return typeof v === 'object' ? v.post_count : v; });
 
         new Chart(platformCtx, {
             type: 'bar',
@@ -1906,8 +1909,9 @@
                 datasets: [{
                     label: '貼文數',
                     data: platformValues,
-                    backgroundColor: platformLabels.map(p => {
+                    backgroundColor: platformKeys.map(p => {
                         const plat = p.toLowerCase();
+                        if (plat.includes('bahamut')) return '#f59e0b'; // 巴哈橙
                         if (plat.includes('fb') || plat.includes('facebook')) return '#60a5fa'; // 粉藍
                         if (plat.includes('yt') || plat.includes('youtube') || plat.includes('threads')) return '#f472b6'; // 粉紅
                         if (plat.includes('forum') || plat.includes('ig') || plat.includes('instagram')) return '#fbbf24'; // 亮黃

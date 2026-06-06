@@ -507,7 +507,13 @@ class SentimentAnalyzer:
                 _s = _entry.get("analysis", {}).get("sentiment", "neutral")
                 _dist[_s if _s in _dist else "neutral"] += 1
             summary["sentiment_distribution"] = _dist
-            
+
+            # P108：platform_breakdown 改由 code 真實統計覆寫 LLM 版。
+            # LLM schema 只吐 ig/threads/fb 固定子集（會漏巴哈等真實平台、甚至幻覺出不存在的平台）。
+            # 放此處（dynamic_focus 之前）讓圖表與今日焦點平台熱度都拿到真實值。
+            from analyzer.local_analyzer import compute_platform_breakdown
+            summary["platform_breakdown"] = compute_platform_breakdown(analyzed_posts)
+
             hero_stats = {}
             for hero in config.HERO_WATCHLIST:
                 hero_posts = [p for p in analyzed_posts if hero in p["post"].get("detected_heroes", [])]

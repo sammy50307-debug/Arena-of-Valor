@@ -119,16 +119,9 @@ class ReportGenerator:
             "top_comments": raw_hero_focus.get("top_comments", []),
         }
 
-        raw_pb = daily_summary.get("platform_breakdown", {})
-        platform_breakdown = {
-            "instagram": raw_pb.get("instagram", {"post_count": 0, "avg_sentiment": 0.5}),
-            "threads": raw_pb.get("threads", {"post_count": 0, "avg_sentiment": 0.5}),
-            "facebook": raw_pb.get("facebook", {"post_count": 0, "avg_sentiment": 0.5}),
-            "web": raw_pb.get("web", {"post_count": 0, "avg_sentiment": 0.5}),
-            "ptt": raw_pb.get("ptt", {"post_count": 0, "avg_sentiment": 0.5}),
-            "dcard": raw_pb.get("dcard", {"post_count": 0, "avg_sentiment": 0.5}),
-            "youtube": raw_pb.get("youtube", {"post_count": 0, "avg_sentiment": 0.5}),
-        }
+        # P108：原樣傳遞真實 platform_breakdown（上游 sentiment / local_analyzer 已改真實統計）。
+        # 不再寫死 ig/threads/fb/... 白名單——那會丟掉巴哈姆特等真實平台。
+        platform_breakdown = daily_summary.get("platform_breakdown", {}) or {}
 
         # ── wordcloud 格式轉換 ──────────────────────────────
         # 模板期望: wordcloud.positive = [{"text": "xxx", "weight": 18}, ...]
