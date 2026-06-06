@@ -18,6 +18,28 @@
 
 ## 開放風險（Open）
 
+### R-030：top5_picker 日期解析不支援巴哈相對格式 → 最新動態文章不換（P108 衍生，P108.3 待開）
+
+- **來源**：P108 阿喜驗收發現「最新動態 800 年沒換」（2026-06-06）
+- **風險級**：🟡 中（報告核心價值＝最新動態反映度；使用者每天看到同文章）
+- **狀態**：Open（P108.3 待開工治本）
+- **描述**：`top5_picker._compute_decay`/`_is_too_old` 只認 `%Y-%m-%d` 系列格式，不認巴哈「昨天 HH:MM」「MM-DD HH:MM」相對格式 → 巴哈文（主力）decay 全 `_DECAY_MIN`(0.300) 相同、age filter 失效 → 排序退化純 score → 每天選同文章。實測鐵證：「昨天 22:39」→decay 0.300 vs「2026-06-02 22:39:00」→0.995。
+- **緩解策略**：另開 P108.3 評估——治本（爬蟲端 bahamut_scraper 正規化 published_date 成 ISO，picker/generator 等所有下游受益）vs 治標（picker 加相對日期解析）。阿喜傾向治本。
+- **關聯**：與 R-026（top5 age filter 倒灌）同 picker 戰線；與 P108 #2（日期欄位下游處理）同源家族（巴哈日期非標準格式連鎖）。
+
+---
+
+### R-031：報告 UX — 24H 聲量圖無圖例看不懂 / 最新動態無法獨立滾輪（P108 衍生，UX Phase 待開）
+
+- **來源**：P108 阿喜驗收（2026-06-06）
+- **風險級**：🟢 低（不影響數據正確性，影響閱讀體驗）
+- **狀態**：Open（UX Phase 待開工）
+- **描述**：#3 heatmap 無 visualMap 顏色圖例 + 無說明文字（只 hover tooltip）→ 靜態看不知顏色代表什麼；#4a `.feed-container` 無 `max-height`+`overflow-y` → 最新動態無法獨立滾輪。
+- **緩解策略**：另開 UX Phase（#4a 小 CSS 修：加 max-height+overflow-y；#3 加 visualMap 圖例+一行說明），不混 P108 數據可信度 scope。
+- **關聯**：純呈現層 UX，與 R-028 數據可信度不同戰線。
+
+---
+
 ### R-025：子代理派遣準則 v1.0 dead rule 風險 / 到期實效復盤（P104.2 衍生）
 
 - **來源**：阿喜 2026-05-31 要求把全域 `~/.claude/CLAUDE.md`「🤖 子代理派遣準則 v1.0」的到期復盤義務錨定到 repo（remote scheduled agent 拿不到本地全域守則與對話歷史，ROI 低，改用本地 RISK_REGISTRY 錨定）。
@@ -360,6 +382,7 @@
 - **三問題收斂結論**：S0 釘死後三問題收斂為兩個真 bug。**A 熱詞空**＝本地 run-now 缺 jieba（6/2 報告 commit 931b71a author＝阿喜本人、非 cron；雲端有 jieba 正常，非 production bug）。**C 平台圖失真**＝LLM schema 只吐 ig/threads/fb 幻覺子集、漏巴哈 24 篇，兩端都壞＝真 bug。**原 B 文章來源錯**經查資料/渲染皆正確，實為 C 的觀感（圖表看不到巴哈、跑到 FB），併入 C。
 - **修補（P108）**：(1) C＝抽 `local_analyzer.compute_platform_breakdown()` 真實統計，sentiment.py:509 後覆寫 LLM 版（dynamic_focus 之前，涵蓋圖表＋今日焦點兩消費者）+ generator 拔寫死白名單 + 圖表補巴哈 label/色；(2) A＝本地裝 jieba；(3) 防復發＝`scripts/check_report_credibility.py` advisory checker（real_hot_topics 非空 / platform_breakdown 含真實平台，不阻斷報告）。
 - **治本（P108.2）**：jieba 詞典納入 stopwords 多字詞根治「巴哈姆特」切殘；英文虛詞降級版（誠實標示有限清單，中文通用長尾刻意不做）。
+- **補修（#2，2026-06-06 阿喜驗收揪出）**：A「點詞看來源」初次只驗「熱詞非空」、漏驗「點擊真有連結」（success criteria 未驗完整）。根因：side panel `_postIndex` 只從 dated_posts 建、YT/IG 無日期文被過濾。修法：改用全集 `all_posts_for_index`，所有熱詞 100% 可點。commit `cd4c16f` + 回歸測試。
 - **驗證**：全套 426 passed,0 failed；6/2 重生報告圖表 bahamut:24、熱詞區渲染 10 詞無雜訊。
 - **關閉條件**：平台圖真實統計 + 熱詞修復 + checker 防復發落地並測試通過。殘留中文通用長尾為已知啟發式邊界（誠實版預期，非 bug）；報告需 run-now 重新 promote 上線。
 
@@ -464,3 +487,4 @@
 - **2026-06-02**：P107 S1-S2 收官（焦點接巴哈 + detected_heroes，端到端驗證芽芽進觀察室）後 run-now，阿喜手機看報告發現 3 報告呈現問題，登記 R-028（熱詞無連結 A〔併 P106 既有〕/ 文章來源錯 B / 平台統計缺真實平台 C），待開 P108 報告數據可信度修復系統處理。
 - **2026-06-04**：阿喜回報金鑰外洩疑慮，登記 R-029（API key 外洩防線不足：local log 裸印 provider URL / 歷史中轉 token）；同步落地 redaction tests 與 pre-push secret scan guard，provider 端 rotate/revoke 與 history rewrite 另待決策。
 - **2026-06-06**：P108 報告數據可信度修復收官，R-028 → Closed。S0 釘死三問題收斂兩 bug（A 熱詞空＝本地缺 jieba 非 production bug；C 平台圖失真＝LLM 幻覺子集、B 併入 C）；platform_breakdown 改真實統計（sentiment 後處理涵蓋圖表＋今日焦點）、拔 generator 寫死白名單、加 advisory checker 防復發。P108.2 治本：jieba 詞典根治「巴哈姆特」切殘 + 英文虛詞降級版。全套 426 passed,0 failed。
+- **2026-06-06**：阿喜驗收 P108 重生報告揪 4 點。#2 熱詞點擊無連結＝A 漏修（只驗非空沒驗點擊），_postIndex 改全集補修（commit cd4c16f，427 passed），R-028 補記。新登記 R-030（#4b picker 日期解析→文章不換，另開 P108.3 治本）、R-031（#3/#4a 報告 UX，另開 UX Phase）。

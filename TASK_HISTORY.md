@@ -14377,3 +14377,17 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **物理真相**：423→426 passed（+3 P108.2 測試，jieba 缺則 skip 不假過），零回歸。6/2 重現熱詞無切殘平台名/英文虛詞（皮皮/造型/技能/英雄...）。
 
 **狀態**：治本收官，含於 P108 的 push 批次。殘留中文通用長尾為已知啟發式邊界（誠實版預期，非 bug）。
+
+### P108 補遺 — 阿喜驗收揪 #2 熱詞點擊無連結（誠實補修）+ #4b/#3/#4a 登記（2026-06-06）
+
+**觸發**：P108 重生 6/2 報告給阿喜視覺驗收，發現 4 點。
+
+**#2 熱詞點擊無連結（A 漏修，誠實認錯）**：P108-S2 宣稱「A 熱詞可點看來源」完成，但**只驗了熱詞非空、沒驗點擊真的有連結**——success criteria 沒 verify 完整。阿喜點熱詞看到「無法取得文章連結」。根因：side panel `_postIndex` 只從 `dated_posts`（有 published_date）建，YT/IG 文無日期被過濾 → 它們的熱詞點開找不到文章（巴哈有日期故部分熱詞 OK、部分沒有）。修法：generator 傳 `all_posts_for_index`（全集）、report.html `_postIndex` 改用全集。重生 _postIndex 27 entry（原 24）、所有熱詞 100% 可點；新增 `test_postindex_includes_undated_posts`。commit `cd4c16f`，全套 427 passed。**教訓：宣稱完成前要 verify success criteria 本身（A 的 criteria 是「點詞看來源」非「熱詞非空」）**。
+
+**#1 平台未來擴展（澄清）**：阿喜問以後其他平台會否顯現——會。P108 拔白名單後 `compute_platform_breakdown` 統計所有真實平台，新平台有資料就自動上圖+配色。
+
+**#4b 最新動態文章不換（深查根因→登記 R-030→另開 P108.3）**：`top5_picker._compute_decay`/`_is_too_old` 只認 `%Y-%m-%d` 系列格式，**不認巴哈「昨天 HH:MM」「MM-DD HH:MM」相對格式** → 巴哈文 decay 全 `_DECAY_MIN`(0.300) 相同、age filter 失效 → 純 score 排序 → 每天選同文章。實測鐵證（昨天 22:39→decay 0.300 vs 標準格式 0.995）。屬資料/邏輯戰線（與數據可信度同源）。阿喜裁示**另開 P108.3 治本**（傾向爬蟲端正規化 published_date 成 ISO，源頭修、所有下游受益）。登記 R-030。
+
+**#3 24H 聲量圖看不懂 / #4a 最新動態無法獨立滾輪（UX 戰線→登記 R-031→另開）**：#3 heatmap 無 visualMap 圖例+無說明（只 hover tooltip）；#4a `.feed-container` 無 max-height+overflow-y。阿喜裁示**都另開 UX Phase**，不混 P108 數據可信度 scope。登記 R-031。
+
+**狀態**：P108 數據可信度主線收官（C/A/#2/治本/checker 全完成，427 passed）。#4b→P108.3、#3/#4a→UX Phase 另議。push 待阿喜核准。
