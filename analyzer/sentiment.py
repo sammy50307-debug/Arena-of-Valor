@@ -168,6 +168,17 @@ def _validate_schema_payload(payload: Any, schema: Dict[str, Any], label: str) -
     return errors
 
 
+def _post_timestamp(res: SearchResult, default: str = "時間未知") -> str:
+    """從 SearchResult 取發布時間（P108.3.1）。
+
+    直接屬性存取 res.published_date（升級 A）——欄位名拼錯會即時 AttributeError，
+    不像 getattr(res, "timestamp", default) 靜默回 default 而遺失時間（此即 P108.3
+    在 production LLM 路徑失效的病根：SearchResult 欄位叫 published_date 非 timestamp）。
+    res 須為 SearchResult；空值（無日期來源）回 default。
+    """
+    return res.published_date or default
+
+
 class SentimentAnalyzer:
     """
     輿情分析器：將搜尋結果送入 Gemini 進行情緒分析與事件偵測，
@@ -344,7 +355,7 @@ class SentimentAnalyzer:
                         "url": res.url,
                         "content": res.content,
                         "title": res.title,
-                        "timestamp": getattr(res, "timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                        "timestamp": _post_timestamp(res, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                         "is_hero_focus": "芽芽" in res.title,
                         "region": res.region,
                         "original_language": "zh"
@@ -378,7 +389,7 @@ class SentimentAnalyzer:
                         "url": res.url,
                         "title": res.title,
                         "content": res.content,
-                        "timestamp": getattr(res, "timestamp", "時間未知"),
+                        "timestamp": _post_timestamp(res),
                         "is_hero_focus": analysis.get("is_hero_focus", False),
                         "detected_heroes": detected,  # 這是熱度圖生存的關鍵
                         "region": analysis.get("region", res.region),
@@ -398,7 +409,7 @@ class SentimentAnalyzer:
                         "author": res.source,
                         "url": res.url,
                         "content": res.content,
-                        "timestamp": "時間未知",
+                        "timestamp": _post_timestamp(res),
                     },
                     "analysis": {
                         "sentiment": "neutral",
