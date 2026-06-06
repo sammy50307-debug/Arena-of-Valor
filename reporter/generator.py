@@ -235,6 +235,9 @@ class ReportGenerator:
             "audio_url": daily_summary.get("audio_url", ""),
             "real_hot_topics": real_hot_topics,
             "topic_to_posts": topic_to_posts,
+            # P108 #2 修：side panel _postIndex 需涵蓋全部文章（含無日期的 YT/IG），
+            # 否則熱詞指向非 dated_posts 的文章會「無法取得連結」。
+            "all_posts_for_index": analyzed_posts,
             "dynamic_alerts": dynamic_alerts,
             "overflow_alerts": overflow_alerts,
             "config": {

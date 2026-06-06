@@ -2160,9 +2160,9 @@
     // P67 Side Panel — topic_to_posts 資料（post_id = URL）
     const _topicToPosts = {{ topic_to_posts | tojson }};
 
-    // posts 索引（key = url）
+    // posts 索引（key = url）— P108 #2：用全部文章（含無日期 YT/IG），否則熱詞點開無連結
     const _postIndex = {};
-    {% for ap in posts %}
+    {% for ap in all_posts_for_index %}
     {% set p = ap.get('post', {}) %}
     {% if p.get('url') and p.get('url') != 'N/A' %}
     _postIndex[{{ p.url | tojson }}] = {
