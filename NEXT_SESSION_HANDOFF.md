@@ -6,12 +6,12 @@
 | 欄位 | 內容 |
 |---|---|
 | **Status** | ACTIVE |
-| **Program** | R-019 Project Self-Optimization Flywheel Program / R-023 Monitoring Review Risk |
-| **Current Phase** | P102（DRAFT / Missing Guard Backlog / Monitoring Review） |
-| **Current Step** | P102 plan draft 已建立；等待主公裁決 `核准 P102 plan freeze`。本階段不做 runtime review、不關閉 R-016/R-017、不補 missing guards、不改 checker。 |
-| **Mode** | DRAFT |
-| **Latest Verified Commit** | `94292e4` 已推送；P102 plan draft commit 建立後，push 仍需主公確認 |
-| **Updated At** | 2026-05-29 Asia/Taipei |
+| **Program** | R-019 Project Self-Optimization Flywheel Program / R-031 Report UX |
+| **Current Phase** | P109（CLOSED / UX / report scroll） |
+| **Current Step** | P109 已收官。最新 commit 待建立與推送（等待阿喜確認）。下個視窗可開 P107 焦點英雄覆蓋或 P102。 |
+| **Mode** | CLOSED |
+| **Latest Verified Commit** | `d610ad6` 已推送；本地 P109 收官 commit 建立後，push 仍需主公確認 |
+| **Updated At** | 2026-06-07 Asia/Taipei |
 
 ## Required Minimal Reads
 
@@ -60,12 +60,12 @@
 
 | 欄位 | 內容 |
 |---|---|
-| **Current Phase** | P102（DRAFT / MISSING_GUARD_BACKLOG / MONITORING_REVIEW / RUNTIME_NOT_STARTED） |
-| **Current Step** | P102 plan draft 已建立；等待主公裁決 `核准 P102 plan freeze`；不得自動進 runtime |
-| **Allowed Files** | P102 plan scope：`docs/PHASE_102_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
-| **Forbidden Work** | 不全讀 `TASK_HISTORY.md`；不 stage unrelated untracked reports；不 stage scratch；不關閉 R-016/R-017；不補所有 missing guards；不新增或修改 checker/tests；不接 strict gate；不清理 root/generated files；不搬檔、不 rename、不刪檔；不改 `.gitignore`；不改 GitHub Actions / Pages；不讀 raw report/log/post content；不導入 RTK 或新工具；不 git push，除非主公明確確認 |
-| **Exit Criteria** | P102 plan lint PASS；R-023 Open；guard index includes R-023 human-only row；handoff / active / risk / history synchronized；P102 plan draft committed locally |
-| **Resume Rule** | 新視窗讀本區塊、`docs/PHASE_102_PLAN.md`、`docs/KNOWN_ISSUE_GUARD_INDEX.md`、`docs/RISK_REGISTRY.md` R-023；若 local ahead 是 P102 plan draft commit，等待主公 push；若已推，由主公裁決 `核准 P102 plan freeze` |
+| **Current Phase** | P109（CLOSED / UX / report scroll） |
+| **Current Step** | P109 已收官。最新 commit 待建立與推送（等待阿喜確認）。下個視窗可開 P107 焦點英雄覆蓋或 P102。 |
+| **Allowed Files** | P109 plan scope：`reporter/templates/report.html`、`tests/test_report_ux_scroll.py`、`docs/PHASE_109_PLAN.md`、`NEXT_SESSION_HANDOFF.md`、`docs/ACTIVE_OPERATION.md`、`docs/RISK_REGISTRY.md`、`TASK_HISTORY.md` |
+| **Forbidden Work** | 不動 #3 圖例；不重構無關 code / 不順手改格式；不用 --allow-skip 繞 lint、不改既有測試讓它過 |
+| **Exit Criteria** | 生成報告 HTML 含 max-height/overflow-y；新 test 存在且通過；視覺驗收無虞；全套 489 passed 且零回歸 |
+| **Resume Rule** | 新視窗讀 NEXT_SESSION_HANDOFF.md 頂部 active bootstrap；若 local ahead 有 P109 收官 commit，等待主公 push |
 
 ## Required Verification Commands
 

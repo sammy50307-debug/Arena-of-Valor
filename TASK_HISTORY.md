@@ -14463,3 +14463,22 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險**：R-032 → Closed（折衷收官）。未竟（接受）：完整多平台（含無關無日期文）未做——與 P108 可信度防線衝突，折衷只破例芽芽；若未來要無關平台也進，需重評可信度 vs 覆蓋取捨。新 blindspot **B-024**：改下游消費行為前，除查程式消費點（B-023），須查測試/契約是否鎖定該行為——本次 S1 漏查 content_trust 契約、動工後才撞上。
 
 **狀態**：S1-S4 離線收官（488 passed）。Exit F（端到端 run-now 驗芽芽多平台文進最新動態）待阿喜授權；整體效果待 cron。push 待阿喜核准。
+
+#### P109 — 報告「最新動態」獨立滾輪 + 防復發 guard（R-031 #4a 收斂）（2026-06-07 收官）
+
+**目標**：
+- 針對 R-031 中阿喜回報的報告 UX 缺陷（#4a 最新動態無法獨立滾輪），在 `reporter/templates/report.html` 的 `.feed-container` 中加上 `max-height: 70vh;` 與 `overflow-y: auto;`。
+- 新增 `tests/test_report_ux_scroll.py` 作為防復發 guard，跑 generator 產出報告 HTML 後斷言 `.feed-container` 是否包含 `max-height` 和 `overflow-y`，避免 template 重構再次遺漏此屬性。
+- 飛輪審視後，#3 圖例在 LINE webview 因無法加載 ECharts CDN 暫時無效，故此項暫擱，待 P106-5 PNG 化解決方案。
+
+**物理真相**：
+- **基線演進**：全套測試從 488 passed 升至 489 passed（0.51s），無回歸。
+- **修改與新增檔案**：
+  - 修改 `reporter/templates/report.html`：於 `.feed-container` 樣式塊注入 `max-height: 70vh;` 與 `overflow-y: auto;`。
+  - 新增 `tests/test_report_ux_scroll.py`：單元測試，透過實跑 generator 產生假報告，並精確比對生成出的 HTML 結構中 `.feed-container` CSS 屬性。
+- **副作用清理**：實跑 `py main.py --dry-run` 產生 2026-06-07 報告後，利用 `git checkout -- index.html data/llm_cache.json` 還原對 canonical index.html 與快取檔的污染，確保 working tree 僅含核心修改。
+
+**狀態**：
+- ✅ 本地全套測試 489 passed, 4 skipped 全綠。
+- ✅ 成功將 R-031 的 #4a 痛點部分收斂（最新動態詳情滾動已實證生效）。
+- ⏭️ 下一步：建立 P109 本地 commit 並且 push 至 origin/main（提交前需問阿喜），後續更新 `docs/RISK_REGISTRY.md` 及 R-031 狀態。

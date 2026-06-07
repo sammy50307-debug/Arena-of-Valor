@@ -33,9 +33,11 @@
 
 - **來源**：P108 阿喜驗收（2026-06-06）
 - **風險級**：🟢 低（不影響數據正確性，影響閱讀體驗）
-- **狀態**：Open（UX Phase 待開工）
-- **描述**：#3 heatmap 無 visualMap 顏色圖例 + 無說明文字（只 hover tooltip）→ 靜態看不知顏色代表什麼；#4a `.feed-container` 無 `max-height`+`overflow-y` → 最新動態無法獨立滾輪。
-- **緩解策略**：另開 UX Phase（#4a 小 CSS 修：加 max-height+overflow-y；#3 加 visualMap 圖例+一行說明），不混 P108 數據可信度 scope。
+- **狀態**：Open（部分收斂；#4a CSS 已解，#3 暫擱待 P106-5 PNG 化）
+- **描述**：#3 heatmap 無 visualMap 顏色圖例 + 無說明文字（只 hover tooltip）→ 靜態看不知顏色代表什麼；#4a `.feed-container` 無 `max-height`+`overflow-y` → 最新動態無法獨立滾輪（已於 P109 解決）。
+- **緩解策略**：
+  - #4a 已由 P109 CSS 屬性注入（max-height: 70vh + overflow-y: auto）解決，並新增防復發單元測試。
+  - #3 在 LINE webview 因無法加載 ECharts CDN 暫時無效，故此項暫擱，待 P106-5 PNG 化解決方案一併處理。
 - **關聯**：純呈現層 UX，與 R-028 數據可信度不同戰線。
 
 ---

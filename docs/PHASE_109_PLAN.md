@@ -1,6 +1,6 @@
-# 📋 Phase 109 計畫書（草案，待凍結）
+# 📋 Phase 109 計畫書（FROZEN / CLOSED）
 
-> 狀態：**✅ 已凍結（2026-06-07，lint PASS + 阿喜核准）｜動工：Antigravity + Gemini 3.5 Pro (High)，執行者動工前必讀 §13 交接指引**
+> 狀態：**✅ 已收官（2026-06-07，測試 489 passed 零回歸 + 阿喜核准）｜動工：Antigravity + Gemini 3.5 Pro (High)，已完成收官流程**
 > 來源：R-031（P108 阿喜驗收 2026-06-06 提出）；P108.4 收官後待辦盤點，阿喜 2026-06-07 選定 ①、飛輪修正後聚焦 #4a
 > 戰線：前端呈現層 UX（獨立於 P108 系列「報告數據可信度」）
 > 鐵律提醒（執行者必讀）：`py` 不用 `python`；TASK_HISTORY 禁全讀（grep 錨點+Read offset）；改動前給阿喜計畫書等同意；push 前問阿喜
@@ -42,10 +42,10 @@ R-031 為 P108 阿喜驗收（2026-06-06）發現的兩個報告 UX 缺陷之一
 
 ## 4. Exit Criteria（退出條件）
 
-- [ ] **A**：生成的報告 HTML 的 `.feed-container` 含 `max-height` + `overflow-y`（grep 生成 HTML 證）
-- [ ] **B**：新 anti-regression test 存在且通過（鎖定生成 HTML 的 feed-container CSS）
-- [ ] **C**：重生成報告 + preview 截圖確認「最新動態」可獨立滾輪、內容未被切掉（視覺驗收）
-- [ ] **D**：全套 488 passed + 新 test 零回歸
+- [x] **A**：生成的報告 HTML 的 `.feed-container` 含 `max-height` + `overflow-y`（grep 生成 HTML 證）
+- [x] **B**：新 anti-regression test 存在且通過（鎖定生成 HTML 的 feed-container CSS）
+- [x] **C**：重生成報告 + preview 截圖確認「最新動態」可獨立滾輪、內容未被切掉（視覺驗收）
+- [x] **D**：全套 488 passed + 新 test 零回歸
 
 ## 5. ROI 評估
 
