@@ -572,9 +572,29 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         try:
             combat_stats = await stats_scraper.fetch_watchlist_stats()
             daily_summary["combat_stats"] = {name: asdict(s) for name, s in combat_stats.items()}
+            
+            # P106.2 注入 combat_stats_source / combat_stats_age_days
+            focus_hero = getattr(config, "HERO_FOCUS_NAME", "芽芽")
+            hero_stats = combat_stats.get(focus_hero)
+            if hero_stats:
+                daily_summary["_meta"]["combat_stats_source"] = hero_stats.data_source
+                age_days = 0
+                if hero_stats.update_time:
+                    try:
+                        dt_up = datetime.strptime(hero_stats.update_time[:10], "%Y-%m-%d")
+                        dt_rep = datetime.strptime(run_date, "%Y-%m-%d")
+                        age_days = (dt_rep - dt_up).days
+                    except Exception:
+                        pass
+                daily_summary["_meta"]["combat_stats_age_days"] = age_days
+            else:
+                daily_summary["_meta"]["combat_stats_source"] = "none"
+                daily_summary["_meta"]["combat_stats_age_days"] = 0
         except Exception as se:
             logger.warning(f"  [!] 戰鬥數據同步延遲或失敗: {se} (流程繼續)")
             daily_summary["combat_stats"] = {}
+            daily_summary["_meta"]["combat_stats_source"] = "none"
+            daily_summary["_meta"]["combat_stats_age_days"] = 0
         
         # ── Step 2.2：計算歷史趨勢 (Phase 29) ──────────
         logger.info(" Step 2.2/4: 啟動情報時光機，計算週趨勢...")

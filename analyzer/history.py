@@ -177,7 +177,8 @@ class HistoryResolver:
 
         for hero_name, stats in combat_stats.items():
             win_rate = stats.get("win_rate", 0)
-            if win_rate > 0 and win_rate < (50.0 - getattr(config, "ALERT_WR_DROP", 3.0)):
+            data_source = stats.get("data_source", "none")
+            if data_source == "manual_yaml" and win_rate > 0 and win_rate < (50.0 - getattr(config, "ALERT_WR_DROP", 3.0)):
                 alerts.append({
                     "type": "error",
                     "label": f"戰鬥數據警戒：{hero_name} 勝率異常偏低 ({win_rate}%)",

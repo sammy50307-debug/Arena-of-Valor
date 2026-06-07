@@ -14482,3 +14482,29 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 - ✅ 本地全套測試 489 passed, 4 skipped 全綠。
 - ✅ 成功將 R-031 的 #4a 痛點部分收斂（最新動態詳情滾動已實證生效）。
 - ⏭️ 下一步：建立 P109 本地 commit 並且 push 至 origin/main（提交前需問阿喜），後續更新 `docs/RISK_REGISTRY.md` 及 R-031 狀態。
+
+---
+
+### P106.2 — combat_stats 假戰績誠實化（飛輪版：半自動真數據 + 防復發護欄）（2026-06-07 收官）
+
+**目標**：移除戰績區假數據（誠實紅線）+ 接半自動真實官方數據 + 裝防復發護欄。
+
+**觸發**：阿喜接 P106-2（memory 謎題 dry-run pick=12.5 ≠ 寫死 18.5）。
+
+**根因（雙假數據源，破解謎題）**：production 走 hero_stats.py「# 模擬數據」(pick=12.5)、showcase 走 sentiment.py 寫死(pick=18.5)；hero_stats.py docstring 謊稱「從 Garena 抓取」+import httpx 卻零真實請求——combat_stats 從沒真爬過。P106 只查 showcase 一條漏 production，致 12.5≠18.5 矛盾懸宕。
+
+**PoC 實測**：Garena 官方勝率子域 herowinrate.moba.garena.tw 已下線(tw/vn/th 全 NXDOMAIN)、無 API、第三方只導流、遊戲內 API 逆向違 ToS+封號 → 採半自動。
+
+**方案 D 飛輪版（阿喜飛輪模式全飛輪一次到位）**：半自動真數據(阿喜遊戲內看真值→填 configs/hero_combat_stats.yaml→報告顯示「真實官方數據・更新於X」+熱度tier+stale警示+空態+showcase演示標籤) + 防復發護欄(scripts/check_no_fake_stats.py advisory checker + data_source 標記貫穿 loader→模板→history→manifest)。飛輪價值：data_source gating 救活死掉的 guard——history「勝率<47%預警」因假數據52.8%永遠觸發不了，改吃真數據(芽芽51.2%)後生效。
+
+**跨工具閉環**：Claude 凍結計畫書+交接卡 → Antigravity Gemini 3.5 Flash(High) 實作 S1-S6 → Claude 獨立審核(5判準) + 補 tier 顯示 + 清越界/dry-run 副作用。
+
+**真實數據(阿喜2026-06-07提供)**：芽芽 熱度T1 / 勝率51.2% / 出場13.41% / Ban36.32% / 不分段位。
+
+**物理真相(10檔=4新6改+tier補強)**：新增 configs/hero_combat_stats.yaml、scripts/check_no_fake_stats.py、tests/test_combat_stats_honesty.py(8案例)、docs/postmortems/2026-06-07-phase-106.2-*.md；改 config.py(路徑+stale30)、scrapers/hero_stats.py(mock→yaml loader+data_source+tier)、reporter/generator.py(透傳)、reporter/templates/report.html(真值+日期+tier+stale+空態+演示標籤)、analyzer/sentiment.py(showcase data_source)、analyzer/history.py(預警gating)、main.py(manifest _meta)。
+
+**驗收(Claude 5判準交叉驗證)**：① hero_stats 假值 grep 零命中 ② pytest 489→496 passed 零回歸 ③ checker 能跑+advisory+邊界免責 ④ 渲染端到端(測試+真實路徑 loader 讀到 51.2 manual_yaml) ⑤ git 範圍(越界2檔已還原、dry-run副作用已清)。META4≈6.5分(阿喜接受)。
+
+**風險/盲點**：B-025(查假數據查盡所有生產路徑+假數據壓制下游guard)；R-034(無自動真實源、B′巴哈帖待PoC)；R-035(歷史archive污染不回溯)。
+
+**狀態**：S1-S7 收官。commit 待建（push 必問阿喜）。

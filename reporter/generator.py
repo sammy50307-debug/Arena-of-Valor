@@ -183,6 +183,22 @@ class ReportGenerator:
 
         # ── combat_stats 格式確保 ──────────────────────────
         combat_stats = daily_summary.get("combat_stats", {})
+        for name, stats in list(combat_stats.items()):
+            if isinstance(stats, dict):
+                up_time = stats.get("update_time", "")
+                stale = False
+                age_days = 0
+                if up_time:
+                    try:
+                        up_date_str = up_time[:10]
+                        dt_up = datetime.strptime(up_date_str, "%Y-%m-%d")
+                        dt_rep = datetime.strptime(report_date, "%Y-%m-%d")
+                        age_days = (dt_rep - dt_up).days
+                        stale = age_days >= getattr(config, "HERO_STATS_STALE_DAYS", 30)
+                    except Exception as e:
+                        logger.warning(f"Failed to calculate stats stale for {name}: {e}")
+                stats["stale"] = stale
+                stats["age_days"] = age_days
 
         # ── hot_topics 格式保障 ──────────────────────────
         raw_topics = daily_summary.get("hot_topics", [])
@@ -201,9 +217,12 @@ class ReportGenerator:
         dynamic_alerts = daily_summary.get("dynamic_alerts", [])
         overflow_alerts = daily_summary.get("overflow_alerts", [])
 
+        is_showcase = daily_summary.get("_meta", {}).get("mode") in ["showcase", "showcase_forced"] or daily_summary.get("_meta", {}).get("is_showcase", False)
+
         # 準備模板變數
         template_vars = {
             "date": report_date,
+            "is_showcase": is_showcase,
             "total_posts": sum(
                 (daily_summary.get("sentiment_distribution") or daily_summary.get("sentiment_counts") or {}).values()
             ),

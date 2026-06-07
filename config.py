@@ -203,6 +203,10 @@ PLATFORM_RANK_MIN = float(os.getenv("PLATFORM_RANK_MIN", "0.3"))
 # 芽芽重複文章加成（即使重複仍加分，確保芽芽優先）
 YAYA_REPEAT_BONUS = float(os.getenv("YAYA_REPEAT_BONUS", "1.5"))
 
+# ── P106.2 combat_stats 真戰績 ──
+HERO_COMBAT_STATS_PATH = BASE_DIR / "configs" / "hero_combat_stats.yaml"
+HERO_STATS_STALE_DAYS = int(os.getenv("HERO_STATS_STALE_DAYS", "30"))
+
 # 確保必要資料夾存在
 DATA_DIR.mkdir(exist_ok=True)
 REPORTS_DIR.mkdir(exist_ok=True)

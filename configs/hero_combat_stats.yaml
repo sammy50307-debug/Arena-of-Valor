@@ -1,0 +1,11 @@
+# 傳說對決 英雄戰績數據（半自動・手動維護）
+# 📌 更新方式：遊戲內看英雄數據 → 填下方數值（不含%）→ updated_date 改今天 → 存檔
+updated_date: "2026-06-07"
+source: "遊戲內官方英雄數據（熱度T1・不分段位）"
+heroes:
+  芽芽:
+    tier: "T1"
+    win_rate: 51.2
+    pick_rate: 13.41
+    ban_rate: 36.32
+    kda: ""

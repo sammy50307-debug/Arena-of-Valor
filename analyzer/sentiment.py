@@ -710,7 +710,8 @@ class SentimentAnalyzer:
                         "win_rate": 52.8,
                         "pick_rate": 18.5,
                         "ban_rate": 45.2,
-                        "kda": "3.2/2.1/15.4"
+                        "kda": "3.2/2.1/15.4",
+                        "data_source": "showcase_demo"
                     }
                 }
             }

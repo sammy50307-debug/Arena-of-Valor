@@ -18,6 +18,28 @@
 
 ## 開放風險（Open）
 
+### R-034：combat_stats 無自動真實數據源 — 官方勝率頁已下線，採半自動手動 yaml；B′ 巴哈官方帖真爬待 PoC（P106.2 衍生）
+
+- **來源**：P106.2 PoC 實測（2026-06-07）
+- **風險級**：🟡 中（半自動依賴阿喜手動更新；過時數據已由 stale 警示誠實標示緩解）
+- **狀態**：Open（半自動已上線、真爬待 PoC）
+- **描述**：PoC 證 Garena 官方勝率子域 `herowinrate.moba.garena.tw` 已下線（tw/vn/th 全 NXDOMAIN）、無公開 API、第三方 AOVRanking 只導流到死連結、遊戲內 API 逆向違 ToS+封號。現採半自動（阿喜遊戲內看真值 → 填 `configs/hero_combat_stats.yaml`）。殘留：(a) 阿喜可能忘更新→數據過時（stale 警示緩解）；(b) 唯一潛在自動源「巴哈官方勝率帖」（我們有 bahamut_scraper）尚未驗證投報比。
+- **緩解策略**：(a) stale 警示（>30天標「可能過時」）+ yaml 更新 SOP；(b) B′ 巴哈官方帖真爬 **PoC**（確認頻率/格式/是否圖片需 OCR/帖子定位）——成功才升級，失敗維持半自動；(c) `scripts/check_no_fake_stats.py` 防假數據潛入。
+- **關聯**：與 R-027（焦點英雄爬取覆蓋）同爬取戰線；P107 教訓「不先 PoC 不接線」適用 B′。
+
+---
+
+### R-035：歷史 archive combat_stats 污染 — P106.2 前報告含假戰績，不回溯改（P106.2 衍生，低）
+
+- **來源**：P106.2 收官（2026-06-07）
+- **風險級**：🟢 低（不影響未來；僅歷史查詢可能誤信）
+- **狀態**：Open（known issue，刻意不回溯，X3）
+- **描述**：P106.2 之前所有報告/archive 的 `combat_stats` 是寫死假數據（芽芽 52.8/45.2 等），且無 `data_source` 標記。依「不竄改歷史」原則（X3）不回溯修改。`data_source` 標記僅 P106.2 起生效，故歷史 archive 的 combat_stats 無法用 data_source 辨識真假。
+- **緩解策略**：(a) 不回溯改（保持歷史誠實，竄改更糟）；(b) history-trend-query 等消費 archive 的 skill 若用到歷史 combat_stats 需注意 P106.2 前不可信；(c) 未來若需歷史勝率趨勢，以 P106.2 後（含 data_source=manual_yaml）為準。
+- **關聯**：B-025（假數據壓制 guard）；data_source 貫穿設計。
+
+---
+
 ### R-033：picker 仍對未正規化來源脆弱 — 治本採爬蟲端正規化、picker 未加防禦（P108.3 衍生，advisory）
 
 - **來源**：P108.3 治本 vs 治標決策（2026-06-06 阿喜拍板純治本）
