@@ -18,13 +18,13 @@
 
 ## 開放風險（Open）
 
-### R-034：combat_stats 無自動真實數據源 — 官方勝率頁已下線，採半自動手動 yaml；B′ 巴哈官方帖真爬待 PoC（P106.2 衍生）
+### R-034：combat_stats 無自動真實數據源 — 官方勝率頁已下線，採半自動手動 yaml；B′ 巴哈真爬 PoC 已驗不可行（圖片源需 OCR）（P106.2 衍生）
 
 - **來源**：P106.2 PoC 實測（2026-06-07）
 - **風險級**：🟡 中（半自動依賴阿喜手動更新；過時數據已由 stale 警示誠實標示緩解）
-- **狀態**：Open（半自動已上線、真爬待 PoC）
+- **狀態**：Open（半自動已上線；**B′ 真爬 PoC 2026-06-07 已做 → 不可行 → 維持半自動**）
 - **描述**：PoC 證 Garena 官方勝率子域 `herowinrate.moba.garena.tw` 已下線（tw/vn/th 全 NXDOMAIN）、無公開 API、第三方 AOVRanking 只導流到死連結、遊戲內 API 逆向違 ToS+封號。現採半自動（阿喜遊戲內看真值 → 填 `configs/hero_combat_stats.yaml`）。殘留：(a) 阿喜可能忘更新→數據過時（stale 警示緩解）；(b) 唯一潛在自動源「巴哈官方勝率帖」（我們有 bahamut_scraper）尚未驗證投報比。
-- **緩解策略**：(a) stale 警示（>30天標「可能過時」）+ yaml 更新 SOP；(b) B′ 巴哈官方帖真爬 **PoC**（確認頻率/格式/是否圖片需 OCR/帖子定位）——成功才升級，失敗維持半自動；(c) `scripts/check_no_fake_stats.py` 防假數據潛入。
+- **緩解策略**：(a) stale 警示（>30天標「可能過時」）+ yaml 更新 SOP；(b) ~~B′ 巴哈官方帖真爬~~ **【2026-06-07 PoC 已做，結論：不採用】**：官方「羊咩調查室」帖反爬可過(HTTP 200)，但**勝率數據是圖片**(內文 0 個 %數字 vs 80-97 張圖)、需 OCR 中文英雄名+數字(準確度堪憂)、賽季級低頻、帖 ID 每期變 → 投報比遠差於手動填 yaml(1 分鐘 100% 準確)，**維持半自動**；(c) `scripts/check_no_fake_stats.py` 防假數據潛入。
 - **關聯**：與 R-027（焦點英雄爬取覆蓋）同爬取戰線；P107 教訓「不先 PoC 不接線」適用 B′。
 
 ---
@@ -99,7 +99,7 @@
 
 - **來源**：P106.1 run-now 正式跑流程（2026-06-02）阿喜質疑「0 篇芽芽、尤其 Dcard」，Opus 端到端調查（讀 raw + 三主力爬蟲原始碼）證實爬取層四根因，非報告 bug。
 - **風險級**：🟡 中（修復中；`docs/PHASE_107_PLAN.md` DRAFT 已過 M1/M2 lint）
-- **狀態**：Open（P107 計畫書 DRAFT；runtime 未動工，待阿喜凍結核准）
+- **狀態**：Open（P107 已凍結 2026-06-02、**S1-S2 已收官 push**〔HERO_FOCUS_KEYWORDS 接線 + 巴哈治本〕；**剩 S3 Dcard 治本被阿喜主動延後**——Cloudflare 鎖死〔cloudscraper/playwright headless 全 403〕+ 投報比差〔巴哈已撈 28 篇芽芽文〕+ 不可逆風險〔M2#5 觸 ToS/IP ban〕，需 playwright-stealth/Apify 才能過，改天評估）
 - **描述**：焦點英雄芽芽長期靠泛搜「傳說對決」碰運氣覆蓋，四根因連鎖：(A) `HERO_FOCUS_KEYWORDS` 是 dead config（config.py:123 定義但無爬蟲使用，連 Tavily:123 寫好的焦點意圖注入都因此永不觸發）(B) 三平台 content 只有標題無內文（Dcard:122/巴哈:162 寫死標題+後綴、Tavily:140 `include_raw_content=False`）(C) `detected_heroes` 僅 Tavily 做、Dcard/巴哈未設（raw 2026-06-02 共 19 篇全空）(D) `keyword not in title` 過濾扼殺多詞 keyword。連鎖效應：英雄聲量追蹤（專案核心定位）建立在淺資料上，焦點覆蓋率可無預警歸零且無人察覺。
 - **緩解策略**（詳見 `docs/PHASE_107_PLAN.md`）：
   - 短期（快修）：`HERO_FOCUS_KEYWORDS` 接入 Tavily 搜集，啟動既有意圖注入。
@@ -115,7 +115,7 @@
 
 - **來源**：阿喜 2026-06-04 回報老師提醒「凡是有調用密鑰的部分，務必使用變數，不要寫死；`.env` 禁止上傳 GitHub」，進一步追查 AOV 與 Hermes。
 - **風險級**：🔴 高（安全；provider key 一旦仍有效，可能被盜用額度或外部呼叫）
-- **狀態**：Open（程式端已加 guard；仍需 provider 端 rotate/revoke 與歷史處置決策）
+- **狀態**：Open→**已大幅緩解**（2026-06-13：實測 chatones proxy `sub.chatones.site` **已 DNS 下線/NXDOMAIN → 舊 token 已失效、無法盜用**，無需 rotate；本次一併執行 `git filter-branch` history rewrite 移除 `dev_claude.ps1` 殘留 token，清 public history 污點 + force push）
 - **描述**：目前 HEAD 未追蹤 `.env`，且 `.gitignore` 已排除 `.env` / log；current tracked secret scan PASS。但 AOV 曾有兩類安全風險：(A) 歷史 commit 的 `dev_claude.ps1` 曾寫入舊 `ANTHROPIC_AUTH_TOKEN` / chatones proxy token；(B) 本機 `logs/app.log` 曾記錄含 query key 的 Gemini API URL。若只要求阿喜手動換 key 而不修系統，未來 provider exception / HTTP error 仍可能再次把 key 帶進 log。
 - **已完成緩解**：
   - 刪除本機未追蹤的舊中轉腳本 `dev_claude.ps1`（目前不再使用）。
