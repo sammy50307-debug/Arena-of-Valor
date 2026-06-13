@@ -259,3 +259,37 @@ report 缺的**最常見原因是品質閘門「刻意」不發布**（main.py:7
 
 *受 17 層品質框架 v3.1 + STR1/STR10 保護。狀態：草案 v3，待阿喜凍結。*
 *建立 2026-06-13｜v2 修訂 2026-06-14（第一輪對抗審查揪 promote 繞閘門 S 級洞，補 publishable gate）｜v3 修訂 2026-06-14（第二輪 D-lite 落地壓測收斂 9 必修：run_checks 同尺/should_promote 純函數共用/sidecar promote gate/G-i 真跑/G-ii sys.modules，scope 微→標準，阿喜核准）｜兩輪共 8 視角對抗審查 + Claude 親核 file:line，未動工。*
+
+---
+
+## 📌 Phase 111.1 補遺（凍結後變更，2026-06-14 動工時發現 + 阿喜核准）
+
+> 凍結機制要求：凍結後變更須新增補遺章節（見 §12）。本補遺記錄動工視窗在實作 S1(c) 時，
+> 親核呼叫鏈發現的凍結計畫 correctness 缺口，及阿喜核准的修正。
+
+### 缺口：S1(c)「sidecar 移入 `generate()` 的 if promote 區塊」照字面做會讓 cron 失去 sidecar
+
+**物理真相（動工時親核 file:line）**：
+- cron 唯一一次呼叫 `generator.generate(..., promote=False)`（[main.py:716](../main.py)），發布是事後另呼叫 `generator.promote_candidate(...)`（[main.py:783](../main.py)）。
+- `_write_freshness_sidecar` 需要 `top5_news/top5_yaya`，這資料只存在 `generate()` 的 `template_vars`，`promote_candidate()` 拿不到。
+- 故若照計畫字面把 sidecar 移入 `generate()` 的 `if promote:`，cron 永遠走 `promote=False` → **sidecar 完全不寫 → P110 凍結偵測器對 cron 整個失效**（不是修孤兒，是砍掉 cron sidecar）。
+- 為何凍結前未抓到：P110 測試直接呼叫 `gen._write_freshness_sidecar(...)`，不經 `generate()`；其餘 `generate(promote=False)` 測試只驗 HTML、不驗 sidecar → 測試全綠但 production 已回歸（G2 綠燈假象）。
+- 根因：計畫作者假設「發布路徑＝`generate(promote=True)`」，但真實架構是「candidate-first（過閘門才促）」，generate(promote=False) 是必要前提、不能改。
+
+### 修正：修法 A（阿喜 2026-06-14 核准）
+
+sidecar 改由 `generator.promote_candidate()` 在**真正發布時**寫——`generate()` 把 top5 暫存到 `self._pending_freshness`，`promote_candidate()` 依 stash（`pending[0]==report_date` 防 instance 復用殘留）寫 sidecar。綁定「真實發布事件」，三條路徑統一：
+- cron（generate(promote=False)+外部 promote_candidate）→ 寫 ✅（不再失去）
+- replay self-heal 通過閘門 promote → 寫 ✅
+- no-op / gate-fail / dry-run / candidate-only → 不寫 ✅（解孤兒）
+
+落點：[reporter/generator.py](../reporter/generator.py) `generate` 暫存 + 移除無條件寫、`promote_candidate` 受 promote gate 寫。
+
+### 動工時新增的兩項（對抗審查驅動，非擴 scope）
+
+- **修法A 契約釘樁測試** `test_sidecar_bound_to_promote_event`：cron 式序列（generate(promote=False) 不寫 → 外部 promote_candidate 才寫）+ 防孤兒，把修法A 命脈機器化防復發。
+- **G-i case① 第 4 隔離**（fake `gen_mod.shutil.copy2`）：4 視角對抗審查揪出原 case① 的「git status 零改動」斷言有盲區——`generate()` 寫死複製到真 repo `ui_previews/`（不受 config/chdir 隔離、且 .gitignore 使 git status 看不到 → 假保證）。補隔離 4 使 generate 真正零真-repo 寫入，斷言誠實化。
+
+### 驗收
+
+全套 504→514 passed（+10：原 8 + tier 空 + 修法A 釘樁），0 failed。4 視角對抗審查：3/4 contract_met，1 條 B 級（上述 ui_previews 假保證）已修並實證（測試跑後真 repo ui_previews 該檔不存在）。

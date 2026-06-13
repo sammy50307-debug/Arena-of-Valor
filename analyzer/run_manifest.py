@@ -216,6 +216,15 @@ def is_publishable_quality_tier(tier: Any) -> bool:
     return str(tier or "").strip() in PUBLISHABLE_QUALITY_TIERS
 
 
+def should_promote(has_candidate: bool, tier: Any, gate_reasons_len: int) -> bool:
+    """P111 同源閘門純函數：main.py 與 replay self-heal 物理共用同一把發布尺，防兩處漂移。
+
+    發布條件 = 有 candidate AND quality_tier 可發布 AND 發布閘門零不合格項。
+    任一處未來要改發布判定，改這裡即同步波及 cron 與自癒線（DRY 防漂移）。
+    """
+    return bool(has_candidate) and is_publishable_quality_tier(tier) and gate_reasons_len == 0
+
+
 def build_quality_tier(
     *,
     mode: str,
@@ -321,6 +330,8 @@ def build_manifest(
     showcase_flag: bool = False,
     replay_source: str = "",
     is_backfill: bool = False,
+    self_heal: bool = False,
+    promoted: Optional[bool] = None,
     gate_mode: str = "shadow",
     eligibility_reasons: Optional[List[str]] = None,
     source_hash: str = "unknown",
@@ -422,6 +433,8 @@ def build_manifest(
         "enrichment": normalize_enrichment_snapshot(meta.get("enrichment")),
         "replay_source": replay_source,
         "is_backfill": bool(is_backfill),
+        "self_heal": bool(self_heal),
+        "promoted": promoted,
         "eligibility": {
             "gate_mode": gate_mode,
             "decision": "eligible" if (base_eligible and (len(eligibility_reasons) == 0)) else "ineligible",

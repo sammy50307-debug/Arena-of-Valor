@@ -18,6 +18,28 @@
 
 ## 開放風險（Open）
 
+### R-037：self-heal 自動修復邊界 + 主根因（main.py generate 例外被吞）未治本（P111 衍生）
+
+- **來源**：P111 CI 報告自癒收官（2026-06-14）
+- **風險級**：🟢 低（自癒線守同源閘門 + 失敗 graceful 降級 L4，已對抗審查；殘留為未治本 + 退化版保真）
+- **狀態**：Open（self-heal 已上線且 514 passed + 4 視角審查；殘留為主根因待治本 + 自動化邊界長期監測）
+- **描述**：(a) **主根因未治本**：報告意外缺漏的源頭是 [main.py:728](../main.py) `generate` 例外被 `try/except` 吞掉（analysis 已寫、report 沒寫）。P111 是「偵測→自動補產」的下游補救（症狀面），未動上游吞例外（刻意不碰，scope 對齊）。(b) **self-heal top5 退化保真（原 R8）**：replay 用既有 analysis 重渲染，若 analysis 缺 `analyzed_posts` 細節，top5 排序與正式版可能略異（fallback post.score）；屬退化版補救，非逐位元還原正式報告。(c) **自動化邊界**：L5 自動修復限「重渲染窄面、零額度、不可逆不碰」；未來若有人擴大 self-heal 到不可逆動作，會破 L5 前提。
+- **緩解策略**：(a) 主根因登記 future（下一輪可加 `main.py:728` 例外時的結構化告警或重試，非本期）；(b) 退化保真：manifest 標 `self_heal/is_backfill` 可辨識自癒產出 vs 正式產出；(c) 自動化邊界：`replay_run.py` docstring 契約 + postmortem 通則1/2 + G-ii sys.modules guard + 「不可逆仍問阿喜」鐵律；改 `should_promote`/`run_checks` 參數/heal 流程任一處須重審 L5 同源性（X3 過期日 2026-09-14）。
+- **關聯**：B-027（凍結計畫字面修法可能與真實架構矛盾且測試抓不到）；R-038（no-op candidate 進版控）；postmortem 4 通則。
+
+---
+
+### R-038：self-heal no-op 的 candidate 檔仍被 Fallback Push 撈進版控（cron 既有行為，非 P111 惡化）（P111 衍生）
+
+- **來源**：P111 第二輪對抗審查 X4-K / X2 揭露（2026-06-14）
+- **風險級**：🟢 低（cron 既有行為，P111 不惡化；no-op candidate 未 promote、不被 index 連結、僅檔案存在）
+- **狀態**：Open（known issue，明告阿喜；非本期 must_fix）
+- **描述**：self-heal 不通過閘門時 no-op（不 promote、不寫 sidecar、index 不指向），但 `generate(promote=False)` 已落地的 candidate 檔（`aov_report_<date>.html`）仍會被既有 Fallback Push（`git add data/reports/`）撈進版控，且 GitHub Pages 可被直連 URL 存取。**這是 cron 本來就有的行為**（main.py 的 candidate 同樣會被 Fallback Push 撈），P111 self-heal 沿用同一條 push 路徑、不新增授權、不惡化。
+- **緩解策略**：(a) 明告阿喜「自動補產僅限通過 cron 同款閘門的報告才會被 index 指向發布；no-op 的 candidate 雖進版控但不在首頁、不被連結」；(b) 若未來要根治「未發布 candidate 不進版控」，需改 Fallback Push 的 `git add` 範圍（cron + self-heal 一併，登記 future，非本期）；(c) no-op candidate 不寫 sidecar（修法A）→ 不污染凍結偵測器。
+- **關聯**：與既有 Fallback Push（`daily_report.yml`）同部署戰線；R-037（self-heal 邊界）。
+
+---
+
 ### R-036：P110 文章凍結修復殘留 — 連續日輪動待 cron 終驗 + 板列表無時間文被擋出池（P110 衍生）
 
 - **來源**：P110 v2 收官（2026-06-13）+ Review Workflow 容錯維度 finding
@@ -553,3 +575,4 @@
 - **2026-06-06**：P108.3 巴哈 published_date ISO 正規化治本收官，R-030 → Closed（從 Open 移至 Closed）。新增 `scrapers/date_normalizer.py`（5 類格式 + 跨年回退）+ bahamut_scraper 爬取當下接入（失敗保留原值 + warning）；PoC 涵蓋 37/37、全套 427→467 passed。build-vs-buy 評估 dateparser（免費但引依賴 + 黑箱）後阿喜核准自己寫。新登記 R-032（非巴哈 published_date 空值被 gate 擋在最新動態池外，空值戰線待開）、R-033（picker 未加相對格式防禦 advisory）。Exit E 端到端待下次 cron 觀察。
 - **2026-06-07**：P108.3.1 補遺收官——R-032 PoC 揭露 P108.3 僅 local 路徑生效（production LLM 路徑 sentiment 重建用 `getattr(res,"timestamp")` 漏接 published_date，時間遺失成「時間未知」、走 LLM 文被 gate 擋出池）。修 sentiment 三處重建改直接存取 `res.published_date`（升級 A）+ 端到端契約測試（升級 B，防 P108.3 同類「單元過 production 沒生效」復發）。全套 467→474 passed。R-030 補記過早宣稱、Postmortem + blindspot B-023（改資料層欄位前驗全鏈流向、棄 getattr 靜默 fallback）。Exit E 仍待 cron 終驗。
 - **2026-06-07**：P108.4 R-032 空值戰線折衷收官，R-032 → Closed。飛輪二次追問選穩修 E′+契約 guard（非方案 A 造假 fallback、非 choke point 重構）。picker 對無法解析時間的文差異化 decay（芽芽 0.6/無關 0.3，`_is_parseable_time` 復用 _FMTS）。撞 P108「排除無日期文」可信度契約（test_report_content_trust），阿喜裁折衷 A：芽芽無日期文破例進池、無關仍排除。全套 474→488 passed。新 blindspot B-024（改行為前查測試/契約，非只程式消費點）。Exit F 端到端待 cron/run-now 驗。
+- **2026-06-14**：P111 CI 報告自癒收官（飛輪 L4→可控 L5）。self-heal 偵測 canonical 報告缺漏→自動 replay 重產 candidate→跑與 cron 逐位元同源的發布閘門（`should_promote` 純函數共用 + `run_checks` 同尺）→通過才 promote，否則 no-op 降級 L4。零 LLM/零重爬/不繞閘門。動工時親核呼叫鏈揪出凍結計畫 S1(c) 字面修法會讓 cron 失去 sidecar（測試抓不到的 G2 綠燈假象）→阿喜核准修法 A（sidecar 綁定 promote_candidate 發布事件）+登記 P111.1 補遺。4 視角對抗審查 3/4 contract_met、1 條 B 級假保證（ui_previews 真 repo 寫入未被三隔離覆蓋）已修並實證。全套 504→514 passed。新登記 R-037（self-heal 邊界 + 主根因 main.py:728 吞例外未治本 + 原 R8 退化保真）、R-038（no-op candidate 進版控，cron 既有非惡化）。新 blindspot B-027。Postmortem 4 通則（L5 窄面/同源閘門/前提機器化/生命週期綁定）。

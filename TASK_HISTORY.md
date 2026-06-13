@@ -14530,3 +14530,23 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險/盲點**：B-026（優先豁免反噬鎖榜 + 名實不符雙軌）；R-036（連續日輪動待 cron + 板列表無時間文隱性風險 + 判定函式收斂技術債）。
 
 **狀態**：S1-S6 收官，Claude 動工。commit 待建（push 必問阿喜）。
+
+### P111 — CI 報告自癒：偵測報告缺漏自動 replay 重產（飛輪 L4→可控 L5，發布決策與 cron 同源）（2026-06-14 收官）
+
+**目標**：CI 偵測 canonical 報告意外缺漏時自動 replay 重產（用既有 analysis 重渲染 candidate→跑與 cron 逐位元相同的發布閘門→通過才 promote），把飛輪交付面從 L4（人工 CLI replay）升「可控 L5」（偵測→自動修復，發布決策與 cron 同源、不繞品質閘門）。零 LLM 額度、零重爬。
+
+**觸發**：飛輪自我修復審查（2026-06-13）證實飛輪無真 L5。情境：cron 渲染意外失敗（main.py:728 generate 例外被吞、analysis 已寫 report 沒寫）→ 報告缺漏要人工 replay。最高 ROI = 把已備的零額度 `replay_run.py` 接成偵測驅動。
+
+**設計（D-lite+ 同源閘門）**：第一輪對抗審查揪 S 級洞——report 缺主因是品質閘門「刻意」不發布，replay 用預設 `promote=True` 會自動發布劣質報告到首頁。故 self-heal **不自己決定發布**：重產 candidate(`promote=False`)→跑與 main.py:132-139 逐位元相同的 `run_checks` + 物理共用 `should_promote` 純函數→通過才 promote，否則 no-op + `::warning::` 降級 L4。核心承諾：不可能發布 cron 本來不會發布的報告（同一把尺）。
+
+**動工揪出的凍結缺口（P111.1 補遺）**：親核呼叫鏈發現計畫 S1(c)「sidecar 移入 generate 的 if promote」照字面做會讓 cron 失去 sidecar——cron 唯一走 `generate(promote=False)`（main.py:716）+ 事後 `promote_candidate`（main.py:783），而 sidecar 需要的 top5 只在 generate 的 template_vars。測試全綠卻 production 回歸（P110 測試直接呼叫 _write_freshness_sidecar 不經 generate=G2 綠燈假象）。阿喜核准修法 A：sidecar 改由 promote_candidate 在真正發布時依 self._pending_freshness 暫存寫，綁定發布事件、cron/self-heal/dry-run 三路徑統一。
+
+**修法（S1-S5）**：S1 同源閘門地基（run_manifest.should_promote 純函數 main.py+replay 物理共用 + main.py:780 改呼叫 + 修法A sidecar 受 promote gate）；S2 replay `--heal-if-missing`（report 在→no-op；tier 非 publishable 含空→no-op+warning；重產 candidate→run_checks 逐位元同尺 check_landing=False→should_promote→promote 或降級；統一 repo_root 從 config 推導；manifest 標 self_heal/promoted）；S3 daily_report.yml self-heal step（Upload Artifact 後 Fallback Push 前、不加 if:always()、`|| echo ::warning::`、TZ=Asia/Taipei）；S4 test_self_heal_replay.py（G-i 真跑 generate 5 case+四隔離+git 零改動 + 修法A 契約釘樁 + G-ii subprocess sys.modules 零 LLM SDK）；S5 收官件套。
+
+**物理真相（5 改 1 新）**：改 analyzer/run_manifest.py（+should_promote 純函數 +manifest self_heal/promoted 欄位）/main.py（:780 改呼叫 should_promote）/reporter/generator.py（修法A：generate 暫存 top5、移除無條件 sidecar 寫、promote_candidate 受 gate 寫）/scripts/replay_run.py（+--heal-if-missing gate +docstring 同源契約）/.github/workflows/daily_report.yml（+self-heal step）；新增 tests/test_self_heal_replay.py（9 測試）。
+
+**驗收**：全套 504→514 passed（0 failed，含 P110 freshness/manifest/generator 零回歸）；YAML 解析 OK + step 順序/條件正確；G-ii 子進程實證 import replay_run 零 LLM SDK；4 視角對抗審查（Workflow）3/4 contract_met + 1 條 B 級假保證（ui_previews 真 repo 寫入未被隔離覆蓋）已修並實證（跑後該檔不存在）。
+
+**風險/盲點**：R-037（self-heal 邊界 + 主根因 main.py:728 吞例外未治本 + 退化保真）；R-038（no-op candidate 進版控，cron 既有非惡化）；B-027（凍結計畫字面修法可能與真實架構矛盾且測試抓不到→動工前親核呼叫鏈；副作用斷言不能宣稱比實際驗到的更強）；postmortem 4 通則（L5 窄面/同源閘門/前提機器化/生命週期綁定）。
+
+**狀態**：S1-S5 收官，Claude（Opus 4.8 1M）動工。飛輪交付面 L4→可控 L5。commit 待建（push 必問阿喜）。

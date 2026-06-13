@@ -1,4 +1,11 @@
-"""Replay/backfill a daily report from existing analysis JSON (P81 baseline)."""
+"""Replay/backfill a daily report from existing analysis JSON (P81 baseline).
+
+P111 self-heal（--heal-if-missing）：CI 偵測 canonical 報告缺漏時自動重產。
+契約（與 cron 同源，勿擅改）：重產 candidate(promote=False) → 跑與 main.py:773/780
+逐位元相同的發布閘門（run_checks 參數見 main.py:132-139 + analyzer.run_manifest.should_promote）
+→ 通過才 promote，否則 no-op + ::warning:: 降級 L4。零 LLM、零重爬、不繞品質閘門。
+改 should_promote / run_checks 參數 / 本流程任一處，需重審 L5 同源性與零額度前提。
+"""
 
 from __future__ import annotations
 
@@ -17,7 +24,12 @@ if str(PROJECT_ROOT) not in sys.path:
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from analyzer.run_manifest import build_manifest, write_manifest
+from analyzer.run_manifest import (
+    build_manifest,
+    write_manifest,
+    is_publishable_quality_tier,
+    should_promote,
+)
 from reporter.generator import ReportGenerator
 import config
 from debug_bundle import write_debug_bundle
@@ -76,6 +88,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Replay/backfill report from analysis JSON.")
     parser.add_argument("--date", required=True, help="Target date, format YYYY-MM-DD")
     parser.add_argument("--check-health", action="store_true", help="Run health checker after replay.")
+    parser.add_argument(
+        "--heal-if-missing",
+        action="store_true",
+        help="P111 self-heal：canonical 報告缺漏才重產，過同源閘門才 promote（否則 no-op 降級 L4）。",
+    )
     parser.add_argument(
         "--expected-mode",
         default="any",
@@ -165,8 +182,70 @@ def main(argv: Optional[list[str]] = None) -> int:
             analyzed_posts = []
 
     generator = ReportGenerator()
-    report_path = generator.generate(summary, analyzed_posts)
-    print("OK: replay report generated: %s" % report_path)
+    heal = args.heal_if_missing
+    promoted = False
+
+    if heal:
+        # ── P111 self-heal gate（與 cron 逐位元同源；契約見模組 docstring）──
+        # 統一 repo_root：一律從 config 推導（config.DATA_DIR.parent），讓 canonical 偵測 / 閘門 /
+        # landing 與 generate/promote 的輸出位置（config.REPORTS_DIR）同源；測試 monkeypatch config 即可整條隔離。
+        from check_daily_report_health import report_path as _canonical_for
+        repo_root = config.DATA_DIR.parent
+        canonical = _canonical_for(repo_root, date_str)
+        if canonical.exists():
+            # report 已在 → 非缺漏，零副作用收手（抗重入）
+            print("INFO: self-heal no-op: canonical report already exists: %s" % canonical)
+            return 0
+
+        tier = summary.get("_meta", {}).get("quality_tier", "")
+        if not is_publishable_quality_tier(tier):
+            # tier 非可發布（含空/unknown）→ 不重產發布，降級 L4
+            print(
+                "::warning::self-heal no-op: quality_tier=%s not publishable, staying L4"
+                % (tier or "<empty>")
+            )
+            return 0
+
+        candidate = generator.generate(summary, analyzed_posts, promote=False)
+        report_path = candidate
+        if candidate.stem != ("aov_report_%s" % date_str):
+            print(
+                "FAIL: self-heal candidate stem mismatch: %s (expected aov_report_%s)"
+                % (candidate.name, date_str)
+            )
+            _emit_bundle("failed", "candidate stem mismatch", force=True)
+            return 1
+
+        # 跑與 main.py:132-139 逐位元相同的發布閘門（尤其 check_landing=False）
+        from check_daily_report_health import run_checks as _gate_checks_fn
+        gate_checks = _gate_checks_fn(
+            repo_root,
+            date_str,
+            expected_mode="production",
+            check_git_clean=False,
+            check_landing=False,
+            expected_report_path=candidate,
+        )
+        gate_reasons = [c for c in gate_checks if c.failed]
+
+        if should_promote(True, tier, len(gate_reasons)):
+            report_path = generator.promote_candidate(
+                candidate, date_str,
+                output_dir=config.REPORTS_DIR,
+                index_file=repo_root / "index.html",
+            )
+            promoted = True
+            print("OK: self-heal promoted canonical report: %s" % report_path)
+        else:
+            print(
+                "::warning::self-heal no-op: candidate failed publish gate (%d reasons), staying L4"
+                % len(gate_reasons)
+            )
+            for c in gate_reasons:
+                print("  gate reason: %s: %s" % (c.name, c.detail))
+    else:
+        report_path = generator.generate(summary, analyzed_posts)
+        print("OK: replay report generated: %s" % report_path)
 
     manifest = build_manifest(
         run_date=date_str,
@@ -182,16 +261,19 @@ def main(argv: Optional[list[str]] = None) -> int:
         showcase_flag=False,
         replay_source="analysis_json",
         is_backfill=True,
+        self_heal=heal,
+        promoted=(promoted if heal else None),
     )
     manifest_out = write_manifest(config.DATA_DIR, manifest)
     print("OK: run manifest written: %s" % manifest_out)
 
-    if args.check_health:
+    if args.check_health and (not heal or promoted):
+        # heal 模式僅在真正 promote 後才 gate 住（no-op/降級不阻斷）；統一 repo_root
         sys.path.insert(0, str((Path(__file__).resolve().parent)))
         from check_daily_report_health import run_checks
 
         health_checks = run_checks(
-            Path("."),
+            repo_root if heal else Path("."),
             date_str,
             expected_mode=args.expected_mode,
             check_git_clean=False,

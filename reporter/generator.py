@@ -381,7 +381,13 @@ class ReportGenerator:
             output_path = output_dir / f"{base_filename}_v{version}.html"
         
         output_path.write_text(html_content, encoding="utf-8")
-        
+
+        # P111 修法A：暫存 top5 指紋輸入，供 promote_candidate 在「真正發布」時才寫 sidecar
+        # （綁定發布事件——cron 走 generate(promote=False)+外部 promote_candidate，故不能寫在此處的 if promote）
+        self._pending_freshness = (
+            report_date, template_vars.get("top5_news"), template_vars.get("top5_yaya"),
+        )
+
         if promote:
             try:
                 promoted_path = self.promote_candidate(output_path, report_date, output_dir=output_dir)
@@ -419,12 +425,7 @@ class ReportGenerator:
         except Exception as uie:
             self.logger.warning(f"  [!] ui_previews 同步失敗: {uie}")
 
-        # P110 v2: 寫 top5 指紋 sidecar（凍結偵測器比對用，解耦不穿 manifest）
-        try:
-            self._write_freshness_sidecar(output_dir, report_date,
-                                          template_vars.get("top5_news"), template_vars.get("top5_yaya"))
-        except Exception as fe:
-            self.logger.warning(f"  [!] freshness sidecar 寫入失敗（不阻斷報告）: {fe}")
+        # P111 修法A：sidecar 不再於此無條件寫——改由 promote_candidate 在真正發布時寫（綁定發布事件）
 
         self.logger.info(f"報告已生成: {output_path}")
         return output_path
@@ -493,6 +494,14 @@ class ReportGenerator:
             tmp_path.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
             os.replace(tmp_path, canonical_path)
         self._update_landing_page(output_dir, index_file=index_file)
+        # P111 修法A：sidecar 受 promote gate——只在真正 promote 時寫，candidate-only/no-op/dry-run 不留孤兒
+        # （一併解 cron gate-fail 與 self-heal no-op 的孤兒污染 P110 凍結偵測器）。stash 比對防 instance 復用殘留。
+        pending = getattr(self, "_pending_freshness", None)
+        if pending and pending[0] == report_date:
+            try:
+                self._write_freshness_sidecar(output_dir, report_date, pending[1], pending[2])
+            except Exception as fe:
+                self.logger.warning(f"  [!] freshness sidecar 寫入失敗（不阻斷發布）: {fe}")
         return canonical_path
 
     def _extract_report_mode(self, report_file: Path) -> Optional[str]:

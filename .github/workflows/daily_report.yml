@@ -88,6 +88,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 3
 
+      - name: 🩹 Self-Heal Missing Report (P111)
+        # 偵測 canonical 報告意外缺漏 → 自動 replay 重產 candidate(promote=False) → 過與 cron 逐位元同源的
+        # 發布閘門（should_promote + run_checks）→ 通過才 promote 發布；不通過則 no-op + ::warning:: 降級 L4。
+        # 窄面：只重渲染既有 analysis，零 LLM、零重爬、不繞品質閘門（不可能發布 cron 本不發布的報告）。
+        # 不加 if:always()：僅在前序步驟正常時才補救（pipeline 硬崩潰不在此自癒）。置 Fallback Push 前讓重產報告隨之入版控。
+        run: |
+          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
+          python scripts/replay_run.py --date "$REPORT_DATE" --heal-if-missing --check-health || echo "::warning::self-heal failed, staying L4"
+
       - name: 🛠️ Fallback Push
         # 如果 python main.py 裡面的 Git push 失敗，這裡補推一次
         if: always()

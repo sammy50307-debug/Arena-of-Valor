@@ -65,6 +65,7 @@ from analyzer.run_manifest import (
     build_quality_tier,
     build_source_quality,
     is_publishable_quality_tier,
+    should_promote,
     write_manifest,
 )
 from analyzer.source_selection import build_source_selection, merge_local_only_entries
@@ -777,8 +778,8 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
         candidate_report_path=report_candidate_path,
         quality_tier=quality_tier,
     )
-    should_promote = bool(report_candidate_path) and is_publishable_quality_tier(quality_tier) and (len(gate_reasons) == 0)
-    if should_promote:
+    do_promote = should_promote(bool(report_candidate_path), quality_tier, len(gate_reasons))
+    if do_promote:
         try:
             report_promoted_path = generator.promote_candidate(
                 report_candidate_path,
