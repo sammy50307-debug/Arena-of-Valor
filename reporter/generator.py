@@ -437,7 +437,13 @@ class ReportGenerator:
         from datetime import datetime as _dt
 
         def _urls(cards):
-            out = [(c.get("post") or c).get("url", "") for c in (cards or [])]
+            # P110 v2 一致性硬化：優先用 picker 已算好的 norm_url（與 dedup 身分同源），
+            # 缺則 fallback 對 raw url 做 normalize，避免未來來源（Tavily/Apify）回傳 utm 參數時指紋與去重身分分歧。
+            out = []
+            for c in (cards or []):
+                nu = (c.get("picker") or {}).get("norm_url")
+                raw = (c.get("post") or c).get("url", "")
+                out.append(nu or _normalize_url(raw))
             return sorted({u for u in out if u})
 
         news_urls = _urls(top5_news)

@@ -172,3 +172,46 @@ def test_top5_news_excludes_yaya(tmp_path):
         f"芽芽文卡片連結應只出現 1 次（只在芽芽觀察室），實際 {len(card_links)} 次"
         f"（>1 = 同篇芽芽文一頁渲染兩次未修）"
     )
+
+
+# ── P110 v2 一致性硬化：freshness 指紋對 utm 參數穩定（與 dedup 身分同源）──────
+def _read_sidecar(gen, tmp_path, news, yaya):
+    import json
+    gen._write_freshness_sidecar(tmp_path, "2026-06-12", news, yaya)
+    return json.loads(
+        (tmp_path / "aov_report_2026-06-12.freshness.json").read_text(encoding="utf-8")
+    )
+
+
+def test_freshness_hash_stable_across_utm(tmp_path):
+    """同一文章 raw URL 僅差 utm_* 參數 → top5_hash 必須相同（指紋對齊 dedup 身分）。"""
+    from reporter.generator import ReportGenerator
+    gen = ReportGenerator()
+    base = "https://example.com/article-1"
+
+    # A 組：raw url 帶 utm，無 picker.norm_url → 走 fallback _normalize_url 路徑
+    cards_a = [{"post": {"url": f"{base}?utm_source=fb&utm_campaign=x"}}]
+    # B 組：raw url 乾淨且帶 picker.norm_url → 走 norm_url 優先路徑
+    cards_b = [{"post": {"url": base}, "picker": {"norm_url": base}}]
+
+    hash_a = _read_sidecar(gen, tmp_path, cards_a, [])["top5_hash"]
+    hash_b = _read_sidecar(gen, tmp_path, cards_b, [])["top5_hash"]
+
+    assert hash_a == hash_b, (
+        f"raw URL 僅差 utm_* 參數應產生相同 top5_hash，"
+        f"實際 A={hash_a} B={hash_b}（指紋與 dedup 身分分歧 = 未正規化）"
+    )
+
+
+def test_freshness_prefers_picker_norm_url(tmp_path):
+    """picker.norm_url 存在時優先採用（即使 raw url 帶追蹤參數），確保與去重管線同源。"""
+    from reporter.generator import ReportGenerator
+    gen = ReportGenerator()
+    norm = "https://example.com/post-9"
+    # raw url 帶 utm/ref，但 picker.norm_url 已是乾淨值 → sidecar 應收正規化後的 norm
+    cards = [{"post": {"url": f"{norm}?utm_medium=email&ref=nl"},
+              "picker": {"norm_url": norm}}]
+    sc = _read_sidecar(gen, tmp_path, cards, [])
+    assert sc["news_urls"] == [norm], (
+        f"應採用 picker.norm_url={norm}，實際 {sc['news_urls']}"
+    )
