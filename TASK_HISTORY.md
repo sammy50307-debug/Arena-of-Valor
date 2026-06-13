@@ -14508,3 +14508,25 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險/盲點**：B-025(查假數據查盡所有生產路徑+假數據壓制下游guard)；R-034(無自動真實源、B′巴哈帖待PoC)；R-035(歷史archive污染不回溯)。
 
 **狀態**：S1-S7 收官。commit 待建（push 必問阿喜）。
+
+---
+
+### P110 — 最新動態文章凍結修復 v2（板列表撈新文 + 去重 + 凍結偵測器，picker 不動保芽芽）（2026-06-13 收官）
+
+**目標**：報告每天每篇文章一樣（凍結）修復——巴哈改撈板最新列表撈新文 + top5_news 去重消除一頁渲染兩次 + 凍結偵測器，全程不動 picker 保芽芽優先。
+
+**觸發**：阿喜回報「文章沒在更新，特別芽芽版」。6/8=6/12 manifest 完全一致（total 35/unique 11/duplicate 24）鐵證。
+
+**根因（四層，3 子代理+交叉驗證）**：① 爬蟲固定（巴哈搜尋零時間排序回同批舊文，raw 6/2vs6/7 重疊 65.7%）② picker 鎖榜（芽芽豁免+decay>2.1天觸底0.3+重複加成1.5x）③ dedup 指標誤導（duplicate_url=24 是 URL 正規化塌縮非刪文）④ 一頁渲染兩次（top5_news=yaya+other，飛輪揪出，最直接觀感來源）。
+
+**飛輪深探（兩次 Workflow，Ultracode）**：探索 9-agent 翻案 S1（巴哈板列表 B.php 不帶 q 跳 sticky class，第 8 列起每日 feed，Claude 親驗 32列/7sticky/25feed 時間戳 31分前/1小時前/昨天）+揪 source_hash 假陰性盲區+一頁渲染兩次；Review 24-agent 4 維度對抗審，13 findings 駁回/2 confirmed 皆測試缺口，裁決可收官 0 must_fix。
+
+**v2 修法（先治上游+治呈現+補可觀察，picker 不動）**：S1 bahamut.fetch_board_latest（板列表撈新文+跳 sticky class）+date_normalizer 補裸 MM-DD+main 雙軌（板列表15+關鍵字補芽芽8）；S2 generator top5_news 去重（純一般新文，芽芽歸芽芽觀察室）；S3 _write_freshness_sidecar（top5 指紋）+check_report_freshness.py 凍結偵測器（advisory）+daily_report.yml CI step；S4 picker 不動（驗新文 decay 0.83-0.99 排前 vs 老文 0.3 觸底→上游活水自然輪動，避撞芽芽鐵律）；nice_to_fix 高 ROI guard（params 斷言鎖根因①契約板列表不帶 q/qt + 降級路徑測試）。
+
+**物理真相（9 檔）**：改 date_normalizer/bahamut_scraper/main/generator/daily_report.yml；新增 check_report_freshness.py/test_article_freshness.py(8測試)/postmortem。
+
+**驗收**：S1 live 撈 15 新文(今日4)+16 芽芽；S2 test 證芽芽卡只1次；decay 純函式證新文排前；504 passed 零回歸(496→+8)；Review 裁決可收官 0 must_fix；芽芽優先 0 風險（3 收編全不動 picker，Review 芽芽維度 4 子問題全驗證通過）。
+
+**風險/盲點**：B-026（優先豁免反噬鎖榜 + 名實不符雙軌）；R-036（連續日輪動待 cron + 板列表無時間文隱性風險 + 判定函式收斂技術債）。
+
+**狀態**：S1-S6 收官，Claude 動工。commit 待建（push 必問阿喜）。

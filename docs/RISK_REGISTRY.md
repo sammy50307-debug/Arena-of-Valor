@@ -18,6 +18,17 @@
 
 ## 開放風險（Open）
 
+### R-036：P110 文章凍結修復殘留 — 連續日輪動待 cron 終驗 + 板列表無時間文被擋出池（P110 衍生）
+
+- **來源**：P110 v2 收官（2026-06-13）+ Review Workflow 容錯維度 finding
+- **風險級**：🟢 低（核心已修、502→504 passed；殘留為待驗 + 邊界隱性風險）
+- **狀態**：Open（機制已端到端驗證，待 cron 真實連續日終驗）
+- **描述**：(a) **連續日輪動待 cron**：S1+S2 端到端驗證（板列表撈 15 新文 decay 0.83-0.99 排前、top5_news 去重）+ decay 純函式證新文排前，但「使用者連續多天看到報告真的每天不同」待 cron 自然驗（同 P108.3/3.1/108.4 待 cron 驗鏈）。(b) **板列表無時間文隱性風險**：`fetch_board_latest` 經 `_parse_row` 若某列無時間元素 → `published_date=''` → 被 `generator.py:284` other_pool 的 `dated_posts`（`_has_known_post_date`）擋出最新動態候選池；若巴哈板列表時間欄 DOM 與搜尋頁不同，P110 撈新文目標可能靜默打折（凍結偵測器 advisory 不硬擋）。
+- **緩解策略**：(a) 凍結偵測器 `check_report_freshness.py`（連續 N 筆 top5_hash 相同→advisory 告警）持續監測，cron 跑幾天後看告警是否消失即驗證輪動；(b) 板列表無時間風險——可在 `fetch_board_latest` 對空 published 補爬取當下時間 + warning 計數（登記為下一輪韌性增強，非本期 must_fix）；(c) **nice_to_fix 技術債**：`generator._focus_text_evidence` 與 `top5_picker._is_yaya_related` 芽芽判定範圍不一致（LLM 模式窄角可達，本地路徑不可達），長期收斂為單一 helper。
+- **關聯**：B-026（優先豁免反噬 + 名實不符雙軌）；與 R-031（報告 UX）同呈現戰線、與 R-027（爬取覆蓋）同爬取戰線。
+
+---
+
 ### R-034：combat_stats 無自動真實數據源 — 官方勝率頁已下線，採半自動手動 yaml；B′ 巴哈真爬 PoC 已驗不可行（圖片源需 OCR）（P106.2 衍生）
 
 - **來源**：P106.2 PoC 實測（2026-06-07）

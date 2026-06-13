@@ -290,8 +290,8 @@ class ReportGenerator:
                 )
                 _indexer.save_index(idx_after_yaya)
 
-                # 剩餘名額由一般文章補滿 5 張
-                need_general = 5 - len(yaya_cards)
+                # P110 v2: 最新動態獨立 5 篇純一般新文（不含芽芽，消除「同篇芽芽文一頁渲染兩次」；芽芽歸芽芽觀察室 top5_yaya）
+                need_general = 5
                 selected_urls = {c["picker"]["norm_url"] for c in yaya_cards}
                 remaining_other = [
                     p for p in other_pool
@@ -305,9 +305,9 @@ class ReportGenerator:
                 )
                 other_cards = all_other_cards[:need_general]
 
-                # P66.1 — 多樣性：5 卡至少 3 平台（只動 2 張一般卡段）
+                # P66.1 多樣性：至少 3 平台。P110 v2: 最新動態純一般，多樣性只看 other（yaya 傳空）
                 other_cards = enforce_diversity(
-                    yaya_cards, other_cards, all_other_cards,
+                    [], other_cards, all_other_cards,
                 )
 
                 for card in yaya_cards + other_cards:
@@ -319,8 +319,8 @@ class ReportGenerator:
                 idx_after_other = _indexer.record_urls(final_other_urls, idx_after_yaya, today=report_date)
                 _indexer.save_index(idx_after_other)
 
-                top5_yaya = yaya_cards                        # 芽芽觀察室用
-                top5_news = yaya_cards + other_cards          # 最新動態詳情：3+2
+                top5_yaya = yaya_cards                        # 芽芽觀察室（芽芽精選，可含常青攻略）
+                top5_news = other_cards                       # P110 v2: 最新動態純一般新文（不含芽芽，消除一頁渲染兩次）
             except Exception as _e:
                 logger.warning("top5_picker 失敗，降級為空列表：%s", _e)
         template_vars["top5_news"] = top5_news
@@ -419,8 +419,56 @@ class ReportGenerator:
         except Exception as uie:
             self.logger.warning(f"  [!] ui_previews 同步失敗: {uie}")
 
+        # P110 v2: 寫 top5 指紋 sidecar（凍結偵測器比對用，解耦不穿 manifest）
+        try:
+            self._write_freshness_sidecar(output_dir, report_date,
+                                          template_vars.get("top5_news"), template_vars.get("top5_yaya"))
+        except Exception as fe:
+            self.logger.warning(f"  [!] freshness sidecar 寫入失敗（不阻斷報告）: {fe}")
+
         self.logger.info(f"報告已生成: {output_path}")
         return output_path
+
+    def _write_freshness_sidecar(self, output_dir, report_date, top5_news, top5_yaya):
+        """P110 v2: 持久化 top5 指紋供凍結偵測器(check_report_freshness)比對連續日凍結。
+        解耦設計：寫 sidecar json（與報告同目錄，隨 CI 進版控）而非穿進 manifest（避免 generator→main→run_manifest 跨模組）。"""
+        import hashlib
+        import json as _json
+        from datetime import datetime as _dt
+
+        def _urls(cards):
+            out = [(c.get("post") or c).get("url", "") for c in (cards or [])]
+            return sorted({u for u in out if u})
+
+        news_urls = _urls(top5_news)
+        yaya_urls = _urls(top5_yaya)
+        top5_hash = hashlib.md5("\n".join(news_urls + ["||"] + yaya_urls).encode("utf-8")).hexdigest()[:16]
+
+        oldest_age_days = None
+        try:
+            rep = _dt.strptime(report_date[:10], "%Y-%m-%d")
+            ages = []
+            for c in (top5_news or []) + (top5_yaya or []):
+                pd = ((c.get("post") or c).get("published_date") or "")[:10]
+                if len(pd) >= 10:
+                    try:
+                        ages.append((rep - _dt.strptime(pd, "%Y-%m-%d")).days)
+                    except ValueError:
+                        pass
+            if ages:
+                oldest_age_days = max(ages)
+        except Exception:
+            pass
+
+        sidecar = {
+            "report_date": report_date, "top5_hash": top5_hash,
+            "news_count": len(news_urls), "yaya_count": len(yaya_urls),
+            "news_urls": news_urls, "yaya_urls": yaya_urls,
+            "oldest_age_days": oldest_age_days,
+        }
+        path = Path(output_dir) / f"aov_report_{report_date}.freshness.json"
+        path.write_text(_json.dumps(sidecar, ensure_ascii=False, indent=2), encoding="utf-8")
+        self.logger.info(f"  [+] freshness sidecar: top5_hash={top5_hash} oldest={oldest_age_days}d")
 
     def promote_candidate(
         self,

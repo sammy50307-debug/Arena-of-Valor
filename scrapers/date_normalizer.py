@@ -17,6 +17,7 @@ _is_too_old 只認 ISO 絕對格式 → 巴哈文 decay 全部觸底 _DECAY_MIN�
   ③ 昨天 HH:MM      昨天 22:39
   ④ 前天 HH:MM      前天 15:17
   ⑤ MM-DD HH:MM     05-29 11:39（無年份 → 補 now.year，跨年回退去年）
+  ⑥ 裸 MM-DD        06-10（無時間 → 補 00:00，跨年回退同 ⑤；P110 v2 巴哈板列表）
 """
 from __future__ import annotations
 
@@ -30,6 +31,7 @@ _MINUTES_AGO_RE = re.compile(r"^(\d+)\s*分鐘前$")
 _DAYS_AGO_RE = re.compile(r"^(\d+)\s*天前$")
 _REL_DAY_RE = re.compile(r"^(昨天|前天)\s+(\d{1,2}):(\d{2})$")
 _MMDD_RE = re.compile(r"^(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})$")
+_MMDD_NO_TIME_RE = re.compile(r"^(\d{1,2})-(\d{1,2})$")  # P110 v2: 裸 MM-DD（無 HH:MM，巴哈板列表）
 
 _ISO_FMT = "%Y-%m-%d %H:%M:%S"
 
@@ -93,6 +95,21 @@ def normalize_published_date(raw: str | None, *, now: datetime | None = None) ->
         if cand > now + timedelta(days=1):
             try:
                 cand = datetime(now.year - 1, mo, d, hh, mi)
+            except ValueError:
+                return None
+        return cand.strftime(_ISO_FMT)
+
+    # ⑥ 裸 MM-DD（無 HH:MM，巴哈板列表；補 00:00，跨年回退同 ⑤）— P110 v2
+    m = _MMDD_NO_TIME_RE.match(s)
+    if m:
+        mo, d = int(m[1]), int(m[2])
+        try:
+            cand = datetime(now.year, mo, d)
+        except ValueError:
+            return None
+        if cand > now + timedelta(days=1):
+            try:
+                cand = datetime(now.year - 1, mo, d)
             except ValueError:
                 return None
         return cand.strftime(_ISO_FMT)

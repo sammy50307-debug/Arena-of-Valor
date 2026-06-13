@@ -116,6 +116,12 @@ jobs:
             --date "$REPORT_DATE" \
             --profile local
 
+      - name: 🧊 Report Freshness Check (Advisory)
+        if: always()
+        continue-on-error: true
+        run: |
+          python scripts/check_report_freshness.py --reports-dir data/reports --threshold 3
+
       - name: 🩺 System Doctor (Strict Gate)
         if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.strict_doctor == 'true' }}
         run: |

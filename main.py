@@ -333,14 +333,16 @@ async def run_pipeline(dry_run: bool = False, showcase: bool = False, force: boo
 
         try:
             bahamut = BahamutScraper()
-            baha_results = await bahamut.search(focus_keywords, max_results=8)
+            # P110 v2: 雙軌 — 板最新列表撈每日新文（治根因①凍結）+ 關鍵字搜尋補芽芽精準命中（防全板稀釋 R4）
+            baha_results = await bahamut.fetch_board_latest(max_results=15)
+            baha_results += await bahamut.search(focus_keywords, max_results=8)
             added = 0
             for r in baha_results:
                 if r.url not in seen_urls:
                     seen_urls.add(r.url)
                     all_results.append(r)
                     added += 1
-            logger.info(f"   [巴哈] 新增 {added} 篇不重複文章")
+            logger.info(f"   [巴哈] 雙軌新增 {added} 篇不重複（板列表新文 + 關鍵字補芽芽）")
         except Exception as e:
             logger.warning(f"  [!] 巴哈姆特爬蟲失敗（跳過）: {e}")
 

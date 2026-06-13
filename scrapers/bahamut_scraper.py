@@ -74,6 +74,39 @@ class BahamutScraper:
         self.logger.info(f"[Bahamut] 共取得 {len(all_results)} 篇不重複文章")
         return all_results
 
+    async def fetch_board_latest(
+        self,
+        max_results: int = 15,
+        region: str = "TW",
+    ) -> List[SearchResult]:
+        """P110 v2：抓 AOV 板「最新文章列表」(B.php 不帶 q)，跳過置頂(sticky)列，撈每日輪動新文。
+
+        取代純 qt=1 標題搜尋每天回同批常青舊文的問題（根因①）。sticky 以 CSS class
+        `b-list__row--sticky` 判定（非寫死跳 N 列，抗巴哈置頂增減）；解析失敗回 []，
+        由 main 雙軌的關鍵字搜尋兜底（graceful 降級）。
+        """
+        results: List[SearchResult] = []
+        async with httpx.AsyncClient(headers=HEADERS, timeout=20, follow_redirects=True) as client:
+            try:
+                resp = await client.get(BAHAMUT_SEARCH_URL, params={"bsn": BAHAMUT_BSN})
+                resp.raise_for_status()
+                soup = BeautifulSoup(resp.text, "html.parser")
+                rows = soup.select("tr.b-list__row")
+                for item in rows:
+                    classes = item.get("class", []) or []
+                    if any("sticky" in c for c in classes):  # 跳過置頂列（class 判定，非寫死）
+                        continue
+                    result = self._parse_row(item, None, region)  # keyword=None → 不過濾標題
+                    if result:
+                        results.append(result)
+                    if len(results) >= max_results:
+                        break
+            except Exception as e:
+                self.logger.warning(f"[Bahamut] 板列表抓取失敗（降級回關鍵字搜尋）: {e}")
+                return []
+        self.logger.info(f"[Bahamut] 板最新列表取得 {len(results)} 篇新文（已跳置頂）")
+        return results
+
     async def _search_keyword(
         self,
         client: httpx.AsyncClient,
@@ -128,7 +161,9 @@ class BahamutScraper:
                 return None
             title = title_el.get_text(strip=True)
 
-            if not title or keyword not in title:
+            if not title:
+                return None
+            if keyword and keyword not in title:  # P110 v2: keyword=None（板列表模式）不過濾標題
                 return None
 
             # 連結在 <td class="b-list__main"> 內第一個 <a> 上
