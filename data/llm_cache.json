@@ -2,507 +2,24 @@
   "schema_version": 3,
   "result_schema_version": 1,
   "entries": {
-    "prompt:2af15c718b6377524b774a648243a5d7": {
+    "prompt:cb6015c01a770fe8eb7b3078e049104a": {
       "result": {
-        "reasoning": "該貼文為遊戲實況主娘子的影片標題，旨在推廣蘭鐸在當前版本的高強度與戰術應用，語氣充滿正面推崇與教學意圖。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "角色討論",
-        "keywords": [
-          "傳說對決",
-          "蘭鐸",
-          "巨人版本",
-          "打野",
-          "娘子",
-          "T0"
-        ],
-        "summary": "實況主娘子分析蘭鐸在巨人版本中的強勢地位與高分段戰術套路。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "巨人版本",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-28T12:00:02.084450+00:00",
-      "last_accessed": "2026-05-28T12:00:02.084450+00:00",
-      "ttl_days": 7
-    },
-    "prompt:4fa2c67de4de5827261dded979d13f0a": {
-      "result": {
-        "reasoning": "該貼文內容提及 MLBB (Mobile Legends: Bang Bang) 的標籤與內容，雖然文中提到 Arena of Valor，但主要是作為對比或誤植，並非針對傳說對決本身的討論。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "其他",
-        "keywords": [
-          "MLBB",
-          "傳說對決",
-          "新手教學"
-        ],
-        "summary": "該貼文主要討論 MLBB 相關內容，與傳說對決關聯性極低。",
-        "relevance_score": 0.1,
-        "is_hero_focus": false,
-        "events": [],
-        "translated_content": "Tide Siege 在正式服變得更容易了 #mlbb #MLBBUPDATE ... 我們希望所有玩家都能透過遊戲的外部系統了解標準對戰，讓新玩家能輕鬆熟悉傳說對決。"
-      },
-      "stored_at": "2026-05-28T12:00:12.686321+00:00",
-      "last_accessed": "2026-05-28T12:00:12.686321+00:00",
-      "ttl_days": 7
-    },
-    "prompt:c5d2f06b29ad204ce8f9eec35bf3b7d3": {
-      "result": {
-        "reasoning": "該貼文為玩家分享2025年凱撒路的英雄推薦與對線康特技巧，屬於正向的遊戲攻略交流，無反諷意圖。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "凱撒路",
-          "攻略",
-          "康特",
-          "2025",
-          "英雄推薦"
-        ],
-        "summary": "玩家分享2025年凱撒路英雄推薦與對線康特攻略。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-28T12:00:14.032425+00:00",
-      "last_accessed": "2026-05-29T11:50:17.534348+00:00",
-      "ttl_days": 7
-    },
-    "prompt:d8eb2d450adc61e70e9aad37a26504b6": {
-      "result": {
-        "reasoning": "該貼文標題為爬分筆記分享，屬於玩家間的經驗交流與心得分享，語氣中性且具建設性，並無反諷或負面情緒。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "爬分",
-          "心得分享",
-          "傳說對決",
-          "攻略"
-        ],
-        "summary": "玩家在 Dcard 分享關於傳說對決的爬分心得與筆記。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-28T12:00:15.328444+00:00",
-      "last_accessed": "2026-05-28T12:00:15.328444+00:00",
-      "ttl_days": 7
-    },
-    "prompt:8c0256893f09edf7d1a2005bbb2e1b1f": {
-      "result": {
-        "reasoning": "該貼文為分享遊戲角色綺羅的教學心得，屬於玩家間的技術交流與經驗分享，語氣中性且具建設性。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "角色討論",
-        "keywords": [
-          "綺羅",
-          "教學",
-          "心得分享",
-          "傳說對決"
-        ],
-        "summary": "玩家在Dcard分享關於英雄綺羅的實戰教學心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": []
-      },
-      "stored_at": "2026-05-28T12:00:23.462564+00:00",
-      "last_accessed": "2026-05-28T12:00:23.462564+00:00",
-      "ttl_days": 7
-    },
-    "prompt:3b9a7cfebaacfb60f8b213561b3f69ce": {
-      "result": {
-        "reasoning": "作者分享關於遊戲排位與戰力系統的個人心得，旨在提供玩家提升遊戲表現的策略，語氣客觀且具建設性。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "戰力",
-          "排位",
-          "心得分享",
-          "全服"
-        ],
-        "summary": "分享如何在不依賴特定戰力角色的情況下提升遊戲排位與全服排名。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-28T12:00:25.157902+00:00",
-      "last_accessed": "2026-05-28T12:00:25.157902+00:00",
-      "ttl_days": 7
-    },
-    "prompt:2dd64501f9952d4ba42e5d13edd31ea8": {
-      "result": {
-        "reasoning": "該貼文為教學性質的攻略分享，旨在幫助玩家解決中路對線困難的問題，內容客觀且具有建設性。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "中路",
-          "康特",
-          "選角",
-          "攻略",
-          "對線"
-        ],
-        "summary": "分享中路對線的康特選角攻略教學。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-28T12:00:32.903433+00:00",
-      "last_accessed": "2026-05-28T12:00:32.903433+00:00",
-      "ttl_days": 7
-    },
-    "prompt:df796bc0fc755c6e6c369798931bbf5a": {
-      "result": {
-        "reasoning": "該貼文為標題分享，旨在提供遊戲內裝備的相關知識，屬於正面且建設性的社群分享行為。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "傳說對決",
-          "裝備",
-          "攻略",
-          "心得"
-        ],
-        "summary": "玩家在Dcard分享關於傳說對決裝備的小知識與心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-28T12:00:39.372978+00:00",
-      "last_accessed": "2026-05-28T12:00:39.372978+00:00",
-      "ttl_days": 7
-    },
-    "prompt:f11267d72f9d02c8bb25c4d9b7e30ff7": {
-      "result": {
-        "reasoning": "玩家分享關於星展銀行與傳說對決聯名卡的活動延長資訊，屬於客觀的情報分享，無明顯情緒偏向。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "活動資訊",
-        "keywords": [
-          "星展銀行",
-          "聯名卡",
-          "緹莉",
-          "星夢展航",
-          "活動延長"
-        ],
-        "summary": "星展傳說對決聯名卡專屬活動延長至2026年6月30日，開卡可獲得緹莉造型。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [
-          {
-            "name": "星展傳說對決聯名卡活動",
-            "type": "合作活動"
-          }
-        ]
-      },
-      "stored_at": "2026-05-28T12:00:40.898036+00:00",
-      "last_accessed": "2026-05-28T12:00:40.898036+00:00",
-      "ttl_days": 7
-    },
-    "prompt:825f5ecb754463dc50de63565a53fd8c": {
-      "result": {
-        "reasoning": "該貼文為實況主陸子玄的直播預告或回顧，內容單純為活動宣傳，無反諷或負面情緒，屬於中性資訊分享。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "社群互動",
-        "keywords": [
-          "傳說對決",
-          "陸子玄",
-          "直播",
-          "遊戲實況"
-        ],
-        "summary": "實況主陸子玄發布關於傳說對決的直播內容。",
-        "relevance_score": 0.9,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "5/28 直播活動",
-            "type": "其他"
-          }
-        ]
-      },
-      "stored_at": "2026-05-29T11:50:05.927488+00:00",
-      "last_accessed": "2026-05-29T11:50:05.927488+00:00",
-      "ttl_days": 7
-    },
-    "prompt:86e526ceed4b68d5653ea1ad1e1d58e2": {
-      "result": {
-        "reasoning": "玩家為了獲得遊戲內獎勵（稀世造型），主動分享邀請碼並鼓勵他人輸入，目的是透過社群互動達成活動任務。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "活動資訊",
-        "keywords": [
-          "星展傳說聯名卡",
-          "邀請碼",
-          "稀世造型",
-          "活動"
-        ],
-        "summary": "玩家分享星展傳說聯名卡活動邀請碼，尋求他人協助解鎖造型獎勵。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "星展傳說聯名卡活動",
-            "type": "合作活動"
-          }
-        ]
-      },
-      "stored_at": "2026-05-29T11:50:11.870559+00:00",
-      "last_accessed": "2026-05-29T11:50:11.870559+00:00",
-      "ttl_days": 7
-    },
-    "prompt:56e1bfc134fdd494e1ea0f1b25a4dbb8": {
-      "result": {
-        "reasoning": "該貼文討論的是《虛榮》(Vainglory) 的遊戲更新內容，與《傳說對決》(Arena of Valor) 完全無關，屬於誤發或討論其他遊戲。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "其他",
-        "keywords": [
-          "Vainglory",
-          "更新",
-          "遊戲平衡"
-        ],
-        "summary": "此貼文內容為其他遊戲《虛榮》(Vainglory) 的更新資訊，與《傳說對決》無關。",
-        "relevance_score": 0.0,
-        "is_hero_focus": false,
-        "events": [],
-        "translated_content": "[更新 🗣️ Seer 大招已修復，Vantage 訊號已修復，感覺如何？] Vainglory 1.7 版本重大遊戲性改動！VOX（整體增強），移除了普攻與共鳴彈跳產生的護盾，基礎生命值提升，基礎水晶傷害提升。"
-      },
-      "stored_at": "2026-05-29T11:50:17.526498+00:00",
-      "last_accessed": "2026-05-29T11:50:17.526498+00:00",
-      "ttl_days": 7
-    },
-    "prompt:ec765f0ff6153bdb7d36f29f39b1c8ce": {
-      "result": {
-        "reasoning": "該貼文為標題分享，旨在討論輔助位的遊戲觀念，屬於玩家間的經驗交流與教學，語氣中性且具建設性。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "輔助",
-          "觀念",
-          "心得",
-          "傳說對決"
-        ],
-        "summary": "玩家在Dcard分享關於輔助位的遊戲觀念與心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-29T11:50:21.243346+00:00",
-      "last_accessed": "2026-05-29T11:50:21.243346+00:00",
-      "ttl_days": 7
-    },
-    "prompt:76befbb8d168c291b9d7ee56421d423b": {
-      "result": {
-        "reasoning": "該貼文為一篇教學攻略分享，內容旨在提供玩家圖倫的進階操作技巧，語氣正面且具建設性，屬於典型的遊戲社群知識交流。",
-        "sentiment": "positive",
-        "sentiment_score": 0.9,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "角色討論",
-        "keywords": [
-          "圖倫",
-          "攻略",
-          "教學",
-          "傳說對決",
-          "心得分享"
-        ],
-        "summary": "玩家分享了一篇關於圖倫英雄的詳細教學攻略，幫助新手快速上手。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "events": [],
-        "translated_content": "【心得分享】【攻略】《傳說對決》從0~100圖倫教學!17分鐘一次快速上手(8/16再次更新) - 傳說對決板 | Dcard"
-      },
-      "stored_at": "2026-05-29T11:50:23.175576+00:00",
-      "last_accessed": "2026-05-29T11:50:23.175576+00:00",
-      "ttl_days": 7
-    },
-    "prompt:c9cd8c2c216babe4ec783b3397f0948f": {
-      "result": {
-        "reasoning": "該貼文為標題分享，內容旨在提供遊戲內全屬性的詳細攻略，屬於玩家間的經驗交流與教學分享，意圖正面且具建設性。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "遊戲體驗",
-        "keywords": [
-          "攻略",
-          "全屬性",
-          "心得分享",
-          "傳說對決"
-        ],
-        "summary": "玩家分享關於遊戲內全屬性的詳細攻略心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": []
-      },
-      "stored_at": "2026-05-29T11:50:25.169255+00:00",
-      "last_accessed": "2026-05-29T11:50:25.169255+00:00",
-      "ttl_days": 7
-    },
-    "prompt:fa8ec67fd067d5521ee5211831a4ae57": {
-      "result": {
-        "reasoning": "作者整理了2025年2月20日的改版資訊並提供個人見解，屬於客觀的資訊分享與社群討論，無反諷意圖。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "版本更新",
-        "keywords": [
-          "改版",
-          "懶人包",
-          "心得分享",
-          "20250220"
-        ],
-        "summary": "作者整理了2025年2月20日的遊戲改版懶人包並分享個人見解。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "20250220 版本更新",
-            "type": "版本更新"
-          }
-        ]
-      },
-      "stored_at": "2026-05-29T11:50:30.310856+00:00",
-      "last_accessed": "2026-05-29T11:50:30.310856+00:00",
-      "ttl_days": 7
-    },
-    "prompt:7c4db6ab1a9aa11bb77f241cdd4be481": {
-      "result": {
-        "reasoning": "該貼文為巴哈姆特哈啦板的情報彙整串，屬於官方或玩家整理的資訊分享，語氣客觀中立，旨在提供版本更新的先行資訊。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "category": "版本更新",
-        "keywords": [
-          "傳說對決",
-          "體驗服",
-          "更新情報",
-          "先行服"
-        ],
-        "summary": "巴哈姆特哈啦板整理的2026年傳說對決體驗服更新情報彙整。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "events": [
-          {
-            "name": "2026年體驗服更新",
-            "type": "版本更新"
-          }
-        ],
-        "translated_content": "【情報】傳說對決先行/體驗服 2026年更新情報【260512更新】"
-      },
-      "stored_at": "2026-05-29T11:50:31.922787+00:00",
-      "last_accessed": "2026-05-29T11:50:31.922787+00:00",
-      "ttl_days": 7
-    },
-    "prompt:9388dd75a37893fe5bbd5bc04b16075e": {
-      "result": {
-        "reasoning": "玩家小珉分享自己的遊戲影片，並邀請觀眾訂閱與分享，目的是推廣自己的頻道與內容，並無反諷意圖。",
+        "reasoning": "貼文內容主要為宣傳遊戲內的活動與賽事，並未隱含反諷或潛台詞，純粹是活動資訊的分享。",
         "sentiment": "positive",
         "sentiment_score": 0.8,
         "region": "TW",
         "original_language": "zh",
         "translated_content": "",
-        "category": "社群互動",
-        "keywords": [
-          "傳說對決",
-          "永恆傳說",
-          "小珉",
-          "訂閱",
-          "分享"
-        ],
-        "summary": "小珉分享自己的遊戲影片並邀請觀眾訂閱與追蹤。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-01T15:32:06.354729+00:00",
-      "last_accessed": "2026-06-01T15:32:06.354729+00:00",
-      "ttl_days": 7
-    },
-    "prompt:f8a32e7ce2f34dfdc78ef4725b986827": {
-      "result": {
-        "reasoning": "玩家在討論緋淚的造型活動，並提供了詳細的活動獎勵資訊，顯示出對遊戲活動的關注與參與。",
-        "sentiment": "positive",
-        "sentiment_score": 0.7,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
         "category": "活動資訊",
         "keywords": [
+          "傳說運動會",
+          "珉天還要贏",
+          "教主",
           "緋淚",
-          "造型",
-          "活動",
-          "勇者限定",
-          "史蘭茲"
+          "應援甜心造型",
+          "點券"
         ],
-        "summary": "玩家分享緋淚的造型活動資訊及獎勵細節。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-01T15:32:14.623473+00:00",
-      "last_accessed": "2026-06-01T15:32:14.623473+00:00",
-      "ttl_days": 7
-    },
-    "prompt:7fcbc1305e122173fe5dbad2ea8790eb": {
-      "result": {
-        "reasoning": "貼文內容為活動公告，旨在宣傳《傳說對決》與中信兄弟的聯名主題日，並提供購票資訊。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "活動資訊",
-        "keywords": [
-          "中信兄弟",
-          "傳說對決",
-          "聯名主題日",
-          "購票資訊"
-        ],
-        "summary": "宣傳《傳說對決》與中信兄弟的聯名主題日活動。",
+        "summary": "貼文宣傳《傳說對決》六月多項活動與賽事，包括傳說運動會與免費造型等。",
         "relevance_score": 1.0,
         "is_hero_focus": false,
         "llm_contract": {
@@ -510,39 +27,13 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:32:22.296975+00:00",
-      "last_accessed": "2026-06-01T15:32:22.296975+00:00",
+      "stored_at": "2026-06-14T17:10:11.668927+00:00",
+      "last_accessed": "2026-06-14T17:10:11.668927+00:00",
       "ttl_days": 7
     },
-    "prompt:dd459ccb56a44208a81d02387b44270a": {
+    "prompt:2eb29cd222cd8d84a9491dc499d141b3": {
       "result": {
-        "reasoning": "貼文內容主要分享關於凱撒路的英雄推薦與康特策略，屬於遊戲策略討論，無明顯反諷意圖。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "凱撒路",
-          "推薦",
-          "康特"
-        ],
-        "summary": "玩家分享凱撒路的英雄推薦與康特策略。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-01T15:32:30.906125+00:00",
-      "last_accessed": "2026-06-03T12:57:06.382981+00:00",
-      "ttl_days": 7
-    },
-    "prompt:e694340c04693a618cf74bdb409db360": {
-      "result": {
-        "reasoning": "貼文僅提及『璀璨專屬標』並標記為心得分享，但未提供具體內容，無法判斷真實意圖或是否帶有反諷。",
+        "reasoning": "貼文主要是在進行帳號交易，並未提及遊戲內容或體驗，屬於商業行為。",
         "sentiment": "neutral",
         "sentiment_score": 0.5,
         "region": "TW",
@@ -550,24 +41,53 @@
         "translated_content": "",
         "category": "其他",
         "keywords": [
-          "璀璨專屬標",
-          "心得分享"
+          "現貨",
+          "帳號",
+          "收購",
+          "預算"
         ],
-        "summary": "貼文提及『璀璨專屬標』並標記為心得分享，但未提供具體內容。",
-        "relevance_score": 0.8,
+        "summary": "貼文主要是在進行《傳說對決》帳號的買賣交易。",
+        "relevance_score": 0.3,
         "is_hero_focus": false,
         "llm_contract": {
           "status": "ok",
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:32:44.497748+00:00",
-      "last_accessed": "2026-06-01T15:32:44.497748+00:00",
+      "stored_at": "2026-06-14T17:10:20.486658+00:00",
+      "last_accessed": "2026-06-14T17:10:20.486658+00:00",
+      "ttl_days": 7
+    },
+    "prompt:cba5b568c4f1536dff210dbb22b43440": {
+      "result": {
+        "reasoning": "貼文內容為宣傳《傳說對決》電競賽事的決賽，並提供比賽時間與相關資訊，屬於正向宣傳。",
+        "sentiment": "positive",
+        "sentiment_score": 0.8,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "電競賽事",
+        "keywords": [
+          "GRAND FINALS",
+          "6 teams",
+          "showdown",
+          "OPERATIONS SUNDAY"
+        ],
+        "summary": "宣傳《傳說對決》電競賽事的決賽，並提供比賽時間與相關資訊。",
+        "relevance_score": 1.0,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-14T17:10:30.117730+00:00",
+      "last_accessed": "2026-06-14T17:10:30.117730+00:00",
       "ttl_days": 7
     },
     "prompt:787e75c810bfaba6bd9001c205d3b168": {
       "result": {
-        "reasoning": "玩家分享了一篇關於圖倫的教學攻略，並提到8/16再次更新，顯示其目的是幫助新手快速上手該英雄，並提供最新的遊戲資訊。",
+        "reasoning": "玩家分享了一篇關於圖倫的教學攻略，內容旨在幫助新手快速上手該角色，並提到8/16有更新，顯示其意圖是提供實用資訊而非反諷。",
         "sentiment": "positive",
         "sentiment_score": 0.8,
         "region": "TW",
@@ -580,7 +100,7 @@
           "攻略",
           "快速上手"
         ],
-        "summary": "玩家分享了一篇圖倫的教學攻略，幫助新手快速上手該英雄。",
+        "summary": "玩家分享了一篇關於圖倫的教學攻略，幫助新手快速上手。",
         "relevance_score": 1.0,
         "is_hero_focus": true,
         "llm_contract": {
@@ -588,13 +108,13 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:32:52.759138+00:00",
-      "last_accessed": "2026-06-03T12:57:06.381692+00:00",
+      "stored_at": "2026-06-14T17:10:39.192936+00:00",
+      "last_accessed": "2026-06-14T17:10:39.192936+00:00",
       "ttl_days": 7
     },
     "prompt:98d7639e20c2e3571d9c3d3dbebbae56": {
       "result": {
-        "reasoning": "貼文標題提到『全屬性詳細攻略』，內容應為玩家分享遊戲內屬性的詳細解析與心得，屬於正向的知識分享。",
+        "reasoning": "貼文標題明確指出是『全屬性詳細攻略』，內容應為玩家分享遊戲內的屬性相關知識與策略，屬於正向的經驗分享。",
         "sentiment": "positive",
         "sentiment_score": 0.8,
         "region": "TW",
@@ -614,13 +134,38 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:32:59.910728+00:00",
-      "last_accessed": "2026-06-03T12:57:06.385488+00:00",
+      "stored_at": "2026-06-14T17:10:48.431340+00:00",
+      "last_accessed": "2026-06-14T17:10:48.431340+00:00",
       "ttl_days": 7
     },
-    "prompt:58ab1be313c7a13ed170236dacaab489": {
+    "prompt:e694340c04693a618cf74bdb409db360": {
       "result": {
-        "reasoning": "玩家分享單排上璀璨的困難，表達了對遊戲排位系統的挑戰感，並無明顯反諷或隱含意圖。",
+        "reasoning": "貼文僅為標題格式，未提供具體內容，無法推論玩家的真實意圖或是否帶有反諷。",
+        "sentiment": "neutral",
+        "sentiment_score": 0.5,
+        "region": "TW",
+        "original_language": "zh",
+        "translated_content": "",
+        "category": "其他",
+        "keywords": [
+          "心得分享",
+          "璀璨專屬標"
+        ],
+        "summary": "貼文僅提及心得分享與璀璨專屬標，無具體內容。",
+        "relevance_score": 0.5,
+        "is_hero_focus": false,
+        "llm_contract": {
+          "status": "ok",
+          "errors": []
+        }
+      },
+      "stored_at": "2026-06-14T17:10:57.083756+00:00",
+      "last_accessed": "2026-06-14T17:10:57.083756+00:00",
+      "ttl_days": 7
+    },
+    "prompt:dd459ccb56a44208a81d02387b44270a": {
+      "result": {
+        "reasoning": "貼文標題提到『2025凱撒路推薦&康特』，顯示作者意圖分享關於凱撒路的角色推薦與克制策略，屬於遊戲攻略性質的內容。",
         "sentiment": "neutral",
         "sentiment_score": 0.5,
         "region": "TW",
@@ -628,11 +173,11 @@
         "translated_content": "",
         "category": "遊戲體驗",
         "keywords": [
-          "單排",
-          "璀璨",
-          "心得分享"
+          "凱撒路",
+          "推薦",
+          "康特"
         ],
-        "summary": "玩家分享單排上璀璨的困難與挑戰。",
+        "summary": "作者分享關於凱撒路的角色推薦與克制策略。",
         "relevance_score": 1.0,
         "is_hero_focus": false,
         "llm_contract": {
@@ -640,26 +185,24 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:33:12.634980+00:00",
-      "last_accessed": "2026-06-03T12:57:23.383395+00:00",
+      "stored_at": "2026-06-14T17:11:07.011602+00:00",
+      "last_accessed": "2026-06-14T17:11:07.011602+00:00",
       "ttl_days": 7
     },
-    "prompt:e469cb168f33b8ea453490bb66c31e34": {
+    "prompt:04a16027ae31d8635a3c94f440c87b15": {
       "result": {
-        "reasoning": "玩家分享魔法棋體驗服的改動資訊，意圖是提供詳細的遊戲更新內容給其他玩家參考，並無反諷或隱藏意圖。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
+        "reasoning": "貼文標題顯示為『心得分享 輔助觀念』，內容並未顯示具體討論，但標題暗示玩家希望分享輔助角色的遊戲觀念，屬於正向的分享意圖。",
+        "sentiment": "positive",
+        "sentiment_score": 0.7,
         "region": "TW",
         "original_language": "zh",
         "translated_content": "",
-        "category": "版本更新",
+        "category": "遊戲體驗",
         "keywords": [
-          "魔法棋",
-          "體驗服",
-          "改動",
-          "詳細介紹"
+          "心得分享",
+          "輔助觀念"
         ],
-        "summary": "玩家分享魔法棋體驗服的改動詳細介紹。",
+        "summary": "玩家分享關於輔助角色的遊戲觀念。",
         "relevance_score": 1.0,
         "is_hero_focus": false,
         "llm_contract": {
@@ -667,13 +210,13 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:33:19.784287+00:00",
-      "last_accessed": "2026-06-03T12:57:23.385051+00:00",
+      "stored_at": "2026-06-14T17:11:15.338778+00:00",
+      "last_accessed": "2026-06-14T17:11:15.338778+00:00",
       "ttl_days": 7
     },
     "prompt:a47c2865c3fb6e549794b4497e51bda5": {
       "result": {
-        "reasoning": "貼文標題明確指出是關於射手角色的思維套路分析，屬於玩家分享遊戲心得與策略的內容，無反諷意圖。",
+        "reasoning": "玩家分享關於射手角色的思維與套路分析，內容偏向教學與心得分享，無反諷意圖。",
         "sentiment": "positive",
         "sentiment_score": 0.7,
         "region": "TW",
@@ -685,7 +228,7 @@
           "思維套路",
           "射手"
         ],
-        "summary": "玩家分享關於射手角色的思維套路分析心得。",
+        "summary": "玩家分享射手角色的思維與套路分析。",
         "relevance_score": 1.0,
         "is_hero_focus": false,
         "llm_contract": {
@@ -693,861 +236,13 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-01T15:33:26.350176+00:00",
-      "last_accessed": "2026-06-01T15:33:26.350176+00:00",
+      "stored_at": "2026-06-14T17:11:23.544346+00:00",
+      "last_accessed": "2026-06-14T17:11:23.544346+00:00",
       "ttl_days": 7
     },
-    "prompt:52e6bd98c72ad48b505ad240c8071226": {
+    "prompt:b6f990a0a426f1af820d571b7d0a9b51": {
       "result": {
-        "reasoning": "玩家分享瑪迦的基礎教學，意圖是幫助其他玩家更好地理解和使用該角色，並無反諷或隱含情緒。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "角色討論",
-        "keywords": [
-          "瑪迦",
-          "基礎教學",
-          "殺不死的蟲子公主"
-        ],
-        "summary": "玩家分享瑪迦的基礎教學，幫助其他玩家更好地使用該角色。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-01T15:33:34.191590+00:00",
-      "last_accessed": "2026-06-01T15:33:34.191590+00:00",
-      "ttl_days": 7
-    },
-    "prompt:61cb7b5f305e3639a33f8600972fd019": {
-      "result": {
-        "date": "2026-06-01",
-        "overview": "今日《傳說對決》的輿情主要集中在英雄教學、聯名活動以及遊戲更新情報。整體情緒偏向正面，玩家積極分享遊戲攻略與活動資訊，但巴哈姆特平台上出現了一些關於聯名卡活動和配對問題的負面討論。",
-        "sentiment_distribution": {
-          "positive": 7,
-          "negative": 4,
-          "neutral": 8
-        },
-        "hot_topics": [
-          {
-            "topic": "英雄教學",
-            "mention_count": 4,
-            "sentiment": "positive",
-            "description": "玩家分享多篇英雄教學攻略，幫助新手快速上手遊戲。"
-          },
-          {
-            "topic": "聯名活動",
-            "mention_count": 3,
-            "sentiment": "neutral",
-            "description": "多篇貼文提及《傳說對決》與其他品牌的聯名活動，如中信兄弟、純喫茶等。"
-          },
-          {
-            "topic": "遊戲更新",
-            "mention_count": 2,
-            "sentiment": "neutral",
-            "description": "玩家分享遊戲先行/體驗服的更新情報，討論新內容與改動。"
-          },
-          {
-            "topic": "聯名卡活動",
-            "mention_count": 2,
-            "sentiment": "negative",
-            "description": "巴哈姆特平台上出現關於星展傳說對決聯名卡活動的負面討論。"
-          },
-          {
-            "topic": "配對問題",
-            "mention_count": 1,
-            "sentiment": "negative",
-            "description": "玩家在巴哈姆特平台上抱怨遊戲配對問題。"
-          }
-        ],
-        "detected_events": [
-          {
-            "name": "《傳說對決》與中信兄弟聯名主題日",
-            "type": "聯名活動",
-            "source_count": 1,
-            "details": "宣傳《傳說對決》與中信兄弟的聯名主題日活動。"
-          },
-          {
-            "name": "星展傳說對決聯名卡活動",
-            "type": "聯名活動",
-            "source_count": 2,
-            "details": "巴哈姆特平台上出現關於星展傳說對決聯名卡活動的討論，部分玩家對活動表示不滿。"
-          }
-        ],
-        "platform_breakdown": {
-          "instagram": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "threads": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "facebook": {
-            "post_count": 1,
-            "avg_sentiment": 1.0
-          }
-        },
-        "alerts": [
-          "巴哈姆特平台上出現關於星展傳說對決聯名卡活動的負面討論，需關注玩家反饋。",
-          "玩家在巴哈姆特平台上抱怨遊戲配對問題，需進一步調查並改善。"
-        ],
-        "recommendation": "建議營運團隊針對巴哈姆特平台上關於聯名卡活動和配對問題的負面討論進行調查，並及時回應玩家疑慮，以維護遊戲形象。",
-        "global_insights": {
-          "TW": {
-            "summary": "小珉分享自己的遊戲影片並邀請觀眾訂閱與追蹤。",
-            "hot_hero": "無特定英雄"
-          }
-        },
-        "hero_focus": {
-          "name": "無特定英雄",
-          "summary": "今日無特定英雄成為焦點，輿情主要集中在遊戲攻略與活動資訊。",
-          "sentiment_score": 0.5,
-          "top_comments": []
-        },
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        },
-        "total_posts": 19,
-        "hero_stats": {},
-        "wordcloud": {
-          "positive": [
-            {
-              "text": "傳說對決板",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "Dcard",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "Free",
-              "weight": 22,
-              "count": 7
-            },
-            {
-              "text": "情報",
-              "weight": 22,
-              "count": 7
-            },
-            {
-              "text": "標籤等級",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "空間魔晶x1",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "06",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "心得分享",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "英雄專屬碎片箱x",
-              "weight": 16,
-              "count": 3
-            },
-            {
-              "text": "傳說對決",
-              "weight": 16,
-              "count": 3
-            },
-            {
-              "text": "造型情報專區",
-              "weight": 15,
-              "count": 2
-            },
-            {
-              "text": "造型活動情報集中",
-              "weight": 15,
-              "count": 2
-            }
-          ],
-          "negative": [
-            {
-              "text": "巴哈姆特",
-              "weight": 24,
-              "count": 4
-            },
-            {
-              "text": "AOV",
-              "weight": 24,
-              "count": 4
-            },
-            {
-              "text": "哈啦板",
-              "weight": 24,
-              "count": 4
-            },
-            {
-              "text": "問題",
-              "weight": 18,
-              "count": 2
-            },
-            {
-              "text": "其他",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "傳說對決星展信用",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "邀請碼",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "263",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "情報",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "星展傳說對決聯名",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "遊戲內卡友專屬活",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "開卡送緹莉",
-              "weight": 15,
-              "count": 1
-            }
-          ]
-        },
-        "top_links": [
-          {
-            "title": "大家好我是小珉，目前段位是永恆傳說主要頻...",
-            "url": "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "platform": "youtube"
-          },
-          {
-            "title": "# RE:造型情報專區 │ 造型活動情報...",
-            "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "platform": "web"
-          },
-          {
-            "title": "聯名主題日 ⚾活動日期：2026/06/...",
-            "url": "https://www.facebook.com/AoVTW/posts/%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E5%90%88%E4%BD%9C%E7%A2%BA%E8%AA%8D%E5%85%84%E5%BC%9F%E7%B2%BE%E7%A5%9E%E6%98%AF%E7%9C%9F%E7%9A%84%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E8%88%87%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E7%9A%84%E8%B7%A8%E7%95%8C%E8%81%AF%E5%90%8D%E4%B8%BB%E9%A1%8C%E6%97%A5%E5%8D%B3%E5%B0%87%E7%86%B1%E8%A1%80%E7%99%BB%E5%A0%B4%E5%BE%9E%E5%82%B3%E8%AA%AA%E6%88%B0%E5%A0%B4%E5%88%B0%E6%B4%B2%E9%9A%9B%E6%A3%92%E7%90%83%E5%A0%B4%E7%89%B9%E5%88%A5%E5%9B%9E%E6%AD%B8%E4%BC%81%E5%8A%83%E9%99%90%E5%AE%9A%E6%B4%BB%E5%8B%95%E5%B0%88%E5%B1%AC%E5%A5%BD%E7%A6%AE%E9%83%BD%E5%B0%87%E9%99%B8%E7%BA%8C%E5%85%AC%E9%96%8B%E6%BA%96%E5%82%99%E6%8F%AA%E4%B8%8A%E4%BD%A0%E7%9A%84%E5%85%84/1456763303147764",
-            "platform": "facebook"
-          }
-        ],
-        "real_hot_topics": [
-          {
-            "word": "傳說",
-            "count": 18
-          },
-          {
-            "word": "分享",
-            "count": 10
-          },
-          {
-            "word": "巴哈姆",
-            "count": 9
-          },
-          {
-            "word": "心得",
-            "count": 9
-          },
-          {
-            "word": "AOV",
-            "count": 9
-          },
-          {
-            "word": "決板",
-            "count": 8
-          },
-          {
-            "word": "Dcard",
-            "count": 8
-          },
-          {
-            "word": "情報",
-            "count": 6
-          },
-          {
-            "word": "造型",
-            "count": 4
-          },
-          {
-            "word": "介紹",
-            "count": 3
-          }
-        ],
-        "topic_to_posts": {
-          "傳說": [
-            "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://www.facebook.com/AoVTW/posts/%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E5%90%88%E4%BD%9C%E7%A2%BA%E8%AA%8D%E5%85%84%E5%BC%9F%E7%B2%BE%E7%A5%9E%E6%98%AF%E7%9C%9F%E7%9A%84%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E8%88%87%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E7%9A%84%E8%B7%A8%E7%95%8C%E8%81%AF%E5%90%8D%E4%B8%BB%E9%A1%8C%E6%97%A5%E5%8D%B3%E5%B0%87%E7%86%B1%E8%A1%80%E7%99%BB%E5%A0%B4%E5%BE%9E%E5%82%B3%E8%AA%AA%E6%88%B0%E5%A0%B4%E5%88%B0%E6%B4%B2%E9%9A%9B%E6%A3%92%E7%90%83%E5%A0%B4%E7%89%B9%E5%88%A5%E5%9B%9E%E6%AD%B8%E4%BC%81%E5%8A%83%E9%99%90%E5%AE%9A%E6%B4%BB%E5%8B%95%E5%B0%88%E5%B1%AC%E5%A5%BD%E7%A6%AE%E9%83%BD%E5%B0%87%E9%99%B8%E7%BA%8C%E5%85%AC%E9%96%8B%E6%BA%96%E5%82%99%E6%8F%AA%E4%B8%8A%E4%BD%A0%E7%9A%84%E5%85%84/1456763303147764",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "分享": [
-            "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "巴哈姆": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "心得": [
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "AOV": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "決板": [
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "Dcard": [
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "情報": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "造型": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1"
-          ],
-          "介紹": [
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1"
-          ]
-        },
-        "dynamic_alerts": [
-          {
-            "label": "今日熱議：永恆百星前十業餘強隊踢館挑戰，珉主播展現極限操作。芽芽相關文章今日新增 3 篇，為首日發布。Facebook 平台熱度：1 篇文章引發討論。"
-          }
-        ],
-        "overflow_alerts": []
-      },
-      "stored_at": "2026-06-01T15:34:15.117572+00:00",
-      "last_accessed": "2026-06-01T15:34:15.117572+00:00",
-      "ttl_days": 7
-    },
-    "prompt:71d40d41cef61831eba8e72ad00ac8f5": {
-      "result": "今日熱議：永恆百星前十業餘強隊踢館挑戰，珉主播展現極限操作。芽芽相關文章今日新增 3 篇，為首日發布。Facebook 平台熱度：1 篇文章引發討論。",
-      "stored_at": "2026-06-01T15:34:22.806703+00:00",
-      "last_accessed": "2026-06-01T15:34:22.806703+00:00",
-      "ttl_days": 7
-    },
-    "daily_summary:2026-06-01": {
-      "result": {
-        "date": "2026-06-01",
-        "overview": "今日《傳說對決》的輿情主要集中在英雄教學、聯名活動以及遊戲更新情報。整體情緒偏向正面，玩家積極分享遊戲攻略與活動資訊，但巴哈姆特平台上出現了一些關於聯名卡活動和配對問題的負面討論。",
-        "sentiment_distribution": {
-          "positive": 7,
-          "negative": 4,
-          "neutral": 8
-        },
-        "hot_topics": [
-          {
-            "topic": "英雄教學",
-            "mention_count": 4,
-            "sentiment": "positive",
-            "description": "玩家分享多篇英雄教學攻略，幫助新手快速上手遊戲。"
-          },
-          {
-            "topic": "聯名活動",
-            "mention_count": 3,
-            "sentiment": "neutral",
-            "description": "多篇貼文提及《傳說對決》與其他品牌的聯名活動，如中信兄弟、純喫茶等。"
-          },
-          {
-            "topic": "遊戲更新",
-            "mention_count": 2,
-            "sentiment": "neutral",
-            "description": "玩家分享遊戲先行/體驗服的更新情報，討論新內容與改動。"
-          },
-          {
-            "topic": "聯名卡活動",
-            "mention_count": 2,
-            "sentiment": "negative",
-            "description": "巴哈姆特平台上出現關於星展傳說對決聯名卡活動的負面討論。"
-          },
-          {
-            "topic": "配對問題",
-            "mention_count": 1,
-            "sentiment": "negative",
-            "description": "玩家在巴哈姆特平台上抱怨遊戲配對問題。"
-          }
-        ],
-        "detected_events": [
-          {
-            "name": "《傳說對決》與中信兄弟聯名主題日",
-            "type": "聯名活動",
-            "source_count": 1,
-            "details": "宣傳《傳說對決》與中信兄弟的聯名主題日活動。"
-          },
-          {
-            "name": "星展傳說對決聯名卡活動",
-            "type": "聯名活動",
-            "source_count": 2,
-            "details": "巴哈姆特平台上出現關於星展傳說對決聯名卡活動的討論，部分玩家對活動表示不滿。"
-          }
-        ],
-        "platform_breakdown": {
-          "instagram": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "threads": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "facebook": {
-            "post_count": 1,
-            "avg_sentiment": 1.0
-          }
-        },
-        "alerts": [
-          "巴哈姆特平台上出現關於星展傳說對決聯名卡活動的負面討論，需關注玩家反饋。",
-          "玩家在巴哈姆特平台上抱怨遊戲配對問題，需進一步調查並改善。"
-        ],
-        "recommendation": "建議營運團隊針對巴哈姆特平台上關於聯名卡活動和配對問題的負面討論進行調查，並及時回應玩家疑慮，以維護遊戲形象。",
-        "global_insights": {
-          "TW": {
-            "summary": "小珉分享自己的遊戲影片並邀請觀眾訂閱與追蹤。",
-            "hot_hero": "無特定英雄"
-          }
-        },
-        "hero_focus": {
-          "name": "無特定英雄",
-          "summary": "今日無特定英雄成為焦點，輿情主要集中在遊戲攻略與活動資訊。",
-          "sentiment_score": 0.5,
-          "top_comments": []
-        },
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        },
-        "total_posts": 19,
-        "hero_stats": {},
-        "wordcloud": {
-          "positive": [
-            {
-              "text": "傳說對決板",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "Dcard",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "Free",
-              "weight": 22,
-              "count": 7
-            },
-            {
-              "text": "情報",
-              "weight": 22,
-              "count": 7
-            },
-            {
-              "text": "標籤等級",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "空間魔晶x1",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "06",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "心得分享",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "英雄專屬碎片箱x",
-              "weight": 16,
-              "count": 3
-            },
-            {
-              "text": "傳說對決",
-              "weight": 16,
-              "count": 3
-            },
-            {
-              "text": "造型情報專區",
-              "weight": 15,
-              "count": 2
-            },
-            {
-              "text": "造型活動情報集中",
-              "weight": 15,
-              "count": 2
-            }
-          ],
-          "negative": [
-            {
-              "text": "巴哈姆特",
-              "weight": 24,
-              "count": 4
-            },
-            {
-              "text": "AOV",
-              "weight": 24,
-              "count": 4
-            },
-            {
-              "text": "哈啦板",
-              "weight": 24,
-              "count": 4
-            },
-            {
-              "text": "問題",
-              "weight": 18,
-              "count": 2
-            },
-            {
-              "text": "其他",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "傳說對決星展信用",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "邀請碼",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "263",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "情報",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "星展傳說對決聯名",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "遊戲內卡友專屬活",
-              "weight": 15,
-              "count": 1
-            },
-            {
-              "text": "開卡送緹莉",
-              "weight": 15,
-              "count": 1
-            }
-          ]
-        },
-        "top_links": [
-          {
-            "title": "大家好我是小珉，目前段位是永恆傳說主要頻...",
-            "url": "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "platform": "youtube"
-          },
-          {
-            "title": "# RE:造型情報專區 │ 造型活動情報...",
-            "url": "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "platform": "web"
-          },
-          {
-            "title": "聯名主題日 ⚾活動日期：2026/06/...",
-            "url": "https://www.facebook.com/AoVTW/posts/%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E5%90%88%E4%BD%9C%E7%A2%BA%E8%AA%8D%E5%85%84%E5%BC%9F%E7%B2%BE%E7%A5%9E%E6%98%AF%E7%9C%9F%E7%9A%84%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E8%88%87%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E7%9A%84%E8%B7%A8%E7%95%8C%E8%81%AF%E5%90%8D%E4%B8%BB%E9%A1%8C%E6%97%A5%E5%8D%B3%E5%B0%87%E7%86%B1%E8%A1%80%E7%99%BB%E5%A0%B4%E5%BE%9E%E5%82%B3%E8%AA%AA%E6%88%B0%E5%A0%B4%E5%88%B0%E6%B4%B2%E9%9A%9B%E6%A3%92%E7%90%83%E5%A0%B4%E7%89%B9%E5%88%A5%E5%9B%9E%E6%AD%B8%E4%BC%81%E5%8A%83%E9%99%90%E5%AE%9A%E6%B4%BB%E5%8B%95%E5%B0%88%E5%B1%AC%E5%A5%BD%E7%A6%AE%E9%83%BD%E5%B0%87%E9%99%B8%E7%BA%8C%E5%85%AC%E9%96%8B%E6%BA%96%E5%82%99%E6%8F%AA%E4%B8%8A%E4%BD%A0%E7%9A%84%E5%85%84/1456763303147764",
-            "platform": "facebook"
-          }
-        ],
-        "real_hot_topics": [
-          {
-            "word": "傳說",
-            "count": 18
-          },
-          {
-            "word": "分享",
-            "count": 10
-          },
-          {
-            "word": "巴哈姆",
-            "count": 9
-          },
-          {
-            "word": "心得",
-            "count": 9
-          },
-          {
-            "word": "AOV",
-            "count": 9
-          },
-          {
-            "word": "決板",
-            "count": 8
-          },
-          {
-            "word": "Dcard",
-            "count": 8
-          },
-          {
-            "word": "情報",
-            "count": 6
-          },
-          {
-            "word": "造型",
-            "count": 4
-          },
-          {
-            "word": "介紹",
-            "count": 3
-          }
-        ],
-        "topic_to_posts": {
-          "傳說": [
-            "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://www.facebook.com/AoVTW/posts/%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E5%90%88%E4%BD%9C%E7%A2%BA%E8%AA%8D%E5%85%84%E5%BC%9F%E7%B2%BE%E7%A5%9E%E6%98%AF%E7%9C%9F%E7%9A%84%E5%82%B3%E8%AA%AA%E5%B0%8D%E6%B1%BA%E8%88%87%E4%B8%AD%E4%BF%A1%E5%85%84%E5%BC%9F%E7%9A%84%E8%B7%A8%E7%95%8C%E8%81%AF%E5%90%8D%E4%B8%BB%E9%A1%8C%E6%97%A5%E5%8D%B3%E5%B0%87%E7%86%B1%E8%A1%80%E7%99%BB%E5%A0%B4%E5%BE%9E%E5%82%B3%E8%AA%AA%E6%88%B0%E5%A0%B4%E5%88%B0%E6%B4%B2%E9%9A%9B%E6%A3%92%E7%90%83%E5%A0%B4%E7%89%B9%E5%88%A5%E5%9B%9E%E6%AD%B8%E4%BC%81%E5%8A%83%E9%99%90%E5%AE%9A%E6%B4%BB%E5%8B%95%E5%B0%88%E5%B1%AC%E5%A5%BD%E7%A6%AE%E9%83%BD%E5%B0%87%E9%99%B8%E7%BA%8C%E5%85%AC%E9%96%8B%E6%BA%96%E5%82%99%E6%8F%AA%E4%B8%8A%E4%BD%A0%E7%9A%84%E5%85%84/1456763303147764",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "分享": [
-            "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "巴哈姆": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "心得": [
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "AOV": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "決板": [
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "Dcard": [
-            "https://www.dcard.tw/f/aov/p/257800838",
-            "https://www.dcard.tw/f/aov/p/259487238",
-            "https://www.dcard.tw/f/aov/p/259005574",
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.dcard.tw/f/aov/p/258517884",
-            "https://www.dcard.tw/f/aov/p/261575513",
-            "https://www.dcard.tw/f/aov/p/252965598",
-            "https://www.dcard.tw/f/aov/p/257811834"
-          ],
-          "情報": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
-          ],
-          "造型": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=367",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1"
-          ],
-          "介紹": [
-            "https://www.dcard.tw/f/aov/p/259786555",
-            "https://www.youtube.com/watch?v=aifkubYJN2A",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=39095&tnum=1161&last=1"
-          ]
-        },
-        "dynamic_alerts": [
-          {
-            "label": "今日熱議：永恆百星前十業餘強隊踢館挑戰，珉主播展現極限操作。芽芽相關文章今日新增 3 篇，為首日發布。Facebook 平台熱度：1 篇文章引發討論。"
-          }
-        ],
-        "overflow_alerts": []
-      },
-      "stored_at": "2026-06-01T15:34:22.809914+00:00",
-      "last_accessed": "2026-06-01T15:34:22.809914+00:00",
-      "ttl_days": 7
-    },
-    "prompt:836b039650ef116d45836ba7a2d6c5ab": {
-      "result": {
-        "reasoning": "玩家分享了一段關於《傳說對決》巨人版本的影片，並提到官方對某英雄進行了調整，語氣中帶有支持與認同，並無反諷意圖。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "版本更新",
-        "keywords": [
-          "傳說對決",
-          "巨人版本",
-          "官方",
-          "英雄",
-          "調整"
-        ],
-        "summary": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:10:25.185191+00:00",
-      "last_accessed": "2026-06-02T11:10:25.185191+00:00",
-      "ttl_days": 7
-    },
-    "prompt:d64a3ff5ec34a153a8449778bc3bf0bc": {
-      "result": {
-        "reasoning": "玩家在社群平台上公開徵求購買特定造型的遊戲帳號，並與其他用戶進行交易討論，顯示其對遊戲造型的熱衷與需求。",
+        "reasoning": "玩家在貼文中明確表達了尋找隊友的意圖，屬於直接的社群互動請求，沒有隱含的反諷或潛台詞。",
         "sentiment": "neutral",
         "sentiment_score": 0.5,
         "region": "TW",
@@ -1555,65 +250,11 @@
         "translated_content": "",
         "category": "社群互動",
         "keywords": [
-          "收帳號",
-          "刀鋒雅絲娜",
-          "末世龍焰",
-          "造型"
+          "徵求隊友",
+          "一般",
+          "星耀排位"
         ],
-        "summary": "玩家公開徵求擁有特定造型的遊戲帳號。",
-        "relevance_score": 0.8,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:10:32.358711+00:00",
-      "last_accessed": "2026-06-02T12:27:36.266124+00:00",
-      "ttl_days": 7
-    },
-    "prompt:7458704364ef85ef97f37934cb7285dc": {
-      "result": {
-        "reasoning": "玩家貼文內容看似混亂，但提及了 Thane 的 Buff 和 Toro 的 Nerf，並標記了越南的 AOV 更新，顯示其對遊戲平衡調整的關注。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "VN",
-        "original_language": "en",
-        "translated_content": "[Buff Thane nerf Toro buff Thane Cre AOV Update Vietnam #tng #thane ...] CINEMATIC TRAILER – THANE: GLORIOUS MOMENT – APL 2025 | Garena Arena of Valor Sometimes, the greatest obstacle standing in your way is none other than",
-        "category": "版本更新",
-        "keywords": [
-          "Thane",
-          "Toro",
-          "Buff",
-          "Nerf",
-          "AOV Update"
-        ],
-        "summary": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。",
-        "relevance_score": 0.8,
-        "is_hero_focus": true,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:10:40.559699+00:00",
-      "last_accessed": "2026-06-02T11:10:40.559699+00:00",
-      "ttl_days": 7
-    },
-    "prompt:2e66880f105fddcfdc1619e8c09593b8": {
-      "result": {
-        "reasoning": "貼文標題為『心得分享 爬分筆記 非喜勿入』，顯示作者有意分享遊戲心得，並提醒不感興趣的讀者勿入，無反諷意圖。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "心得分享",
-          "爬分筆記"
-        ],
-        "summary": "作者分享爬分心得筆記，並提醒不感興趣者勿入。",
+        "summary": "玩家在Dcard上徵求一般或星耀排位的隊友。",
         "relevance_score": 1.0,
         "is_hero_focus": false,
         "llm_contract": {
@@ -1621,659 +262,13 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-02T11:10:46.261791+00:00",
-      "last_accessed": "2026-06-03T12:57:06.384234+00:00",
+      "stored_at": "2026-06-14T17:11:32.645696+00:00",
+      "last_accessed": "2026-06-14T17:11:32.645696+00:00",
       "ttl_days": 7
     },
-    "prompt:04a16027ae31d8635a3c94f440c87b15": {
+    "prompt:f118ed97d884ab95d10f872e5e76598d": {
       "result": {
-        "reasoning": "貼文標題為『心得分享 輔助觀念』，推測內容應為玩家分享輔助角色的遊戲觀念與技巧，屬於正向的經驗分享。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "心得分享",
-          "輔助觀念"
-        ],
-        "summary": "玩家分享輔助角色的遊戲觀念與技巧。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:10:50.337097+00:00",
-      "last_accessed": "2026-06-03T12:57:06.379799+00:00",
-      "ttl_days": 7
-    },
-    "prompt:5d7f69646ebd1021a721fc853ec25101": {
-      "result": {
-        "reasoning": "玩家表達對遊戲更新中戰場傳說分層的正面看法，並分享心得，無反諷意圖。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "版本更新",
-        "keywords": [
-          "戰場傳說",
-          "分層"
-        ],
-        "summary": "玩家對戰場傳說分層的更新感到滿意並分享心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:10:55.116133+00:00",
-      "last_accessed": "2026-06-02T11:10:55.116133+00:00",
-      "ttl_days": 7
-    },
-    "prompt:ab752742ed0a0321fa769037de8f6512": {
-      "result": {
-        "reasoning": "玩家在標題中使用了『打傳說打到快瘋掉』，這是一種誇張的表達方式，顯示出玩家對遊戲體驗的極度不滿或壓力。",
-        "sentiment": "negative",
-        "sentiment_score": 0.2,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "心得分享",
-          "傳說對決",
-          "瘋掉"
-        ],
-        "summary": "玩家分享打傳說對決的負面遊戲體驗，感到快要瘋掉。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:11:00.508114+00:00",
-      "last_accessed": "2026-06-02T11:11:00.508114+00:00",
-      "ttl_days": 7
-    },
-    "prompt:f28e1ac46d519ecced7de24b379d0246": {
-      "result": {
-        "reasoning": "貼文內容簡短，僅提及星展信用卡邀請碼，並未表達任何情緒或意圖，屬於單純的資訊分享。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "其他",
-        "keywords": [
-          "星展信用卡",
-          "邀請碼"
-        ],
-        "summary": "貼文分享傳說對決與星展信用卡合作的邀請碼資訊。",
-        "relevance_score": 0.8,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-02T11:11:05.265710+00:00",
-      "last_accessed": "2026-06-02T11:11:05.265710+00:00",
-      "ttl_days": 7
-    },
-    "prompt:9ec9e3290053d19321927c6ac51b4283": {
-      "result": {
-        "date": "2026-06-02",
-        "overview": "今日《傳說對決》的輿情主要集中在遊戲更新、英雄調整以及合作活動的討論。整體情緒偏向中性，但也有部分玩家對遊戲體驗表達了不滿。",
-        "sentiment_distribution": {
-          "positive": 5,
-          "negative": 4,
-          "neutral": 10
-        },
-        "hot_topics": [
-          {
-            "topic": "巨人版本英雄調整",
-            "mention_count": 1,
-            "sentiment": "positive",
-            "description": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。"
-          },
-          {
-            "topic": "Thane 的 Buff 和 Toro 的 Nerf",
-            "mention_count": 1,
-            "sentiment": "neutral",
-            "description": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。"
-          },
-          {
-            "topic": "星展傳說對決聯名卡活動",
-            "mention_count": 1,
-            "sentiment": "negative",
-            "description": "玩家對星展傳說對決聯名卡活動的延長表示不滿。"
-          },
-          {
-            "topic": "遊戲配對問題",
-            "mention_count": 1,
-            "sentiment": "negative",
-            "description": "玩家對遊戲配對系統的問題表達了不滿。"
-          }
-        ],
-        "detected_events": [
-          {
-            "name": "星展傳說對決聯名卡活動",
-            "type": "合作活動",
-            "source_count": 1,
-            "details": "活動延長至2026/06/30，開卡送緹莉-星夢展航造型。"
-          },
-          {
-            "name": "MEN’s Bioré X 傳說對決聯名",
-            "type": "合作活動",
-            "source_count": 1,
-            "details": "MEN’s Bioré 10倍炭*控油系列與《傳說對決》聯名。"
-          },
-          {
-            "name": "純喫茶 X 傳說對決聯名",
-            "type": "合作活動",
-            "source_count": 1,
-            "details": "購買純喫茶可抽次元突破造型及專屬表情。"
-          }
-        ],
-        "platform_breakdown": {
-          "instagram": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "threads": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "facebook": {
-            "post_count": 2,
-            "avg_sentiment": 0.5
-          }
-        },
-        "alerts": [
-          "玩家對星展傳說對決聯名卡活動的延長表示不滿。",
-          "玩家對遊戲配對系統的問題表達了不滿。"
-        ],
-        "recommendation": "建議營運團隊針對玩家對遊戲配對系統的不滿進行調查與改善，並考慮對合作活動的延長進行更透明的溝通，以減少玩家的負面情緒。",
-        "global_insights": {
-          "TW": {
-            "summary": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。",
-            "hot_hero": "無特定英雄"
-          },
-          "VN": {
-            "summary": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。",
-            "hot_hero": "無特定英雄"
-          }
-        },
-        "hero_focus": {
-          "name": "無特定英雄",
-          "summary": "今日無特定英雄成為焦點。",
-          "sentiment_score": 0.5,
-          "top_comments": []
-        },
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        },
-        "total_posts": 19,
-        "hero_stats": {},
-        "wordcloud": {
-          "positive": [
-            {
-              "text": "傳說對決板",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "Dcard",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "心得分享",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "com",
-              "weight": 15,
-              "count": 2
-            },
-            {
-              "text": "支持娘子加入頻道",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "會員",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "https",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "www",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "youtube",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "channel",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "UCynWG4Y",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "CLNr8JC1",
-              "weight": 13,
-              "count": 1
-            }
-          ],
-          "negative": [
-            {
-              "text": "巴哈姆特",
-              "weight": 24,
-              "count": 3
-            },
-            {
-              "text": "AOV",
-              "weight": 24,
-              "count": 3
-            },
-            {
-              "text": "哈啦板",
-              "weight": 24,
-              "count": 3
-            },
-            {
-              "text": "傳說對決板",
-              "weight": 20,
-              "count": 2
-            },
-            {
-              "text": "Dcard",
-              "weight": 20,
-              "count": 2
-            },
-            {
-              "text": "問題",
-              "weight": 20,
-              "count": 2
-            },
-            {
-              "text": "心得分享",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "打傳說打到快瘋掉",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "情報",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "星展傳說對決聯名",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "遊戲內卡友專屬活",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "開卡送緹莉",
-              "weight": 16,
-              "count": 1
-            }
-          ]
-        },
-        "top_links": [
-          {
-            "title": "支持娘子加入頻道會員：https://w...",
-            "url": "https://www.youtube.com/watch?v=qXaP3BFrkGk",
-            "platform": "youtube"
-          },
-          {
-            "title": "#心得分享 爬分筆記 非喜勿入 - 傳說...",
-            "url": "https://www.dcard.tw/f/aov/p/257954977",
-            "platform": "dcard"
-          },
-          {
-            "title": "#心得分享 2025凱撒路推薦&康特 -...",
-            "url": "https://www.dcard.tw/f/aov/p/257800838",
-            "platform": "dcard"
-          }
-        ],
-        "real_hot_topics": [],
-        "topic_to_posts": {},
-        "dynamic_alerts": [
-          {
-            "label": "今日熱議：官方終於對巨人版本英雄做出平衡調整，被玩家譽為史上最合理改動"
-          },
-          {
-            "label": "芽芽相關討論文章今日新增2篇，較昨日增加2篇"
-          },
-          {
-            "label": "Facebook平台今日出現2篇相關熱門討論"
-          }
-        ],
-        "overflow_alerts": []
-      },
-      "stored_at": "2026-06-02T11:11:34.365794+00:00",
-      "last_accessed": "2026-06-02T11:11:34.365794+00:00",
-      "ttl_days": 7
-    },
-    "prompt:ab6b291aaf74a23a9a9e10cb4703fb1c": {
-      "result": "今日熱議：官方終於對巨人版本英雄做出平衡調整，被玩家譽為史上最合理改動\n\n芽芽相關討論文章今日新增2篇，較昨日增加2篇\n\nFacebook平台今日出現2篇相關熱門討論",
-      "stored_at": "2026-06-02T11:11:37.144392+00:00",
-      "last_accessed": "2026-06-02T11:11:37.144392+00:00",
-      "ttl_days": 7
-    },
-    "daily_summary:2026-06-02": {
-      "result": {
-        "date": "2026-06-02",
-        "overview": "今日《傳說對決》的輿情主要集中在遊戲更新、英雄調整以及合作活動的討論。整體情緒偏向中性，但也有部分玩家對遊戲體驗表達了不滿。",
-        "sentiment_distribution": {
-          "positive": 5,
-          "negative": 4,
-          "neutral": 10
-        },
-        "hot_topics": [
-          {
-            "topic": "巨人版本英雄調整",
-            "mention_count": 1,
-            "sentiment": "positive",
-            "description": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。"
-          },
-          {
-            "topic": "Thane 的 Buff 和 Toro 的 Nerf",
-            "mention_count": 1,
-            "sentiment": "neutral",
-            "description": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。"
-          },
-          {
-            "topic": "星展傳說對決聯名卡活動",
-            "mention_count": 1,
-            "sentiment": "negative",
-            "description": "玩家對星展傳說對決聯名卡活動的延長表示不滿。"
-          },
-          {
-            "topic": "遊戲配對問題",
-            "mention_count": 1,
-            "sentiment": "negative",
-            "description": "玩家對遊戲配對系統的問題表達了不滿。"
-          }
-        ],
-        "detected_events": [
-          {
-            "name": "星展傳說對決聯名卡活動",
-            "type": "合作活動",
-            "source_count": 1,
-            "details": "活動延長至2026/06/30，開卡送緹莉-星夢展航造型。"
-          },
-          {
-            "name": "MEN’s Bioré X 傳說對決聯名",
-            "type": "合作活動",
-            "source_count": 1,
-            "details": "MEN’s Bioré 10倍炭*控油系列與《傳說對決》聯名。"
-          },
-          {
-            "name": "純喫茶 X 傳說對決聯名",
-            "type": "合作活動",
-            "source_count": 1,
-            "details": "購買純喫茶可抽次元突破造型及專屬表情。"
-          }
-        ],
-        "platform_breakdown": {
-          "instagram": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "threads": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
-          },
-          "facebook": {
-            "post_count": 2,
-            "avg_sentiment": 0.5
-          }
-        },
-        "alerts": [
-          "玩家對星展傳說對決聯名卡活動的延長表示不滿。",
-          "玩家對遊戲配對系統的問題表達了不滿。"
-        ],
-        "recommendation": "建議營運團隊針對玩家對遊戲配對系統的不滿進行調查與改善，並考慮對合作活動的延長進行更透明的溝通，以減少玩家的負面情緒。",
-        "global_insights": {
-          "TW": {
-            "summary": "玩家分享巨人版本中官方對某英雄的調整，並表達支持。",
-            "hot_hero": "無特定英雄"
-          },
-          "VN": {
-            "summary": "玩家討論 Thane 的 Buff 和 Toro 的 Nerf，並提及越南的 AOV 更新。",
-            "hot_hero": "無特定英雄"
-          }
-        },
-        "hero_focus": {
-          "name": "無特定英雄",
-          "summary": "今日無特定英雄成為焦點。",
-          "sentiment_score": 0.5,
-          "top_comments": []
-        },
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        },
-        "total_posts": 19,
-        "hero_stats": {},
-        "wordcloud": {
-          "positive": [
-            {
-              "text": "傳說對決板",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "Dcard",
-              "weight": 24,
-              "count": 8
-            },
-            {
-              "text": "心得分享",
-              "weight": 18,
-              "count": 4
-            },
-            {
-              "text": "com",
-              "weight": 15,
-              "count": 2
-            },
-            {
-              "text": "支持娘子加入頻道",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "會員",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "https",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "www",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "youtube",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "channel",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "UCynWG4Y",
-              "weight": 13,
-              "count": 1
-            },
-            {
-              "text": "CLNr8JC1",
-              "weight": 13,
-              "count": 1
-            }
-          ],
-          "negative": [
-            {
-              "text": "巴哈姆特",
-              "weight": 24,
-              "count": 3
-            },
-            {
-              "text": "AOV",
-              "weight": 24,
-              "count": 3
-            },
-            {
-              "text": "哈啦板",
-              "weight": 24,
-              "count": 3
-            },
-            {
-              "text": "傳說對決板",
-              "weight": 20,
-              "count": 2
-            },
-            {
-              "text": "Dcard",
-              "weight": 20,
-              "count": 2
-            },
-            {
-              "text": "問題",
-              "weight": 20,
-              "count": 2
-            },
-            {
-              "text": "心得分享",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "打傳說打到快瘋掉",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "情報",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "星展傳說對決聯名",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "遊戲內卡友專屬活",
-              "weight": 16,
-              "count": 1
-            },
-            {
-              "text": "開卡送緹莉",
-              "weight": 16,
-              "count": 1
-            }
-          ]
-        },
-        "top_links": [
-          {
-            "title": "支持娘子加入頻道會員：https://w...",
-            "url": "https://www.youtube.com/watch?v=qXaP3BFrkGk",
-            "platform": "youtube"
-          },
-          {
-            "title": "#心得分享 爬分筆記 非喜勿入 - 傳說...",
-            "url": "https://www.dcard.tw/f/aov/p/257954977",
-            "platform": "dcard"
-          },
-          {
-            "title": "#心得分享 2025凱撒路推薦&康特 -...",
-            "url": "https://www.dcard.tw/f/aov/p/257800838",
-            "platform": "dcard"
-          }
-        ],
-        "real_hot_topics": [],
-        "topic_to_posts": {},
-        "dynamic_alerts": [
-          {
-            "label": "今日熱議：官方終於對巨人版本英雄做出平衡調整，被玩家譽為史上最合理改動"
-          },
-          {
-            "label": "芽芽相關討論文章今日新增2篇，較昨日增加2篇"
-          },
-          {
-            "label": "Facebook平台今日出現2篇相關熱門討論"
-          }
-        ],
-        "overflow_alerts": []
-      },
-      "stored_at": "2026-06-02T11:11:37.151391+00:00",
-      "last_accessed": "2026-06-02T11:11:37.151391+00:00",
-      "ttl_days": 7
-    },
-    "prompt:f8400b9288eed89a55c26df6aebaa07f": {
-      "result": {
-        "reasoning": "玩家對官方將造型分配給不同英雄的策略表示不滿，認為這種做法缺乏一致性且令人困惑。雖然語氣中帶有抱怨，但並未使用過激言辭，更多是表達對官方決策的不理解。",
-        "sentiment": "negative",
-        "sentiment_score": 0.3,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "角色討論",
-        "keywords": [
-          "拓冥",
-          "瑟斐斯",
-          "造型",
-          "官方策略"
-        ],
-        "summary": "玩家批評官方將拓冥的造型分配給瑟斐斯的策略令人不解。",
-        "relevance_score": 0.9,
-        "is_hero_focus": true
-      },
-      "stored_at": "2026-06-02T12:27:36.262534+00:00",
-      "last_accessed": "2026-06-02T12:27:36.262534+00:00",
-      "ttl_days": 7
-    },
-    "prompt:27c6f0a3040c388fbd5e63052099f185": {
-      "result": {
-        "reasoning": "貼文中提到『#comebackheinodolialimi』，暗示玩家希望某個角色或活動回歸，但未明確表達情緒傾向。",
+        "reasoning": "玩家在徵求隊友，表達了希望找到合適的隊友一起進行遊戲的意圖，沒有反諷或隱含的情緒。",
         "sentiment": "neutral",
         "sentiment_score": 0.5,
         "region": "TW",
@@ -2281,166 +276,10 @@
         "translated_content": "",
         "category": "社群互動",
         "keywords": [
-          "comeback",
-          "heinodolialimi"
+          "徵求隊友",
+          "星耀3-2"
         ],
-        "summary": "玩家希望某個角色或活動回歸。",
-        "relevance_score": 0.7,
-        "is_hero_focus": false
-      },
-      "stored_at": "2026-06-02T12:27:41.567023+00:00",
-      "last_accessed": "2026-06-02T12:27:41.567023+00:00",
-      "ttl_days": 7
-    },
-    "prompt:a66e482eaa470218b597d6027fa1b089": {
-      "result": {
-        "reasoning": "貼文標題提到『如何不打戰力角也可以全服』，這是一種分享遊戲心得的意圖，並未帶有反諷或隱含情緒。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "心得分享",
-          "戰力角",
-          "全服"
-        ],
-        "summary": "分享不打戰力角也能在全服取得成就的心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false
-      },
-      "stored_at": "2026-06-02T12:27:46.449626+00:00",
-      "last_accessed": "2026-06-02T12:27:46.449626+00:00",
-      "ttl_days": 7
-    },
-    "prompt:1c0085cb5fb58a3682c427295ce767f8": {
-      "result": {
-        "reasoning": "此貼文為新手向教學文的標題，內容尚未提供，但標題顯示其目的是為了幫助新手玩家理解遊戲，屬於正向意圖。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "新手",
-          "教學"
-        ],
-        "summary": "這是一篇針對新手玩家的教學文。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false
-      },
-      "stored_at": "2026-06-02T12:27:51.235968+00:00",
-      "last_accessed": "2026-06-02T12:27:51.235968+00:00",
-      "ttl_days": 7
-    },
-    "prompt:2297ffd9406c236e8b3e5de29fff017b": {
-      "result": {
-        "reasoning": "貼文標題明確提及『綺羅教學』，顯示作者意圖分享關於角色綺羅的遊戲技巧或心得，並無反諷或隱含意圖。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "角色討論",
-        "keywords": [
-          "綺羅",
-          "教學",
-          "心得分享"
-        ],
-        "summary": "作者分享關於角色綺羅的教學與心得。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true
-      },
-      "stored_at": "2026-06-02T12:27:57.104027+00:00",
-      "last_accessed": "2026-06-02T12:27:57.104027+00:00",
-      "ttl_days": 7
-    },
-    "prompt:403b82cb39a658ee6922e1c0cd645afe": {
-      "result": {
-        "reasoning": "玩家分享新賽季英雄平衡性調整的數據分析，內容偏向客觀討論，並未明顯表達正面或負面情緒。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "版本更新",
-        "keywords": [
-          "新賽季",
-          "英雄平衡性",
-          "數據分析"
-        ],
-        "summary": "玩家分享新賽季英雄平衡性調整的數據分析。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false
-      },
-      "stored_at": "2026-06-02T12:28:02.075352+00:00",
-      "last_accessed": "2026-06-02T12:28:02.075352+00:00",
-      "ttl_days": 7
-    },
-    "prompt:278084a39ed48857ec347299281f3294": {
-      "result": {
-        "reasoning": "玩家對新英雄拓冥的造型被其他英雄奪走感到不滿，並質疑官方的策略，認為這種做法匪夷所思。雖然語氣帶有抱怨，但並未使用極端負面的詞彙，更多是表達困惑與無奈。",
-        "sentiment": "negative",
-        "sentiment_score": 0.3,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "角色討論",
-        "keywords": [
-          "拓冥",
-          "造型",
-          "官方策略",
-          "瑟斐斯"
-        ],
-        "summary": "玩家對新英雄拓冥的造型被其他英雄奪走感到不滿，並質疑官方的策略。",
-        "relevance_score": 0.9,
-        "is_hero_focus": true
-      },
-      "stored_at": "2026-06-02T14:36:03.636415+00:00",
-      "last_accessed": "2026-06-02T14:36:03.636415+00:00",
-      "ttl_days": 7
-    },
-    "prompt:bd7d1bd7cb0668bb2e87ac6d30187135": {
-      "result": {
-        "reasoning": "貼文中包含對蘇離角色重製的不滿，並呼籲撤回重製，顯示玩家對遊戲改動的強烈反對。同時，貼文也提及了遊戲內的活動資訊，表達對活動的期待與正面情緒。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "角色討論",
-        "keywords": [
-          "蘇離",
-          "重製",
-          "天美",
-          "新技能",
-          "新角色"
-        ],
-        "summary": "玩家呼籲撤回蘇離重製，並期待遊戲內的熱血六月活動。",
-        "relevance_score": 1.0,
-        "is_hero_focus": true
-      },
-      "stored_at": "2026-06-02T14:36:11.429540+00:00",
-      "last_accessed": "2026-06-02T14:36:11.429540+00:00",
-      "ttl_days": 7
-    },
-    "prompt:fae524a5236dece56eefbb55a1b943d4": {
-      "result": {
-        "reasoning": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈，並使用了『嚴肅驗牌完全被詐賭』來形容這種情況，帶有幽默與無奈的情緒。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "遊戲體驗",
-        "keywords": [
-          "凱撒",
-          "海牛",
-          "元流射手"
-        ],
-        "summary": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈。",
+        "summary": "玩家在徵求星耀3-2的隊友。",
         "relevance_score": 1.0,
         "is_hero_focus": false,
         "llm_contract": {
@@ -2448,13 +287,13 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-03T12:56:56.759806+00:00",
-      "last_accessed": "2026-06-03T12:56:56.759806+00:00",
+      "stored_at": "2026-06-14T17:11:39.937402+00:00",
+      "last_accessed": "2026-06-14T17:11:39.937402+00:00",
       "ttl_days": 7
     },
-    "prompt:d94107c20d96834c39ae181f57159155": {
+    "prompt:9b5b08f50a0654ee1baa2244f69a8de2": {
       "result": {
-        "reasoning": "玩家詢問是否有人也無法登入遊戲，這是一個直接的疑問，並無反諷或隱含意圖。",
+        "reasoning": "玩家在討論如何增加拉維爾應援幣，顯示出對遊戲內應援幣系統的關注與需求，並無反諷意圖。",
         "sentiment": "neutral",
         "sentiment_score": 0.5,
         "region": "TW",
@@ -2462,90 +301,10 @@
         "translated_content": "",
         "category": "遊戲體驗",
         "keywords": [
-          "登入",
-          "遊戲"
+          "拉維爾",
+          "應援幣"
         ],
-        "summary": "玩家詢問是否有人也無法登入遊戲。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-03T12:57:02.162729+00:00",
-      "last_accessed": "2026-06-03T12:57:02.162729+00:00",
-      "ttl_days": 7
-    },
-    "prompt:f47a97e302af49bbf0ae3e1093134b77": {
-      "result": {
-        "reasoning": "貼文內容為宣傳 AWC 和 MDI 賽事的資訊，並提供相關連結，屬於官方活動公告，無反諷或隱含意圖。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "電競賽事",
-        "keywords": [
-          "AWC",
-          "MDI",
-          "賽事",
-          "決賽"
-        ],
-        "summary": "貼文宣傳 AWC 和 MDI 賽事的決賽資訊。",
-        "relevance_score": 1.0,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-03T12:57:06.376162+00:00",
-      "last_accessed": "2026-06-03T12:57:06.376162+00:00",
-      "ttl_days": 7
-    },
-    "prompt:c1ad5a2c831e8146149e635e790c2565": {
-      "result": {
-        "reasoning": "貼文內容僅為標題，未提供具體討論內容，無法推論玩家真實意圖或潛台詞。",
-        "sentiment": "neutral",
-        "sentiment_score": 0.5,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "其他",
-        "keywords": [
-          "心得分享",
-          "Lantyr",
-          "BRO MIRUKI"
-        ],
-        "summary": "貼文僅提及心得分享，未提供具體內容。",
-        "relevance_score": 0.8,
-        "is_hero_focus": false,
-        "llm_contract": {
-          "status": "ok",
-          "errors": []
-        }
-      },
-      "stored_at": "2026-06-03T12:57:23.379694+00:00",
-      "last_accessed": "2026-06-03T12:57:23.379694+00:00",
-      "ttl_days": 7
-    },
-    "prompt:de93f4bd6067336f48b5a47d42fae37c": {
-      "result": {
-        "reasoning": "貼文為活動資訊公告，內容明確且無反諷或隱含意圖，純粹告知玩家活動延長的消息。",
-        "sentiment": "positive",
-        "sentiment_score": 0.8,
-        "region": "TW",
-        "original_language": "zh",
-        "translated_content": "",
-        "category": "活動資訊",
-        "keywords": [
-          "星展傳說對決聯名卡",
-          "緹莉",
-          "星夢展航造型",
-          "活動延長"
-        ],
-        "summary": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉-星夢展航造型。",
+        "summary": "玩家討論如何增加拉維爾應援幣。",
         "relevance_score": 1.0,
         "is_hero_focus": true,
         "llm_contract": {
@@ -2553,96 +312,104 @@
           "errors": []
         }
       },
-      "stored_at": "2026-06-03T12:57:36.362678+00:00",
-      "last_accessed": "2026-06-03T12:57:36.362678+00:00",
+      "stored_at": "2026-06-14T17:11:48.144957+00:00",
+      "last_accessed": "2026-06-14T17:11:48.144957+00:00",
       "ttl_days": 7
     },
-    "prompt:bfbf53da6cf33686f5226d7b58a8a2d3": {
+    "prompt:64610d0e2377372346ba5ec440f9d3c0": {
       "result": {
-        "date": "2026-06-03",
-        "overview": "今日《傳說對決》的輿情主要集中在玩家分享遊戲心得與技巧，以及對特定英雄（如芽芽和皮皮）的討論。整體情緒偏向中性，但部分玩家對芽芽的角色設計和遊戲體驗表達了不滿。此外，賽事資訊和聯名活動也受到一定關注。",
+        "date": "2026-06-15",
+        "overview": "今日《傳說對決》的輿情主要集中在活動宣傳、角色討論與遊戲體驗分享。整體情緒偏向中性，但巴哈姆特平台上出現較多負面討論，特別是關於芽芽和皮皮的角色問題。Instagram 和 YouTube 的貼文則以宣傳賽事和活動為主，情緒較為正面。",
         "sentiment_distribution": {
-          "positive": 5,
-          "negative": 8,
-          "neutral": 22
+          "positive": 7,
+          "negative": 17,
+          "neutral": 25
         },
         "hot_topics": [
           {
-            "topic": "芽芽角色討論",
+            "topic": "芽芽角色爭議",
             "mention_count": 10,
             "sentiment": "negative",
-            "description": "玩家對芽芽的角色設計、技能Bug及遊戲體驗表達不滿，認為其過於強勢且難以應對。"
+            "description": "玩家對芽芽的技能設計與遊戲平衡性提出質疑，部分玩家認為芽芽過於強勢且難以應對。"
           },
           {
             "topic": "皮皮角色討論",
             "mention_count": 8,
             "sentiment": "neutral",
-            "description": "玩家討論皮皮的技能改動、雙排組合以及如何避免坑隊友，情緒偏向中性。"
+            "description": "玩家討論皮皮的技能改動與雙排組合推薦，部分玩家對其技能調整表示困惑。"
           },
           {
-            "topic": "賽事資訊",
-            "mention_count": 3,
-            "sentiment": "neutral",
-            "description": "AWC和MDI賽事的決賽資訊受到關注，玩家對賽事進展保持中立態度。"
-          },
-          {
-            "topic": "聯名活動",
-            "mention_count": 4,
-            "sentiment": "neutral",
-            "description": "與多力多滋、純喫茶等品牌的聯名活動引發討論，玩家對活動內容保持中立。"
-          },
-          {
-            "topic": "遊戲攻略分享",
+            "topic": "傳說運動會活動",
             "mention_count": 5,
             "sentiment": "positive",
-            "description": "玩家分享圖倫、凱撒路等英雄的攻略與技巧，幫助新手快速上手，情緒偏向正面。"
+            "description": "玩家對六月舉辦的傳說運動會活動表示期待，並分享相關資訊。"
+          },
+          {
+            "topic": "單排遊戲體驗",
+            "mention_count": 4,
+            "sentiment": "negative",
+            "description": "玩家抱怨單排遊戲體驗不佳，特別是配對機制與隊友表現問題。"
+          },
+          {
+            "topic": "角色攻略分享",
+            "mention_count": 4,
+            "sentiment": "positive",
+            "description": "玩家分享圖倫、射手與輔助角色的攻略與心得，幫助新手提升遊戲技巧。"
           }
         ],
         "detected_events": [
           {
-            "name": "AWC和MDI賽事決賽",
-            "type": "賽事",
-            "source_count": 1,
-            "details": "玩家關注AWC和MDI賽事的決賽資訊，討論賽事進展與結果。"
+            "name": "傳說運動會",
+            "type": "活動",
+            "source_count": 5,
+            "details": "六月舉辦的傳說運動會活動，提供免費造型與賽事獎勵。"
           },
           {
-            "name": "星展傳說對決聯名卡活動延長",
-            "type": "活動",
-            "source_count": 1,
-            "details": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉-星夢展航造型。"
+            "name": "芽芽技能爭議",
+            "type": "角色討論",
+            "source_count": 10,
+            "details": "玩家對芽芽的技能設計與遊戲平衡性提出質疑，認為其過於強勢且難以應對。"
           }
         ],
         "platform_breakdown": {
-          "instagram": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
+          "bahamut": {
+            "post_count": 38,
+            "avg_sentiment": 0.431
           },
-          "threads": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
+          "dcard": {
+            "post_count": 8,
+            "avg_sentiment": 0.625
           },
           "facebook": {
-            "post_count": 2,
+            "post_count": 1,
             "avg_sentiment": 0.5
+          },
+          "instagram": {
+            "post_count": 1,
+            "avg_sentiment": 0.8
+          },
+          "youtube": {
+            "post_count": 1,
+            "avg_sentiment": 0.8
           }
         },
         "alerts": [
-          "芽芽的角色設計與技能Bug引發大量負面討論，建議官方盡快回應並進行調整。"
+          "巴哈姆特平台上關於芽芽的負面討論較多，需關注玩家對角色平衡性的不滿情緒。"
         ],
-        "recommendation": "針對芽芽的角色設計與技能Bug，建議官方盡快發布修正公告，並考慮進行平衡性調整。同時，可加強與玩家的溝通，回應其對遊戲體驗的疑慮。",
+        "recommendation": "建議針對芽芽的技能設計進行平衡性調整，並加強與玩家的溝通，解釋角色設計理念與未來改動方向。同時，可透過社群平台宣傳更多活動與賽事，提升玩家參與度。",
         "global_insights": {
           "TW": {
-            "summary": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈。",
+            "summary": "貼文宣傳《傳說對決》六月多項活動與賽事，包括傳說運動會與免費造型等。",
             "hot_hero": "無特定英雄"
           }
         },
         "hero_focus": {
           "name": "芽芽",
-          "summary": "芽芽的角色設計與技能Bug引發大量討論，玩家普遍認為其過於強勢且難以應對，情緒偏向負面。",
-          "sentiment_score": 0.3,
+          "summary": "芽芽成為今日討論焦點，玩家對其技能設計與遊戲平衡性提出質疑，認為其過於強勢且難以應對。",
+          "sentiment_score": 0.2,
           "top_comments": [
+            "芽芽真的好好玩，但太強了！",
             "他X的芽芽為什麼就不能被檢舉？",
-            "芽芽也太機車了",
             "請問大老芽芽騎在英雄上，那個英雄吃得到塔之庇佑嗎？"
           ]
         },
@@ -2650,7 +417,7 @@
           "status": "ok",
           "errors": []
         },
-        "total_posts": 35,
+        "total_posts": 49,
         "hero_stats": {
           "芽芽": {
             "count": 8,
@@ -2684,7 +451,7 @@
                   "count": 1
                 },
                 {
-                  "text": "3192",
+                  "text": "3375",
                   "weight": 15,
                   "count": 1
                 },
@@ -2742,7 +509,7 @@
                   "count": 1
                 },
                 {
-                  "text": "2943",
+                  "text": "2952",
                   "weight": 24,
                   "count": 1
                 }
@@ -2774,7 +541,7 @@
                   "count": 1
                 },
                 {
-                  "text": "250",
+                  "text": "251",
                   "weight": 24,
                   "count": 1
                 }
@@ -2787,61 +554,61 @@
             {
               "text": "傳說對決板",
               "weight": 24,
-              "count": 6
+              "count": 8
             },
             {
               "text": "Dcard",
               "weight": 24,
-              "count": 6
+              "count": 8
             },
             {
               "text": "心得分享",
               "weight": 18,
+              "count": 4
+            },
+            {
+              "text": "06",
+              "weight": 16,
               "count": 3
             },
             {
-              "text": "巴哈姆特",
-              "weight": 16,
+              "text": "05",
+              "weight": 15,
               "count": 2
             },
             {
-              "text": "AOV",
-              "weight": 16,
+              "text": "30",
+              "weight": 15,
               "count": 2
             },
             {
-              "text": "哈啦板",
-              "weight": 16,
+              "text": "THE",
+              "weight": 15,
               "count": 2
             },
             {
-              "text": "輔助觀念",
-              "weight": 14,
+              "text": "傳說運動會正式開",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "攻略",
-              "weight": 14,
+              "text": "跑啦",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "傳說對決",
-              "weight": 14,
+              "text": "熱血六月精彩活動",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "從0",
-              "weight": 14,
+              "text": "一次看",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "100圖倫教學",
-              "weight": 14,
-              "count": 1
-            },
-            {
-              "text": "17分鐘一次快速",
-              "weight": 14,
+              "text": "2026",
+              "weight": 13,
               "count": 1
             }
           ],
@@ -2849,109 +616,105 @@
             {
               "text": "巴哈姆特",
               "weight": 24,
-              "count": 8
+              "count": 17
             },
             {
               "text": "AOV",
               "weight": 24,
-              "count": 8
+              "count": 17
             },
             {
               "text": "哈啦板",
               "weight": 24,
-              "count": 8
+              "count": 17
             },
             {
               "text": "問題",
               "weight": 22,
-              "count": 7
+              "count": 15
             },
             {
-              "text": "其他",
-              "weight": 13,
+              "text": "情報",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "傳說對決星展信用",
-              "weight": 13,
+              "text": "星展傳說對決聯名",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "邀請碼",
-              "weight": 13,
+              "text": "遊戲內卡友專屬活",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "263",
-              "weight": 13,
+              "text": "開卡送緹莉",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "傳說對決配對",
-              "weight": 13,
+              "text": "星夢展航造型",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "31",
-              "weight": 13,
+              "text": "活動延長至202",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "傳說對決",
-              "weight": 13,
+              "text": "06",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "邀好友回歸送造型",
-              "weight": 13,
+              "text": "30",
+              "weight": 12,
               "count": 1
             }
           ]
         },
         "top_links": [
           {
-            "title": "傳說對決|玩一百萬場傳說都不一定遇到一次...",
-            "url": "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "title": "傳說運動會正式開跑啦！熱血六月精彩活動一...",
+            "url": "https://www.youtube.com/live/NtvPfNS_mhQ",
             "platform": "youtube"
           },
           {
-            "title": "有人現在遊戲也沒辦法登入嗎....",
-            "url": "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
-            "platform": "facebook"
+            "title": "THE STAGE IS SET FOR...",
+            "url": "https://www.instagram.com/p/DZjruykm-1n",
+            "platform": "instagram"
           },
           {
-            "title": "The Arena World Cham...",
-            "url": "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411",
-            "platform": "facebook"
+            "title": "#心得分享 【攻略】《傳說對決》從0~1...",
+            "url": "https://www.dcard.tw/f/aov/p/252965598",
+            "platform": "dcard"
           }
         ],
         "real_hot_topics": [
-          {
-            "word": "巴哈姆",
-            "count": 24
-          },
           {
             "word": "皮皮",
             "count": 7
           },
           {
+            "word": "閒聊",
+            "count": 6
+          },
+          {
             "word": "造型",
-            "count": 3
+            "count": 5
           },
           {
-            "word": "凱撒",
+            "word": "應援",
             "count": 2
           },
           {
-            "word": "more",
+            "word": "甜心",
             "count": 2
           },
           {
-            "word": "遊戲",
-            "count": 2
-          },
-          {
-            "word": "Facebook",
+            "word": "專屬",
             "count": 2
           },
           {
@@ -2959,7 +722,11 @@
             "count": 2
           },
           {
-            "word": "對決",
+            "word": "隊友",
+            "count": 2
+          },
+          {
+            "word": "星耀",
             "count": 2
           },
           {
@@ -2968,178 +735,176 @@
           }
         ],
         "topic_to_posts": {
-          "巴哈姆": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62828&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62305&tnum=8",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62827&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62192&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60722&tnum=16",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=57234&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62239&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62151&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1"
-          ],
           "皮皮": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1"
+          ],
+          "閒聊": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62949&tnum=9",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62960&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62183&tnum=53",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22"
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62923&tnum=2"
           ],
           "造型": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=382",
+            "https://www.youtube.com/live/NtvPfNS_mhQ",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262"
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62183&tnum=53"
           ],
-          "凱撒": [
-            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
-            "https://www.dcard.tw/f/aov/p/257800838"
+          "應援": [
+            "https://www.youtube.com/live/NtvPfNS_mhQ",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1"
           ],
-          "more": [
-            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
-            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          "甜心": [
+            "https://www.youtube.com/live/NtvPfNS_mhQ",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1"
           ],
-          "遊戲": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768"
-          ],
-          "Facebook": [
-            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
-            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          "專屬": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=382",
+            "https://www.dcard.tw/f/aov/p/258517884"
           ],
           "推薦": [
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
             "https://www.dcard.tw/f/aov/p/257800838"
           ],
-          "對決": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+          "隊友": [
+            "https://www.dcard.tw/f/aov/p/261662125",
+            "https://www.dcard.tw/f/aov/p/261662093"
+          ],
+          "星耀": [
+            "https://www.dcard.tw/f/aov/p/261662125",
+            "https://www.dcard.tw/f/aov/p/261662093"
           ],
           "聯名": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=382"
           ]
         },
         "dynamic_alerts": [
           {
-            "label": "傳說對決今日熱議：百萬場難得一見的凱撒爭奪戰，令人瞠目結舌。芽芽相關文章首日達 18 篇，討論熱度持續攀升。Facebook 平台也有 2 篇相關貼文，引發玩家熱烈迴響。"
+            "label": "《傳說對決》今日熱議：6/14 珉天還要贏對戰教你做人 BO5 賽事引發討論。"
+          },
+          {
+            "label": "芽芽相關討論首日累積 18 篇文章。"
+          },
+          {
+            "label": "今日平台熱度：巴哈姆特 38 篇、Dcard 8 篇、Facebook 1 篇。"
           }
         ],
         "overflow_alerts": []
       },
-      "stored_at": "2026-06-03T12:58:20.190456+00:00",
-      "last_accessed": "2026-06-03T12:58:20.190456+00:00",
+      "stored_at": "2026-06-14T17:12:32.530461+00:00",
+      "last_accessed": "2026-06-14T17:12:32.530461+00:00",
       "ttl_days": 7
     },
-    "prompt:997677cc79be2bc8a9b9ad338c83a7f3": {
-      "result": "傳說對決今日熱議：百萬場難得一見的凱撒爭奪戰，令人瞠目結舌。芽芽相關文章首日達 18 篇，討論熱度持續攀升。Facebook 平台也有 2 篇相關貼文，引發玩家熱烈迴響。",
-      "stored_at": "2026-06-03T12:58:39.366197+00:00",
-      "last_accessed": "2026-06-03T12:58:39.366197+00:00",
+    "prompt:1da6f2f04aced092a30c07f9b16b4548": {
+      "result": "《傳說對決》今日熱議：6/14 珉天還要贏對戰教你做人 BO5 賽事引發討論。  \n芽芽相關討論首日累積 18 篇文章。  \n今日平台熱度：巴哈姆特 38 篇、Dcard 8 篇、Facebook 1 篇。",
+      "stored_at": "2026-06-14T17:12:39.544353+00:00",
+      "last_accessed": "2026-06-14T17:12:39.544353+00:00",
       "ttl_days": 7
     },
-    "daily_summary:2026-06-03": {
+    "daily_summary:2026-06-15": {
       "result": {
-        "date": "2026-06-03",
-        "overview": "今日《傳說對決》的輿情主要集中在玩家分享遊戲心得與技巧，以及對特定英雄（如芽芽和皮皮）的討論。整體情緒偏向中性，但部分玩家對芽芽的角色設計和遊戲體驗表達了不滿。此外，賽事資訊和聯名活動也受到一定關注。",
+        "date": "2026-06-15",
+        "overview": "今日《傳說對決》的輿情主要集中在活動宣傳、角色討論與遊戲體驗分享。整體情緒偏向中性，但巴哈姆特平台上出現較多負面討論，特別是關於芽芽和皮皮的角色問題。Instagram 和 YouTube 的貼文則以宣傳賽事和活動為主，情緒較為正面。",
         "sentiment_distribution": {
-          "positive": 5,
-          "negative": 8,
-          "neutral": 22
+          "positive": 7,
+          "negative": 17,
+          "neutral": 25
         },
         "hot_topics": [
           {
-            "topic": "芽芽角色討論",
+            "topic": "芽芽角色爭議",
             "mention_count": 10,
             "sentiment": "negative",
-            "description": "玩家對芽芽的角色設計、技能Bug及遊戲體驗表達不滿，認為其過於強勢且難以應對。"
+            "description": "玩家對芽芽的技能設計與遊戲平衡性提出質疑，部分玩家認為芽芽過於強勢且難以應對。"
           },
           {
             "topic": "皮皮角色討論",
             "mention_count": 8,
             "sentiment": "neutral",
-            "description": "玩家討論皮皮的技能改動、雙排組合以及如何避免坑隊友，情緒偏向中性。"
+            "description": "玩家討論皮皮的技能改動與雙排組合推薦，部分玩家對其技能調整表示困惑。"
           },
           {
-            "topic": "賽事資訊",
-            "mention_count": 3,
-            "sentiment": "neutral",
-            "description": "AWC和MDI賽事的決賽資訊受到關注，玩家對賽事進展保持中立態度。"
-          },
-          {
-            "topic": "聯名活動",
-            "mention_count": 4,
-            "sentiment": "neutral",
-            "description": "與多力多滋、純喫茶等品牌的聯名活動引發討論，玩家對活動內容保持中立。"
-          },
-          {
-            "topic": "遊戲攻略分享",
+            "topic": "傳說運動會活動",
             "mention_count": 5,
             "sentiment": "positive",
-            "description": "玩家分享圖倫、凱撒路等英雄的攻略與技巧，幫助新手快速上手，情緒偏向正面。"
+            "description": "玩家對六月舉辦的傳說運動會活動表示期待，並分享相關資訊。"
+          },
+          {
+            "topic": "單排遊戲體驗",
+            "mention_count": 4,
+            "sentiment": "negative",
+            "description": "玩家抱怨單排遊戲體驗不佳，特別是配對機制與隊友表現問題。"
+          },
+          {
+            "topic": "角色攻略分享",
+            "mention_count": 4,
+            "sentiment": "positive",
+            "description": "玩家分享圖倫、射手與輔助角色的攻略與心得，幫助新手提升遊戲技巧。"
           }
         ],
         "detected_events": [
           {
-            "name": "AWC和MDI賽事決賽",
-            "type": "賽事",
-            "source_count": 1,
-            "details": "玩家關注AWC和MDI賽事的決賽資訊，討論賽事進展與結果。"
+            "name": "傳說運動會",
+            "type": "活動",
+            "source_count": 5,
+            "details": "六月舉辦的傳說運動會活動，提供免費造型與賽事獎勵。"
           },
           {
-            "name": "星展傳說對決聯名卡活動延長",
-            "type": "活動",
-            "source_count": 1,
-            "details": "星展傳說對決聯名卡活動延長至2026年6月30日，開卡可獲得緹莉-星夢展航造型。"
+            "name": "芽芽技能爭議",
+            "type": "角色討論",
+            "source_count": 10,
+            "details": "玩家對芽芽的技能設計與遊戲平衡性提出質疑，認為其過於強勢且難以應對。"
           }
         ],
         "platform_breakdown": {
-          "instagram": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
+          "bahamut": {
+            "post_count": 38,
+            "avg_sentiment": 0.431
           },
-          "threads": {
-            "post_count": 0,
-            "avg_sentiment": 0.0
+          "dcard": {
+            "post_count": 8,
+            "avg_sentiment": 0.625
           },
           "facebook": {
-            "post_count": 2,
+            "post_count": 1,
             "avg_sentiment": 0.5
+          },
+          "instagram": {
+            "post_count": 1,
+            "avg_sentiment": 0.8
+          },
+          "youtube": {
+            "post_count": 1,
+            "avg_sentiment": 0.8
           }
         },
         "alerts": [
-          "芽芽的角色設計與技能Bug引發大量負面討論，建議官方盡快回應並進行調整。"
+          "巴哈姆特平台上關於芽芽的負面討論較多，需關注玩家對角色平衡性的不滿情緒。"
         ],
-        "recommendation": "針對芽芽的角色設計與技能Bug，建議官方盡快發布修正公告，並考慮進行平衡性調整。同時，可加強與玩家的溝通，回應其對遊戲體驗的疑慮。",
+        "recommendation": "建議針對芽芽的技能設計進行平衡性調整，並加強與玩家的溝通，解釋角色設計理念與未來改動方向。同時，可透過社群平台宣傳更多活動與賽事，提升玩家參與度。",
         "global_insights": {
           "TW": {
-            "summary": "玩家分享了一個極其罕見的遊戲情境，表達了對這種意外事件的驚訝與無奈。",
+            "summary": "貼文宣傳《傳說對決》六月多項活動與賽事，包括傳說運動會與免費造型等。",
             "hot_hero": "無特定英雄"
           }
         },
         "hero_focus": {
           "name": "芽芽",
-          "summary": "芽芽的角色設計與技能Bug引發大量討論，玩家普遍認為其過於強勢且難以應對，情緒偏向負面。",
-          "sentiment_score": 0.3,
+          "summary": "芽芽成為今日討論焦點，玩家對其技能設計與遊戲平衡性提出質疑，認為其過於強勢且難以應對。",
+          "sentiment_score": 0.2,
           "top_comments": [
+            "芽芽真的好好玩，但太強了！",
             "他X的芽芽為什麼就不能被檢舉？",
-            "芽芽也太機車了",
             "請問大老芽芽騎在英雄上，那個英雄吃得到塔之庇佑嗎？"
           ]
         },
@@ -3147,7 +912,7 @@
           "status": "ok",
           "errors": []
         },
-        "total_posts": 35,
+        "total_posts": 49,
         "hero_stats": {
           "芽芽": {
             "count": 8,
@@ -3181,7 +946,7 @@
                   "count": 1
                 },
                 {
-                  "text": "3192",
+                  "text": "3375",
                   "weight": 15,
                   "count": 1
                 },
@@ -3239,7 +1004,7 @@
                   "count": 1
                 },
                 {
-                  "text": "2943",
+                  "text": "2952",
                   "weight": 24,
                   "count": 1
                 }
@@ -3271,7 +1036,7 @@
                   "count": 1
                 },
                 {
-                  "text": "250",
+                  "text": "251",
                   "weight": 24,
                   "count": 1
                 }
@@ -3284,61 +1049,61 @@
             {
               "text": "傳說對決板",
               "weight": 24,
-              "count": 6
+              "count": 8
             },
             {
               "text": "Dcard",
               "weight": 24,
-              "count": 6
+              "count": 8
             },
             {
               "text": "心得分享",
               "weight": 18,
+              "count": 4
+            },
+            {
+              "text": "06",
+              "weight": 16,
               "count": 3
             },
             {
-              "text": "巴哈姆特",
-              "weight": 16,
+              "text": "05",
+              "weight": 15,
               "count": 2
             },
             {
-              "text": "AOV",
-              "weight": 16,
+              "text": "30",
+              "weight": 15,
               "count": 2
             },
             {
-              "text": "哈啦板",
-              "weight": 16,
+              "text": "THE",
+              "weight": 15,
               "count": 2
             },
             {
-              "text": "輔助觀念",
-              "weight": 14,
+              "text": "傳說運動會正式開",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "攻略",
-              "weight": 14,
+              "text": "跑啦",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "傳說對決",
-              "weight": 14,
+              "text": "熱血六月精彩活動",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "從0",
-              "weight": 14,
+              "text": "一次看",
+              "weight": 13,
               "count": 1
             },
             {
-              "text": "100圖倫教學",
-              "weight": 14,
-              "count": 1
-            },
-            {
-              "text": "17分鐘一次快速",
-              "weight": 14,
+              "text": "2026",
+              "weight": 13,
               "count": 1
             }
           ],
@@ -3346,109 +1111,105 @@
             {
               "text": "巴哈姆特",
               "weight": 24,
-              "count": 8
+              "count": 17
             },
             {
               "text": "AOV",
               "weight": 24,
-              "count": 8
+              "count": 17
             },
             {
               "text": "哈啦板",
               "weight": 24,
-              "count": 8
+              "count": 17
             },
             {
               "text": "問題",
               "weight": 22,
-              "count": 7
+              "count": 15
             },
             {
-              "text": "其他",
-              "weight": 13,
+              "text": "情報",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "傳說對決星展信用",
-              "weight": 13,
+              "text": "星展傳說對決聯名",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "邀請碼",
-              "weight": 13,
+              "text": "遊戲內卡友專屬活",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "263",
-              "weight": 13,
+              "text": "開卡送緹莉",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "傳說對決配對",
-              "weight": 13,
+              "text": "星夢展航造型",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "31",
-              "weight": 13,
+              "text": "活動延長至202",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "傳說對決",
-              "weight": 13,
+              "text": "06",
+              "weight": 12,
               "count": 1
             },
             {
-              "text": "邀好友回歸送造型",
-              "weight": 13,
+              "text": "30",
+              "weight": 12,
               "count": 1
             }
           ]
         },
         "top_links": [
           {
-            "title": "傳說對決|玩一百萬場傳說都不一定遇到一次...",
-            "url": "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
+            "title": "傳說運動會正式開跑啦！熱血六月精彩活動一...",
+            "url": "https://www.youtube.com/live/NtvPfNS_mhQ",
             "platform": "youtube"
           },
           {
-            "title": "有人現在遊戲也沒辦法登入嗎....",
-            "url": "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
-            "platform": "facebook"
+            "title": "THE STAGE IS SET FOR...",
+            "url": "https://www.instagram.com/p/DZjruykm-1n",
+            "platform": "instagram"
           },
           {
-            "title": "The Arena World Cham...",
-            "url": "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411",
-            "platform": "facebook"
+            "title": "#心得分享 【攻略】《傳說對決》從0~1...",
+            "url": "https://www.dcard.tw/f/aov/p/252965598",
+            "platform": "dcard"
           }
         ],
         "real_hot_topics": [
-          {
-            "word": "巴哈姆",
-            "count": 24
-          },
           {
             "word": "皮皮",
             "count": 7
           },
           {
+            "word": "閒聊",
+            "count": 6
+          },
+          {
             "word": "造型",
-            "count": 3
+            "count": 5
           },
           {
-            "word": "凱撒",
+            "word": "應援",
             "count": 2
           },
           {
-            "word": "more",
+            "word": "甜心",
             "count": 2
           },
           {
-            "word": "遊戲",
-            "count": 2
-          },
-          {
-            "word": "Facebook",
+            "word": "專屬",
             "count": 2
           },
           {
@@ -3456,7 +1217,11 @@
             "count": 2
           },
           {
-            "word": "對決",
+            "word": "隊友",
+            "count": 2
+          },
+          {
+            "word": "星耀",
             "count": 2
           },
           {
@@ -3465,84 +1230,74 @@
           }
         ],
         "topic_to_posts": {
-          "巴哈姆": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62828&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62305&tnum=8",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62827&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62276&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54182&tnum=204",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62192&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60722&tnum=16",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=57234&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62239&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62738&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62709&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62151&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1"
-          ],
           "皮皮": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60320&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60288&tnum=3",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61146&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1"
+          ],
+          "閒聊": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62077&tnum=1",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62949&tnum=9",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62960&tnum=2",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62183&tnum=53",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61414&tnum=1",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=54873&tnum=22"
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62923&tnum=2"
           ],
           "造型": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=382",
+            "https://www.youtube.com/live/NtvPfNS_mhQ",
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62721&tnum=2",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62473&tnum=262"
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62183&tnum=53"
           ],
-          "凱撒": [
-            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
-            "https://www.dcard.tw/f/aov/p/257800838"
+          "應援": [
+            "https://www.youtube.com/live/NtvPfNS_mhQ",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1"
           ],
-          "more": [
-            "https://www.youtube.com/watch?v=wMNiMZ0Hppc",
-            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          "甜心": [
+            "https://www.youtube.com/live/NtvPfNS_mhQ",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62416&tnum=1"
           ],
-          "遊戲": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768"
-          ],
-          "Facebook": [
-            "https://www.facebook.com/groups/1674779242824208/posts/3985586745076768",
-            "https://www.facebook.com/mmochampion/posts/awc-and-mdi-season-1-finals-viewers-guide-/1406074561549411"
+          "專屬": [
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=382",
+            "https://www.dcard.tw/f/aov/p/258517884"
           ],
           "推薦": [
             "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60922&tnum=2",
             "https://www.dcard.tw/f/aov/p/257800838"
           ],
-          "對決": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+          "隊友": [
+            "https://www.dcard.tw/f/aov/p/261662125",
+            "https://www.dcard.tw/f/aov/p/261662093"
+          ],
+          "星耀": [
+            "https://www.dcard.tw/f/aov/p/261662125",
+            "https://www.dcard.tw/f/aov/p/261662093"
           ],
           "聯名": [
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=369",
-            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7"
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62583&tnum=7",
+            "https://forum.gamer.com.tw/C.php?bsn=30518&snA=61581&tnum=382"
           ]
         },
         "dynamic_alerts": [
           {
-            "label": "傳說對決今日熱議：百萬場難得一見的凱撒爭奪戰，令人瞠目結舌。芽芽相關文章首日達 18 篇，討論熱度持續攀升。Facebook 平台也有 2 篇相關貼文，引發玩家熱烈迴響。"
+            "label": "《傳說對決》今日熱議：6/14 珉天還要贏對戰教你做人 BO5 賽事引發討論。"
+          },
+          {
+            "label": "芽芽相關討論首日累積 18 篇文章。"
+          },
+          {
+            "label": "今日平台熱度：巴哈姆特 38 篇、Dcard 8 篇、Facebook 1 篇。"
           }
         ],
         "overflow_alerts": []
       },
-      "stored_at": "2026-06-03T12:58:39.372176+00:00",
-      "last_accessed": "2026-06-03T12:58:39.372176+00:00",
+      "stored_at": "2026-06-14T17:12:39.547354+00:00",
+      "last_accessed": "2026-06-14T17:12:39.547354+00:00",
       "ttl_days": 7
     }
   },
@@ -3550,6 +1305,6 @@
     "total_l1_hits": 0,
     "total_l2_hits": 66,
     "total_apify_hits": 0,
-    "total_misses": 117
+    "total_misses": 131
   }
 }
