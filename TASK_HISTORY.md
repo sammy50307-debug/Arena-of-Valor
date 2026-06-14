@@ -14598,3 +14598,19 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **驗收**：全套 518→**520 passed 零回歸**；交叉驗證非假綠（manifest selection_truth/enrichment_truth 內容證 run_pipeline 真跑到 Step4.5）+ git-clean 自驗。
 
 **狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問，批次）。
+
+### P115 — CI 韌性 + 安全強化（體檢 #3+#4 合併）（2026-06-14 收官）
+
+**目標**：補體檢揪出的 CI 可觀察性/安全缺口——(1) 真 cron-miss 無偵測（2026-05-27 實證漏跑、零告警）(2) workflow 失敗無主動推播 (3) bot 自動 commit 未過 secret scan（只本機 pre-push 有）。
+
+**觸發**：體檢面向 6（可觀察性）+ 面向 4（安全）。#3/#4 同屬 daily_report.yml、同 CI 戰線，併為一個 Phase。05-27 cron 漏跑經交叉核實（data/runs/2026-05-27 缺檔）為真實證據、非投機。
+
+**修法（3 個 advisory 步驟，零程式邏輯改動）**：(c) Fallback Push 前掛 `python -m gov.scan_secrets`（continue-on-error，偵測疑似外洩印 ::error:: 顯著告警，本機 pre-push 仍為硬閘）；(a) always() 區加 `slo_checker --repo-root . --date <TZ> --window-days 7`（每次 run 回看 7 天 manifest 缺口→退役「真 cron-miss」死角，因 self-heal/health 只在 workflow 有跑時才執行）；(b) 結尾 `if: failure()` step 用既有 TELEGRAM_BOT_TOKEN/CHAT_ID curl sendMessage 推播失敗（沿用既有 daily 推播授權邊界、僅失敗時、不新增 secret、continue-on-error 防告警再炸）。
+
+**物理真相**：改 .github/workflows/daily_report.yml（+3 步驟）；docs/RISK_REGISTRY.md（+R-039）。**不碰 main.py、不碰既有步驟邏輯。**
+
+**驗收**：YAML safe_load 解析 OK（16 steps，Secret Scan 在 Fallback Push 前 / SLO advisory / Failure Alert if:failure()）；slo_checker + scan_secrets 本地 CI 同款指令驗證可跑（exit 0）。CI 改動無法本地端到端跑，真驗證在下次 cron（同 P111 S3）。
+
+**風險/盲點**：R-039（真即時 cron-miss——連 workflow 都沒跑——仍只能靠外部 dead-man-switch，對單人專案 ROI 低，數據驅動觸發：cron-miss recurring ≥2 次/30 天才評估外部 watchdog，否則維持回溯偵測，B-028 反膨脹）；scan_secrets 為 advisory 非硬閘（Fallback Push always() 擋不住，定位為 defense-in-depth）。
+
+**狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問，批次）。

@@ -97,6 +97,14 @@ jobs:
           REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
           python scripts/replay_run.py --date "$REPORT_DATE" --heal-if-missing --check-health || echo "::warning::self-heal failed, staying L4"
 
+      - name: 🔐 Secret Scan (Advisory, P115)
+        # bot 自動 commit（Fallback Push）前的 CI 端機敏掃描——補本機 pre-push hook 涵蓋不到的 bot 路徑（R-029 殘留邊界）。
+        # advisory：偵測到疑似外洩印 ::error:: 顯著告警，但不阻斷日報（避免誤判讓報告斷供；本機 pre-push 仍為硬閘）。
+        if: always()
+        continue-on-error: true
+        run: |
+          python -m gov.scan_secrets || echo "::error::secret scan 偵測到疑似機敏外洩——請查 Actions log，bot push 已含此內容，必要時清洗+輪替金鑰"
+
       - name: 🛠️ Fallback Push
         # 如果 python main.py 裡面的 Git push 失敗，這裡補推一次
         if: always()
@@ -131,6 +139,16 @@ jobs:
         run: |
           python scripts/check_report_freshness.py --reports-dir data/reports --threshold 3
 
+      - name: 📉 SLO / Cron-Miss Check (Advisory, P115)
+        # 每次 run 回看過去 7 天 manifest 缺口——退役了「真 cron-miss（workflow 沒觸發）」的偵測死角
+        # （self-heal/health 只在 workflow 有跑時才執行）。SLO002 manifest_gap 退役回溯偵測，advisory 不阻斷。
+        if: always()
+        continue-on-error: true
+        run: |
+          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
+          python scripts/slo_checker.py --repo-root . --date "$REPORT_DATE" --window-days 7 \
+            || echo "::warning::SLO check 偵測到過去 7 天 manifest/freshness 缺口（見 runbook SLO002 cron-miss / R-037）"
+
       - name: 🩺 System Doctor (Strict Gate)
         if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.strict_doctor == 'true' }}
         run: |
@@ -140,3 +158,20 @@ jobs:
             --date "$REPORT_DATE" \
             --profile ci \
             --require-production
+
+      - name: 📲 Failure Alert (P115)
+        # pipeline 真崩潰（非 advisory/continue-on-error 的步驟失敗）時主動推播，否則阿喜只能自己開 Actions UI 才知道。
+        # 沿用既有 daily 報告推播的 TELEGRAM 授權邊界（同一頻道、僅失敗時、不新增 secret）。continue-on-error 防告警本身再炸。
+        if: failure()
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -d chat_id="${TELEGRAM_CHAT_ID}" \
+              --data-urlencode "text=⚠️ AoV daily pipeline 今日失敗，請查 GitHub Actions run ${{ github.run_id }}" || true
+          else
+            echo "::warning::pipeline 失敗但 TELEGRAM secrets 未設，無法推播告警"
+          fi

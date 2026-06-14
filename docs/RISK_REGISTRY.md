@@ -18,6 +18,17 @@
 
 ## 開放風險（Open）
 
+### R-039：cron-miss / workflow 失敗的可觀察性（真 cron-miss 僅回溯偵測、無即時 dead-man-switch）（P115 衍生）
+
+- **來源**：P115 體檢 #3（2026-06-14）+ 實證 2026-05-27 cron 真漏跑且零告警（`data/runs/2026-05-27` 缺檔）
+- **風險級**：🟢 低（日報漏一天隔天自動恢復、無資料毀損、無不可逆；偵測已部分補上）
+- **狀態**：Open（部分緩解：回溯偵測 + 失敗告警已上線；真即時 cron-miss 偵測待數據驅動觸發）
+- **描述**：(a) **真 cron-miss**：若 GitHub Actions 排程完全沒觸發（非 main.py 失敗，是 workflow 沒跑），workflow 內所有偵測步驟（self-heal/health/doctor/freshness）都不會執行 → 零 artifact、零告警。05-27 已實際發生。(b) **workflow 失敗**：main.py 崩潰或 job 紅燈時，原本無主動推播，阿喜只能自己開 Actions UI 才知道。
+- **緩解策略**：(a) **P115 已上線回溯偵測**：daily_report.yml always() 區加 `slo_checker --window-days 7`（每次 run 回看 7 天 manifest 缺口，下次有跑時即補偵測到 cron-miss，advisory）；(b) **P115 已上線失敗告警**：結尾 `if: failure()` step 用既有 TELEGRAM secrets 推播「pipeline 今日失敗」；(c) **殘留（數據驅動觸發）**：真即時 cron-miss（連 workflow 都沒跑）只能靠外部 dead-man-switch（如獨立 cron ping），對單人專案 ROI 低、blast radius 大——**若 cron-miss recurring（≥2 次/30 天，可由 manifest 日期序列機械判定）才評估外部 watchdog，否則維持回溯偵測**（B-028 反膨脹）。
+- **關聯**：B-028（數據驅動觸發 vs speculative）；runbook SELF-HEAL / SLO002 節；R-016（SLO blocking 升級條款）。
+
+---
+
 ### R-037：self-heal 自動修復邊界 + 主根因（main.py generate 例外被吞）未治本（P111 衍生）
 
 - **來源**：P111 CI 報告自癒收官（2026-06-14）
@@ -577,3 +588,4 @@
 - **2026-06-07**：P108.4 R-032 空值戰線折衷收官，R-032 → Closed。飛輪二次追問選穩修 E′+契約 guard（非方案 A 造假 fallback、非 choke point 重構）。picker 對無法解析時間的文差異化 decay（芽芽 0.6/無關 0.3，`_is_parseable_time` 復用 _FMTS）。撞 P108「排除無日期文」可信度契約（test_report_content_trust），阿喜裁折衷 A：芽芽無日期文破例進池、無關仍排除。全套 474→488 passed。新 blindspot B-024（改行為前查測試/契約，非只程式消費點）。Exit F 端到端待 cron/run-now 驗。
 - **2026-06-14**：P111 CI 報告自癒收官（飛輪 L4→可控 L5）。self-heal 偵測 canonical 報告缺漏→自動 replay 重產 candidate→跑與 cron 逐位元同源的發布閘門（`should_promote` 純函數共用 + `run_checks` 同尺）→通過才 promote，否則 no-op 降級 L4。零 LLM/零重爬/不繞閘門。動工時親核呼叫鏈揪出凍結計畫 S1(c) 字面修法會讓 cron 失去 sidecar（測試抓不到的 G2 綠燈假象）→阿喜核准修法 A（sidecar 綁定 promote_candidate 發布事件）+登記 P111.1 補遺。4 視角對抗審查 3/4 contract_met、1 條 B 級假保證（ui_previews 真 repo 寫入未被三隔離覆蓋）已修並實證。全套 504→514 passed。新登記 R-037（self-heal 邊界 + 主根因 main.py:728 吞例外未治本 + 原 R8 退化保真）、R-038（no-op candidate 進版控，cron 既有非惡化）。新 blindspot B-027。Postmortem 4 通則（L5 窄面/同源閘門/前提機器化/生命週期綁定）。
 - **2026-06-14**：P112 收官（R-037 方案B+A，飛輪三輪收斂）。self-heal 重產前讀既有失敗 manifest 的 error，帶進自己 manifest 的 `pre_heal_error` 欄位——使 generate 失敗原因持久化（commit 進 manifest），不隨 self-heal 覆蓋同路徑而遺失（原只剩 ~90 天 CI log）。純 additive（build_manifest +欄位、replay heal 讀舊 manifest，try/except 全包覆不阻斷恢復）、零 main.py、零 exit code 風險。全套 514→518 passed。R-037 補記「方案B 已補診斷持久化 + PROMOTE 觸發（self_heal recurring ≥3/30天才升級治本+checker）」，不關閉（主根因仍 open）。飛輪元教訓 B-028（勿為 0 次失敗 speculative observability，改數據驅動 Phase 觸發）存 memory。runbook OPERATIONS_RUNBOOK 加 SELF-HEAL 診斷節。lint M1/M2 PASS。
+- **2026-06-14**：P115 收官（體檢 #3+#4 合併，CI 韌性+安全）。daily_report.yml 加 3 個 advisory 步驟：(c) Fallback Push 前 `gov.scan_secrets`（bot 自動 commit 的 CI 端機敏掃描，補 R-029 殘留邊界，advisory 不阻斷）；(a) always() 區 `slo_checker --window-days 7`（回溯偵測 7 天 manifest 缺口=cron-miss，退役 SLO002 死角）；(b) 結尾 `if: failure()` Telegram 告警（pipeline 真崩潰主動推播，沿用既有 TELEGRAM 授權邊界）。新登記 R-039（cron-miss/失敗可觀察性，部分緩解+真即時偵測待數據驅動觸發）。YAML 解析 OK + slo_checker/scan_secrets 本地指令驗證可跑；真驗證在下次 cron（同 P111 S3）。零程式邏輯改動。
