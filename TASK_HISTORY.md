@@ -14566,3 +14566,19 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險/盲點**：R-037 補記（方案B 已補診斷持久化 + 數據驅動 PROMOTE 觸發；主根因 main.py:728 吞例外仍 known issue 不關閉，0 次發生不治本）；誠實盲區（X2）——generate 在 manifest 寫入前更早期崩→無 pre-existing manifest→pre_heal_error 空（test 釘明）；**B-028 飛輪元教訓**（勿為 0 次失敗 speculative observability，改數據驅動 Phase 觸發）。
 
 **狀態**：S1-S4 收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問阿喜）。
+
+### P113 — STR8 跨 Phase 復盤 + 治理抗熵清理（體檢 #2）（2026-06-14 收官）
+
+**目標**：執行積欠 ~14 Phase 的 STR8 跨 Phase 學習復盤（P103→P112），並清掉體檢揪出的 3 項治理抗熵債（一動作收斂）。純治理活動、零程式碼。
+
+**觸發**：體檢（6 agent Workflow）揭露 STR8「每 5 Phase 復盤」協議停擺、R-022/R-025 緩解策略依賴此停擺機制、Obsidian 同步規則 dead（鏡像停 5/7）、R-025 名實不符（靠 G5-1 但它不讀 RISK 日期）。
+
+**STR8 復盤核心收斂（docs/STR8_REVIEW_2026-06-14.md）**：Q1 最常漏的層＝**測試/邏輯層「綠燈假象/驗證盲區」**（B-023/024/025/027 同源：改動通過但 production 行為錯、測試沒走真實鏈）——獨立收斂到體檢 #1（run_pipeline 編排層零測試）= 強訊號，指向下一個該做的。Q2 有效 guard＝契約/端到端測試+純函數物理共用+advisory checker。Q3 降級＝R-024 已關（好範例）、R-025 修措辭、Obsidian 退役。Q4 建議升 PHASE_TEMPLATE＝B-023/024/027 驗證盲點群（最高復發，需阿喜核准 META6）。新發現：盲點記錄格式漂移（獨立檔→內嵌 postmortem），tracker 偵測假設過時，採內嵌為標準慣例、tracker 升級列 future。
+
+**落地（3 動作）**：(b) Obsidian 同步規則退役（memory feedback_workflow，repo 為唯一真相源，阿喜核准）；(c) R-025 名實修正（明說到期需人工復盤、G5-1 不覆蓋 RISK 日期、STR8 已重啟）；(a) STR8 復盤文件新建。
+
+**物理真相**：新增 docs/STR8_REVIEW_2026-06-14.md；改 docs/RISK_REGISTRY.md（R-025 措辭）；memory feedback_workflow（退役 Obsidian，repo 外不入版控）。零程式、零測試風險。
+
+**待阿喜決定**：B-023/024/027 驗證盲點群是否升 PHASE_TEMPLATE preflight（META6 凍結文件需核准）。
+
+**狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問）。下一個體檢項：#1 run_pipeline 編排層 smoke 測試（STR8 獨立背書為最高槓桿）。
