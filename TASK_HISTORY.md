@@ -14648,3 +14648,33 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險/盲點**：checker 散落無單一入口治理債收斂；always-0 advisory checker（freshness）總表顯 ✅ 告警看 tail（RP3，runbook 已記）；Hermes #2（函式本體 kill-switch）/#4（guard 品質 meta-check）為獨立議題、未混入本 Phase。Postmortem 通則1（先查再造）+ 通則2（散落收斂：入口存在≠已收斂，要驗全註冊）。
 
 **狀態**：S1-S5 收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問）。
+
+---
+
+### P118 — 整站重設計①設計系統地基（tokens + mockup LOOK 定案）（2026-06-15 收官）
+
+**戰線**：前端/UX（設計系統）。整站重設計 4-Phase 第一棒（P118 地基 → P119 報告視覺+token-lint → P120 響應式/LINE/A11y → P121 Landing）。
+
+**目標**：用 ui-ux-pro-max 產設計系統 tokens + 在動 live 報告前以 sandbox mockup 取得阿喜 LOOK 定案。不碰 report.html/index.html/generator.py/CI/後端。
+
+**觸發**：跨專案盤點揭露 AOV 從未用過 ui-ux-pro-max，UX 債（#1 熱詞、#2 內文、#3 間距）累積。阿喜決定整站重設計，飛輪版（tokens 唯一真相源 + token-lint 進 gov.preflight P119 + preview 驗證）。
+
+**物理真相（產出，皆 design-system/ 純新增，零 live 變動）**：
+- `tokens.css`：唯一真相源——(A) 芽芽品牌鎖區（#db2777/#be185d/#10b981/粉→薄荷漸層/glass/glow）+ (B) 原子色階（pink/mint/slate/rose/藍熱詞）+ 間距 4/8px scale + 字級/圓角/陰影/光暈 + (C) 語意層（P119 消費）。
+- `MASTER.md`：混搭綜合決策 + 每 token 用途 + Pre-Delivery Checklist + §6 P119 補帳 punch-list + S4 LOOK 迭代史。
+- `mockup.html`（早期 3 元件 sandbox，已被 variant-bc 取代）；`aov/MASTER.md`（ui-ux-pro-max 原始輸出 provenance）。
+- `variants/variant-a|b|c.html`（Bento/雜誌/霓虹玻璃 三探索方向，並行子代理產）。
+- **`variants/variant-bc.html` = 阿喜 S4 定案 LOOK**（B 雜誌編輯結構 + C 霓虹玻璃，修掉 C 對比過低；藍熱詞還原）。
+- `yaya_bg.png` 本機副本（7MB，已 gitignore，真圖在 root/data）。
+
+**LOOK 迭代史（4 輪，詳見 MASTER §0）**：v1 儀表板扁平→阿喜「比之前還醜」（通用工具洗掉吉祥物個性）→ v2 中度翻新「跟之前長得好像」→ 3 方向 A/B/C → 阿喜選 B+C → variant-bc 定案。
+
+**核心教訓（防復發）**：ui-ux-pro-max 通用建議（dashboard-flat/反-Ornate/無背景/Fira/藍票）不可硬套 mascot 粉絲站；只取結構性建議（4/8px/層級/token/a11y），視覺個性以阿喜審美為準。截圖 MCP 工具此 session 環境故障，改用 Edge headless CLI（--screenshot --virtual-time-budget）出圖自檢。
+
+**飛輪/品質**：S3 後跑 5-lens 對抗審查（品牌/儀表板/中文密度/a11y/P119可套性）；獨立複核揪出並修正自身 MASTER 一句不誠實對比宣稱（誠實守則）。微尺寸刻意不過度 token 化（反膨脹，明文記 lint 例外）。
+
+**17 層稽核**：標準半徑（design-system/ 新增數檔，不動 live）。S 級代碼/邏輯(宣告式 tokens)/測試(mockup 人工簽核+token 一致性機械驗+Edge render)/安全(純前端靜態)；A 級架構(tokens 單一真相源)/UX(spacing 解#3)/文件(MASTER)。
+
+**風險**：RP1 mockup 套不進真模板→variant 用 report.html 真實 class 名+§6 punch-list 記落差；RP2 品牌被蓋→品牌鎖區 override（v1 翻車已驗此風險真實，已矯正）。
+
+**狀態**：✅ S1-S5 完成，LOOK 定案（variant-bc）。Exit A-F 達成（A tokens✅ B MASTER✅ C mockup/variants✅ D 阿喜簽核✅ E 品牌色一致性自檢✅ F TASK_HISTORY+memory✅）。**待 commit/push（問阿喜後執行）**。P119 接力：把 variant-bc 設計套到 live report.html + token-lint 上線。

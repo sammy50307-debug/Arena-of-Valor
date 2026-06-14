@@ -1,0 +1,158 @@
+/* =============================================================================
+ * Arena of Valor — Design Tokens (single source of truth)
+ * P118 整站重設計①設計系統地基 ｜ 2026-06-15 ｜ 混搭：芽芽粉櫻品牌色 + 儀表板結構
+ * -----------------------------------------------------------------------------
+ * 唯一真相源：全站色 / 間距 / 字級 / 圓角 / 陰影 / 層級 一律引用本檔 var(--token)。
+ * report.html / index.html 禁硬編碼 #hex / 任意 px（P119 起 token-lint advisory 守護）。
+ *
+ * 架構：(A) 芽芽品牌鎖區（不可被推薦色蓋掉）→ (B) 原子色階/尺度 → (C) 語意別名（P119 消費層）。
+ * 來源：ui-ux-pro-max「Data-Dense Dashboard」結構 + color domain「Soft pink」專業色票
+ *       + report.html :root 既有品牌值萃取（見 design-system/MASTER.md 綜合決策表）。
+ * ========================================================================== */
+
+:root {
+  /* ===========================================================================
+   * (A) 芽芽品牌鎖區 — BRAND LOCK（從 report.html:13-31 萃取，override 通用推薦）
+   *     RP2 緩解：ui-ux-pro-max 對 gaming 推霓虹藍，這區強制保留粉櫻識別。
+   * ======================================================================== */
+  --brand-pink:        #db2777;  /* 旗艦桃紅 pink-600（既有 --primary-accent）         */
+  --brand-pink-deep:   #be185d;  /* 深桃紅 pink-700（既有標題色 h3）                    */
+  --brand-mint:        #10b981;  /* 薄荷綠 emerald-500（既有 --accent-mint）            */
+  --brand-violet:      #9333ea;  /* 紫羅蘭（既有 --secondary-accent，重設計後降為輔助） */
+  --brand-bg-from:     #fdf2f8;  /* 漸層起：粉 pink-50                                  */
+  --brand-bg-to:       #f0fdf4;  /* 漸層終：薄荷 green-50                               */
+  --brand-gradient:    linear-gradient(135deg, var(--brand-bg-from) 0%, var(--brand-bg-to) 100%);
+  --brand-glass:       rgba(255, 255, 255, 0.7);   /* glassmorphism 半透白              */
+  --brand-glass-solid: rgba(255, 255, 255, 0.95);  /* 行動版/降規去 blur 用             */
+  --brand-glass-border:rgba(219, 39, 119, 0.2);    /* 粉邊（#db2777 @ 0.2）             */
+  --brand-glass-blur:  blur(24px) saturate(180%);  /* 玻璃模糊（行動版關閉，見 P120）   */
+  /* sakura 櫻花動畫保留於 report.html（.sakura-container），屬品牌資產，P119 不移除 */
+
+  /* ===========================================================================
+   * (B) 原子尺度 — PRIMITIVES（給語意層引用，元件不直接用裸 hex）
+   * ======================================================================== */
+
+  /* --- 粉系色階（Tailwind pink，品牌主色族）--- */
+  --pink-50:  #fdf2f8;  --pink-100: #fce7f3;  --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4;  --pink-400: #f472b6;  --pink-500: #ec4899;
+  --pink-600: #db2777;  --pink-700: #be185d;  --pink-800: #9d174d;  --pink-900: #831843;
+
+  /* --- 薄荷/翠綠（正向情緒 + 品牌副色）--- */
+  --mint-50:  #ecfdf5;  --mint-100: #d1fae5;  --mint-500: #10b981;  --mint-600: #059669;  --mint-700: #047857;
+
+  /* --- 中性灰階（儀表板結構，Tailwind slate）--- */
+  --slate-50:  #f8fafc;  --slate-100: #f1f5f9;  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;  --slate-400: #94a3b8;  --slate-500: #64748b;
+  --slate-600: #475569;  --slate-700: #334155;  --slate-800: #1e293b;  --slate-900: #0f172a;
+
+  /* --- 語意狀態色（情緒/重複/警示；非純色傳達，配 icon/文字）--- */
+  --rose-50:   #fff1f2;  /* 負向情緒淡底 */
+  --rose-500:  #f43f5e;  --rose-600: #e11d48;   /* 負向情緒                            */
+  --amber-100: #fef3c7;  --amber-700: #92400e;  /* 重複徽章（既有用色）                */
+  --red-600:   #dc2626;                          /* destructive                        */
+
+  /* --- 熱詞藍（阿喜 S4 拍板保留：真實熱詞統計專用強調色，非全站主色）--- */
+  --blue-deep: #1e3a5f;  --blue-600: #2563eb;  --blue-300: #60a5fa;
+
+  /* --- 間距尺度（4/8px 基準，解 #3 鬆散/貼太近根因；UX 鐵則：touch ≥8px）--- */
+  --space-1:  0.25rem;  /* 4px  緊湊內距             */
+  --space-2:  0.5rem;   /* 8px  icon 間距 / 最小可點 */
+  --space-3:  0.75rem;  /* 12px 行內間距             */
+  --space-4:  1rem;     /* 16px 標準內距             */
+  --space-5:  1.25rem;  /* 20px                      */
+  --space-6:  1.5rem;   /* 24px 卡片內距 / feed gap  */
+  --space-8:  2rem;     /* 32px 卡片大內距 / 區塊 gap*/
+  --space-10: 2.5rem;   /* 40px                      */
+  --space-12: 3rem;     /* 48px 區塊外距             */
+  --space-16: 4rem;     /* 64px 大留白               */
+
+  /* --- 字級尺度（模組化；品牌字 Outfit + Noto Sans TC）--- */
+  --font-sans: 'Outfit', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+  --text-xs:   0.75rem;   /* 12px 徽章/註記   */
+  --text-sm:   0.875rem;  /* 14px 次要文字    */
+  --text-base: 1rem;      /* 16px 內文        */
+  --text-lg:   1.125rem;  /* 18px 卡片標題    */
+  --text-xl:   1.25rem;   /* 20px 區塊標題 h2 */
+  --text-2xl:  1.5rem;    /* 24px             */
+  --text-3xl:  1.875rem;  /* 30px 主標        */
+  --text-4xl:  2.25rem;   /* 36px hero        */
+
+  --weight-normal:   400;  --weight-medium: 500;
+  --weight-semibold: 600;  --weight-bold:   700;  --weight-extra: 800;
+
+  /* 行高：中文內文用 ≥1.6 才舒適（i18n token，計畫書 §6 17 層）*/
+  --leading-tight:   1.25;  /* 標題          */
+  --leading-snug:    1.4;   /* 卡片標題      */
+  --leading-title:   1.5;   /* 中文標題（2 行 clamp，CJK 略鬆於 snug，避免行間過緊）*/
+  --leading-normal:  1.6;   /* 中文內文（既有 post-content 1.7→收斂 1.6-1.7）*/
+  --leading-relaxed: 1.75;  /* 長段落        */
+
+  /* --- 圓角尺度 --- */
+  --radius-sm:   8px;   --radius-md:  12px;  --radius-lg:  16px;
+  --radius-xl:   20px;  --radius-2xl: 24px;  /* post-card（既有）*/
+  --radius-3xl:  28px;  /* card（既有）*/     --radius-full: 999px;  /* pill */
+
+  /* --- 陰影尺度（儀表板微陰影 + 1 道柔粉品牌陰影；棄 neon glow〔Ornate anti-pattern〕）--- */
+  --shadow-xs:   0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm:   0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md:   0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg:   0 10px 24px rgba(15, 23, 42, 0.10);
+  --shadow-xl:   0 20px 40px rgba(15, 23, 42, 0.12);
+  --shadow-brand:       0 15px 35px rgba(219, 39, 119, 0.14);  /* 卡片粉光暈（取代 --card-shadow）*/
+  --shadow-brand-hover: 0 25px 50px rgba(219, 39, 119, 0.22);  /* hover（取代 --hover-shadow）*/
+  /* 霓虹光暈（品牌個性；阿喜 S4 拍板保留——mascot 粉絲站不套通用反-Ornate）*/
+  --glow-brand:         0 0 15px rgba(219, 39, 119, 0.35);
+  --glow-brand-strong:  0 0 28px rgba(219, 39, 119, 0.55);
+
+  /* --- 動效（150-300ms 過渡，Pre-Delivery Checklist）--- */
+  --ease-out:  cubic-bezier(0.19, 1, 0.22, 1);  /* 既有品牌緩動 */
+  --ease-std:  cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:  150ms;  --dur-base: 250ms;  --dur-slow: 400ms;
+
+  /* --- z-index 層級 --- */
+  --z-base: 1;  --z-sticky: 100;  --z-overlay: 900;  --z-panel: 1000;  --z-toast: 1100;
+
+  /* ===========================================================================
+   * (C) 語意別名 — SEMANTIC（P119 消費層：report.html 硬編碼換成這些）
+   *     元件只引用語意 token，色階換值不必改元件。
+   * ======================================================================== */
+  --color-bg:            var(--brand-gradient);
+  --color-surface:       var(--brand-glass);        /* 卡片玻璃面          */
+  --color-surface-solid: var(--brand-glass-solid);  /* 降規/行動版         */
+  --color-surface-sub:   rgba(255, 255, 255, 0.6);  /* 次卡（post-card）   */
+  --color-border:        var(--brand-glass-border);
+  --color-border-soft:   var(--slate-200);
+
+  --color-text:          var(--slate-800);  /* 主文 #1e293b（品牌）       */
+  --color-text-muted:    var(--slate-500);  /* 次文 #64748b（品牌）       */
+  --color-text-subtle:   var(--slate-400);  /* 註記/時間戳               */
+
+  --color-primary:       var(--pink-600);   /* 主互動/標題 #db2777        */
+  --color-primary-strong:var(--pink-700);   /* 強調標題 #be185d           */
+  --color-on-primary:    #ffffff;
+  --color-primary-soft:  var(--pink-50);    /* 主色淡底（hover/標籤底）   */
+  --color-accent:        var(--mint-500);   /* 薄荷強調                   */
+
+  --color-positive:      var(--mint-700);   /* 正向情緒（配 icon；mint-700 #047857 留對比餘裕 ~5.3:1）*/
+  --color-negative:      var(--rose-600);   /* 負向情緒（配 icon）        */
+  --color-neutral:       var(--slate-400);  /* 中立情緒                   */
+
+  /* 半透白疊層 */
+  --color-overlay-light:  rgba(255, 255, 255, 0.25);
+  --color-overlay-medium: rgba(255, 255, 255, 0.5);
+
+  /* 真實熱詞 pill（阿喜 S4 拍板保留藍色調，僅加可點 affordance；見 MASTER §1）*/
+  --hot-tag-bg:       linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-600) 100%);
+  --hot-tag-color:    #e2e8f0;
+  --hot-tag-border:   rgba(96, 165, 250, 0.3);
+  --hot-tag-count-bg: rgba(255, 255, 255, 0.15);
+  --hot-tag-focus:    0 0 0 3px rgba(37, 99, 235, 0.5);
+
+  /* 焦點環（a11y：鍵盤導覽可見，Pre-Delivery Checklist）*/
+  --focus-ring: 0 0 0 3px rgba(219, 39, 119, 0.35);
+}
+
+/* 降低動效偏好者：關閉非必要動畫（Pre-Delivery Checklist / a11y）*/
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; }
+}

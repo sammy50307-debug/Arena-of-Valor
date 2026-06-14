@@ -1,6 +1,6 @@
 # Phase 118 — 整站重設計 ①設計系統地基（芽芽品牌色 + 儀表板結構，用 ui-ux-pro-max）（草案 v1，待阿喜核准）
 
-> 狀態：**v1 已凍結（2026-06-15，阿喜核准飛輪版 + lint M1/M2 PASS；交接下個視窗執行）**
+> 狀態：**✅ 收官（2026-06-15，S1-S5 完成，Exit A-F 達成；LOOK 定案＝`design-system/variants/variant-bc.html` B+C 融合；待 commit/push）**。LOOK 迭代 4 輪詳見 `design-system/MASTER.md §0`；核心教訓：ui-ux-pro-max 通用建議不可套 mascot 品牌（v1 扁平被打槍）。
 > 戰線：**前端 / UX（設計系統）+ 治理/測試（防復發強制層）**——整站重設計 4-Phase 計畫（P118 地基 → P119 報告視覺+token-lint上線 → P120 響應式/LINE/A11y → P121 Landing）的第一棒。
 > 美學方向（阿喜 2026-06-15 拍板）：**混搭——保留「芽芽」粉櫻品牌色 + 吉祥物識別，採儀表板的清晰結構/資訊層級/專業間距。**
 >
@@ -50,12 +50,12 @@
 
 ## 4. Exit Criteria
 
-- [ ] **A**：`design-system/MASTER.md`（ui-ux-pro-max --persist 產出 + 芽芽品牌 override 區段）
-- [ ] **B**：`design-system/tokens.css`——一套 CSS 變數：色票（芽芽粉系 primary + 儀表板中性灰階 + 語意色 pos/neg/neu + glass）、type-scale（字級階梯）、spacing-scale（4/8px 基準間距階梯，解 #3 鬆散/貼太近根因）、radii、shadow、z-index
-- [ ] **C**：`design-system/mockup.html`——獨立 sandbox（**不依賴 generate()**），呈現新設計的 3 個關鍵元件：(1) 區塊卡片（header+content）(2) 真實熱詞統計區（含 #1 連結態的視覺處理）(3) 文章 feed + 滾輪詳情（含 #3 呼吸空間）。用真實資料形狀的假資料。
-- [ ] **D（阿喜定案）**：阿喜看 mockup 截圖簽核 LOOK；不滿意則迭代 mockup（不進 P119）
-- [ ] **E**：tokens 與品牌色一致性自檢（萃取的芽芽色值有出現在 tokens.css）；mockup 元件結構對齊 report.html 既有 Jinja 區塊（為 P119 鋪路）
-- [ ] **F**：收官件套（TASK_HISTORY + memory）+ P119 計畫書預告
+- [x] **A**：`design-system/MASTER.md`（ui-ux-pro-max --persist 產出於 aov/ + 混搭決策 + 芽芽品牌 override + S4 迭代史 + §6 P119 punch-list）
+- [x] **B**：`design-system/tokens.css`——一套 CSS 變數：芽芽品牌鎖區 + 原子色階（pink/mint/slate/rose/藍熱詞）+ 4/8px spacing-scale（解 #3）+ type/radii/shadow/glow + 語意層（P119 消費）
+- [x] **C**：`design-system/mockup.html` + `variants/variant-a|b|c|bc.html`——獨立 sandbox（不依賴 generate()），3 關鍵元件（卡片/熱詞/feed），真實資料形狀
+- [x] **D（阿喜定案）**：阿喜 S4 簽核 LOOK = `variants/variant-bc.html`（B 雜誌封面 × C 霓虹玻璃）；迭代 4 輪不滿意都在 sandbox 修，未進 P119
+- [x] **E**：品牌色一致性自檢（#db2777/#be185d/#10b981/漸層/glass 皆在 tokens.css 鎖區）；mockup/variant 用 report.html 真實 class 名（落差記 MASTER §6 punch-list 為 P119 鋪路）
+- [x] **F**：收官件套（TASK_HISTORY P118 + memory project_status/新 feedback/MEMORY 索引）+ P119 預告（MASTER §6）
 
 ## 5. ROI 評估
 

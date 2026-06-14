@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOV 設計系統 Mockup v2（P118 sandbox · 非 live 報告）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: transparent;
+    min-height: 100vh;
+    padding-bottom: var(--space-16);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* ── 滿版芽芽角色立繪（品牌靈魂，阿喜 S4 要求加回）── */
+  .bg-fortress {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background: url('./yaya_bg.png') center top / cover no-repeat;
+    opacity: 0.92;
+  }
+  /* 柔粉→薄荷半透紗（讓立繪透出 + 品牌染色 + 提升卡片可讀）*/
+  .bg-tint {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(135deg, rgba(253,242,248,0.58) 0%, rgba(240,253,244,0.52) 100%);
+  }
+  /* 櫻花飄落（品牌動效，少量點綴）*/
+  .sakura { position: fixed; top: -5%; z-index: 0; pointer-events: none; font-size: 1.1rem; opacity: 0.75; animation: fall linear infinite; }
+  @keyframes fall { to { transform: translateY(106vh) rotate(220deg); } }
+
+  .sandbox-banner {
+    position: relative; z-index: 2;
+    background: var(--color-primary-strong); color: var(--color-on-primary);
+    text-align: center; font-size: var(--text-sm); font-weight: var(--weight-semibold);
+    padding: var(--space-2) var(--space-4); letter-spacing: .02em;
+  }
+  .sandbox-banner span { opacity: .85; font-weight: var(--weight-normal); }
+
+  .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 var(--space-8); }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: var(--space-4);
+    padding: var(--space-12) 0 var(--space-8);
+  }
+  .header h1 {
+    margin: 0; font-size: var(--text-4xl); font-weight: var(--weight-extra);
+    color: var(--color-primary-strong); letter-spacing: -.01em;
+    text-shadow: 0 2px 10px rgba(255,255,255,0.7), 0 1px 2px rgba(255,255,255,0.9);
+  }
+  .header .subtitle {
+    margin: var(--space-2) 0 0; color: var(--color-text); font-size: var(--text-sm); font-weight: var(--weight-medium);
+    text-shadow: 0 1px 6px rgba(255,255,255,0.8);
+  }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    background: var(--color-surface); backdrop-filter: var(--brand-glass-blur); -webkit-backdrop-filter: var(--brand-glass-blur);
+    border: 1px solid var(--color-border); border-radius: var(--radius-full);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--color-primary);
+    box-shadow: var(--shadow-brand);
+  }
+  .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--brand-pink); box-shadow: var(--glow-brand); animation: pulse 1.8s var(--ease-out) infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.55);opacity:.45} }
+
+  /* ── 主 grid（2:1）── */
+  .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-8); align-items: start; }
+  .left-col { display: flex; flex-direction: column; gap: var(--space-8); }
+  .right-col { position: sticky; top: var(--space-6); }
+
+  /* ── 玻璃卡片（光暈質感，阿喜 S4 要求加回）── */
+  .card {
+    background: var(--color-surface); backdrop-filter: var(--brand-glass-blur); -webkit-backdrop-filter: var(--brand-glass-blur);
+    border: 1px solid var(--color-border); border-radius: var(--radius-3xl);
+    padding: var(--space-8); box-shadow: var(--shadow-brand);
+    transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  }
+  .card:hover { box-shadow: var(--shadow-brand-hover), var(--glow-brand); }
+  .card-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+  .card-icon {
+    width: 42px; height: 42px; flex: none; display: grid; place-items: center;
+    background: var(--color-primary-soft); border-radius: var(--radius-md); font-size: 1.3rem;
+    box-shadow: inset 0 0 0 1px var(--pink-200);
+  }
+  .card-header h2 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-bold); color: var(--color-primary-strong); }
+  .card-header .sub { font-size: var(--text-xs); color: var(--color-text-subtle); font-weight: var(--weight-normal); margin-left: var(--space-2); }
+
+  .insight-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-4); }
+  .insight-list li {
+    display: flex; gap: var(--space-3); align-items: flex-start;
+    font-size: var(--text-base); color: var(--color-text); line-height: var(--leading-normal);
+    padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border-soft);
+  }
+  .insight-list li:last-child { border-bottom: none; padding-bottom: 0; }
+  .insight-list .bullet { color: var(--brand-mint); font-weight: var(--weight-bold); flex: none; }
+
+  /* ── 真實熱詞統計（阿喜 拍板保留藍色，僅加 cursor/hover/focus 可點提示，#1）── */
+  .real-hot-tags { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-1) 0; }
+  .hot-tag {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-2) var(--space-3); border-radius: var(--radius-full);
+    background: var(--hot-tag-bg); color: var(--hot-tag-color);
+    border: 1px solid var(--hot-tag-border);
+    font-size: var(--text-sm); font-weight: var(--weight-semibold);
+    cursor: pointer; text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-std), box-shadow var(--dur-fast) var(--ease-std);
+  }
+  .hot-tag:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+  .hot-tag:hover .hot-word { text-decoration: underline; text-underline-offset: 2px; }
+  .hot-tag:focus-visible { outline: none; box-shadow: var(--hot-tag-focus); }
+  .hot-tag .tag-count { background: var(--hot-tag-count-bg); border-radius: var(--radius-full); padding: 0 var(--space-2); font-size: var(--text-xs); }
+
+  /* ── feed + 滾輪 ── */
+  .feed-card { display: flex; flex-direction: column; max-height: calc(100vh - var(--space-12)); }
+  .feed-container {
+    display: flex; flex-direction: column; gap: var(--space-6);
+    overflow-y: auto; margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-3) var(--space-3);  /* #3 呼吸空間 */
+  }
+  .feed-container::-webkit-scrollbar { width: 6px; }
+  .feed-container::-webkit-scrollbar-thumb { background: var(--pink-200); border-radius: var(--radius-full); }
+  .post-card {
+    background: var(--color-surface-sub); backdrop-filter: blur(10px);
+    border: 1px solid var(--color-border); border-radius: var(--radius-2xl);
+    padding: var(--space-6); text-decoration: none; color: inherit; display: block;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  }
+  .post-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-brand), var(--glow-brand); border-color: var(--brand-pink); }
+  .post-card.yaya-highlight { border-color: var(--brand-pink); background: linear-gradient(135deg, var(--pink-50) 0%, var(--color-surface-sub) 60%); box-shadow: var(--shadow-brand), var(--glow-brand); }
+  .post-meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-3); }
+  .region-tag, .post-platform, .badge {
+    font-size: var(--text-xs); font-weight: var(--weight-semibold);
+    padding: 2px var(--space-2); border-radius: var(--radius-sm);
+  }
+  .region-tag { background: var(--slate-100); color: var(--slate-600); }
+  .post-platform { background: var(--slate-100); color: var(--slate-500); }
+  .post-platform.yaya { background: var(--pink-50); color: var(--brand-pink); }
+  .badge.dup { background: var(--amber-100); color: var(--amber-700); border-radius: var(--radius-full); }
+  .post-score { margin-left: auto; font-size: var(--text-xs); color: var(--color-text-subtle); font-weight: var(--weight-medium); }
+  .sentiment {
+    display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-xs); font-weight: var(--weight-semibold);
+    padding: 2px var(--space-2); border-radius: var(--radius-full);
+  }
+  .sentiment.pos { background: var(--mint-50); color: var(--color-positive); }
+  .sentiment.neg { background: var(--rose-50); color: var(--color-negative); }
+  .sentiment.neu { background: var(--slate-100); color: var(--slate-500); }
+  .post-title {
+    font-size: var(--text-lg); font-weight: var(--weight-bold); color: var(--color-primary);
+    margin: 0 0 var(--space-2); line-height: var(--leading-title);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .post-card.yaya-highlight .post-title { color: var(--color-primary-strong); }
+  .post-content {
+    font-size: var(--text-sm); color: var(--color-text-muted); line-height: var(--leading-normal); margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .foot { text-align: center; color: var(--color-text-muted); font-size: var(--text-xs); margin-top: var(--space-12); text-shadow: 0 1px 4px rgba(255,255,255,0.7); }
+
+  @media (max-width: 900px) {
+    .wrap { padding: 0 var(--space-4); }
+    .main-grid { grid-template-columns: 1fr; }
+    .right-col { position: relative; top: 0; }
+    .feed-card { max-height: none; }
+  }
+  @media (max-width: 600px) {
+    .real-hot-tags { gap: var(--space-2); }
+    .post-meta { gap: var(--space-1); }
+    .header h1 { font-size: var(--text-3xl); }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-fortress"></div>
+  <div class="bg-tint"></div>
+  <div class="sakura" style="left:8%; animation-duration:9s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:32%; animation-duration:12s; animation-delay:2s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:58%; animation-duration:10s; animation-delay:1s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:78%; animation-duration:13s; animation-delay:3s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:90%; animation-duration:11s; animation-delay:0.5s;" aria-hidden="true">🌸</div>
+
+  <div class="sandbox-banner">🧪 P118 設計系統 Mockup v2（sandbox）<span>　·　非 live 報告，外觀真正改變在 P119 上線</span></div>
+
+  <div class="wrap">
+    <header class="header">
+      <div>
+        <h1>🌸 芽芽戰情室</h1>
+        <p class="subtitle">傳說對決 · 台服旗艦監芽芽觀察室 · 2026-06-15（一）· 台北 16:30 自動產製</p>
+      </div>
+      <div class="live-badge"><span class="live-dot"></span>LIVE · 資料即時</div>
+    </header>
+
+    <div class="main-grid">
+      <div class="left-col">
+
+        <section class="card">
+          <div class="card-header">
+            <span class="card-icon" aria-hidden="true">🌐</span>
+            <h2>全球戰略洞察</h2>
+          </div>
+          <ul class="insight-list">
+            <li><span class="bullet">▹</span>S38 賽季芽芽被動冷卻縮減後，台服打野登場率單週上升 12%，職業圈普遍認為節奏重塑利於前期入侵。</li>
+            <li><span class="bullet">▹</span>泰服社群對新皮膚定價分歧明顯，負面討論集中於通行證性價比；越服則以實戰連招教學為主。</li>
+            <li><span class="bullet">▹</span>跨區共識：大招範圍擴大被視為本次平衡更新最大變數，建議持續追蹤對線壓制數據。</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <span class="card-icon" aria-hidden="true">📊</span>
+            <h2>真實熱詞統計<span class="sub">jieba 詞頻 · 點詞看來源</span></h2>
+          </div>
+          <div class="real-hot-tags">
+            <a href="#" class="hot-tag" aria-label="芽芽，42 則來源"><span class="hot-word">芽芽</span><span class="tag-count">42</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">打野</span><span class="tag-count">31</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">S38賽季</span><span class="tag-count">27</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">被動技能</span><span class="tag-count">24</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">平衡更新</span><span class="tag-count">19</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">新皮膚</span><span class="tag-count">17</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">大招範圍</span><span class="tag-count">15</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">對線壓制</span><span class="tag-count">12</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">通行證</span><span class="tag-count">11</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">連招教學</span><span class="tag-count">9</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">登場率</span><span class="tag-count">8</span></a>
+            <a href="#" class="hot-tag"><span class="hot-word">職業選手</span><span class="tag-count">6</span></a>
+          </div>
+        </section>
+      </div>
+
+      <div class="right-col">
+        <section class="card feed-card">
+          <div class="card-header">
+            <span class="card-icon" aria-hidden="true">📰</span>
+            <h2>最新動態詳情</h2>
+          </div>
+          <div class="feed-container">
+
+            <a href="#" class="post-card yaya-highlight">
+              <div class="post-meta">
+                <span class="region-tag">🇹🇼 TW</span>
+                <span class="post-platform yaya">FACEBOOK</span>
+                <span class="sentiment pos"><span aria-hidden="true">◕</span> 正向</span>
+                <span class="post-score">#1　★0.94</span>
+              </div>
+              <h3 class="post-title">【深度解析】S38 賽季芽芽大幅強化：被動冷卻縮減＋大招範圍擴大，打野節奏全面重塑，職業選手怎麼看？</h3>
+              <p class="post-content">本週平衡更新後，芽芽在台服打野位的登場率單週上升 12%。多位職業選手指出，被動技能冷卻從 8 秒下修至 6 秒讓前期入侵節奏明顯加快，配合大招範圍擴大，團戰開團容錯率提升……</p>
+            </a>
+
+            <a href="#" class="post-card">
+              <div class="post-meta">
+                <span class="region-tag">🇹🇭 TH</span>
+                <span class="post-platform">YOUTUBE</span>
+                <span class="badge dup">↻ 重複 · 昨日</span>
+                <span class="sentiment neu"><span aria-hidden="true">◒</span> 中性</span>
+                <span class="post-score">#2　★0.81</span>
+              </div>
+              <h3 class="post-title">泰服新賽季通行證實測：48 級獎勵全公開，性價比到底值不值得買？</h3>
+              <p class="post-content">影片逐項拆解本季通行證的皮膚、頭像框與代幣回收率，並與上季對比。留言區對定價兩極，部分玩家認為高階獎勵縮水……</p>
+            </a>
+
+            <a href="#" class="post-card">
+              <div class="post-meta">
+                <span class="region-tag">🇻🇳 VN</span>
+                <span class="post-platform">DCARD</span>
+                <span class="sentiment neg"><span aria-hidden="true">◔</span> 負向</span>
+                <span class="post-score">#3　★0.76</span>
+              </div>
+              <h3 class="post-title">越服伺服器連兩日高延遲，排位掉線災情頻傳引發退坑潮討論</h3>
+              <p class="post-content">連續兩晚尖峰時段出現 200ms 以上延遲與隨機掉線，多名玩家貼出排位被判逃跑的截圖，要求官方補償並說明機房狀況……</p>
+            </a>
+
+            <a href="#" class="post-card">
+              <div class="post-meta">
+                <span class="region-tag">🌐 GLOBAL</span>
+                <span class="post-platform">REDDIT</span>
+                <span class="sentiment pos"><span aria-hidden="true">◕</span> 正向</span>
+                <span class="post-score">#4　★0.69</span>
+              </div>
+              <h3 class="post-title">Meta shift: why jungle tempo is the biggest winner this patch</h3>
+              <p class="post-content">A breakdown of how the cooldown changes ripple into early-game pathing, with sample clear routes and gank timings from high-elo replays this week……</p>
+            </a>
+
+            <a href="#" class="post-card">
+              <div class="post-meta">
+                <span class="region-tag">🇹🇼 TW</span>
+                <span class="post-platform yaya">THREADS</span>
+                <span class="sentiment pos"><span aria-hidden="true">◕</span> 正向</span>
+                <span class="post-score">#5　★0.63</span>
+              </div>
+              <h3 class="post-title">芽芽連招教學：三套上分 combo</h3>
+              <p class="post-content">手把手拆解芽芽當前版本最穩三套連招，附對線與團戰時機說明，新手也能快速上手……</p>
+            </a>
+
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <p class="foot">design-system/mockup.html v2 · 套用 tokens.css · 角色背景+光暈+藍熱詞保留 · 三關鍵元件對齊 report.html 結構（P119 落地依據）</p>
+  </div>
+</body>
+</html>

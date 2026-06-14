@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>芽芽戰情室 — B+C 融合（雜誌封面風 × 霓虹玻璃）｜P118 sandbox · 非 live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-sans); color: var(--color-text);
+    background: transparent; min-height: 100vh; padding-bottom: var(--space-16);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 三層背景：滿版立繪 + 鮮豔 mesh（C 的飽和）+ 淺紗（B 的可讀）── */
+  .bg-fortress { position: fixed; inset: 0; z-index: -3; pointer-events: none; background: url('../yaya_bg.png') center top / cover no-repeat; opacity: 0.92; }
+  .bg-mesh {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none; mix-blend-mode: screen;
+    background:
+      radial-gradient(45% 50% at 12% 16%, rgba(219,39,119,0.38) 0%, rgba(219,39,119,0) 70%),
+      radial-gradient(40% 46% at 88% 12%, rgba(147,51,234,0.30) 0%, rgba(147,51,234,0) 72%),
+      radial-gradient(48% 52% at 84% 88%, rgba(16,185,129,0.30) 0%, rgba(16,185,129,0) 70%),
+      radial-gradient(42% 48% at 16% 90%, rgba(236,72,153,0.32) 0%, rgba(236,72,153,0) 72%);
+    animation: meshDrift 20s var(--ease-std) infinite alternate;
+  }
+  @keyframes meshDrift { 0%{transform:scale(1) translate(0,0)} 100%{transform:scale(1.1) translate(-1.5%,-1.5%)} }
+  /* 淺紗（保留 B 的可讀性，略降透明讓 mesh 透出更飽和）*/
+  .bg-tint { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(135deg, rgba(253,242,248,0.40) 0%, rgba(240,253,244,0.38) 100%); }
+
+  .sakura { position: fixed; top: -5%; z-index: 0; pointer-events: none; font-size: 1.1rem; opacity: 0.72; animation: fall linear infinite; }
+  @keyframes fall { to { transform: translateY(106vh) rotate(220deg); } }
+
+  .sandbox-banner {
+    position: relative; z-index: 2; background: var(--color-primary-strong); color: var(--color-on-primary);
+    text-align: center; font-size: var(--text-sm); font-weight: var(--weight-semibold);
+    padding: var(--space-2) var(--space-4); letter-spacing: .02em; box-shadow: var(--glow-brand);
+  }
+  .sandbox-banner span { opacity: .85; font-weight: var(--weight-normal); }
+
+  .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 var(--space-8); }
+
+  /* ════ HERO 封面（B 編輯式大版頭 + 發光分隔線 + 發光數字列）════ */
+  .cover { position: relative; padding: var(--space-16) 0 var(--space-12); margin-bottom: var(--space-12); }
+  .cover::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--brand-pink) 0%, var(--brand-violet) 48%, var(--brand-mint) 100%);
+    box-shadow: var(--glow-brand-strong);
+  }
+  .masthead {
+    display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);
+    border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-4); margin-bottom: var(--space-10);
+  }
+  .masthead .brand {
+    margin: 0; font-size: var(--text-2xl); font-weight: var(--weight-extra); color: var(--color-primary-strong); letter-spacing: -.01em;
+    text-shadow: 0 2px 10px rgba(255,255,255,0.75), 0 0 22px rgba(219,39,119,0.25), 0 1px 2px rgba(255,255,255,0.9);
+  }
+  .masthead .issue {
+    font-size: var(--text-xs); font-weight: var(--weight-semibold); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--color-text-muted); text-shadow: 0 1px 6px rgba(255,255,255,0.85);
+  }
+  .cover-kicker {
+    display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold);
+    letter-spacing: .16em; text-transform: uppercase; color: var(--color-primary); margin-bottom: var(--space-5);
+    text-shadow: 0 1px 6px rgba(255,255,255,0.85);
+  }
+  .cover-kicker .rule { width: 38px; height: 2px; background: var(--brand-mint); display: inline-block; box-shadow: 0 0 10px rgba(16,185,129,0.6); }
+  .cover-title {
+    margin: 0 0 var(--space-6); font-size: clamp(2.4rem, 6.5vw, 4.6rem); font-weight: var(--weight-extra);
+    line-height: var(--leading-tight); letter-spacing: -.02em; color: var(--color-primary-strong); max-width: 16ch;
+    text-shadow: 0 2px 14px rgba(255,255,255,0.72), 0 0 34px rgba(219,39,119,0.28), 0 1px 3px rgba(255,255,255,0.92);
+  }
+  .cover-title .accent { color: var(--brand-pink); }
+  .cover-title .light { color: var(--mint-600); }
+  .cover-standfirst {
+    max-width: 54ch; margin: 0 0 var(--space-8); font-size: var(--text-lg); font-weight: var(--weight-normal);
+    color: var(--color-text); line-height: var(--leading-normal); text-shadow: 0 1px 6px rgba(255,255,255,0.85);
+  }
+  .cover-byline {
+    display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
+    font-size: var(--text-sm); color: var(--color-text-muted); font-weight: var(--weight-medium); text-shadow: 0 1px 6px rgba(255,255,255,0.85);
+  }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: var(--space-2); background: var(--color-surface);
+    backdrop-filter: var(--brand-glass-blur); -webkit-backdrop-filter: var(--brand-glass-blur);
+    border: 1px solid var(--brand-glass-border); border-radius: var(--radius-full); padding: var(--space-2) var(--space-4);
+    font-size: var(--text-xs); font-weight: var(--weight-bold); color: var(--color-primary); box-shadow: var(--shadow-brand), var(--glow-brand);
+  }
+  .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--brand-pink); box-shadow: var(--glow-brand-strong); animation: pulse 1.8s var(--ease-out) infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.55);opacity:.45} }
+
+  /* 發光關鍵數字列（C 的數據感，調成淺底可讀）*/
+  .cover-stats { display: flex; flex-wrap: wrap; gap: var(--space-10); margin-top: var(--space-8); }
+  .cstat { display: flex; flex-direction: column; gap: var(--space-1); }
+  .cstat .num {
+    font-size: var(--text-3xl); font-weight: var(--weight-extra); line-height: var(--leading-tight); color: var(--color-primary-strong);
+    text-shadow: 0 0 16px rgba(219,39,119,0.35), 0 1px 4px rgba(255,255,255,0.85);
+  }
+  .cstat.mint .num { color: var(--mint-600); text-shadow: 0 0 16px rgba(16,185,129,0.4), 0 1px 4px rgba(255,255,255,0.85); }
+  .cstat.violet .num { color: var(--brand-violet); text-shadow: 0 0 16px rgba(147,51,234,0.35), 0 1px 4px rgba(255,255,255,0.85); }
+  .cstat .label { font-size: var(--text-xs); color: var(--color-text-muted); font-weight: var(--weight-medium); letter-spacing: .03em; text-shadow: 0 1px 6px rgba(255,255,255,0.9); }
+
+  /* ════ 版面主體 ════ */
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: var(--space-12); align-items: start; }
+  .section-label {
+    display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-xs); font-weight: var(--weight-bold);
+    letter-spacing: .18em; text-transform: uppercase; color: var(--color-primary-strong); margin: 0 0 var(--space-6);
+    text-shadow: 0 1px 6px rgba(255,255,255,0.9);
+  }
+  .section-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--brand-glass-border), transparent); }
+  .section-label .emoji { font-size: var(--text-base); }
+
+  /* FEATURED 頭條（霓虹發光玻璃 panel）*/
+  .featured {
+    display: grid; grid-template-columns: 1.55fr 1fr; gap: var(--space-8);
+    background: linear-gradient(135deg, rgba(253,242,248,0.82) 0%, var(--brand-glass) 65%);
+    backdrop-filter: var(--brand-glass-blur); -webkit-backdrop-filter: var(--brand-glass-blur);
+    border: 1.5px solid var(--brand-glass-border); border-left: 4px solid var(--brand-pink); border-radius: var(--radius-2xl);
+    padding: var(--space-8); margin-bottom: var(--space-12); box-shadow: var(--shadow-brand), var(--glow-brand);
+    text-decoration: none; color: inherit;
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  .featured:hover { transform: translateY(-3px); box-shadow: var(--shadow-brand-hover), var(--glow-brand-strong); }
+  .featured:focus-visible { outline: none; box-shadow: var(--focus-ring), var(--shadow-brand); }
+  .featured-body { display: flex; flex-direction: column; }
+  .featured-meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }
+  .feature-flag {
+    font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: .1em; text-transform: uppercase;
+    color: var(--color-on-primary); background: var(--brand-pink); padding: 2px var(--space-3); border-radius: var(--radius-full); box-shadow: var(--glow-brand);
+  }
+  .featured-title {
+    margin: 0 0 var(--space-4); font-size: clamp(1.5rem, 2.8vw, 2rem); font-weight: var(--weight-extra);
+    line-height: var(--leading-title); letter-spacing: -.01em; color: var(--color-primary-strong);
+  }
+  .featured-excerpt { margin: 0 0 var(--space-6); font-size: var(--text-base); color: var(--color-text-muted); line-height: var(--leading-normal); }
+  .featured-readmore { margin-top: auto; font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--color-primary); display: inline-flex; align-items: center; gap: var(--space-2); }
+  .featured-thumb {
+    border-radius: var(--radius-xl); min-height: 200px;
+    background: linear-gradient(160deg, rgba(219,39,119,0.16) 0%, rgba(147,51,234,0.12) 50%, rgba(16,185,129,0.14) 100%), var(--brand-glass-solid);
+    border: 1.5px solid var(--brand-glass-border); box-shadow: inset 0 0 24px rgba(219,39,119,0.12), var(--glow-brand);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-3); text-align: center; padding: var(--space-6);
+  }
+  .featured-thumb .thumb-mascot { font-size: 3.4rem; filter: drop-shadow(0 6px 16px rgba(219,39,119,0.45)); }
+  .featured-thumb .thumb-cap { font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: .12em; text-transform: uppercase; color: var(--color-primary-strong); }
+  .featured-thumb .thumb-score { font-size: var(--text-sm); color: var(--color-text-muted); font-weight: var(--weight-medium); }
+
+  /* 其餘 4 篇多欄 */
+  .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-10) var(--space-8); }
+  .story {
+    display: block; text-decoration: none; color: inherit; padding: var(--space-5) var(--space-5) var(--space-5);
+    border-radius: var(--radius-xl); border: 1px solid transparent;
+    transition: transform var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+    border-top: 2px solid var(--brand-pink);
+  }
+  .story:hover {
+    transform: translateY(-2px); background: var(--brand-glass);
+    backdrop-filter: var(--brand-glass-blur); -webkit-backdrop-filter: var(--brand-glass-blur);
+    border: 1px solid var(--brand-glass-border); border-top: 2px solid var(--brand-pink); box-shadow: var(--shadow-brand), var(--glow-brand);
+  }
+  .story:hover .story-title { color: var(--color-primary-strong); }
+  .story:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .story-meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-3); }
+  .story-title { margin: 0 0 var(--space-3); font-size: var(--text-xl); font-weight: var(--weight-bold); line-height: var(--leading-title); color: var(--color-primary); transition: color var(--dur-fast) var(--ease-std); text-shadow: 0 1px 5px rgba(255,255,255,0.7); }
+  .story-excerpt { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); line-height: var(--leading-normal); text-shadow: 0 1px 5px rgba(255,255,255,0.6); }
+
+  /* 共用 meta */
+  .region-tag, .post-platform, .badge { font-size: var(--text-xs); font-weight: var(--weight-semibold); padding: 2px var(--space-2); border-radius: var(--radius-sm); }
+  .region-tag { background: var(--slate-100); color: var(--slate-600); }
+  .post-platform { background: var(--slate-100); color: var(--slate-500); }
+  .post-platform.yaya { background: var(--pink-50); color: var(--brand-pink); }
+  .badge.dup { background: var(--amber-100); color: var(--amber-700); border-radius: var(--radius-full); }
+  .post-score { margin-left: auto; font-size: var(--text-xs); color: var(--color-text-subtle); font-weight: var(--weight-medium); }
+  .sentiment { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-xs); font-weight: var(--weight-semibold); padding: 2px var(--space-2); border-radius: var(--radius-full); }
+  .sentiment.pos { background: var(--mint-50); color: var(--color-positive); }
+  .sentiment.neg { background: var(--rose-50); color: var(--color-negative); }
+  .sentiment.neu { background: var(--slate-100); color: var(--slate-500); }
+
+  /* ════ 側欄：編輯精選 + 藍熱詞雲（霓虹發光玻璃 panel）════ */
+  .rail { position: sticky; top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-10); }
+  .rail-block {
+    background: var(--brand-glass); backdrop-filter: var(--brand-glass-blur); -webkit-backdrop-filter: var(--brand-glass-blur);
+    border: 1.5px solid var(--brand-glass-border); border-radius: var(--radius-2xl); padding: var(--space-6); box-shadow: var(--shadow-brand), var(--glow-brand);
+  }
+  .rail-head {
+    display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-bold);
+    letter-spacing: .1em; text-transform: uppercase; color: var(--color-primary-strong); margin: 0 0 var(--space-5);
+    padding-bottom: var(--space-3); border-bottom: 2px solid var(--brand-pink);
+  }
+  .rail-head .sub { margin-left: auto; font-size: var(--text-xs); letter-spacing: 0; text-transform: none; color: var(--color-text-subtle); font-weight: var(--weight-normal); }
+  .pick-list { margin: 0; padding: 0; list-style: none; counter-reset: pick; display: flex; flex-direction: column; gap: var(--space-5); }
+  .pick-list li {
+    display: flex; gap: var(--space-3); align-items: flex-start; font-size: var(--text-sm); color: var(--color-text); line-height: var(--leading-normal);
+    padding-bottom: var(--space-5); border-bottom: 1px solid var(--color-border-soft);
+  }
+  .pick-list li:last-child { border-bottom: none; padding-bottom: 0; }
+  .pick-list li::before {
+    counter-increment: pick; content: counter(pick, decimal-leading-zero); flex: none; font-weight: var(--weight-extra);
+    font-size: var(--text-lg); color: var(--brand-pink); line-height: 1; letter-spacing: -.02em; text-shadow: var(--glow-brand);
+  }
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .hot-tag {
+    display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-full);
+    background: var(--hot-tag-bg); color: var(--hot-tag-color); border: 1px solid var(--hot-tag-border);
+    font-size: var(--text-sm); font-weight: var(--weight-semibold); cursor: pointer; text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-std), box-shadow var(--dur-fast) var(--ease-std);
+  }
+  .hot-tag:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(37,99,235,0.5); }
+  .hot-tag:hover .hot-word { text-decoration: underline; text-underline-offset: 2px; }
+  .hot-tag:focus-visible { outline: none; box-shadow: var(--hot-tag-focus); }
+  .hot-tag .tag-count { background: var(--hot-tag-count-bg); border-radius: var(--radius-full); padding: 0 var(--space-2); font-size: var(--text-xs); }
+
+  .foot { text-align: center; color: var(--color-text-muted); font-size: var(--text-xs); margin-top: var(--space-16); text-shadow: 0 1px 4px rgba(255,255,255,0.8); }
+
+  @media (max-width: 940px) {
+    .wrap { padding: 0 var(--space-4); }
+    .layout { grid-template-columns: 1fr; gap: var(--space-12); }
+    .rail { position: relative; top: 0; }
+  }
+  @media (max-width: 640px) {
+    .featured { grid-template-columns: 1fr; }
+    .featured-thumb { min-height: 150px; order: -1; }
+    .story-grid { grid-template-columns: 1fr; gap: var(--space-8); }
+    .cover { padding-top: var(--space-12); }
+    .cover-stats { gap: var(--space-6); }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-fortress"></div>
+  <div class="bg-mesh"></div>
+  <div class="bg-tint"></div>
+  <div class="sakura" style="left:10%; animation-duration:9s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:36%; animation-duration:12s; animation-delay:2s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:62%; animation-duration:10s; animation-delay:1s;" aria-hidden="true">🌸</div>
+  <div class="sakura" style="left:84%; animation-duration:13s; animation-delay:3s;" aria-hidden="true">🌸</div>
+
+  <div class="sandbox-banner">🧪 P118 設計方向 B+C 融合（sandbox）<span>　·　雜誌封面風 × 霓虹玻璃 · 非 live 報告</span></div>
+
+  <div class="wrap">
+
+    <!-- ══ HERO 封面 ══ -->
+    <header class="cover">
+      <div class="masthead">
+        <p class="brand">🌸 芽芽戰情室</p>
+        <span class="issue">傳說對決 輿情日報 · Vol.118 · 2026-06-15（一）· 台北 16:30 自動產製</span>
+      </div>
+
+      <span class="cover-kicker"><span class="rule" aria-hidden="true"></span>本期頭條 · S38 賽季平衡更新</span>
+
+      <h1 class="cover-title">
+        <span class="accent">芽芽</span>大幅強化，<br>
+        打野節奏<span class="light">全面重塑</span>
+      </h1>
+
+      <p class="cover-standfirst">
+        被動冷卻縮減＋大招範圍擴大，台服打野登場率單週上升 12%。職業選手怎麼看？本期帶你穿透台、泰、越與全球社群的最新風向。
+      </p>
+
+      <div class="cover-byline">
+        <span class="live-badge"><span class="live-dot" aria-hidden="true"></span>LIVE · 資料即時</span>
+        <span>台服旗艦觀察室　·　跨區輿情監測</span>
+      </div>
+
+      <div class="cover-stats">
+        <div class="cstat"><span class="num">128</span><span class="label">今日收錄文章</span></div>
+        <div class="cstat mint"><span class="num">64%</span><span class="label">整體正向情緒</span></div>
+        <div class="cstat"><span class="num">42</span><span class="label">熱詞追蹤數</span></div>
+        <div class="cstat violet"><span class="num">18%</span><span class="label">芽芽聲量占比</span></div>
+      </div>
+    </header>
+
+    <!-- ══ 版面主體 ══ -->
+    <div class="layout">
+
+      <main>
+        <p class="section-label"><span class="emoji" aria-hidden="true">📰</span>本期焦點</p>
+
+        <a href="#" class="featured">
+          <div class="featured-body">
+            <div class="featured-meta">
+              <span class="feature-flag">頭條</span>
+              <span class="region-tag">🇹🇼 TW</span>
+              <span class="post-platform yaya">FACEBOOK</span>
+              <span class="sentiment pos"><span aria-hidden="true">◕</span> 正向</span>
+              <span class="post-score">#1　★0.94</span>
+            </div>
+            <h2 class="featured-title">【深度解析】S38 賽季芽芽大幅強化：被動冷卻縮減＋大招範圍擴大，打野節奏全面重塑，職業選手怎麼看？</h2>
+            <p class="featured-excerpt">本週平衡更新後，芽芽在台服打野位的登場率單週上升 12%。多位職業選手指出，被動技能冷卻從 8 秒下修至 6 秒讓前期入侵節奏明顯加快，配合大招範圍擴大，團戰開團容錯率提升……</p>
+            <span class="featured-readmore">閱讀全文 <span aria-hidden="true">→</span></span>
+          </div>
+          <div class="featured-thumb">
+            <span class="thumb-mascot" aria-hidden="true">🌸</span>
+            <span class="thumb-cap">封面人物 · 芽芽</span>
+            <span class="thumb-score">熱度評分 ★0.94 · 全榜 #1</span>
+          </div>
+        </a>
+
+        <p class="section-label"><span class="emoji" aria-hidden="true">🗞️</span>各區動態</p>
+        <div class="story-grid">
+
+          <a href="#" class="story">
+            <div class="story-meta">
+              <span class="region-tag">🇹🇭 TH</span>
+              <span class="post-platform">YOUTUBE</span>
+              <span class="badge dup">↻ 重複 · 昨日</span>
+              <span class="sentiment neu"><span aria-hidden="true">◒</span> 中性</span>
+              <span class="post-score">#2　★0.81</span>
+            </div>
+            <h3 class="story-title">泰服新賽季通行證實測：48 級獎勵全公開，性價比到底值不值得買？</h3>
+            <p class="story-excerpt">影片逐項拆解本季通行證的皮膚、頭像框與代幣回收率，並與上季對比。留言區對定價兩極，部分玩家認為高階獎勵縮水……</p>
+          </a>
+
+          <a href="#" class="story">
+            <div class="story-meta">
+              <span class="region-tag">🇻🇳 VN</span>
+              <span class="post-platform">DCARD</span>
+              <span class="sentiment neg"><span aria-hidden="true">◔</span> 負向</span>
+              <span class="post-score">#3　★0.76</span>
+            </div>
+            <h3 class="story-title">越服伺服器連兩日高延遲，排位掉線災情頻傳引發退坑潮討論</h3>
+            <p class="story-excerpt">連續兩晚尖峰時段出現 200ms 以上延遲與隨機掉線，多名玩家貼出排位被判逃跑的截圖，要求官方補償並說明機房狀況……</p>
+          </a>
+
+          <a href="#" class="story">
+            <div class="story-meta">
+              <span class="region-tag">🌐 GLOBAL</span>
+              <span class="post-platform">REDDIT</span>
+              <span class="sentiment pos"><span aria-hidden="true">◕</span> 正向</span>
+              <span class="post-score">#4　★0.69</span>
+            </div>
+            <h3 class="story-title">Meta shift: why jungle tempo is the biggest winner this patch</h3>
+            <p class="story-excerpt">A breakdown of how the cooldown changes ripple into early-game pathing, with sample clear routes and gank timings from high-elo replays this week……</p>
+          </a>
+
+          <a href="#" class="story">
+            <div class="story-meta">
+              <span class="region-tag">🇹🇼 TW</span>
+              <span class="post-platform yaya">THREADS</span>
+              <span class="sentiment pos"><span aria-hidden="true">◕</span> 正向</span>
+              <span class="post-score">#5　★0.63</span>
+            </div>
+            <h3 class="story-title">芽芽連招教學：三套上分 combo</h3>
+            <p class="story-excerpt">手把手拆解芽芽當前版本最穩三套連招，附對線與團戰時機說明，新手也能快速上手……</p>
+          </a>
+
+        </div>
+      </main>
+
+      <aside class="rail">
+        <section class="rail-block">
+          <h2 class="rail-head"><span aria-hidden="true">🌐</span>編輯精選<span class="sub">全球戰略洞察</span></h2>
+          <ol class="pick-list">
+            <li>S38 賽季芽芽被動冷卻縮減後，台服打野登場率單週上升 12%，職業圈普遍認為節奏重塑利於前期入侵。</li>
+            <li>泰服社群對新皮膚定價分歧明顯，負面討論集中於通行證性價比；越服則以實戰連招教學為主。</li>
+            <li>跨區共識：大招範圍擴大被視為本次平衡更新最大變數，建議持續追蹤對線壓制數據。</li>
+          </ol>
+        </section>
+
+        <section class="rail-block">
+          <h2 class="rail-head"><span aria-hidden="true">📊</span>熱詞雲<span class="sub">jieba · 點詞看來源</span></h2>
+          <div class="tag-cloud">
+            <a href="#" class="hot-tag" aria-label="芽芽，42 則來源"><span class="hot-word">芽芽</span><span class="tag-count">42</span></a>
+            <a href="#" class="hot-tag" aria-label="打野，31 則來源"><span class="hot-word">打野</span><span class="tag-count">31</span></a>
+            <a href="#" class="hot-tag" aria-label="S38賽季，27 則來源"><span class="hot-word">S38賽季</span><span class="tag-count">27</span></a>
+            <a href="#" class="hot-tag" aria-label="被動技能，24 則來源"><span class="hot-word">被動技能</span><span class="tag-count">24</span></a>
+            <a href="#" class="hot-tag" aria-label="平衡更新，19 則來源"><span class="hot-word">平衡更新</span><span class="tag-count">19</span></a>
+            <a href="#" class="hot-tag" aria-label="新皮膚，17 則來源"><span class="hot-word">新皮膚</span><span class="tag-count">17</span></a>
+            <a href="#" class="hot-tag" aria-label="大招範圍，15 則來源"><span class="hot-word">大招範圍</span><span class="tag-count">15</span></a>
+            <a href="#" class="hot-tag" aria-label="對線壓制，12 則來源"><span class="hot-word">對線壓制</span><span class="tag-count">12</span></a>
+            <a href="#" class="hot-tag" aria-label="通行證，11 則來源"><span class="hot-word">通行證</span><span class="tag-count">11</span></a>
+            <a href="#" class="hot-tag" aria-label="連招教學，9 則來源"><span class="hot-word">連招教學</span><span class="tag-count">9</span></a>
+            <a href="#" class="hot-tag" aria-label="登場率，8 則來源"><span class="hot-word">登場率</span><span class="tag-count">8</span></a>
+            <a href="#" class="hot-tag" aria-label="職業選手，6 則來源"><span class="hot-word">職業選手</span><span class="tag-count">6</span></a>
+          </div>
+        </section>
+      </aside>
+
+    </div>
+
+    <p class="foot">design-system/variants/variant-bc.html · 套用 tokens.css · B+C 融合（雜誌封面 × 霓虹玻璃）· 角色立繪+mesh+發光玻璃+藍熱詞</p>
+  </div>
+</body>
+</html>

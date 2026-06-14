@@ -52,3 +52,6 @@ handoff/
 # UI 報告產出物（演示用、非原始碼）
 ui_previews/
 dev_claude.ps1
+
+# P118 設計系統 sandbox：背景立繪為本機副本（7MB，真圖在 root/data，不重複進版控）
+design-system/yaya_bg.png
