@@ -68,7 +68,7 @@ def run_profile(profile: str = "fast", root: Path | None = None) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--profile", default="fast", choices=["fast", "full"], help="檢查層級")
+    ap.add_argument("--profile", default="fast", choices=["fast", "full", "ci"], help="檢查層級（P117：+ci 報告產後驗證）")
     args = ap.parse_args()
     rep = run_profile(args.profile)
     for cid, ok, level, tail in rep.get("results", []):

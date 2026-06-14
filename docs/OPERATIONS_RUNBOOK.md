@@ -148,6 +148,15 @@
   3. 不要新增 provider secret，不要把候選 provider 接進 daily default。
   4. 若 slot 被誤開導致 pipeline 走 local fallback，這是 fail-closed；先恢復 disabled 狀態，再依 P93 plan 討論 runtime。
 
+### <a id="preflight"></a>PREFLIGHT — 一鍵治理自檢總指揮（P117）
+- 意義：`gov.preflight` 是統一入口，一鍵跑一組已註冊 checker、聚合成一張總表（per-check ✅/⚠️/🔴 + tail + blocking/warning 分級 + 防遞迴 GOV_PREFLIGHT_RUNNING）。取代「十餘支 checker 散落各自跑」。
+- 用法：
+  1. `py -m gov.preflight --profile fast` — commit 前秒級（secret_scan + guard_assertions，blocking）。
+  2. `py -m gov.preflight --profile full` — push 前全跑（+governance_doctor/tests/known_issue_guard/artifact_hygiene/root_legacy/handoff_truth/no_fake_stats）。
+  3. `python -m gov.preflight --profile ci` — CI 報告產後驗證（report_health/system_doctor/report_freshness/slo）；daily_report.yml 已接管呼叫此 profile（取代原 4 個個別 step）。
+- 註冊清單即覆蓋邊界：要新增/調整 checker，改 `governance_config.yaml` 的 `preflight.checks` + `profiles` 一處即全鏈生效（不必各處改流程）。
+- 邊界：規則型啟發式（末行有召回率免責）；只報告分級、不 auto-fix。`always-0` advisory checker（如 freshness）在總表恆顯 ✅，其告警看 tail 輸出而非 status。退出碼：0=無 blocking 失敗 / 1=有 blocking 失敗。
+
 ### <a id="selfheal"></a>SELF-HEAL — generate 失敗被 CI 自癒（P111 / P112）
 - 意義：cron 報告意外缺漏時，P111 self-heal step（`replay_run.py --heal-if-missing`）自動重產並（過與 cron 同源的發布閘門後）promote。manifest `self_heal=true` 即代表「該日正常 run 沒產出報告、靠 self-heal 救回」。
 - 診斷（查 `data/runs/<date>/run_manifest.json`）：

@@ -113,41 +113,15 @@ jobs:
           git diff --cached --quiet || git commit -m "docs: 戰略報告自動同步 (Fallback) $(date +'%Y-%m-%d')"
           git push || true
 
-      - name: 🩺 Daily Report Health Check
+      - name: 🛡️ Preflight CI Profile (P117 統一總指揮)
+        # P117：把原本散落的 4 個 post-pipeline 報告檢查（health/system_doctor/freshness/slo）
+        # 收斂成 gov.preflight 一鍵 ci profile（CI 與本地同源、一張總表、blocking/warning 分級 + 防遞迴）。
+        # 全 warning 級 + continue-on-error → advisory 不阻斷日報（對齊原 4 step 的 continue-on-error 行為）。
+        # checker 清單見 governance_config.yaml profiles.ci；報告類靠 checker taipei_today() 預設取今日（跨平台）。
         if: always()
         continue-on-error: true
         run: |
-          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
-          python scripts/check_daily_report_health.py \
-            --date "$REPORT_DATE" \
-            --expected-mode any \
-            --check-git-clean
-
-      - name: 🩺 System Doctor (Advisory)
-        if: always()
-        continue-on-error: true
-        run: |
-          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
-          python scripts/system_doctor.py \
-            --repo-root . \
-            --date "$REPORT_DATE" \
-            --profile local
-
-      - name: 🧊 Report Freshness Check (Advisory)
-        if: always()
-        continue-on-error: true
-        run: |
-          python scripts/check_report_freshness.py --reports-dir data/reports --threshold 3
-
-      - name: 📉 SLO / Cron-Miss Check (Advisory, P115)
-        # 每次 run 回看過去 7 天 manifest 缺口——退役了「真 cron-miss（workflow 沒觸發）」的偵測死角
-        # （self-heal/health 只在 workflow 有跑時才執行）。SLO002 manifest_gap 退役回溯偵測，advisory 不阻斷。
-        if: always()
-        continue-on-error: true
-        run: |
-          REPORT_DATE="$(TZ=Asia/Taipei date +'%Y-%m-%d')"
-          python scripts/slo_checker.py --repo-root . --date "$REPORT_DATE" --window-days 7 \
-            || echo "::warning::SLO check 偵測到過去 7 天 manifest/freshness 缺口（見 runbook SLO002 cron-miss / R-037）"
+          python -m gov.preflight --profile ci
 
       - name: 🩺 System Doctor (Strict Gate)
         if: ${{ always() && github.event_name == 'workflow_dispatch' && github.event.inputs.strict_doctor == 'true' }}

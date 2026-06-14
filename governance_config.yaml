@@ -10,9 +10,13 @@ status: pilot   # pilot | stable
 # fast profile：commit 前快跑（秒級）。full profile：push 前全跑。
 preflight:
   recursion_guard_env: GOV_PREFLIGHT_RUNNING
+  # P117：fast=commit 前秒級；full=push 前 repo/source/治理全跑；ci=報告產後驗證（接管 daily_report.yml）。
+  # 新註冊 checker 一律 python 前綴（_resolve_python 轉 sys.executable，本地 Win + CI Linux 皆可）；
+  # 報告類省略 --date 靠 checker taipei_today() 預設（跨平台，無需 $(date)）。
   profiles:
     fast: [secret_scan, guard_assertions]
-    full: [secret_scan, guard_assertions, governance_doctor, tests]
+    full: [secret_scan, guard_assertions, governance_doctor, tests, known_issue_guard, artifact_hygiene, root_legacy, handoff_truth, no_fake_stats]
+    ci: [report_health, system_doctor, report_freshness, slo]
   checks:
     secret_scan:
       run: "python -m gov.scan_secrets"
@@ -29,6 +33,44 @@ preflight:
       run: "py -m pytest tests/ -q --tb=line"
       level: blocking
       timeout: 120
+    # ── P117 新增：CI 報告產後驗證類（warning，對齊原 daily_report.yml advisory；--date 靠 checker 預設）──
+    report_health:
+      run: "python scripts/check_daily_report_health.py --expected-mode any --check-git-clean"
+      level: warning
+      timeout: 60
+    system_doctor:
+      run: "python scripts/system_doctor.py --repo-root . --profile local"
+      level: warning
+      timeout: 60
+    report_freshness:
+      run: "python scripts/check_report_freshness.py --reports-dir data/reports --threshold 3"
+      level: warning
+      timeout: 30
+    slo:
+      run: "python scripts/slo_checker.py --repo-root . --window-days 7"
+      level: warning
+      timeout: 60
+    # ── P117 新增：開發 push 前 repo/source/治理類（warning，無需 date）──
+    known_issue_guard:
+      run: "python scripts/check_known_issue_guard_index.py --repo-root . --strict"
+      level: warning
+      timeout: 30
+    artifact_hygiene:
+      run: "python scripts/check_generated_artifact_hygiene.py --repo-root . --strict"
+      level: warning
+      timeout: 30
+    root_legacy:
+      run: "python scripts/check_root_legacy_hygiene.py --repo-root . --strict"
+      level: warning
+      timeout: 30
+    handoff_truth:
+      run: "python scripts/check_handoff_truth.py --repo-root ."
+      level: warning
+      timeout: 30
+    no_fake_stats:
+      run: "python scripts/check_no_fake_stats.py --repo-root ."
+      level: warning
+      timeout: 30
 
 # ── 斷言引擎 guards ──
 # status: advisory（只報告）| shadow（觀察零誤判）| strict（blocking）

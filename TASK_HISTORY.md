@@ -14628,3 +14628,23 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **驗收**：PHASE_TEMPLATE 11 視角結構未動（lint-phase-plan preflight_anchors 不受影響）；callout 與既有 B-001/B-003/B-009/B-010 同模式。
 
 **狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問，與 P113-P115 批次）。
+
+### P117 — gov.preflight 統一總指揮：註冊散落 checker + 接管 CI（對齊 Hermes Sentinel #1）（2026-06-15 收官）
+
+**目標**：把 AOV 散落的 checker 註冊進既有 `gov/preflight.py` 編排器，使 `py -m gov.preflight --profile full/ci` 真正「一鍵跑完 + 統一分級 + 一張總表 + 防遞迴」；daily_report.yml 接管呼叫（DRY，CI 與本地同源）。對齊 Hermes Sentinel.preflight。
+
+**觸發（跨專案飛輪盤點）**：阿喜回報 Hermes 飛輪有一項優於 AOV——Sentinel.preflight 一鍵總指揮，AOV「checker 散落無單一入口」。
+
+**🔁 交叉核對翻案（關鍵）**：AOV **早有** `gov/preflight.py`（P103 從 skills-governance 快照，blocking/warning 分級 + 防遞迴 GOV_PREFLIGHT_RUNNING＝Hermes 設計 + 讀 config）+ `gov/assertions.py`（Hermes 斷言引擎）。跨專案 audit 說「AOV 無入口」是**只看 scripts/check_* 散落腳本、漏看 gov/preflight.py**。真缺口＝`governance_config.yaml` 只註冊 4 個 check，10+ 個 checker 沒進去 → 編排器存在但跑起來不是「全部」。故本 Phase 是**完成既有編排器的註冊 + 接管 CI，非重造**（Postmortem 通則1：先查再造）。
+
+**修法（S1-S5）**：S1 逐一實跑 9 個 check_*/slo 確認 CLI+exit 語義（health/slo/system_doctor 的 --date 都預設 taipei_today → 省略 --date 即跨平台，無需 $(date)）；S2 governance_config.yaml 註冊 9 checker（ci profile 4 報告類 warning + full profile +5 dev/source/治理類 warning，新 run 字串用 python 前綴經 _resolve_python 轉 sys.executable）；S3 daily_report.yml 把 4 個 post-pipeline 報告檢查 step 換成一句 `python -m gov.preflight --profile ci`（continue-on-error 保 advisory）；S4 tests/test_gov_preflight.py（5 test：聚合分級 mock subprocess/防遞迴/孤兒引用/ci+full profile 完整）；S5 收官。
+
+**物理真相**：改 governance_config.yaml（+9 checker +ci profile）/.github/workflows/daily_report.yml（4 step→1）/gov/preflight.py（+ci 到 --profile choices，1-token）；新增 tests/test_gov_preflight.py；runbook +PREFLIGHT 節。**不重寫 gov/preflight.py 邏輯、不改 checker 邏輯。**
+
+**偏離記錄（誠實，非重大分歧）**：①加 ci 到 preflight choices（必要啟用，1-token）②report_health run +--check-git-clean（faithful 對齊原 CI）③content_trust 延後（--date 無 today 預設、v1 不碰 checker）+ credibility 排除（檔案參數 CLI + 已 main.py:722 inline）→ 實註冊 9 個。
+
+**驗收**：全套 520→**525 passed 零回歸**；`gov.preflight --profile fast/ci` 本地實跑聚合正確（ci 本地今天無報告→health/slo warning＝預期，CI 報告產後 pass）；YAML 解析 OK（13 steps，4→1）；lint M1/M2 PASS。CI 接管真驗證待下次 cron（同 P111 S3）。
+
+**風險/盲點**：checker 散落無單一入口治理債收斂；always-0 advisory checker（freshness）總表顯 ✅ 告警看 tail（RP3，runbook 已記）；Hermes #2（函式本體 kill-switch）/#4（guard 品質 meta-check）為獨立議題、未混入本 Phase。Postmortem 通則1（先查再造）+ 通則2（散落收斂：入口存在≠已收斂，要驗全註冊）。
+
+**狀態**：S1-S5 收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問）。
