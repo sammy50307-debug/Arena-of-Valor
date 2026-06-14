@@ -1,7 +1,9 @@
 # 🤝 P119 交接手冊（整站重設計②報告視覺重構 + token-lint）— 新視窗讀這份 + PHASE_119_PLAN.md 即可動工
 
 > 更新：2026-06-15｜交接人：P118 收官視窗 Claude（Opus 4.8 1M）｜給：P119 動工視窗
-> 一句話：**P118 設計系統 + LOOK 已定案（variant-bc，已 push）→ P119 把它「套質感保骨架」套到 live report.html + token-lint advisory 上線。計畫書 v1 已凍結、阿喜核准、§A scope 拍板。**
+> 一句話：**P118 設計系統 + LOOK 已定案（variant-bc，已 push）→ P119 把它「套質感保骨架」套到 live report.html + token-lint advisory 上線。計畫書 v2 已凍結（含🌀飛輪三項）、阿喜核准、§A scope 拍板。**
+>
+> **🌀 v2 飛輪三項（務必照做，不是選配）**：① **tokens 改 generator 注入 inline**（非 link 外部檔——live report 進 LINE WebView 抓不到外部 css 會**裸奔**，這是 v1 漏的架構盲點）；② **computed-style 指紋 gate**（S1 tokenize 後 render 前後 getComputedStyle JSON 必須完全相同＝機器證零視覺變動，殺綠燈假象）；③ **結構 smoke test**（render 後斷言 JS hook/id/Jinja 區塊存活，複用 P120/P121）。詳見 PHASE_119_PLAN §1.5-7 + §9 Stages。
 
 ---
 
@@ -33,15 +35,18 @@
 
 ## 🛠️ 核心策略：低 blast radius 分段（動的是每天 cron 在跑的生產報告！）
 
-- **S1 tokenize 零視覺變動**：硬編碼 `#hex`/主間距 → `var(--token)`；report `:root` 對映 tokens。改完 dry-run 產出與改前**逐位元/視覺零差異**才算過。
-- **S2 視覺質感層**：套上面質感；preview 三寬比對 + 互動點測。
+- **S0 前置 + harness**：snapshot；建 `scripts/report_visual_diff.py`（render→dump 關鍵元素 getComputedStyle JSON）+ `tests/test_report_structure.py`（JS hook/id/Jinja 區塊存活）；**先存改前 computed-style 指紋 + 結構基線**；token-lint PoC 量基線硬編碼數。
+- **S1 tokenize 零視覺變動（🌀machine gate）**：generator 注入 tokens.css inline 到 `<style>`（**非 link**）；硬編碼 `#hex`/主間距 → `var()`；`:root` 對映 tokens。**過關判準＝computed-style 指紋與 S0 改前完全相同**（不是肉眼，是 machine-diff；抓漏換/換錯色）。
+- **S2 視覺質感層**：套質感；preview 三寬比對 + **結構 smoke 全綠**（沒誤傷功能）+ 互動點測。
 - **S3 token-lint**：`scripts/check_design_tokens.py` flag 殘留硬編碼 → 註冊 `governance_config.yaml` 的 **full** profile（advisory，復用 P117 gov.preflight 總指揮，**不新增 CI step**）。
-- **S4 端到端 gate**：generate()/replay 產 report 成功 + 既有 pytest 全套零回歸 + preview 375/768/1440 + LINE WebView UA。
-- **S5 收官**。
+- **S4 端到端 gate**：generate()/replay 產 report 成功 + 既有 pytest + 新 test_report_structure 全套零回歸 + preview 375/768/1440 + **LINE WebView UA 實測 inline tokens 不裸奔**。
+- **S5 收官**（含 harness 複用 P120/P121 預告）。
 
 ## 🚫 邊界（務必守）
 
-**不碰**：`reporter/generator.py` 渲染邏輯、Jinja 資料流（保所有 `{% %}`/class/id/`onclick`：switchRegion/openSidePanel/toggleTranslation）、`daily_report.yml`、cron、後端、`index.html`（P121）。只動 report.html 的 CSS/標記樣式 + 新增 checker/config/test。
+**不碰**：`reporter/generator.py` **資料流/渲染邏輯/exit code**、Jinja 資料綁定（保所有 `{% %}`/class/id/`onclick`：switchRegion/openSidePanel/toggleTranslation）、`daily_report.yml`、cron、後端、`index.html`（P121）。
+**generator 唯一允許的改動（🌀v2）**：render 時讀 `design-system/tokens.css` 注入 report `<style>` 的**純 additive**（一個 template var，不改資料流/exit code）。
+其餘只動 report.html 的 CSS/標記樣式 + 新增 checker/harness/config/test。
 
 ## 🔑 關鍵 file:line（report.html，動工直接用；MASTER §3/§6 有更多）
 
@@ -63,9 +68,8 @@
 
 ## 📂 git 現況
 
-- `main` = `a521d5c`（**已 push、main↔origin 同步**）；含 P118 設計系統 design-system/ + 收官。
-- P119 凍結 commit（本手冊 + PHASE_119_PLAN v1）：待 commit/push（**push 問阿喜**）。
-- 整站重設計藍圖：**P118 地基✅ → P119 報告視覺+token-lint → P120 響應式/LINE/A11y → P121 Landing**。
+- `main`：P118 設計系統（`a521d5c`）+ P119 凍結 v1（`415d7c4`）皆**已 push、main↔origin 同步**；P119 v2 飛輪升級（本次）commit 後 push。
+- 整站重設計藍圖：**P118 地基✅ → P119 報告視覺+token-lint(v2 含飛輪 harness) → P120 響應式/LINE/A11y → P121 Landing**（harness S0 建好後 P120/P121 複用）。
 
 ## ⏳ 不在 P119 範圍（登記，勿混入）
 
@@ -76,4 +80,4 @@
 
 ---
 
-*交接手冊 by P118 收官視窗 Claude（Opus 4.8 1M）｜2026-06-15｜新視窗：讀此 + PHASE_119_PLAN.md v1 + variant-bc.html → S0 snapshot → 動工 S1-S5。核心：套質感保骨架（功能零刪）、tokenize-first 低風險、熱詞保藍、token-lint advisory。*
+*交接手冊 by P118 收官視窗 Claude（Opus 4.8 1M）｜2026-06-15（v2 飛輪升級）｜新視窗：讀此 + PHASE_119_PLAN.md v2 + variant-bc.html → S0 snapshot + 建 harness → 動工 S1-S5。核心：套質感保骨架（功能零刪）、tokenize-first + 🌀computed-style machine gate、tokens inline 注入（LINE-safe）、熱詞保藍、token-lint advisory。*

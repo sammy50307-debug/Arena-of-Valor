@@ -1,6 +1,12 @@
 # Phase 119 — 整站重設計 ②報告視覺重構 + token-lint 上線（草案 v1，待阿喜核准）
 
-> 狀態：**v1 已凍結（2026-06-15，阿喜核准 + §A scope 拍板：A1=套質感保骨架 / A2=report.html only / A3=advisory；M1/M2 PASS；交接新視窗執行）**
+> 狀態：**v2 已凍結（2026-06-15，阿喜核准 + §A scope 拍板 + 🌀飛輪升級三項；M1/M2 PASS；交接新視窗執行）**
+>
+> **🌀 飛輪 v2 升級（阿喜 2026-06-15「直接飛輪優化」核准）**——原 v1 的 S1「tokenize 零視覺變動」全靠肉眼=綠燈假象弱點（B-023/024/025/027 同源），v2 加 machine gate + 補架構盲點：
+> 1. **tokens 改 generator 注入 inline（LINE-safe，補盲點/必修）**：mockup 能 link `../tokens.css` 是本機 server；**live report 送進 LINE WebView 若 link 外部 css 抓不到會整份裸奔**。改成 generator render 時讀 `design-system/tokens.css` 注入 report `<style>`（tokens.css 仍唯一真相源、產出 inline）。
+> 2. **computed-style 指紋 diff gate（殺綠燈假象）**：S1 tokenize 後 render report 前後 dump 關鍵元素 getComputedStyle→JSON 比對，**必須完全相同**（tokenize 定義＝零視覺變動）；抓漏換/換錯色。
+> 3. **結構 smoke test（複用 P120/P121）**：render 後斷言 JS hook（switchRegion/openSidePanel/toggleTranslation 的 onclick）、關鍵 id、Jinja 區塊存活；延伸 P114 smoke 範式，做成可複用 harness。
+> 反膨脹：render-diff 是**本機一次性非 CI**（不做重型 Playwright，P118 已定）；token-lint advisory+範圍限定不變；停損＝computed-style diff 太吵則降回截圖人工+結構 smoke。
 > 戰線：**前端/UX（套用設計系統到 live）+ 治理/測試（token-lint 防復發）**——整站重設計 4-Phase 第二棒（P118 地基✅ → **P119 報告視覺+token-lint** → P120 響應式/LINE/A11y → P121 Landing）。
 > 依據：P118 定案 LOOK = `design-system/variants/variant-bc.html`（B 雜誌封面 × C 霓虹玻璃）；設計決策見 `design-system/MASTER.md`；落地 punch-list 見 MASTER §6。
 >
@@ -25,11 +31,13 @@
 
 把 P118 定案的 `variant-bc` 設計語言**套到 live `report.html`**，並讓硬編碼設計值**機器化防復發**：
 
-1. **tokenize**：report.html 的硬編碼 `#hex` / 主間距 px 換成 `var(--token)`（引入 `design-system/tokens.css`）。
-2. **視覺重構**：套 variant-bc 的雜誌編輯結構 + 霓虹玻璃質感（hero 封面、發光玻璃卡、發光數字列、mesh），**保留全部既有功能**（戰力面板/音訊/區域導覽/圖表/警示/側欄…一個不刪）。
+1. **tokens 注入 inline（🌀v2 改）**：generator render 時讀 `design-system/tokens.css` 注入 report `<style>`（**非 link 外部檔，LINE-safe**）；report.html 硬編碼 `#hex`/主間距 px 換 `var(--token)`、`:root` 對映 tokens。
+2. **視覺重構**：套 variant-bc 的霓虹玻璃**質感層**（玻璃卡/發光/mesh/發光數字/編輯式標題），**保留現有 report 結構骨架 + 全部功能**（戰力面板/音訊/區域導覽/圖表/警示/側欄…一個不刪，§A1=套質感保骨架）。
 3. **熱詞 #1**：**保留藍色**（阿喜 S4 拍板）——只把既有藍 `#1e3a5f→#2563eb` tokenize 成 `var(--hot-tag-bg)` + 加 cursor/hover/focus affordance。**修正 MASTER §6 punch-list #1「重寫成粉」＝過時，以本條為準。**
 4. **token-lint 上線**：`scripts/check_design_tokens.py` flag report.html 殘留硬編碼 → 註冊進 `governance_config.yaml` 的 `full` profile（**advisory，不阻斷報告**）。
-5. **preview 驗證**：375 / 768 / 1440 + LINE WebView UA 逐段截圖比對（取代一次性肉眼；截圖 MCP 故障時用 Edge headless CLI）。
+5. **🌀computed-style 指紋 gate（v2）**：S1 tokenize 後 render report 前後 dump 關鍵元素 getComputedStyle→JSON 比對**必須完全相同**（機器證明零視覺變動、抓漏換/換錯色）。
+6. **🌀結構 smoke harness（v2，複用 P120/P121）**：`tests/test_report_structure.py` render 後斷言 JS hook（onclick）/關鍵 id/Jinja 區塊存活。
+7. **preview 驗證**：375 / 768 / 1440 + LINE WebView UA 截圖比對（截圖 MCP 故障時用 Edge headless CLI）。
 
 量化：report.html 硬編碼設計值大幅 token 化（token-lint 命中數降到目標門檻）；視覺對齊 variant-bc；**daily cron 報告零功能回歸**。
 
@@ -53,11 +61,13 @@ P118 已產設計系統 + 阿喜定案 LOOK，但**外觀真正改變在 P119 �
 
 ## 4. Exit Criteria
 
-- [ ] **A**：report.html `<head>` 引入 tokens.css；硬編碼 `#hex`/主間距 px 換 `var(--token)`，token-lint 命中數 ≤ 目標門檻
+- [ ] **A（🌀v2 inline）**：generator render 時注入 tokens.css 到 report `<style>`（**非 link，LINE-safe**）；硬編碼 `#hex`/主間距 px 換 `var(--token)`，token-lint 命中數 ≤ 目標門檻
 - [ ] **B**：視覺對齊 variant-bc 質感（玻璃/光暈/mesh/發光數字/編輯式標題）；**熱詞保留藍色** + 可點 affordance（#1）；**全功能保留零刪**
-- [ ] **C**：`scripts/check_design_tokens.py`（flag report.html/index.html 硬編碼）+ 註冊 governance_config.yaml `full` profile（advisory）+ 測試
+- [ ] **C**：`scripts/check_design_tokens.py`（flag report.html 硬編碼）+ 註冊 governance_config.yaml `full` profile（advisory）+ 測試
 - [ ] **D（preview 驗證）**：375/768/1440 + LINE WebView UA 截圖；對照 P117 截圖確認**功能/版面零破壞**
 - [ ] **E（生產零回歸）**：dry-run 或 replay 跑 generate() 產出 report.html 成功、所有 Jinja 區塊正常渲染、既有測試零回歸
+- [ ] **G（🌀v2 computed-style gate）**：S1 tokenize 前後 report 關鍵元素 getComputedStyle 指紋**完全相同**（機器證明零視覺變動）；harness 可複用 P120/P121
+- [ ] **H（🌀v2 結構 smoke）**：`tests/test_report_structure.py` 斷言 JS hook（switchRegion/openSidePanel/toggleTranslation onclick）/關鍵 id/Jinja 區塊 render 後存活
 - [ ] **F**：收官件套（TASK_HISTORY + memory + postmortem 若觸發）+ P120 預告
 
 ## 5. ROI 評估
@@ -139,8 +149,10 @@ P118 已產設計系統 + 阿喜定案 LOOK，但**外觀真正改變在 P119 �
 | RP4 | mesh/glow 多層在低階機/LINE WebView 卡頓 | 低 | 中 | 效能 | 沿用 report 既有 mobile 降規；P120 正式做 LINE |
 | RP5 | token-lint 太吵→淪為噪音被忽略 | 中 | 低 | 治理 | 範圍限色+主間距，微尺寸豁免；advisory 先觀察，穩定再議 strict |
 | RP6 | report 自帶 :root 與 tokens.css 雙軌衝突 | 中 | 中 | 架構 | report :root 改為對映/引用 tokens；保留必要專屬變數，文件化 |
+| RP7 | **（🌀v2 揭露盲點）** tokens 用 link 外部檔，report 送進 LINE WebView 抓不到 css→整份裸奔無樣式 | 中 | **高** | 架構 | generator render 時**注入 tokens inline** 到 `<style>`（非 link）；S4 LINE UA preview 實測樣式正常 |
+| RP8 | computed-style 指紋 diff 因 antialiasing/font 渲染太吵→誤報 | 低 | 低 | 測試 | 取 getComputedStyle（解析後值，非像素）較確定性；停損＝太吵降回截圖人工+結構 smoke |
 
-**META4 加權**：RP1/RP3 高影響（動生產報告）→ **加權 ≥5，動工前須阿喜確認 §A scope + snapshot 回退點**。
+**META4 加權**：RP1/RP3/RP7 高影響（動生產報告 + LINE 裸奔）→ **加權 ≥5，動工前須阿喜確認 §A scope（已拍板）+ snapshot 回退點 + 🌀computed-style gate 守 tokenize**。
 
 ---
 
@@ -148,21 +160,22 @@ P118 已產設計系統 + 阿喜定案 LOOK，但**外觀真正改變在 P119 �
 
 | Stage | 內容 | 驗收 |
 |---|---|---|
-| **S0 前置** | snapshot report.html→backups/；確認 §A scope；建 token-lint PoC（先量現有硬編碼數）| snapshot 存在 + 基線數字 |
-| **S1 tokenize（零視覺變動）** | report.html 引入 tokens.css；`:root` 對映 tokens；硬編碼 `#hex`/主間距→`var()`。**目標：視覺不變**| dry-run 產出與改前**逐位元/視覺零差異**；preview 比對 |
-| **S2 視覺質感層** | 套 variant-bc 質感（玻璃/光暈/mesh/發光數字/編輯式標題）；**熱詞 tokenize 藍+affordance（#1）**；間距走 scale（#3）。功能零刪 | preview 三寬對齊 variant-bc；互動點測 OK |
-| **S3 token-lint** | check_design_tokens.py + 註冊 governance_config.yaml full（advisory）+ 測試 | lint 跑出命中數 ≤ 門檻；gov.preflight full 含此 check |
-| **S4 端到端驗證** | generate()/replay 產 report 成功；既有 pytest 全套；preview 375/768/1440+LINE UA | 零功能回歸 + 截圖存證 |
-| **S5 收官** | TASK_HISTORY + memory + postmortem（若觸發）+ P120 預告 | 件套齊 |
+| **S0 前置 + harness（🌀v2）** | snapshot report.html→backups/；建 `scripts/report_visual_diff.py`（render report dry-run→dump 關鍵元素 computed-style JSON）+ `tests/test_report_structure.py`（JS hook/id/Jinja 區塊存活）；token-lint PoC 量基線硬編碼數；**先存改前 computed-style 指紋 + 結構基線** | snapshot + harness 可跑 + 改前指紋/結構基線存檔 |
+| **S1 tokenize（零視覺變動，🌀machine gate）** | generator 注入 tokens.css inline 到 `<style>`（非 link）；`:root` 對映 tokens；硬編碼 `#hex`/主間距→`var()` | **computed-style 指紋與 S0 改前完全相同**（機器證零變動，抓漏換/換錯）+ token-lint 命中降 |
+| **S2 視覺質感層** | 套 variant-bc 質感（玻璃/光暈/mesh/發光數字/編輯式標題）；**熱詞 tokenize 藍+affordance（#1）**；間距走 scale（#3）。功能零刪 | preview 三寬對齊 variant-bc；**結構 smoke 全綠**（改動沒誤傷功能）；互動點測 OK |
+| **S3 token-lint** | check_design_tokens.py + 註冊 governance_config.yaml full（advisory）+ 測試 | lint 命中數 ≤ 門檻；gov.preflight full 含此 check |
+| **S4 端到端驗證** | generate()/replay 產 report 成功；既有 pytest + 新 test_report_structure 全套；preview 375/768/1440+LINE UA（驗 inline tokens 在 LINE 不裸奔）| 零功能回歸 + LINE 樣式正常 + 截圖存證 |
+| **S5 收官** | TASK_HISTORY + memory + postmortem（若觸發）+ P120 預告（含 harness 複用） | 件套齊 |
 
 ---
 
 ## 10. 影響檔案清單 ─ STR7
 
-**改**：`reporter/templates/report.html`（tokenize + 視覺）
-**新增**：`design-system/tokens.css`（接入，已存在）、`scripts/check_design_tokens.py`、`tests/test_design_tokens.py`、`backups/report_before_p119.html`
-**改（治理）**：`governance_config.yaml`（註冊 token-lint 進 full profile）
-**不碰**：`reporter/generator.py` 渲染邏輯、Jinja 資料流、`daily_report.yml`、cron、後端、`index.html`（P121）
+**改**：`reporter/templates/report.html`（tokenize + 視覺質感）、`reporter/generator.py`（**🌀v2 唯一允許改動＝render 時讀 tokens.css 注入 `<style>` 的純 additive，不碰資料流/渲染邏輯/exit code**）
+**新增**：`scripts/check_design_tokens.py`（token-lint）、`scripts/report_visual_diff.py`（🌀computed-style 指紋 diff harness）、`tests/test_design_tokens.py`、`tests/test_report_structure.py`（🌀結構 smoke）、`backups/report_before_p119.html`
+**改（治理）**：`governance_config.yaml`（註冊 token-lint 進 full profile，advisory）
+**不碰**：`reporter/generator.py` **資料流/渲染邏輯/exit code**（僅允許上述 tokens 注入 additive）、Jinja 資料綁定、`daily_report.yml`、cron、後端、`index.html`（P121）
+**已存在依賴**：`design-system/tokens.css`（P118，唯一真相源）
 
 ---
 
@@ -173,6 +186,8 @@ P118 已產設計系統 + 阿喜定案 LOOK，但**外觀真正改變在 P119 �
 > **通則1（生產檔改動先 tokenize 再視覺）**：動每天在跑的生產報告，先做「零視覺變動的 tokenize」逐位元驗證，再疊視覺層 preview 驗——把「改錯」與「改醜」兩類風險拆開、各自有獨立 gate。
 > **通則2（設計系統落地必配 lint）**：tokens 接入 live 同時上 token-lint（advisory），否則硬編碼會再 creep（#1/#3 即此下場）。
 > **通則3（保功能優先於搬版型）**：把 sandbox mockup 套進功能豐富的真模板時，優先套「質感層」保骨架，不為了版型一致而刪/擠功能。
+> **通則4（🌀零視覺變動要機器證明，不靠肉眼）**：「tokenize 不改外觀」這種宣稱是綠燈假象高發區——用 render 前後 computed-style 指紋 machine-diff 證明「完全相同」，比 git diff/肉眼強；harness 做成可複用，攤提到後續同類 Phase。
+> **通則5（🌀產出物的執行環境決定接入方式）**：設計系統 link vs inline 不是品味問題——report 的真實環境是 LINE WebView（抓不到外部 css 會裸奔），故 tokens 必須 render 時 inline 注入；mockup 能 link 是因為本機 server，別把 sandbox 的接入方式直接搬上 live。
 
 ---
 
@@ -202,16 +217,18 @@ P118 已產設計系統 + 阿喜定案 LOOK，但**外觀真正改變在 P119 �
 | 4 | token-lint 太吵（每個 px 都報）→ 被忽略成噪音？ | A | 範圍限色值+主間距，微尺寸豁免（MASTER §4 明文）；advisory 先觀察，穩定才議升 strict。 | 入計畫（RP5/A2）|
 | 5 | report 自帶 :root 與 tokens.css 雙軌，改一邊另一邊沒同步→漂移？ | A | report :root 改為**對映/引用** tokens（消除雙軌），保留必要專屬變數並文件化。 | 入計畫（RP6）|
 | 6 | mesh/glow 多層在 LINE WebView/低階機卡頓？ | B | 沿用 report 既有 mobile 降規（關 backdrop-filter）；glow 用 box-shadow；P120 正式做 LINE WebView 驗。 | 入計畫（RP4）|
+| 7 | **【S，🌀v2 揪出】**「tokenize 零視覺變動」全靠肉眼=綠燈假象（B-023/024/025/027 同源），漏換/換錯色測試抓不到、cron 報告悄悄花掉？ | S | **computed-style 指紋 machine-gate**：render 前後 dump getComputedStyle JSON 必須完全相同，機器證明零變動、抓換錯。harness 複用 P120/P121。 | 入計畫（RP2/Exit G/S1）|
+| 8 | **【S，🌀v2 揪出】** tokens 用 link 外部 css，report 送進 LINE WebView 抓不到→整份裸奔，使用者看到無樣式報告？ | S | generator render 時**注入 tokens inline** 到 `<style>`（非 link）；S4 LINE UA preview 實測。 | 入計畫（RP7/Exit A）|
 
-> 未解質疑：無（待阿喜拍 §A scope）。
+> 未解質疑：無（§A scope 阿喜已拍板；飛輪三項已折入 v2）。
 
 ---
 
 ## 12. 凍結戳記（待填）
 
-- **凍結人**：阿喜核准（2026-06-15，§A scope 拍板）+ Claude（Opus 4.8 1M）
-- **凍結時間**：2026-06-15
-- **凍結依據**：lint M1/M2 PASS + 阿喜核准 §A scope（A1=套質感保骨架 / A2=report.html only / A3=advisory）+ P118 LOOK 已定案（variant-bc）
+- **凍結人**：阿喜核准（2026-06-15，§A scope 拍板 + 🌀飛輪 v2 三項）+ Claude（Opus 4.8 1M）
+- **凍結時間**：2026-06-15（v1 凍結 → 同日飛輪升級 v2 凍結）
+- **凍結依據**：lint M1/M2 PASS + 阿喜核准 §A scope（A1=套質感保骨架 / A2=report.html only / A3=advisory）+ 🌀飛輪三項（tokens inline 注入 / computed-style gate / 結構 smoke harness）+ P118 LOOK 已定案（variant-bc）
 - **執行**：交接新視窗（本對話極長，context 衛生）；下個視窗讀 `docs/PHASE_119_HANDOFF.md` + 本計畫書 + `design-system/MASTER.md` + `design-system/variants/variant-bc.html` 即可動工 S0-S5
 
 ---
