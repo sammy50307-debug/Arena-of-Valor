@@ -14582,3 +14582,19 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **待阿喜決定**：B-023/024/027 驗證盲點群是否升 PHASE_TEMPLATE preflight（META6 凍結文件需核准）。
 
 **狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問）。下一個體檢項：#1 run_pipeline 編排層 smoke 測試（STR8 獨立背書為最高槓桿）。
+
+### P114 — run_pipeline 編排層 smoke 測試（體檢 #1，最高槓桿）（2026-06-14 收官）
+
+**目標**：補 main.run_pipeline「搜集→分析→報告→manifest」編排接線的迴歸網——這條接線過去**零測試覆蓋**，是「綠燈假象/待 cron 終驗」（STR8 復盤 Q1 收斂、B-023/027）的結構性根因。每個未來改 main.py 的報告 Phase 從此有本地迴歸守護。
+
+**觸發**：體檢 #1（唯一 high ROI finding）+ P113 STR8 復盤獨立背書（最常漏的層＝測試/邏輯「驗證盲區」，根因＝run_pipeline 無編排測試只能等 cron）。
+
+**修法（純測試新增，零 production 改動）**：`tests/test_run_pipeline_smoke.py` 兩條路徑（阿喜核准「兩條都做」）——production（dry_run=True + monkeypatch WaterfallSearcher/Dcard/Bahamut 真實爬蟲）+ showcase（showcase=True 寫死 12 筆、零爬蟲 mock）。共用：Step2 analyzer mock（_FakeAnalyzer 控 analyze_posts/generate_daily_summary——**經查證 showcase 也會打 LLM、故兩條都要 mock**）+ tmp config + _indexer.save_index/generator.shutil.copy2 no-op（沿用 P112 隔離）。斷言：raw/analysis/report/run_manifest 四檔產出 + manifest 合約欄位 + 真 repo git status 零改動（縱深防禦）。
+
+**誠實邊界**：覆蓋**編排接線**（步驟順序、Step2→Step3 交棒、manifest 組裝），**不覆蓋 analyze_posts 內部**（B-023 那類 LLM 重建 bug 由 test_sentiment_published_date 契約測試守，本測試 mock 掉它）；後段（報告→閘門→promote）已由 test_self_heal_replay/test_replay_run 覆蓋。兩者互補，本測試聚焦上游+編排。
+
+**物理真相**：新增 tests/test_run_pipeline_smoke.py（2 test + 假元件）。零 production 程式碼改動、零 run_pipeline 行為改動。
+
+**驗收**：全套 518→**520 passed 零回歸**；交叉驗證非假綠（manifest selection_truth/enrichment_truth 內容證 run_pipeline 真跑到 Step4.5）+ git-clean 自驗。
+
+**狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問，批次）。
