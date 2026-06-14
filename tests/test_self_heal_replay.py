@@ -41,6 +41,15 @@ def _write_analysis(data_dir: Path, *, mode: str = "production", quality_tier: s
     )
 
 
+def _write_prior_manifest(data_dir: Path, *, status: str, error: str) -> None:
+    """P112：模擬 main.py 先寫的失敗 manifest（self-heal 會讀它取 error 再覆蓋）。"""
+    mdir = data_dir / "runs" / DATE
+    mdir.mkdir(parents=True, exist_ok=True)
+    (mdir / "run_manifest.json").write_text(
+        json.dumps({"status": status, "error": error}, ensure_ascii=False), encoding="utf-8"
+    )
+
+
 def _isolate(tmp_path: Path, monkeypatch):
     """三隔離 + generate 呼叫計數器（仍真跑：delegate 原函數）。回 (data_dir, reports_dir, index_file, calls)。"""
     data_dir = tmp_path / "data"
@@ -212,6 +221,62 @@ def test_sidecar_bound_to_promote_event(tmp_path, monkeypatch):
     # cron 式序列第二步：外部 promote_candidate（main.py/self-heal 真實序列）→ sidecar 此時才寫
     gen.promote_candidate(candidate, DATE, output_dir=reports, index_file=index_file)
     assert sidecar.exists(), "promote_candidate 後 sidecar 必須寫（修法A 不可讓 cron 失去 sidecar）"
+
+
+# ── P112：self-heal 保留 generate 失敗原因（manifest pre_heal_error，持久+可診斷）──
+def test_pre_heal_error_captured_from_failed_manifest(tmp_path, monkeypatch, capsys):
+    """主路徑：main.py 先寫 status=failed manifest → self-heal 讀其 error 帶進 pre_heal_error，再覆蓋。"""
+    data_dir, reports_dir, index_file, calls = _isolate(tmp_path, monkeypatch)
+    _write_analysis(data_dir)  # publishable production → heal 會 promote
+    _write_prior_manifest(data_dir, status="failed", error="BOOM: generate exploded")
+
+    rc = replay.main(["--date", DATE, "--heal-if-missing", "--check-health"])
+
+    assert rc == 0
+    manifest = json.loads((data_dir / "runs" / DATE / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["self_heal"] is True
+    assert manifest["promoted"] is True
+    assert manifest["pre_heal_error"] == "BOOM: generate exploded", "應從失敗 manifest 保留 generate 失敗原因"
+
+
+def test_pre_heal_error_empty_when_no_prior_manifest(tmp_path, monkeypatch, capsys):
+    """無 pre-existing manifest（generate 在 manifest 寫入前更早期崩）→ pre_heal_error 空（誠實標示盲區）。"""
+    data_dir, reports_dir, index_file, calls = _isolate(tmp_path, monkeypatch)
+    _write_analysis(data_dir)
+
+    rc = replay.main(["--date", DATE, "--heal-if-missing", "--check-health"])
+
+    assert rc == 0
+    manifest = json.loads((data_dir / "runs" / DATE / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["pre_heal_error"] == ""
+
+
+def test_pre_heal_error_ignored_when_prior_status_ok(tmp_path, monkeypatch, capsys):
+    """既有 manifest status!=failed（非失敗）→ 不捕獲其 error（只保留真失敗原因）。"""
+    data_dir, reports_dir, index_file, calls = _isolate(tmp_path, monkeypatch)
+    _write_analysis(data_dir)
+    _write_prior_manifest(data_dir, status="ok", error="should not be captured")
+
+    rc = replay.main(["--date", DATE, "--heal-if-missing", "--check-health"])
+
+    assert rc == 0
+    manifest = json.loads((data_dir / "runs" / DATE / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["pre_heal_error"] == ""
+
+
+def test_build_manifest_pre_heal_error_field():
+    """純函數層：build_manifest 傳 pre_heal_error 出現在輸出、不傳為 ""（additive 契約）。"""
+    from analyzer.run_manifest import build_manifest
+
+    m = build_manifest(
+        run_date=DATE, mode="production", raw_path=None, analysis_path=None,
+        report_path=None, pre_heal_error="BOOM",
+    )
+    assert m["pre_heal_error"] == "BOOM"
+    m2 = build_manifest(
+        run_date=DATE, mode="production", raw_path=None, analysis_path=None, report_path=None,
+    )
+    assert m2["pre_heal_error"] == ""
 
 
 # ── G-ii：零額度 guard——乾淨子進程 import 後 sys.modules 不含具體 LLM client ──

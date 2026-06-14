@@ -148,6 +148,14 @@
   3. 不要新增 provider secret，不要把候選 provider 接進 daily default。
   4. 若 slot 被誤開導致 pipeline 走 local fallback，這是 fail-closed；先恢復 disabled 狀態，再依 P93 plan 討論 runtime。
 
+### <a id="selfheal"></a>SELF-HEAL — generate 失敗被 CI 自癒（P111 / P112）
+- 意義：cron 報告意外缺漏時，P111 self-heal step（`replay_run.py --heal-if-missing`）自動重產並（過與 cron 同源的發布閘門後）promote。manifest `self_heal=true` 即代表「該日正常 run 沒產出報告、靠 self-heal 救回」。
+- 診斷（查 `data/runs/<date>/run_manifest.json`）：
+  1. `self_heal=true` → 該日 generate 失敗（或報告缺漏）被自癒。看是否 recurring：`grep -l '"self_heal": true' data/runs/*/run_manifest.json`。
+  2. `pre_heal_error`（P112）→ 「為什麼失敗」的 generate 例外訊息（self-heal 從覆蓋前的失敗 manifest 保留，截斷 ~500 字）。**空字串**代表 generate 在 manifest 寫入前更早期就崩、或非失敗態（誠實盲區）。
+  3. `promoted=true` → 自癒成功發布；`promoted=false` → 過不了發布閘門、no-op 降級 L4（報告仍缺，見 DOC008）。
+- **升級門檻（R-037 PROMOTE 觸發，數據驅動）**：若 `self_heal=true` recurring（**≥3 次 / 30 天**）→ 代表 generate 反覆失敗，應升級治本 `main.py:728` 吞例外 + 加 health checker（C′）。否則維持現狀（self-heal backstop + pre_heal_error 診斷已足夠，勿為 0 次失敗 speculative 過度建設）。
+
 ### <a id="doc999"></a>DOC999 — unknown doctor issue
 - 意義：doctor 產生未登記於 `ISSUE_CATALOG` 的 fallback issue code。
 - 處置：

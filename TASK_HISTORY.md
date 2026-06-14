@@ -14550,3 +14550,19 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險/盲點**：R-037（self-heal 邊界 + 主根因 main.py:728 吞例外未治本 + 退化保真）；R-038（no-op candidate 進版控，cron 既有非惡化）；B-027（凍結計畫字面修法可能與真實架構矛盾且測試抓不到→動工前親核呼叫鏈；副作用斷言不能宣稱比實際驗到的更強）；postmortem 4 通則（L5 窄面/同源閘門/前提機器化/生命週期綁定）。
 
 **狀態**：S1-S5 收官，Claude（Opus 4.8 1M）動工。飛輪交付面 L4→可控 L5。commit 待建（push 必問阿喜）。
+
+### P112 — generate 失敗持久診斷：self-heal 保留 pre_heal_error（R-037 方案B+A）（2026-06-14 收官）
+
+**目標**：self-heal 重產報告前先讀既有失敗 manifest 的 `error`（main.py:812 已寫入），帶進自己 manifest 的新欄位 `pre_heal_error`，使 generate 失敗原因持久化（committed 進 manifest），不因 self-heal 覆蓋同路徑 manifest 而遺失（原只剩 ~90 天 CI log）。
+
+**觸發（飛輪三輪收斂）**：P111 收尾後阿喜三次追問「更好的做法」→ 自我優化飛輪模式。三輪揭露：①P111 manifest `self_heal=true` 已是持久訊號（L1 已上線）；②唯一真實缺口＝self-heal 覆蓋掉 main.py 寫的失敗 `error`，使「為什麼失敗」遺失；③反膨脹——0 次發生的失敗模式不建 framework/monitor，改用既有 manifest + 一欄位 + 數據驅動 PROMOTE 觸發。方案從 v1（main.py print 短暫註記）收斂為 v2（manifest pre_heal_error 持久+可診斷+零 main.py 風險）。
+
+**修法（純 additive）**：S1 `run_manifest.build_manifest` 加 `pre_heal_error: str=""` 參數/欄位（main.py 呼叫不傳→預設 ""，零影響）；S2 `replay_run.py` heal 寫 manifest 前讀 `manifest_path(config.DATA_DIR,date)`，`status=="failed"` 取 error（截斷 ~500 字）為 pre_heal_error，try/except 全包覆（讀失敗→空字串繼續 heal、恢復優先於診斷）；S3 擴 test_self_heal_replay.py 4 case；S4 收官（runbook SELF-HEAL 診斷節 + R-037 補記 PROMOTE 觸發 + memory 飛輪元教訓）。
+
+**物理真相（2 核心檔 additive + 測試 + 文件）**：改 analyzer/run_manifest.py（+pre_heal_error 參數/欄位）/scripts/replay_run.py（heal 讀舊 manifest +manifest_path import）；擴 tests/test_self_heal_replay.py（+4 case：捕獲/無 prior/status=ok 忽略/純函數層）；docs/OPERATIONS_RUNBOOK.md（SELF-HEAL 診斷節）/docs/RISK_REGISTRY.md。**不碰 main.py、不碰 exit code、不碰 daily_report.yml、不碰 P111 self-heal 閘門邏輯**。
+
+**驗收**：全套 514→**518 passed 零回歸**；lint M1/M2 PASS（上修 2 條 S 級紅藍對抗：讀檔中止 self-heal 恢復 / additive 破 manifest 契約——皆「打斷剛上線 production L5」高 blast radius，設計緩解後低）；4 case 釘住 pre_heal_error 捕獲/空/忽略/純函數契約。
+
+**風險/盲點**：R-037 補記（方案B 已補診斷持久化 + 數據驅動 PROMOTE 觸發；主根因 main.py:728 吞例外仍 known issue 不關閉，0 次發生不治本）；誠實盲區（X2）——generate 在 manifest 寫入前更早期崩→無 pre-existing manifest→pre_heal_error 空（test 釘明）；**B-028 飛輪元教訓**（勿為 0 次失敗 speculative observability，改數據驅動 Phase 觸發）。
+
+**狀態**：S1-S4 收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問阿喜）。

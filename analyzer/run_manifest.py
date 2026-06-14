@@ -332,6 +332,7 @@ def build_manifest(
     is_backfill: bool = False,
     self_heal: bool = False,
     promoted: Optional[bool] = None,
+    pre_heal_error: str = "",
     gate_mode: str = "shadow",
     eligibility_reasons: Optional[List[str]] = None,
     source_hash: str = "unknown",
@@ -435,6 +436,7 @@ def build_manifest(
         "is_backfill": bool(is_backfill),
         "self_heal": bool(self_heal),
         "promoted": promoted,
+        "pre_heal_error": str(pre_heal_error or ""),
         "eligibility": {
             "gate_mode": gate_mode,
             "decision": "eligible" if (base_eligible and (len(eligibility_reasons) == 0)) else "ineligible",

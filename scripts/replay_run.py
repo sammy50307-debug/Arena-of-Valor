@@ -27,6 +27,7 @@ if str(SCRIPT_DIR) not in sys.path:
 from analyzer.run_manifest import (
     build_manifest,
     write_manifest,
+    manifest_path,
     is_publishable_quality_tier,
     should_promote,
 )
@@ -247,6 +248,20 @@ def main(argv: Optional[list[str]] = None) -> int:
         report_path = generator.generate(summary, analyzed_posts)
         print("OK: replay report generated: %s" % report_path)
 
+    # P112：self-heal 會覆蓋同路徑 manifest，先讀既有失敗 manifest 的 error 保留為 pre_heal_error
+    # （否則 generate 失敗原因隨覆蓋遺失，只剩 ~90 天 CI log）。讀檔以 try/except 全包覆——
+    # 讀失敗→空字串繼續 heal（恢復永遠優先於診斷記錄，不阻斷 self-heal）。
+    pre_heal_error = ""
+    if heal:
+        try:
+            _existing_mf = manifest_path(config.DATA_DIR, date_str)
+            if _existing_mf.exists():
+                _prev = json.loads(_existing_mf.read_text(encoding="utf-8"))
+                if _prev.get("status") == "failed":
+                    pre_heal_error = str(_prev.get("error", ""))[:500]
+        except Exception:
+            pre_heal_error = ""
+
     manifest = build_manifest(
         run_date=date_str,
         mode=summary.get("_meta", {}).get("mode", "unknown"),
@@ -263,6 +278,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         is_backfill=True,
         self_heal=heal,
         promoted=(promoted if heal else None),
+        pre_heal_error=pre_heal_error,
     )
     manifest_out = write_manifest(config.DATA_DIR, manifest)
     print("OK: run manifest written: %s" % manifest_out)
