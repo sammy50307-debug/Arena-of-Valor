@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T17:12:41.638687Z",
+  "generated_at": "2026-06-14T17:27:08.275826Z",
   "run_date": "2026-06-15",
   "run_date_taipei": "2026-06-15",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-06-14T17:09:47.274916Z",
-  "run_id": "2026-06-15-production-66a291e1da00",
-  "source_hash": "66a291e1da00b4b7a375c947a323b2b89a7ba8c154f39ba229b8e06acebbd0e2",
+  "scheduled_utc": "2026-06-14T17:27:01.052759Z",
+  "run_id": "2026-06-15-production-e0f3f063944f",
+  "source_hash": "e0f3f063944fdfbdb54660a6f797d4e03e9bfeddbad1814554414deaf3380833",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -15,30 +15,30 @@
   "dry_run": false,
   "showcase_flag": false,
   "paths": {
-    "raw": "D:\\Coding Project\\Arena of Valor\\data\\raw_20260615.json",
-    "analysis": "D:\\Coding Project\\Arena of Valor\\data\\analysis_20260615.json",
-    "report": "D:\\Coding Project\\Arena of Valor\\data\\reports\\aov_report_2026-06-15.html"
+    "raw": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/raw_20260615.json",
+    "analysis": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/analysis_20260615.json",
+    "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-06-15.html"
   },
   "metrics": {
-    "cache_hit": 0,
+    "cache_hit": 8,
     "l1_hits": 0,
-    "l2_hits": 0,
+    "l2_hits": 8,
     "apify_hits": 0,
-    "llm_calls": 14,
-    "total_calls": 14
+    "llm_calls": 4,
+    "total_calls": 12
   },
   "history": {
     "status": "ok",
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
-      "2026-06-14",
       "2026-06-13",
       "2026-06-12",
       "2026-06-11",
       "2026-06-10",
       "2026-06-09",
-      "2026-06-08"
+      "2026-06-08",
+      "2026-06-07"
     ]
   },
   "quality": {
@@ -176,7 +176,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-06-15/enrichment_queue.json",
-    "queue_digest": "477b62b7277e8731",
+    "queue_digest": "ac016a9f43a70290",
     "source_count": 37,
     "eligible_posts": 0,
     "skipped_posts": 37,
