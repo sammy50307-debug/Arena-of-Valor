@@ -14614,3 +14614,17 @@ py scripts\system_doctor.py --repo-root . --date 2026-05-16 --profile ci --requi
 **風險/盲點**：R-039（真即時 cron-miss——連 workflow 都沒跑——仍只能靠外部 dead-man-switch，對單人專案 ROI 低，數據驅動觸發：cron-miss recurring ≥2 次/30 天才評估外部 watchdog，否則維持回溯偵測，B-028 反膨脹）；scan_secrets 為 advisory 非硬閘（Fallback Push always() 擋不住，定位為 defense-in-depth）。
 
 **狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問，批次）。
+
+### P116 — 驗證盲區群升 PHASE_TEMPLATE preflight（META6，STR8 復盤建議落地）（2026-06-14 收官）
+
+**目標**：把近 7 Phase 最常復發的「綠燈假象/驗證盲區」（B-023/024/027）從 postmortem 登記升為 PHASE_TEMPLATE 開工必過 preflight，讓未來每個 Phase 動工前都機械化檢查。
+
+**觸發**：P113 STR8 復盤 Q4 建議 + 體檢收斂——「改動通過測試但 production 行為錯（測試沒走真實鏈/契約）」是最高復發失敗模式。阿喜 2026-06-14 核准 META6（凍結文件修訂）。
+
+**修法**：docs/PHASE_TEMPLATE.md §3 Entry Criteria 加一條 checkbox + callout（與 B-001/B-003 同模式）：B-023（改資料層欄位 grep 全鏈流向 + 直接屬性存取棄 getattr 靜默）/ B-024（改行為前查測試契約）/ B-027（凍結計畫字面修法親核真實呼叫鏈）+ 跨層改動需端到端契約測試。**刻意不加第 12 個 M1 視角**（lint 鎖 X4-A~K 11 視角，加會破 lint-phase-plan）。樣板 v1.2→v1.3。
+
+**物理真相**：改 docs/PHASE_TEMPLATE.md（§3 callout + 版本）、docs/STR8_REVIEW_2026-06-14.md（標記已核准）。零程式碼。
+
+**驗收**：PHASE_TEMPLATE 11 視角結構未動（lint-phase-plan preflight_anchors 不受影響）；callout 與既有 B-001/B-003/B-009/B-010 同模式。
+
+**狀態**：收官，Claude（Opus 4.8 1M）動工。commit 待建（push 必問，與 P113-P115 批次）。
