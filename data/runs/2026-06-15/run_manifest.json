@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T17:27:08.275826Z",
+  "generated_at": "2026-06-15T14:44:45.397196Z",
   "run_date": "2026-06-15",
   "run_date_taipei": "2026-06-15",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-06-14T17:27:01.052759Z",
-  "run_id": "2026-06-15-production-e0f3f063944f",
-  "source_hash": "e0f3f063944fdfbdb54660a6f797d4e03e9bfeddbad1814554414deaf3380833",
+  "scheduled_utc": "2026-06-15T14:44:29.759641Z",
+  "run_id": "2026-06-15-production-a0f387b81d03",
+  "source_hash": "a0f387b81d030d3d10252893217dadd59d1ec1630a0d948c99bb3762f02e83ad",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -20,11 +20,11 @@
     "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-06-15.html"
   },
   "metrics": {
-    "cache_hit": 8,
+    "cache_hit": 4,
     "l1_hits": 0,
-    "l2_hits": 8,
+    "l2_hits": 4,
     "apify_hits": 0,
-    "llm_calls": 4,
+    "llm_calls": 8,
     "total_calls": 12
   },
   "history": {
@@ -32,13 +32,13 @@
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-06-14",
       "2026-06-13",
       "2026-06-12",
       "2026-06-11",
       "2026-06-10",
       "2026-06-09",
-      "2026-06-08",
-      "2026-06-07"
+      "2026-06-08"
     ]
   },
   "quality": {
@@ -176,7 +176,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-06-15/enrichment_queue.json",
-    "queue_digest": "ac016a9f43a70290",
+    "queue_digest": "6d0595a0012a9087",
     "source_count": 37,
     "eligible_posts": 0,
     "skipped_posts": 37,
