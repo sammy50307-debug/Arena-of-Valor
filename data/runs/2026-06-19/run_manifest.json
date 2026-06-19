@@ -1,0 +1,207 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-06-19T12:33:15.697135Z",
+  "run_date": "2026-06-19",
+  "run_date_taipei": "2026-06-19",
+  "timezone": "Asia/Taipei",
+  "scheduled_utc": "2026-06-19T12:32:59.307950Z",
+  "run_id": "2026-06-19-production-3b537dccc5eb",
+  "source_hash": "3b537dccc5eb19b6d26eb270b4765d6b9a6b56f3eb898b92ec0c4a8ae33fd271",
+  "source_hash_version": 1,
+  "status": "ok",
+  "error": "",
+  "mode": "production",
+  "publish_eligible": true,
+  "dry_run": false,
+  "showcase_flag": false,
+  "paths": {
+    "raw": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/raw_20260619.json",
+    "analysis": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/analysis_20260619.json",
+    "report": "/home/runner/work/Arena-of-Valor/Arena-of-Valor/data/reports/aov_report_2026-06-19.html"
+  },
+  "metrics": {
+    "cache_hit": 4,
+    "l1_hits": 0,
+    "l2_hits": 4,
+    "apify_hits": 0,
+    "llm_calls": 9,
+    "total_calls": 13
+  },
+  "history": {
+    "status": "ok",
+    "weekly_points": 1,
+    "source_dates": [],
+    "missing_dates": [
+      "2026-06-18",
+      "2026-06-17",
+      "2026-06-16",
+      "2026-06-15",
+      "2026-06-14",
+      "2026-06-13",
+      "2026-06-12"
+    ]
+  },
+  "quality": {
+    "source_health": {
+      "status": "ok",
+      "total_posts": 48,
+      "platform_count": 5,
+      "platform_counts": {
+        "youtube": 1,
+        "facebook": 1,
+        "instagram": 1,
+        "dcard": 8,
+        "bahamut": 37
+      },
+      "source_count": 3,
+      "reasons": []
+    },
+    "core_contract": {
+      "version": 1,
+      "status": "pass",
+      "total_posts": 48,
+      "platform_count": 5,
+      "source_count": 3,
+      "has_report": true,
+      "has_analysis": true,
+      "min_posts": 1,
+      "min_platforms": 2,
+      "min_sources": 2,
+      "reasons": []
+    },
+    "tier": "production_local_only",
+    "analysis_source": "mixed",
+    "llm_coverage": "partial",
+    "tier_publishable": true,
+    "tier_reasons": [
+      "local_deterministic_baseline"
+    ]
+  },
+  "provider": {
+    "quota_error": false,
+    "openai_fallback_configured": true,
+    "openai_fallback_used": false,
+    "active_provider": "openrouter",
+    "active_model": "deepseek/deepseek-chat",
+    "routing": {
+      "schema_version": 1,
+      "provider_truth": "raw-free provider routing snapshot only",
+      "router_enabled": false,
+      "experimental_free_providers_enabled": false,
+      "active_provider": "openrouter_primary",
+      "route_status": "router_disabled_legacy_default",
+      "budget_guard": "required_before_provider_call",
+      "raw_payload_logging": false,
+      "secrets_logged": false,
+      "max_attempts": 1,
+      "slots": [
+        {
+          "name": "groq",
+          "provider_type": "openai_compatible",
+          "enabled": false,
+          "secret_configured": false,
+          "manual_only": true,
+          "status": "disabled_by_default"
+        },
+        {
+          "name": "cloudflare_ai",
+          "provider_type": "openai_compatible",
+          "enabled": false,
+          "secret_configured": false,
+          "manual_only": true,
+          "status": "disabled_by_default"
+        },
+        {
+          "name": "github_models",
+          "provider_type": "openai_compatible",
+          "enabled": false,
+          "secret_configured": false,
+          "manual_only": true,
+          "status": "disabled_by_default"
+        }
+      ],
+      "attempts": []
+    }
+  },
+  "budget": {
+    "schema_version": 1,
+    "billing_truth": "pipeline proxy only; not provider billing truth",
+    "date": "2026-06-19",
+    "max_daily_llm_calls": 20,
+    "llm_calls_used": 0,
+    "remaining_llm_calls": 20,
+    "cooldown_active": false,
+    "cooldown_reason": "",
+    "cooldown_until_utc": "",
+    "quota_error_count": 0,
+    "last_quota_error_at_utc": "",
+    "budget_exhausted": false,
+    "decision": "call_llm",
+    "decision_reason": "budget_available"
+  },
+  "selection": {
+    "schema_version": 1,
+    "selection_truth": "source selection only; raw sources retained",
+    "total_input_posts": 48,
+    "unique_posts": 12,
+    "duplicate_posts": 36,
+    "llm_selected_posts": 12,
+    "local_only_posts": 36,
+    "max_llm_items": 18,
+    "budget_remaining": 20,
+    "selection_reasons": [
+      "duplicate_url",
+      "llm_selected"
+    ],
+    "reason_counts": {
+      "duplicate_signature": 0,
+      "duplicate_url": 36,
+      "llm_selected": 12,
+      "low_signal_local_only": 0,
+      "topn_overflow": 0
+    },
+    "selected_platform_counts": {
+      "youtube": 1,
+      "facebook": 1,
+      "instagram": 1,
+      "dcard": 8,
+      "bahamut": 1
+    },
+    "local_only_platform_counts": {
+      "bahamut": 36
+    }
+  },
+  "enrichment": {
+    "schema_version": 1,
+    "enrichment_truth": "raw-free enrichment snapshot only",
+    "queue_available": true,
+    "queue_ref": "data/enrichment_queue/2026-06-19/enrichment_queue.json",
+    "queue_digest": "339bba48f1d5c66e",
+    "source_count": 36,
+    "eligible_posts": 0,
+    "skipped_posts": 36,
+    "enriched_posts": 0,
+    "artifact_retention_days": 3,
+    "replay_status": "no_eligible",
+    "eligible_reason_counts": {},
+    "skipped_reason_counts": {
+      "duplicate_url": 36
+    },
+    "budget_decision": "call_llm",
+    "budget_reason": "budget_available",
+    "budget_remaining": 20,
+    "cooldown_active": false
+  },
+  "replay_source": "",
+  "is_backfill": false,
+  "self_heal": false,
+  "promoted": null,
+  "pre_heal_error": "",
+  "eligibility": {
+    "gate_mode": "shadow",
+    "decision": "eligible",
+    "reasons": [],
+    "blocking_enforced": false,
+    "shadow_blocked": false
+  }
+}
