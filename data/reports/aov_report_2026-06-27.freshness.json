@@ -1,0 +1,19 @@
+{
+  "report_date": "2026-06-27",
+  "top5_hash": "a78e69dbf5ebd9c1",
+  "news_count": 5,
+  "yaya_count": 3,
+  "news_urls": [
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=58261&tnum=2843",
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62994&tnum=2",
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62999&tnum=1",
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=63001&tnum=1",
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=63002&tnum=2"
+  ],
+  "yaya_urls": [
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=60722&tnum=16",
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62239&tnum=2",
+    "https://forum.gamer.com.tw/C.php?bsn=30518&snA=62828&tnum=3"
+  ],
+  "oldest_age_days": null
+}
