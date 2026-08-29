@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-28T20:20:29.947674Z",
+  "generated_at": "2026-08-29T13:58:47.102237Z",
   "run_date": "2026-08-29",
   "run_date_taipei": "2026-08-29",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-08-28T20:20:09.256288Z",
-  "run_id": "2026-08-29-production-32ca2aec6f92",
-  "source_hash": "32ca2aec6f9242e38292de0b66458c6124282f7d8f0704216bd5a3fb7a428fd9",
+  "scheduled_utc": "2026-08-29T13:58:30.218477Z",
+  "run_id": "2026-08-29-production-67225a3abdd1",
+  "source_hash": "67225a3abdd1437c7f56a264136370a292de1a3840a6a88c114d07c183b2d78a",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -32,24 +32,24 @@
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-08-28",
       "2026-08-27",
       "2026-08-26",
       "2026-08-25",
       "2026-08-24",
       "2026-08-23",
-      "2026-08-22",
-      "2026-08-21"
+      "2026-08-22"
     ]
   },
   "quality": {
     "source_health": {
       "status": "ok",
-      "total_posts": 47,
+      "total_posts": 48,
       "platform_count": 3,
       "platform_counts": {
         "facebook": 3,
         "dcard": 8,
-        "bahamut": 36
+        "bahamut": 37
       },
       "source_count": 3,
       "reasons": []
@@ -57,7 +57,7 @@
     "core_contract": {
       "version": 1,
       "status": "pass",
-      "total_posts": 47,
+      "total_posts": 48,
       "platform_count": 3,
       "source_count": 3,
       "has_report": true,
@@ -140,11 +140,11 @@
   "selection": {
     "schema_version": 1,
     "selection_truth": "source selection only; raw sources retained",
-    "total_input_posts": 47,
+    "total_input_posts": 48,
     "unique_posts": 12,
-    "duplicate_posts": 35,
+    "duplicate_posts": 36,
     "llm_selected_posts": 12,
-    "local_only_posts": 35,
+    "local_only_posts": 36,
     "max_llm_items": 18,
     "budget_remaining": 20,
     "selection_reasons": [
@@ -153,7 +153,7 @@
     ],
     "reason_counts": {
       "duplicate_signature": 0,
-      "duplicate_url": 35,
+      "duplicate_url": 36,
       "llm_selected": 12,
       "low_signal_local_only": 0,
       "topn_overflow": 0
@@ -164,7 +164,7 @@
       "bahamut": 1
     },
     "local_only_platform_counts": {
-      "bahamut": 35
+      "bahamut": 36
     }
   },
   "enrichment": {
@@ -172,16 +172,16 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-08-29/enrichment_queue.json",
-    "queue_digest": "b0121e22fe184083",
-    "source_count": 35,
+    "queue_digest": "f5040d65ee94dfcf",
+    "source_count": 36,
     "eligible_posts": 0,
-    "skipped_posts": 35,
+    "skipped_posts": 36,
     "enriched_posts": 0,
     "artifact_retention_days": 3,
     "replay_status": "no_eligible",
     "eligible_reason_counts": {},
     "skipped_reason_counts": {
-      "duplicate_url": 35
+      "duplicate_url": 36
     },
     "budget_decision": "call_llm",
     "budget_reason": "budget_available",
