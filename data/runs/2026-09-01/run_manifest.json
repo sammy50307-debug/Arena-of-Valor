@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-31T16:20:11.821575Z",
+  "generated_at": "2026-09-01T13:39:11.905474Z",
   "run_date": "2026-09-01",
   "run_date_taipei": "2026-09-01",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-08-31T16:19:52.791950Z",
-  "run_id": "2026-09-01-production-6949aa534fd2",
-  "source_hash": "6949aa534fd275704843333967dc68487342e93a3a753b454d767ad6604862b4",
+  "scheduled_utc": "2026-09-01T13:38:54.085880Z",
+  "run_id": "2026-09-01-production-727031261ad9",
+  "source_hash": "727031261ad91a61120fdd84180c5f0d48a3e4aa1480208c3fe52ceadef0e44a",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -32,13 +32,13 @@
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-08-31",
       "2026-08-30",
       "2026-08-29",
       "2026-08-28",
       "2026-08-27",
       "2026-08-26",
-      "2026-08-25",
-      "2026-08-24"
+      "2026-08-25"
     ]
   },
   "quality": {
@@ -172,7 +172,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-09-01/enrichment_queue.json",
-    "queue_digest": "0ee5ea3cb25f7364",
+    "queue_digest": "41b3a21c7fd118dd",
     "source_count": 38,
     "eligible_posts": 0,
     "skipped_posts": 38,
