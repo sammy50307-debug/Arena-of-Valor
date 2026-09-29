@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-28T16:58:07.824198Z",
+  "generated_at": "2026-09-29T15:02:11.044524Z",
   "run_date": "2026-09-29",
   "run_date_taipei": "2026-09-29",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-09-28T16:57:48.094939Z",
-  "run_id": "2026-09-29-production-c7361b6f6349",
-  "source_hash": "c7361b6f63498e56378582283bceea29a5cd65d7824c2537344da8bccaccf51d",
+  "scheduled_utc": "2026-09-29T15:01:53.786066Z",
+  "run_id": "2026-09-29-production-b7c81638354e",
+  "source_hash": "b7c81638354eef609f90c4b2a0efd335563ec76815a18fe3f4b9839b395a655c",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -24,42 +24,43 @@
     "l1_hits": 0,
     "l2_hits": 0,
     "apify_hits": 0,
-    "llm_calls": 11,
-    "total_calls": 11
+    "llm_calls": 5,
+    "total_calls": 5
   },
   "history": {
     "status": "ok",
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-09-28",
       "2026-09-27",
       "2026-09-26",
       "2026-09-25",
       "2026-09-24",
       "2026-09-23",
-      "2026-09-22",
-      "2026-09-21"
+      "2026-09-22"
     ]
   },
   "quality": {
     "source_health": {
       "status": "ok",
-      "total_posts": 50,
-      "platform_count": 3,
+      "total_posts": 42,
+      "platform_count": 4,
       "platform_counts": {
-        "youtube": 3,
-        "dcard": 8,
+        "youtube": 1,
+        "instagram": 1,
+        "facebook": 1,
         "bahamut": 39
       },
-      "source_count": 3,
+      "source_count": 2,
       "reasons": []
     },
     "core_contract": {
       "version": 1,
       "status": "pass",
-      "total_posts": 50,
-      "platform_count": 3,
-      "source_count": 3,
+      "total_posts": 42,
+      "platform_count": 4,
+      "source_count": 2,
       "has_report": true,
       "has_analysis": true,
       "min_posts": 1,
@@ -140,11 +141,11 @@
   "selection": {
     "schema_version": 1,
     "selection_truth": "source selection only; raw sources retained",
-    "total_input_posts": 50,
-    "unique_posts": 10,
-    "duplicate_posts": 40,
-    "llm_selected_posts": 10,
-    "local_only_posts": 40,
+    "total_input_posts": 42,
+    "unique_posts": 4,
+    "duplicate_posts": 38,
+    "llm_selected_posts": 4,
+    "local_only_posts": 38,
     "max_llm_items": 18,
     "budget_remaining": 20,
     "selection_reasons": [
@@ -153,18 +154,18 @@
     ],
     "reason_counts": {
       "duplicate_signature": 0,
-      "duplicate_url": 40,
-      "llm_selected": 10,
+      "duplicate_url": 38,
+      "llm_selected": 4,
       "low_signal_local_only": 0,
       "topn_overflow": 0
     },
     "selected_platform_counts": {
       "youtube": 1,
-      "dcard": 8,
+      "instagram": 1,
+      "facebook": 1,
       "bahamut": 1
     },
     "local_only_platform_counts": {
-      "youtube": 2,
       "bahamut": 38
     }
   },
@@ -173,16 +174,16 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-09-29/enrichment_queue.json",
-    "queue_digest": "0de45b57241297b3",
-    "source_count": 40,
+    "queue_digest": "8341e1a96a88e258",
+    "source_count": 38,
     "eligible_posts": 0,
-    "skipped_posts": 40,
+    "skipped_posts": 38,
     "enriched_posts": 0,
     "artifact_retention_days": 3,
     "replay_status": "no_eligible",
     "eligible_reason_counts": {},
     "skipped_reason_counts": {
-      "duplicate_url": 40
+      "duplicate_url": 38
     },
     "budget_decision": "call_llm",
     "budget_reason": "budget_available",
