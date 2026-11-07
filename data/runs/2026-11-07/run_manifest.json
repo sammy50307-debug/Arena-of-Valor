@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-11-06T16:10:22.824589Z",
+  "generated_at": "2026-11-07T15:02:21.118567Z",
   "run_date": "2026-11-07",
   "run_date_taipei": "2026-11-07",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-11-06T16:10:06.548434Z",
-  "run_id": "2026-11-07-production-3654bc263ae7",
-  "source_hash": "3654bc263ae73317c72565bad02877d40515b5fa9d7c13d53c5025a72eea3379",
+  "scheduled_utc": "2026-11-07T15:02:08.061203Z",
+  "run_id": "2026-11-07-production-0c48804e644e",
+  "source_hash": "0c48804e644edad734df46d19b173a7d0d7f5e2a57d71a0ca3cf2e2461a6387f",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -24,42 +24,42 @@
     "l1_hits": 0,
     "l2_hits": 0,
     "apify_hits": 0,
-    "llm_calls": 12,
-    "total_calls": 12
+    "llm_calls": 5,
+    "total_calls": 5
   },
   "history": {
     "status": "ok",
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-11-06",
       "2026-11-05",
       "2026-11-04",
       "2026-11-03",
       "2026-11-02",
       "2026-11-01",
-      "2026-10-31",
-      "2026-10-30"
+      "2026-10-31"
     ]
   },
   "quality": {
     "source_health": {
       "status": "ok",
-      "total_posts": 49,
+      "total_posts": 42,
       "platform_count": 3,
       "platform_counts": {
-        "youtube": 3,
-        "dcard": 8,
-        "bahamut": 38
+        "youtube": 1,
+        "facebook": 2,
+        "bahamut": 39
       },
-      "source_count": 3,
+      "source_count": 2,
       "reasons": []
     },
     "core_contract": {
       "version": 1,
       "status": "pass",
-      "total_posts": 49,
+      "total_posts": 42,
       "platform_count": 3,
-      "source_count": 3,
+      "source_count": 2,
       "has_report": true,
       "has_analysis": true,
       "min_posts": 1,
@@ -140,10 +140,10 @@
   "selection": {
     "schema_version": 1,
     "selection_truth": "source selection only; raw sources retained",
-    "total_input_posts": 49,
-    "unique_posts": 11,
+    "total_input_posts": 42,
+    "unique_posts": 4,
     "duplicate_posts": 38,
-    "llm_selected_posts": 11,
+    "llm_selected_posts": 4,
     "local_only_posts": 38,
     "max_llm_items": 18,
     "budget_remaining": 20,
@@ -154,18 +154,17 @@
     "reason_counts": {
       "duplicate_signature": 0,
       "duplicate_url": 38,
-      "llm_selected": 11,
+      "llm_selected": 4,
       "low_signal_local_only": 0,
       "topn_overflow": 0
     },
     "selected_platform_counts": {
-      "youtube": 2,
-      "dcard": 8,
+      "youtube": 1,
+      "facebook": 2,
       "bahamut": 1
     },
     "local_only_platform_counts": {
-      "youtube": 1,
-      "bahamut": 37
+      "bahamut": 38
     }
   },
   "enrichment": {
@@ -173,7 +172,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-11-07/enrichment_queue.json",
-    "queue_digest": "aac54df1a68b1204",
+    "queue_digest": "af38adb8bc8dfde5",
     "source_count": 38,
     "eligible_posts": 0,
     "skipped_posts": 38,
