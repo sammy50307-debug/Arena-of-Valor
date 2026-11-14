@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-11-13T16:41:40.696379Z",
+  "generated_at": "2026-11-14T15:17:36.319222Z",
   "run_date": "2026-11-14",
   "run_date_taipei": "2026-11-14",
   "timezone": "Asia/Taipei",
-  "scheduled_utc": "2026-11-13T16:41:23.738772Z",
-  "run_id": "2026-11-14-production-d99d1a6828cb",
-  "source_hash": "d99d1a6828cb03399e844ef49ea68c9dd8988fc6c817f501bb658026de41edba",
+  "scheduled_utc": "2026-11-14T15:17:23.095262Z",
+  "run_id": "2026-11-14-production-3c7fac6cf6e7",
+  "source_hash": "3c7fac6cf6e781cd092dacc82448c93963de3dcb233b0bc7a3389b1d3465fbd2",
   "source_hash_version": 1,
   "status": "ok",
   "error": "",
@@ -32,22 +32,23 @@
     "weekly_points": 1,
     "source_dates": [],
     "missing_dates": [
+      "2026-11-13",
       "2026-11-12",
       "2026-11-11",
       "2026-11-10",
       "2026-11-09",
       "2026-11-08",
-      "2026-11-07",
-      "2026-11-06"
+      "2026-11-07"
     ]
   },
   "quality": {
     "source_health": {
       "status": "ok",
       "total_posts": 41,
-      "platform_count": 2,
+      "platform_count": 3,
       "platform_counts": {
-        "facebook": 3,
+        "youtube": 1,
+        "facebook": 2,
         "bahamut": 38
       },
       "source_count": 2,
@@ -57,7 +58,7 @@
       "version": 1,
       "status": "pass",
       "total_posts": 41,
-      "platform_count": 2,
+      "platform_count": 3,
       "source_count": 2,
       "has_report": true,
       "has_analysis": true,
@@ -158,7 +159,8 @@
       "topn_overflow": 0
     },
     "selected_platform_counts": {
-      "facebook": 3,
+      "youtube": 1,
+      "facebook": 2,
       "bahamut": 1
     },
     "local_only_platform_counts": {
@@ -170,7 +172,7 @@
     "enrichment_truth": "raw-free enrichment snapshot only",
     "queue_available": true,
     "queue_ref": "data/enrichment_queue/2026-11-14/enrichment_queue.json",
-    "queue_digest": "4bc8ef07154f5cb3",
+    "queue_digest": "b859201f7a42159b",
     "source_count": 37,
     "eligible_posts": 0,
     "skipped_posts": 37,
